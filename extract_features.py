@@ -5,14 +5,14 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import csv
+
 try:
     import gpu_env
 except:
     print('no GPUutils!')
 
 import codecs
-import collections
-import json
 import re
 
 import tensorflow as tf
@@ -321,12 +321,9 @@ def main(_):
 
     with codecs.getwriter("utf-8")(tf.gfile.Open(FLAGS.output_file,
                                                  "w")) as writer:
+        writer = csv.writer(writer)
         for result in estimator.predict(input_fn):
-            output_json = collections.OrderedDict({
-                'linex_index': int(result["unique_id"]),
-                'vector': [round(float(x), 6) for x in result['pooled'].flat]
-            })
-            writer.write(json.dumps(output_json) + "\n")
+            writer.writerow(result['pooled'].flat)
 
 
 if __name__ == "__main__":
