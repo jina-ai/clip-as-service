@@ -109,7 +109,7 @@ def input_fn_builder(features, seq_length):
                     dtype=tf.int32),
         })
 
-        d = d.batch(batch_size=batch_size, drop_remainder=False)
+        d = d.batch(batch_size=batch_size)
         return d
 
     return input_fn
