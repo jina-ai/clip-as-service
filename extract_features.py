@@ -298,8 +298,6 @@ def read_examples(input_file):
 def main(_):
     tf.logging.set_verbosity(tf.logging.INFO)
 
-    bert_config = modeling.BertConfig.from_json_file(FLAGS.bert_config_file)
-
     features = convert_examples_to_features(
         examples=read_examples(FLAGS.input_file),
         seq_length=FLAGS.max_seq_length,
@@ -307,16 +305,14 @@ def main(_):
             vocab_file=FLAGS.vocab_file, do_lower_case=FLAGS.do_lower_case))
 
     model_fn = model_fn_builder(
-        bert_config=bert_config,
+        bert_config=modeling.BertConfig.from_json_file(FLAGS.bert_config_file),
         init_checkpoint=FLAGS.init_checkpoint,
         use_one_hot_embeddings=FLAGS.use_one_hot_embeddings)
-
-    estimator = Estimator(model_fn=model_fn)
 
     input_fn = input_fn_builder(
         features=features, seq_length=FLAGS.max_seq_length)
 
-    for result in estimator.predict(input_fn):
+    for result in Estimator(model_fn).predict(input_fn):
         print([round(float(x), 8) for x in result['pooled'].flat])
 
 
