@@ -12,7 +12,6 @@ try:
 except:
     print('no GPUutils!')
 
-import codecs
 import re
 
 import tensorflow as tf
@@ -319,9 +318,10 @@ def main(_):
     input_fn = input_fn_builder(
         features=features, seq_length=FLAGS.max_seq_length)
 
-    with codecs.getwriter("utf-8")(tf.gfile.Open(FLAGS.output_file,
-                                                 "w")) as writer:
-        writer = csv.writer(writer)
+    # with codecs.getwriter("utf-8")(tf.gfile.Open(FLAGS.output_file,
+    #                                              "w")) as writer:
+    with open(FLAGS.output_file, "wb") as file:
+        writer = csv.writer(file)
         for result in estimator.predict(input_fn):
             writer.writerow(result['pooled'].flat)
 
