@@ -88,8 +88,6 @@ def input_fn_builder(features, seq_length):
 
     def input_fn(params):
         """The actual input function."""
-        batch_size = params["batch_size"]
-
         num_examples = len(features)
 
         # This is for demo purposes and does NOT scale to large data sets. We do
@@ -114,7 +112,7 @@ def input_fn_builder(features, seq_length):
                     dtype=tf.int32),
         })
 
-        d = d.batch(batch_size=batch_size)
+        d = d.batch(batch_size=FLAGS.batch_size)
         return d
 
     return input_fn
