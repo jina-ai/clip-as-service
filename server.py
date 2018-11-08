@@ -1,6 +1,7 @@
 import logging
 import os
 import pickle
+import sys
 import threading
 import time
 
@@ -91,3 +92,9 @@ class ServerWorker(threading.Thread):
                 logger.warning('worker %d: received unsupported type! sending back None' % self.id)
                 worker.send_multipart([ident, pickle.dumps(None)])
         worker.close()
+
+
+if __name__ == '__main__':
+    server = ServerTask(sys.argv[1])
+    server.start()
+    server.join()
