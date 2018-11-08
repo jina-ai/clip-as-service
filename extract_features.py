@@ -11,6 +11,7 @@ import json
 import re
 
 import tensorflow as tf
+from tensorflow.python.estimator.run_config import RunConfig
 
 import modeling
 import tokenization
@@ -337,12 +338,7 @@ def main(_):
     tokenizer = tokenization.FullTokenizer(
         vocab_file=FLAGS.vocab_file, do_lower_case=FLAGS.do_lower_case)
 
-    is_per_host = tf.contrib.tpu.InputPipelineConfig.PER_HOST_V2
-    run_config = tf.contrib.tpu.RunConfig(
-        master=FLAGS.master,
-        tpu_config=tf.contrib.tpu.TPUConfig(
-            num_shards=FLAGS.num_tpu_cores,
-            per_host_input_for_training=is_per_host))
+    run_config = RunConfig()
 
     examples = read_examples(FLAGS.input_file)
 
