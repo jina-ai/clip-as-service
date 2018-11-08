@@ -28,7 +28,6 @@ FLAGS = flags.FLAGS
 
 flags.DEFINE_string("input_file", None, "")
 flags.DEFINE_string("output_file", None, "")
-flags.DEFINE_string("layers", "-1,-2,-3,-4", "")
 flags.DEFINE_string("bert_config_file", None,
                     "The config json file corresponding to the pre-trained BERT model. "
                     "This specifies the model architecture.")
