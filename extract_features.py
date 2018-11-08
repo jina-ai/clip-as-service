@@ -313,8 +313,6 @@ def main(_):
         tokenizer=tokenization.FullTokenizer(
             vocab_file=FLAGS.vocab_file, do_lower_case=FLAGS.do_lower_case))
 
-    unique_id_to_feature = {f.unique_id: f for f in features}
-
     model_fn = model_fn_builder(
         bert_config=bert_config,
         init_checkpoint=FLAGS.init_checkpoint,

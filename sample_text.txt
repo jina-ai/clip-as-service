@@ -1,33 +1,10 @@
-This text is included to make sure Unicode is handled properly: 力加勝北区ᴵᴺᵀᵃছজটডণত
-Text should be one-sentence-per-line, with empty lines between documents.
-This sample text is public domain and was randomly selected from Project Guttenberg.
-
-The rain had only ceased with the gray streaks of morning at Blazing Star, and the settlement awoke to a moral sense of cleanliness, and the finding of forgotten knives, tin cups, and smaller camp utensils, where the heavy showers had washed away the debris and dust heaps before the cabin doors.
-Indeed, it was recorded in Blazing Star that a fortunate early riser had once picked up on the highway a solid chunk of gold quartz which the rain had freed from its incumbering soil, and washed into immediate and glittering popularity.
-Possibly this may have been the reason why early risers in that locality, during the rainy season, adopted a thoughtful habit of body, and seldom lifted their eyes to the rifted or india-ink washed skies above them.
-"Cass" Beard had risen early that morning, but not with a view to discovery.
-A leak in his cabin roof,--quite consistent with his careless, improvident habits,--had roused him at 4 A. M., with a flooded "bunk" and wet blankets.
-The chips from his wood pile refused to kindle a fire to dry his bed-clothes, and he had recourse to a more provident neighbor's to supply the deficiency.
-This was nearly opposite.
-Mr. Cassius crossed the highway, and stopped suddenly.
-Something glittered in the nearest red pool before him.
-Gold, surely!
-But, wonderful to relate, not an irregular, shapeless fragment of crude ore, fresh from Nature's crucible, but a bit of jeweler's handicraft in the form of a plain gold ring.
-Looking at it more attentively, he saw that it bore the inscription, "May to Cass."
-Like most of his fellow gold-seekers, Cass was superstitious.
-
-The fountain of classic wisdom, Hypatia herself.
-As the ancient sage--the name is unimportant to a monk--pumped water nightly that he might study by day, so I, the guardian of cloaks and parasols, at the sacred doors of her lecture-room, imbibe celestial knowledge.
-From my youth I felt in me a soul above the matter-entangled herd.
-She revealed to me the glorious fact, that I am a spark of Divinity itself.
-A fallen star, I am, sir!' continued he, pensively, stroking his lean stomach--'a fallen star!--fallen, if the dignity of philosophy will allow of the simile, among the hogs of the lower world--indeed, even into the hog-bucket itself. Well, after all, I will show you the way to the Archbishop's.
-There is a philosophic pleasure in opening one's treasures to the modest young.
-Perhaps you will assist me by carrying this basket of fruit?' And the little man jumped up, put his basket on Philammon's head, and trotted off up a neighbouring street.
-Philammon followed, half contemptuous, half wondering at what this philosophy might be, which could feed the self-conceit of anything so abject as his ragged little apish guide;
-but the novel roar and whirl of the street, the perpetual stream of busy faces, the line of curricles, palanquins, laden asses, camels, elephants, which met and passed him, and squeezed him up steps and into doorways, as they threaded their way through the great Moon-gate into the ample street beyond, drove everything from his mind but wondering curiosity, and a vague, helpless dread of that great living wilderness, more terrible than any dead wilderness of sand which he had left behind.
-Already he longed for the repose, the silence of the Laura--for faces which knew him and smiled upon him; but it was too late to turn back now.
-His guide held on for more than a mile up the great main street, crossed in the centre of the city, at right angles, by one equally magnificent, at each end of which, miles away, appeared, dim and distant over the heads of the living stream of passengers, the yellow sand-hills of the desert;
-while at the end of the vista in front of them gleamed the blue harbour, through a network of countless masts.
-At last they reached the quay at the opposite end of the street;
-and there burst on Philammon's astonished eyes a vast semicircle of blue sea, ringed with palaces and towers.
-He stopped involuntarily; and his little guide stopped also, and looked askance at the young monk, to watch the effect which that grand panorama should produce on him.
+一般用自带浏览器可以调用起app没问题。	微信里面能调出app的,是和腾讯有合作的应用,其他会被过滤掉。
+分享出去的是一个网页,前端人员与app客户端人员约定好一个头部协议。	当用户在网页的点击某个按钮,调用注册的协议头,就可以呼起安装的app。
+你可以去看看openinstall,它可以实现让用户分享链接让别的用户可以打开下载或者跳转APP。	而且打开或者下载后还能获取到自己想传过去的参数。
+我们都知道手游、APP想在微信分享时,下载的链接会被微信屏蔽,不能直接点击,那怎样才能得到微信认可的下载页面呢,这里就需要用到腾讯的开放平台,而你的应用也需要提交到这个平台。	在这里可以得到微信认可的链接地址。
+项目中有个需求,让用户可以从分享到微信的网页中启动自己的APP,如果本机没有安装该应用程序则打开应用商店并打开该程序在商店中的搜索结果页面。	在这里跟大家分享一下:
+有什么方法可以在睡眠中死亡?	比如在睡觉前吃了或喝了什么东西,然后睡着后慢慢的死去,没有痛苦。
+人的一生之中有三分之一还多的时间实在床上度过的,换言之就是我们的一生有三分之一还多的寿命是在睡眠之中度过的,而最近却频频出现了有人在睡眠之中突然死亡的消息,那么我们在睡眠之中真的会突然死亡吗?	还是有什么原因导致我们会在睡眠之中突然死亡呢?
+还是有什么原因导致我们会在睡眠之中突然死亡呢?	下面就来为大家解答这个问题吧。
+睡眠是我们一生之中最寻常也是最重要的事情之一,他对我们来说是无法替换的生命本能,那么何时“睡眠”竟然也会成为生命的杀手呢?	我们又为什么会在睡眠之中死亡呢?
+我们又为什么会在睡眠之中死亡呢?	其实睡眠的时候我们的人体是处于休眠状态的,而有时被一些外在的事物所干扰到,潜意识之中就会受到影响,严重的就会导致死亡,就如一个人做梦梦到自己被人给勒死了,而此时如果他的脖子上搭着一条丝巾或者被枕边人的手臂搭在靠近脖子的地方很容易就会突然猝死,这时因为潜意识里你觉得自己死了要是没有其他的东西影响到身体的感觉我们的大脑就会觉得这是做梦,而要是有东西影响到我们的身体感觉大脑就会将梦中的情景和现实的感觉结合起来,大脑就会被这样的感觉所欺骗导致猝死或者说是“脑死亡”那么问题来了什么样的情况下会出现上述的状况,而我们要怎么样避免这样的情况发生呢?
