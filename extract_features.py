@@ -324,7 +324,7 @@ def main(_):
         layer_indexes=layer_indexes,
         use_one_hot_embeddings=FLAGS.use_one_hot_embeddings)
 
-    estimator = Estimator(model_fn=model_fn)
+    estimator = Estimator(model_fn=model_fn, model_dir='/data/cips/save/chinese-bert/chinese_L-12_H-768_A-12')
 
     input_fn = input_fn_builder(
         features=features, seq_length=FLAGS.max_seq_length)
