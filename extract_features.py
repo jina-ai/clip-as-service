@@ -41,7 +41,7 @@ class InputFeatures(object):
         self.input_type_ids = input_type_ids
 
 
-def input_fn_builder(features, seq_length):
+def input_fn_builder(features, seq_length, batch_size):
     """Creates an `input_fn` closure to be passed to TPUEstimator."""
 
     all_unique_ids = []
@@ -81,8 +81,7 @@ def input_fn_builder(features, seq_length):
                     dtype=tf.int32),
         })
 
-        d = d.batch(batch_size=FLAGS.batch_size)
-        return d
+        return d.batch(batch_size=batch_size)
 
     return input_fn
 
@@ -135,10 +134,11 @@ def model_fn_builder(bert_config, init_checkpoint, use_one_hot_embeddings=False)
     return model_fn
 
 
-def convert_examples_to_features(examples, seq_length, tokenizer):
+def convert_lst_to_features(lst_str, seq_length, tokenizer):
     """Loads a data file into a list of `InputBatch`s."""
 
     features = []
+    examples = read_examples(lst_str)
     for (ex_index, example) in enumerate(examples):
         tokens_a = tokenizer.tokenize(example.text_a)
 
@@ -269,12 +269,6 @@ def read_examples(lst_strs):
 
 def build_model(model_dir):
     tf.logging.set_verbosity(tf.logging.INFO)
-
-    features = convert_examples_to_features(
-        examples=read_examples(FLAGS.input_file),
-        seq_length=max_seq_length,
-        tokenizer=tokenization.FullTokenizer(
-            vocab_file=os.path.join(model_dir, 'vocab.txt')))
 
     model_fn = model_fn_builder(
         bert_config=modeling.BertConfig.from_json_file(os.path.join(model_dir, 'bert_config.json')),

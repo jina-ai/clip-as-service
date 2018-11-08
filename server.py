@@ -1,19 +1,26 @@
 import logging
+import os
 import pickle
 import threading
 import time
 
 import zmq
+from tensorflow.python.estimator.estimator import Estimator
 
+import modeling
+import tokenization
+from extract_features import model_fn_builder, convert_lst_to_features, input_fn_builder
 from gpu_env import APP_NAME
 
 
 class ServerTask(threading.Thread):
     """ServerTask"""
 
-    def __init__(self, args, port=5555):
+    def __init__(self, model_dir, max_seq_len=200, batch_size=32, port=5555):
         threading.Thread.__init__(self)
-        self.args = args
+        self.model_dir = model_dir
+        self.max_seq_len = max_seq_len
+        self.batch_size = batch_size
         self.port = port
 
     def run(self):
@@ -26,7 +33,7 @@ class ServerTask(threading.Thread):
 
         workers = []
         for id in range(self.args.num_server):
-            worker = ServerWorker(context, self.args, id)
+            worker = ServerWorker(context, id, self.model_dir, self.max_seq_len, self.batch_size)
             worker.start()
             workers.append(worker)
 
@@ -40,11 +47,20 @@ class ServerTask(threading.Thread):
 class ServerWorker(threading.Thread):
     """ServerWorker"""
 
-    def __init__(self, context, args, id):
+    def __init__(self, context, id, model_dir, max_seq_len, batch_size):
         threading.Thread.__init__(self)
         self.context = context
-        self.args = args
+        self.model_dir = model_dir
+        self.config_fp = os.path.join(self.model_dir, 'bert_config.json')
+        self.checkpoint_fp = os.path.join(self.model_dir, 'bert_model.ckpt')
+        self.vocab_fp = os.path.join(model_dir, 'vocab.txt')
+        self.tokenizer = tokenization.FullTokenizer(vocab_file=self.vocab_fp)
+        self.max_seq_len = max_seq_len
         self.id = id
+        self.batch_size = batch_size
+        self.model_fn = model_fn_builder(
+            bert_config=modeling.BertConfig.from_json_file(self.config_fp),
+            init_checkpoint=self.checkpoint_fp)
 
     def is_valid_input(self, texts):
         return isinstance(texts, list) and all(isinstance(s, str) for s in texts)
@@ -53,14 +69,20 @@ class ServerWorker(threading.Thread):
         logger = logging.getLogger(APP_NAME)
         worker = self.context.socket(zmq.DEALER)
         worker.connect('inproc://backend')
-        model = build_model(self.args)
-        model.restore()
+
         while True:
             ident, msg = worker.recv_multipart()
             start_t = time.time()
             msg = pickle.loads(msg)
             if self.is_valid_input(msg):
-                worker.send_multipart([ident, pickle.dumps(model.predict(msg))])
+                features = convert_lst_to_features(msg, self.max_seq_len, self.tokenizer)
+                input_fn = input_fn_builder(features, self.max_seq_len, self.batch_size)
+
+                result = []
+                for r in Estimator(self.model_fn).predict(input_fn):
+                    result.append([round(float(x), 8) for x in r['pooled'].flat])
+
+                worker.send_multipart([ident, pickle.dumps(result)])
                 logger.info('worker %d: encoding %d strings in %.4fs speed: %d/s' % (self.id,
                                                                                      len(msg), time.time() - start_t,
                                                                                      int(len(msg) / (
