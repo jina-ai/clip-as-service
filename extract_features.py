@@ -11,7 +11,7 @@ except:
     print('no GPUutils!')
 
 import re
-
+import os
 import tensorflow as tf
 from tensorflow.python.estimator.estimator import Estimator
 from tensorflow.python.estimator.model_fn import EstimatorSpec
@@ -19,34 +19,7 @@ from tensorflow.python.estimator.model_fn import EstimatorSpec
 import modeling
 import tokenization
 
-flags = tf.flags
-
-FLAGS = flags.FLAGS
-
-flags.DEFINE_string("input_file", None, "")
-flags.DEFINE_string("output_file", None, "")
-flags.DEFINE_string("bert_config_file", None,
-                    "The config json file corresponding to the pre-trained BERT model. "
-                    "This specifies the model architecture.")
-flags.DEFINE_integer("max_seq_length", 128,
-                     "The maximum total input sequence length after WordPiece tokenization. "
-                     "Sequences longer than this will be truncated, and sequences shorter "
-                     "than this will be padded.")
-flags.DEFINE_string("init_checkpoint", None,
-                    "Initial checkpoint (usually from a pre-trained BERT model).")
-flags.DEFINE_string("vocab_file", None,
-                    "The vocabulary file that the BERT model was trained on.")
-flags.DEFINE_bool("do_lower_case", True,
-                  "Whether to lower case the input text. Should be True for uncased "
-                  "models and False for cased models.")
-flags.DEFINE_integer("batch_size", 32, "Batch size for predictions.")
-flags.DEFINE_bool("use_tpu", False, "Whether to use TPU or GPU/CPU.")
-flags.DEFINE_string("master", None,
-                    "If using a TPU, the address of the master.")
-flags.DEFINE_bool("use_one_hot_embeddings", False,
-                  "If True, tf.one_hot will be used for embedding lookups, otherwise "
-                  "tf.nn.embedding_lookup will be used. On TPUs, this should be True "
-                  "since it is much faster.")
+max_seq_length = 200
 
 
 class InputExample(object):
@@ -114,7 +87,7 @@ def input_fn_builder(features, seq_length):
     return input_fn
 
 
-def model_fn_builder(bert_config, init_checkpoint, use_one_hot_embeddings):
+def model_fn_builder(bert_config, init_checkpoint, use_one_hot_embeddings=False):
     """Returns `model_fn` closure for TPUEstimator."""
 
     def model_fn(features, labels, mode, params):  # pylint: disable=unused-argument
@@ -271,55 +244,43 @@ def _truncate_seq_pair(tokens_a, tokens_b, max_length):
             tokens_b.pop()
 
 
-def read_examples(input_file):
-    """Read a list of `InputExample`s from an input file."""
+def read_examples(lst_strs):
+    """Read a list of `InputExample`s from a list of strings."""
     examples = []
     unique_id = 0
-    with tf.gfile.GFile(input_file, "r") as reader:
-        while True:
-            line = tokenization.convert_to_unicode(reader.readline())
-            if not line:
-                break
-            line = line.strip()
-            text_a = None
-            text_b = None
-            m = re.match(r"^(.*) \|\|\| (.*)$", line)
-            if m is None:
-                text_a = line
-            else:
-                text_a = m.group(1)
-                text_b = m.group(2)
-            examples.append(
-                InputExample(unique_id=unique_id, text_a=text_a, text_b=text_b))
-            unique_id += 1
+    for ss in lst_strs:
+        line = tokenization.convert_to_unicode(ss)
+        if not line:
+            continue
+        line = line.strip()
+        text_a = None
+        text_b = None
+        m = re.match(r"^(.*) \|\|\| (.*)$", line)
+        if m is None:
+            text_a = line
+        else:
+            text_a = m.group(1)
+            text_b = m.group(2)
+        examples.append(
+            InputExample(unique_id=unique_id, text_a=text_a, text_b=text_b))
+        unique_id += 1
     return examples
 
 
-def main(_):
+def build_model(model_dir):
     tf.logging.set_verbosity(tf.logging.INFO)
 
     features = convert_examples_to_features(
         examples=read_examples(FLAGS.input_file),
-        seq_length=FLAGS.max_seq_length,
+        seq_length=max_seq_length,
         tokenizer=tokenization.FullTokenizer(
-            vocab_file=FLAGS.vocab_file, do_lower_case=FLAGS.do_lower_case))
+            vocab_file=os.path.join(model_dir, 'vocab.txt')))
 
     model_fn = model_fn_builder(
-        bert_config=modeling.BertConfig.from_json_file(FLAGS.bert_config_file),
-        init_checkpoint=FLAGS.init_checkpoint,
-        use_one_hot_embeddings=FLAGS.use_one_hot_embeddings)
+        bert_config=modeling.BertConfig.from_json_file(os.path.join(model_dir, 'bert_config.json')),
+        init_checkpoint=os.path.join(model_dir, 'bert_model.ckpt'))
 
-    input_fn = input_fn_builder(
-        features=features, seq_length=FLAGS.max_seq_length)
+    input_fn = input_fn_builder(features=features, seq_length=max_seq_length)
 
     for result in Estimator(model_fn).predict(input_fn):
         print([round(float(x), 8) for x in result['pooled'].flat])
-
-
-if __name__ == "__main__":
-    flags.mark_flag_as_required("input_file")
-    flags.mark_flag_as_required("vocab_file")
-    flags.mark_flag_as_required("bert_config_file")
-    flags.mark_flag_as_required("init_checkpoint")
-    flags.mark_flag_as_required("output_file")
-    tf.app.run()
