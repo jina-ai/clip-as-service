@@ -324,14 +324,14 @@ def main(_):
         layer_indexes=layer_indexes,
         use_one_hot_embeddings=FLAGS.use_one_hot_embeddings)
 
-    estimator = Estimator(model_fn=model_fn, model_dir='/data/cips/save/chinese-bert/chinese_L-12_H-768_A-12/')
+    estimator = Estimator(model_fn=model_fn)
 
     input_fn = input_fn_builder(
         features=features, seq_length=FLAGS.max_seq_length)
 
     with codecs.getwriter("utf-8")(tf.gfile.Open(FLAGS.output_file,
                                                  "w")) as writer:
-        for result in estimator.predict(input_fn):
+        for result in estimator.predict(input_fn, checkpoint_path=FLAGS.init_checkpoint):
             unique_id = int(result["unique_id"])
             feature = unique_id_to_feature[unique_id]
             output_json = collections.OrderedDict()
