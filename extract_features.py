@@ -324,7 +324,7 @@ def main(_):
         layer_indexes=layer_indexes,
         use_one_hot_embeddings=FLAGS.use_one_hot_embeddings)
 
-    estimator = Estimator(model_fn=model_fn)
+    estimator = Estimator(model_fn=model_fn, params={'batch_size': FLAGS.batch_size})
 
     input_fn = input_fn_builder(
         features=features, seq_length=FLAGS.max_seq_length)
