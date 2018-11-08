@@ -17,11 +17,13 @@ from gpu_env import APP_NAME
 class ServerTask(threading.Thread):
     """ServerTask"""
 
-    def __init__(self, model_dir, max_seq_len=200, batch_size=32, port=5555):
+    def __init__(self, model_dir, num_server=2,
+                 max_seq_len=200, batch_size=32, port=5555):
         threading.Thread.__init__(self)
         self.model_dir = model_dir
         self.max_seq_len = max_seq_len
         self.batch_size = batch_size
+        self.num_server = num_server
         self.port = port
 
     def run(self):
@@ -33,7 +35,7 @@ class ServerTask(threading.Thread):
         backend.bind('inproc://backend')
 
         workers = []
-        for id in range(self.args.num_server):
+        for id in range(self.num_server):
             worker = ServerWorker(context, id, self.model_dir, self.max_seq_len, self.batch_size)
             worker.start()
             workers.append(worker)
