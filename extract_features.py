@@ -11,6 +11,7 @@ import json
 import re
 
 import tensorflow as tf
+from tensorflow.python.estimator.estimator import Estimator
 from tensorflow.python.estimator.run_config import RunConfig
 
 import modeling
@@ -356,12 +357,7 @@ def main(_):
         use_tpu=FLAGS.use_tpu,
         use_one_hot_embeddings=FLAGS.use_one_hot_embeddings)
 
-    # If TPU is not available, this will fall back to normal Estimator on CPU
-    # or GPU.
-    estimator = tf.contrib.Estimator(
-        model_fn=model_fn,
-        config=run_config,
-        predict_batch_size=FLAGS.batch_size)
+    estimator = Estimator(model_fn=model_fn, config=run_config)
 
     input_fn = input_fn_builder(
         features=features, seq_length=FLAGS.max_seq_length)
