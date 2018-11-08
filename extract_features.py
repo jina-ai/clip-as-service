@@ -5,6 +5,11 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+try:
+    import gpu_env
+except:
+    print('no GPUutils!')
+
 import codecs
 import collections
 import json
