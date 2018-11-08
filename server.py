@@ -72,7 +72,6 @@ class ServerWorker(threading.Thread):
         logger = logging.getLogger(APP_NAME)
         worker = self.context.socket(zmq.DEALER)
         worker.connect('inproc://backend')
-        logger.info('worker %d is running' % self.id)
         while True:
             ident, msg = worker.recv_multipart()
             start_t = time.time()
