@@ -317,7 +317,7 @@ def main(_):
         features=features, seq_length=FLAGS.max_seq_length)
 
     for result in estimator.predict(input_fn):
-        print(result['pooled'].flat)
+        print([round(float(x), 8) for x in result['pooled'].flat])
 
 
 if __name__ == "__main__":
