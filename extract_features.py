@@ -157,9 +157,7 @@ def model_fn_builder(bert_config, init_checkpoint, layer_indexes,
 
         all_layers = model.get_all_encoder_layers()
 
-        predictions = {
-            "unique_id": unique_ids,
-        }
+        predictions = {"unique_id": unique_ids}
 
         for (i, layer_index) in enumerate(layer_indexes):
             predictions["layer_output_%d" % i] = all_layers[layer_index]
@@ -311,17 +309,13 @@ def main(_):
 
     bert_config = modeling.BertConfig.from_json_file(FLAGS.bert_config_file)
 
-    tokenizer = tokenization.FullTokenizer(
-        vocab_file=FLAGS.vocab_file, do_lower_case=FLAGS.do_lower_case)
-
-    examples = read_examples(FLAGS.input_file)
-
     features = convert_examples_to_features(
-        examples=examples, seq_length=FLAGS.max_seq_length, tokenizer=tokenizer)
+        examples=read_examples(FLAGS.input_file),
+        seq_length=FLAGS.max_seq_length,
+        tokenizer=tokenization.FullTokenizer(
+            vocab_file=FLAGS.vocab_file, do_lower_case=FLAGS.do_lower_case))
 
-    unique_id_to_feature = {}
-    for feature in features:
-        unique_id_to_feature[feature.unique_id] = feature
+    unique_id_to_feature = {f.unique_id: f for f in features}
 
     model_fn = model_fn_builder(
         bert_config=bert_config,
