@@ -144,9 +144,9 @@ def model_fn_builder(bert_config, init_checkpoint, layer_indexes,
             raise ValueError("Only PREDICT modes are supported: %s" % (mode))
 
         tvars = tf.trainable_variables()
+        input()
         (assignment_map, initialized_variable_names
          ) = modeling.get_assignment_map_from_checkpoint(tvars, init_checkpoint)
-        print(assignment_map)
         tf.train.init_from_checkpoint(init_checkpoint, assignment_map)
 
         tf.logging.info("**** Trainable Variables ****")
