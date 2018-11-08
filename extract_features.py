@@ -358,8 +358,7 @@ def main(_):
 
     # If TPU is not available, this will fall back to normal Estimator on CPU
     # or GPU.
-    estimator = tf.contrib.tpu.TPUEstimator(
-        use_tpu=FLAGS.use_tpu,
+    estimator = tf.contrib.Estimator(
         model_fn=model_fn,
         config=run_config,
         predict_batch_size=FLAGS.batch_size)
