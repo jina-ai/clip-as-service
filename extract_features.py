@@ -117,8 +117,7 @@ def input_fn_builder(features, seq_length):
     return input_fn
 
 
-def model_fn_builder(bert_config, init_checkpoint, layer_indexes,
-                     use_one_hot_embeddings):
+def model_fn_builder(bert_config, init_checkpoint, use_one_hot_embeddings):
     """Returns `model_fn` closure for TPUEstimator."""
 
     def model_fn(features, labels, mode, params):  # pylint: disable=unused-argument
@@ -302,8 +301,6 @@ def read_examples(input_file):
 def main(_):
     tf.logging.set_verbosity(tf.logging.INFO)
 
-    layer_indexes = [int(x) for x in FLAGS.layers.split(",")]
-
     bert_config = modeling.BertConfig.from_json_file(FLAGS.bert_config_file)
 
     features = convert_examples_to_features(
@@ -315,7 +312,6 @@ def main(_):
     model_fn = model_fn_builder(
         bert_config=bert_config,
         init_checkpoint=FLAGS.init_checkpoint,
-        layer_indexes=layer_indexes,
         use_one_hot_embeddings=FLAGS.use_one_hot_embeddings)
 
     estimator = Estimator(model_fn=model_fn)
