@@ -318,8 +318,6 @@ def main(_):
     for feature in features:
         unique_id_to_feature[feature.unique_id] = feature
 
-    print(features)
-    exit()
     model_fn = model_fn_builder(
         bert_config=bert_config,
         init_checkpoint=FLAGS.init_checkpoint,
