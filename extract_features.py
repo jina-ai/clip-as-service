@@ -141,6 +141,7 @@ def model_fn_builder(bert_config, init_checkpoint, layer_indexes,
         tvars = tf.trainable_variables()
         (assignment_map, initialized_variable_names
          ) = modeling.get_assignment_map_from_checkpoint(tvars, init_checkpoint)
+        print(assignment_map)
         tf.train.init_from_checkpoint(init_checkpoint, assignment_map)
 
         tf.logging.info("**** Trainable Variables ****")
@@ -160,7 +161,8 @@ def model_fn_builder(bert_config, init_checkpoint, layer_indexes,
         for (i, layer_index) in enumerate(layer_indexes):
             predictions["layer_output_%d" % i] = all_layers[layer_index]
 
-        output_spec = EstimatorSpec(mode=mode, predictions=predictions)
+        output_spec = EstimatorSpec(mode=mode,
+                                    predictions=predictions)
         return output_spec
 
     return model_fn
