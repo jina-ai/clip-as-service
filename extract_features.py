@@ -346,7 +346,7 @@ def main(_):
 
     with codecs.getwriter("utf-8")(tf.gfile.Open(FLAGS.output_file,
                                                  "w")) as writer:
-        for result in estimator.predict(input_fn, checkpoint_path=FLAGS.init_checkpoint):
+        for result in estimator.predict(input_fn):
             unique_id = int(result["unique_id"])
             feature = unique_id_to_feature[unique_id]
             output_json = collections.OrderedDict()
