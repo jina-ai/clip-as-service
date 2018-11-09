@@ -5,6 +5,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import time
+
 from utils.helper import JobContext
 
 try:
@@ -57,6 +59,7 @@ def input_fn_builder(features, seq_length, batch_size):
             all_input_ids.append(feature.input_ids)
             all_input_mask.append(feature.input_mask)
             all_input_type_ids.append(feature.input_type_ids)
+        time.sleep(1.5)
 
     def input_fn(params):
         """The actual input function."""
@@ -87,7 +90,7 @@ def input_fn_builder(features, seq_length, batch_size):
             })
 
             d = d.batch(batch_size=batch_size)
-
+            time.sleep(2.5)
         return d
 
     return input_fn
