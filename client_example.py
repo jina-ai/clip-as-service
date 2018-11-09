@@ -30,9 +30,10 @@ if __name__ == '__main__':
 
     for j in range(1, 200, 10):
         start_t = time.time()
-        ec.encode(data * j)
+        tmp = data * j
+        ec.encode(tmp)
         time_t = time.time() - start_t
-        print('encoding %d strs in %.3fs, speed: %d/s' %
-              (len(data * j), time_t, int(len(data * j) / time_t)))
+        print('encoding %d strs in %.2fs, speed: %d/s' %
+              (len(tmp), time_t, int(len(tmp) / time_t)))
     # bad example: encode a string
     # print(ec.encode('abc'))
