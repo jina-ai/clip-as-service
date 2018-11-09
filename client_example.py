@@ -28,7 +28,7 @@ if __name__ == '__main__':
     with open('sample_text.txt', encoding='utf8') as fp:
         data = fp.readlines()
 
-    for j in range(10):
+    for j in range(1, 100):
         start_t = time.time()
         ec.encode(data * j)
         time_t = time.time() - start_t
