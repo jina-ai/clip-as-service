@@ -16,7 +16,7 @@ from utils.helper import set_logger, JobContext
 logger = set_logger()
 
 
-def input_fn_builder(features, seq_length):
+def input_fn_builder(features, seq_length, batch_size):
     def gen():
         for f in features:
             yield {
@@ -36,6 +36,7 @@ def input_fn_builder(features, seq_length):
                            'input_ids': (seq_length,),
                            'input_mask': (seq_length,),
                            'input_type_ids': (seq_length,)})
+                .batch(batch_size)
                 .make_one_shot_iterator().get_next())
 
     return input_fn
@@ -108,7 +109,7 @@ class ServerWorker(threading.Thread):
             if self.is_valid_input(msg):
                 with JobContext('build input_fn'):
                     features = convert_lst_to_features(msg, self.max_seq_len, self.tokenizer)
-                    input_fn = input_fn_builder(features, self.max_seq_len)
+                    input_fn = input_fn_builder(features, self.max_seq_len, self.batch_size)
 
                 result = []
                 with JobContext('predict'):
