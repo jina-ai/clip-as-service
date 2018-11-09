@@ -75,7 +75,7 @@ class ServerWorker(threading.Thread):
         input_fn = self.input_fn_builder(worker)
         logger.info('worker %d is ready and listening' % self.id)
         for r in self.estimator.predict(input_fn):
-            self.result.append([round(float(x), 8) for x in r['pooled'].flat])
+            self.result.append([round(float(x), 6) for x in r.flat])
         worker.close()
 
     def input_fn_builder(self, worker):

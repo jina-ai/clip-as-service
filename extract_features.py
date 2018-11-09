@@ -33,7 +33,7 @@ def model_fn_builder(bert_config, init_checkpoint, use_one_hot_embeddings=False)
     def model_fn(features, labels, mode, params):  # pylint: disable=unused-argument
         """The `model_fn` for TPUEstimator."""
 
-        unique_ids = features["unique_ids"]
+        # unique_ids = features["unique_ids"]
         input_ids = features["input_ids"]
         input_mask = features["input_mask"]
         input_type_ids = features["input_type_ids"]
@@ -63,14 +63,12 @@ def model_fn_builder(bert_config, init_checkpoint, use_one_hot_embeddings=False)
         #     tf.logging.info("  name = %s, shape = %s%s", var.name, var.shape,
         #                     init_string)
 
-        predictions = {
-            'unique_id': unique_ids,
-            'pooled': model.get_pooled_output()
-        }
+        # predictions = {
+        #     'unique_id': unique_ids,
+        #     'pooled': model.get_pooled_output()
+        # }
 
-        output_spec = EstimatorSpec(mode=mode,
-                                    predictions=predictions)
-        return output_spec
+        return EstimatorSpec(mode=mode, predictions=model.get_pooled_output())
 
     return model_fn
 
