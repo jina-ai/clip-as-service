@@ -77,17 +77,22 @@ class ServerWorker(threading.Thread):
         input_fn = self.input_fn_builder(worker)
         logger.info('worker %d is ready and listening' % self.id)
         for r in self.estimator.predict(input_fn):
+            logger.info('add new result')
             self.result.append([round(float(x), 8) for x in r['unique_id'].flat])
         worker.close()
 
     def input_fn_builder(self, worker):
         def gen():
             while True:
+                if self.result:
+                    worker.send_multipart([ident, pickle.dumps(self.result)])
+                    self.result = []
                 ident, msg = worker.recv_multipart()
                 msg = pickle.loads(msg)
                 logger.info('received new data!')
                 if is_valid_input(msg):
                     for f in convert_lst_to_features(msg, self.max_seq_len, self.tokenizer):
+                        logger.info('yield new sample')
                         yield {
                             'unique_ids': f.unique_id,
                             'input_ids': f.input_ids,
@@ -108,6 +113,7 @@ class ServerWorker(threading.Thread):
                                'input_ids': (self.max_seq_len,),
                                'input_mask': (self.max_seq_len,),
                                'input_type_ids': (self.max_seq_len,)})
-                    .batch(self.batch_size))
+                    .batch(self.batch_size)
+                    .make_one_shot_iterator().get_next())
 
         return input_fn
