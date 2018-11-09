@@ -1,3 +1,6 @@
+import time
+
+
 class EncoderClient:
     def __init__(self, ip='localhost', port=5555):
         import zmq
@@ -26,6 +29,10 @@ if __name__ == '__main__':
         data = fp.readlines()
 
     for j in range(10):
+        start_t = time.time()
         ec.encode(data * j)
+        time_t = time.time() - start_t
+        print('encoding %d strs in %.3f, speed: %d/s' %
+              (len(data * j), time_t, int(len(data * j) / time_t)))
     # bad example: encode a string
     # print(ec.encode('abc'))
