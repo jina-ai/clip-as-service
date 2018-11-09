@@ -1,4 +1,3 @@
-import logging
 import os
 import pickle
 import sys
@@ -11,7 +10,9 @@ from tensorflow.python.estimator.estimator import Estimator
 import modeling
 import tokenization
 from extract_features import model_fn_builder, convert_lst_to_features, input_fn_builder
-from gpu_env import APP_NAME
+from utils.helper import set_logger
+
+logger = set_logger()
 
 
 class ServerTask(threading.Thread):
@@ -69,7 +70,6 @@ class ServerWorker(threading.Thread):
         return isinstance(texts, list) and all(isinstance(s, str) for s in texts)
 
     def run(self):
-        logger = logging.getLogger(APP_NAME)
         worker = self.context.socket(zmq.DEALER)
         worker.connect('inproc://backend')
         logger.info('worker %d is running' % self.id)
