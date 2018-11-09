@@ -72,7 +72,7 @@ class ServerWorker(threading.Thread):
     def run(self):
         worker = self.context.socket(zmq.DEALER)
         worker.connect('inproc://backend')
-        logger.info('worker %d is running' % self.id)
+        logger.info('worker %d is ready and listening' % self.id)
         while True:
             ident, msg = worker.recv_multipart()
             start_t = time.time()
