@@ -113,6 +113,6 @@ class ServerWorker(threading.Thread):
                                'input_ids': (self.max_seq_len,),
                                'input_mask': (self.max_seq_len,),
                                'input_type_ids': (self.max_seq_len,)})
-                    .batch(1000))
+                    .batch(10))
 
         return input_fn
