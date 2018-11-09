@@ -72,10 +72,7 @@ def load_vocab(vocab_file):
 
 def convert_tokens_to_ids(vocab, tokens):
     """Converts a sequence of tokens into ids using the vocab."""
-    ids = []
-    for token in tokens:
-        ids.append(vocab[token])
-    return ids
+    return [vocab[token] for token in tokens]
 
 
 def whitespace_tokenize(text):
