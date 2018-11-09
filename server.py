@@ -10,7 +10,7 @@ from tensorflow.python.estimator.estimator import Estimator
 import modeling
 import tokenization
 from extract_features import model_fn_builder, convert_lst_to_features, input_fn_builder
-from utils.helper import set_logger
+from utils.helper import set_logger, JobContext
 
 logger = set_logger()
 
@@ -77,20 +77,25 @@ class ServerWorker(threading.Thread):
         while True:
             ident, msg = worker.recv_multipart()
             start_t = time.time()
-            msg = pickle.loads(msg)
+            with JobContext('pickle.loads'):
+                msg = pickle.loads(msg)
             if self.is_valid_input(msg):
-                features = convert_lst_to_features(msg, self.max_seq_len, self.tokenizer)
-                input_fn = input_fn_builder(features, self.max_seq_len, self.batch_size)
+                with JobContext('build input_fn'):
+                    features = convert_lst_to_features(msg, self.max_seq_len, self.tokenizer)
+                    input_fn = input_fn_builder(features, self.max_seq_len, self.batch_size)
 
                 result = []
-                for r in self.estimator.predict(input_fn):
-                    result.append([round(float(x), 8) for x in r['pooled'].flat])
+                with JobContext('predict'):
+                    for r in self.estimator.predict(input_fn):
+                        result.append([round(float(x), 8) for x in r['pooled'].flat])
 
-                worker.send_multipart([ident, pickle.dumps(result)])
-                logger.info('worker %d: encoding %d strings in %.4fs speed: %d/s' % (self.id,
-                                                                                     len(msg), time.time() - start_t,
-                                                                                     int(len(msg) / (
-                                                                                             time.time() - start_t))))
+                with JobContext('send back'):
+                    worker.send_multipart([ident, pickle.dumps(result)])
+                logger.info('worker %d: '
+                            'encoding %d strings '
+                            'in %.4fs speed: %d/s' % (self.id,
+                                                      len(msg), time.time() - start_t,
+                                                      int(len(msg) / (time.time() - start_t))))
             else:
                 logger.warning('worker %d: received unsupported type! sending back None' % self.id)
                 worker.send_multipart([ident, pickle.dumps(None)])

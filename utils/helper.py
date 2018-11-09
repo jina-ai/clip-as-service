@@ -304,3 +304,23 @@ def build_model(args, reset_graph=True):
     if reset_graph:
         tf.reset_default_graph()
     return rccore.RCCore(args)
+
+
+class JobContext:
+    def __init__(self, msg, logger=None):
+        self._msg = msg
+        self._logger = logger
+
+    def __enter__(self):
+        self.start = time.clock()
+        if not self._logger:
+            print(self._msg, end='')
+        else:
+            self._logger.info('☐ %s' % self._msg)
+
+    def __exit__(self, typ, value, traceback):
+        self.duration = time.clock() - self.start
+        if not self._logger:
+            print('    [%.3f secs]\n' % self.duration)
+        else:
+            self._logger.info('☑ %s    [%.3f secs]' % (self._msg, self.duration))
