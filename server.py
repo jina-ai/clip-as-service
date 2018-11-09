@@ -16,14 +16,14 @@ from utils.helper import set_logger, JobContext
 logger = set_logger()
 
 
-def input_fn_builder(features):
+def input_fn_builder(features, seq_length):
     def gen():
-        for feature in features:
+        for f in features:
             yield {
-                'unique_ids': feature.unique_id,
-                'input_ids': feature.input_ids,
-                'input_mask': feature.input_mask,
-                'input_type_ids': feature.input_type_ids
+                'unique_ids': f.unique_id,
+                'input_ids': f.input_ids,
+                'input_mask': f.input_mask,
+                'input_type_ids': f.input_type_ids
             }
 
     def input_fn():
@@ -32,10 +32,10 @@ def input_fn_builder(features):
             output_types={k: tf.int32
                           for k in ['unique_ids', 'input_ids', 'input_mask',
                                     'input_type_ids']},
-            output_shapes={'unique_ids': (None,),
-                           'input_ids': (None, None),
-                           'input_mask': (None, None),
-                           'input_type_ids': (None, None)})
+            output_shapes={'unique_ids': (),
+                           'input_ids': (seq_length,),
+                           'input_mask': (seq_length,),
+                           'input_type_ids': (seq_length,)})
                 .make_one_shot_iterator().get_next())
 
     return input_fn
@@ -108,7 +108,7 @@ class ServerWorker(threading.Thread):
             if self.is_valid_input(msg):
                 with JobContext('build input_fn'):
                     features = convert_lst_to_features(msg, self.max_seq_len, self.tokenizer)
-                    input_fn = input_fn_builder(features)
+                    input_fn = input_fn_builder(features, self.max_seq_len)
 
                 result = []
                 with JobContext('predict'):
