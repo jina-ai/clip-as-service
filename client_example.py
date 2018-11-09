@@ -26,13 +26,13 @@ if __name__ == '__main__':
     ec = EncoderClient('100.102.33.53')
     # encode a list of strings
     with open('sample_text.txt', encoding='utf8') as fp:
-        data = fp.readlines()
+        data = fp.readlines() * 20
 
-    for j in range(1, 200, 10):
+    while True:
         start_t = time.time()
-        ec.encode(data * j)
+        ec.encode(data)
         time_t = time.time() - start_t
         print('encoding %d strs in %.3fs, speed: %d/s' %
-              (len(data * j), time_t, int(len(data * j) / time_t)))
+              (len(data), time_t, int(len(data) / time_t)))
     # bad example: encode a string
     # print(ec.encode('abc'))
