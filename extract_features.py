@@ -5,8 +5,6 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import time
-
 from utils.helper import JobContext
 
 try:
@@ -53,7 +51,7 @@ def input_fn_builder(features, seq_length, batch_size):
         all_input_ids = []
         all_input_mask = []
         all_input_type_ids = []
-        time.sleep(1.5)
+        input('continue input_fn_builder out')
 
         for feature in features:
             all_unique_ids.append(feature.unique_id)
@@ -90,7 +88,7 @@ def input_fn_builder(features, seq_length, batch_size):
             })
 
             d = d.batch(batch_size=batch_size)
-            time.sleep(2.5)
+            input('input_fn inner')
         return d
 
     return input_fn
