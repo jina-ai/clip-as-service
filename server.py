@@ -46,7 +46,7 @@ class ServerTask(threading.Thread):
     """ServerTask"""
 
     def __init__(self, model_dir, num_server=2,
-                 max_seq_len=200, batch_size=32, port=5555):
+                 max_seq_len=200, batch_size=128, port=5555):
         threading.Thread.__init__(self)
         self.model_dir = model_dir
         self.max_seq_len = max_seq_len
