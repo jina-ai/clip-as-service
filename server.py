@@ -112,7 +112,7 @@ class ServerWorker(threading.Thread):
                 result = []
                 with JobContext('predict'):
                     for r in self.estimator.predict(input_fn):
-                        result.append([round(float(x), 8) for x in r['pooled'].flat])
+                        result.append([round(float(x), 8) for x in r['unique_id'].flat])
 
                 with JobContext('send back'):
                     worker.send_multipart([ident, pickle.dumps(result)])
