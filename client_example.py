@@ -23,6 +23,9 @@ if __name__ == '__main__':
     ec = EncoderClient('100.102.33.53')
     # encode a list of strings
     with open('sample_text.txt', encoding='utf8') as fp:
-        print(ec.encode(fp.readlines()))
+        data = fp.readlines()
+
+    for j in range(10):
+        ec.encode(data * j)
     # bad example: encode a string
     # print(ec.encode('abc'))
