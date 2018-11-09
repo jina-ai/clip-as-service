@@ -138,9 +138,7 @@ def model_fn_builder(bert_config, init_checkpoint, use_one_hot_embeddings=False)
 def convert_lst_to_features(lst_str, seq_length, tokenizer):
     """Loads a data file into a list of `InputBatch`s."""
 
-    features = []
-    examples = read_examples(lst_str)
-    for (ex_index, example) in enumerate(examples):
+    for (ex_index, example) in enumerate(read_examples(lst_str)):
         tokens_a = tokenizer.tokenize(example.text_a)
 
         tokens_b = None
@@ -218,14 +216,12 @@ def convert_lst_to_features(lst_str, seq_length, tokenizer):
             tf.logging.info(
                 "input_type_ids: %s" % " ".join([str(x) for x in input_type_ids]))
 
-        features.append(
-            InputFeatures(
-                unique_id=example.unique_id,
-                tokens=tokens,
-                input_ids=input_ids,
-                input_mask=input_mask,
-                input_type_ids=input_type_ids))
-    return features
+        yield InputFeatures(
+            unique_id=example.unique_id,
+            tokens=tokens,
+            input_ids=input_ids,
+            input_mask=input_mask,
+            input_type_ids=input_type_ids)
 
 
 def _truncate_seq_pair(tokens_a, tokens_b, max_length):
@@ -247,7 +243,6 @@ def _truncate_seq_pair(tokens_a, tokens_b, max_length):
 
 def read_examples(lst_strs):
     """Read a list of `InputExample`s from a list of strings."""
-    examples = []
     unique_id = 0
     for ss in lst_strs:
         line = tokenization.convert_to_unicode(ss)
@@ -262,10 +257,8 @@ def read_examples(lst_strs):
         else:
             text_a = m.group(1)
             text_b = m.group(2)
-        examples.append(
-            InputExample(unique_id=unique_id, text_a=text_a, text_b=text_b))
+        yield InputExample(unique_id=unique_id, text_a=text_a, text_b=text_b)
         unique_id += 1
-    return examples
 
 
 def build_model(model_dir):
