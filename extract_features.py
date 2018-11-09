@@ -5,8 +5,6 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from utils.helper import JobContext
-
 try:
     import gpu_env
 except:
@@ -46,50 +44,45 @@ class InputFeatures(object):
 def input_fn_builder(features, seq_length, batch_size):
     """Creates an `input_fn` closure to be passed to TPUEstimator."""
 
-    with JobContext('input_fn_builder out'):
-        all_unique_ids = []
-        all_input_ids = []
-        all_input_mask = []
-        all_input_type_ids = []
-        input('continue input_fn_builder out')
+    all_unique_ids = []
+    all_input_ids = []
+    all_input_mask = []
+    all_input_type_ids = []
 
-        for feature in features:
-            all_unique_ids.append(feature.unique_id)
-            all_input_ids.append(feature.input_ids)
-            all_input_mask.append(feature.input_mask)
-            all_input_type_ids.append(feature.input_type_ids)
+    for feature in features:
+        all_unique_ids.append(feature.unique_id)
+        all_input_ids.append(feature.input_ids)
+        all_input_mask.append(feature.input_mask)
+        all_input_type_ids.append(feature.input_type_ids)
 
     def input_fn(params):
         """The actual input function."""
 
-        with JobContext('input_fn inner'):
-            num_examples = len(features)
+        num_examples = len(features)
 
-            # This is for demo purposes and does NOT scale to large data sets. We do
-            # not use Dataset.from_generator() because that uses tf.py_func which is
-            # not TPU compatible. The right way to load data is with TFRecordReader.
-            d = tf.data.Dataset.from_tensor_slices({
-                "unique_ids":
-                    tf.constant(all_unique_ids, shape=[num_examples], dtype=tf.int32),
-                "input_ids":
-                    tf.constant(
-                        all_input_ids, shape=[num_examples, seq_length],
-                        dtype=tf.int32),
-                "input_mask":
-                    tf.constant(
-                        all_input_mask,
-                        shape=[num_examples, seq_length],
-                        dtype=tf.int32),
-                "input_type_ids":
-                    tf.constant(
-                        all_input_type_ids,
-                        shape=[num_examples, seq_length],
-                        dtype=tf.int32),
-            })
+        # This is for demo purposes and does NOT scale to large data sets. We do
+        # not use Dataset.from_generator() because that uses tf.py_func which is
+        # not TPU compatible. The right way to load data is with TFRecordReader.
+        d = tf.data.Dataset.from_tensor_slices({
+            "unique_ids":
+                tf.constant(all_unique_ids, shape=[num_examples], dtype=tf.int32),
+            "input_ids":
+                tf.constant(
+                    all_input_ids, shape=[num_examples, seq_length],
+                    dtype=tf.int32),
+            "input_mask":
+                tf.constant(
+                    all_input_mask,
+                    shape=[num_examples, seq_length],
+                    dtype=tf.int32),
+            "input_type_ids":
+                tf.constant(
+                    all_input_type_ids,
+                    shape=[num_examples, seq_length],
+                    dtype=tf.int32),
+        })
 
-            d = d.batch(batch_size=batch_size)
-            input('input_fn inner')
-        return d
+        return d.batch(batch_size=batch_size)
 
     return input_fn
 
