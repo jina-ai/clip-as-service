@@ -125,7 +125,7 @@ def model_fn_builder(bert_config, init_checkpoint, use_one_hot_embeddings=False)
 
         predictions = {
             'unique_id': unique_ids,
-            'pooled': model.get_embedding_output()[0]
+            # 'pooled': model.get_pooled_output()
         }
 
         output_spec = EstimatorSpec(mode=mode,
