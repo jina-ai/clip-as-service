@@ -106,8 +106,8 @@ class ServerWorker(threading.Thread):
             return (tf.data.Dataset.from_generator(
                 gen,
                 output_types={k: tf.int32 for k in ['input_ids', 'input_mask', 'input_type_ids']},
-                output_shapes={'input_ids': (None, self.max_seq_len),
-                               'input_mask': (None, self.max_seq_len),
-                               'input_type_ids': (None, self.max_seq_len)}))
+                output_shapes={'input_ids': (None, None),
+                               'input_mask': (None, None),
+                               'input_type_ids': (None, None)}))
 
         return input_fn
