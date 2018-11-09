@@ -94,7 +94,6 @@ class ServerWorker(threading.Thread):
                         tmp_f = list(convert_lst_to_features(msg, self.max_seq_len, self.tokenizer))
                     logger.info('received %d data from %s' % (len(tmp_f), ident))
                     yield {
-                        'unique_ids': [f.unique_id for f in tmp_f],
                         'input_ids': [f.input_ids for f in tmp_f],
                         'input_mask': [f.input_mask for f in tmp_f],
                         'input_type_ids': [f.input_type_ids for f in tmp_f]
@@ -106,11 +105,8 @@ class ServerWorker(threading.Thread):
         def input_fn():
             return (tf.data.Dataset.from_generator(
                 gen,
-                output_types={k: tf.int32
-                              for k in ['unique_ids', 'input_ids', 'input_mask',
-                                        'input_type_ids']},
-                output_shapes={'unique_ids': (None,),
-                               'input_ids': (None, self.max_seq_len),
+                output_types={k: tf.int32 for k in ['input_ids', 'input_mask', 'input_type_ids']},
+                output_shapes={'input_ids': (None, self.max_seq_len),
                                'input_mask': (None, self.max_seq_len),
                                'input_type_ids': (None, self.max_seq_len)}))
 
