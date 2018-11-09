@@ -92,6 +92,7 @@ class ServerWorker(threading.Thread):
                 logger.info('received new data!')
                 if is_valid_input(msg):
                     for f in convert_lst_to_features(msg, self.max_seq_len, self.tokenizer):
+                        logger.info('yield new sample')
                         yield {
                             'unique_ids': f.unique_id,
                             'input_ids': f.input_ids,
