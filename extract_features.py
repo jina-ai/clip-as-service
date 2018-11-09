@@ -1,25 +1,11 @@
 # coding=utf-8
-"""Extract pre-computed feature vectors from BERT."""
-
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
-try:
-    import gpu_env
-except:
-    print('no GPUutils!')
-
 import re
-import os
+
 import tensorflow as tf
-from tensorflow.python.estimator.estimator import Estimator
 from tensorflow.python.estimator.model_fn import EstimatorSpec
 
 import modeling
 import tokenization
-
-max_seq_length = 200
 
 
 class InputExample(object):
@@ -39,52 +25,6 @@ class InputFeatures(object):
         self.input_ids = input_ids
         self.input_mask = input_mask
         self.input_type_ids = input_type_ids
-
-
-def input_fn_builder(features, seq_length, batch_size):
-    """Creates an `input_fn` closure to be passed to TPUEstimator."""
-
-    all_unique_ids = []
-    all_input_ids = []
-    all_input_mask = []
-    all_input_type_ids = []
-
-    for feature in features:
-        all_unique_ids.append(feature.unique_id)
-        all_input_ids.append(feature.input_ids)
-        all_input_mask.append(feature.input_mask)
-        all_input_type_ids.append(feature.input_type_ids)
-
-    def input_fn(params):
-        """The actual input function."""
-
-        num_examples = len(features)
-
-        # This is for demo purposes and does NOT scale to large data sets. We do
-        # not use Dataset.from_generator() because that uses tf.py_func which is
-        # not TPU compatible. The right way to load data is with TFRecordReader.
-        d = tf.data.Dataset.from_tensor_slices({
-            "unique_ids":
-                tf.constant(all_unique_ids, shape=[num_examples], dtype=tf.int32),
-            "input_ids":
-                tf.constant(
-                    all_input_ids, shape=[num_examples, seq_length],
-                    dtype=tf.int32),
-            "input_mask":
-                tf.constant(
-                    all_input_mask,
-                    shape=[num_examples, seq_length],
-                    dtype=tf.int32),
-            "input_type_ids":
-                tf.constant(
-                    all_input_type_ids,
-                    shape=[num_examples, seq_length],
-                    dtype=tf.int32),
-        })
-
-        return d.batch(batch_size=batch_size)
-
-    return input_fn
 
 
 def model_fn_builder(bert_config, init_checkpoint, use_one_hot_embeddings=False):
@@ -125,7 +65,7 @@ def model_fn_builder(bert_config, init_checkpoint, use_one_hot_embeddings=False)
 
         predictions = {
             'unique_id': unique_ids,
-            # 'pooled': model.get_pooled_output()
+            'pooled': model.get_pooled_output()
         }
 
         output_spec = EstimatorSpec(mode=mode,
@@ -259,16 +199,3 @@ def read_examples(lst_strs):
             text_b = m.group(2)
         yield InputExample(unique_id=unique_id, text_a=text_a, text_b=text_b)
         unique_id += 1
-
-
-def build_model(model_dir):
-    tf.logging.set_verbosity(tf.logging.INFO)
-
-    model_fn = model_fn_builder(
-        bert_config=modeling.BertConfig.from_json_file(os.path.join(model_dir, 'bert_config.json')),
-        init_checkpoint=os.path.join(model_dir, 'bert_model.ckpt'))
-
-    input_fn = input_fn_builder(features=features, seq_length=max_seq_length)
-
-    for result in Estimator(model_fn).predict(input_fn):
-        print([round(float(x), 8) for x in result['pooled'].flat])

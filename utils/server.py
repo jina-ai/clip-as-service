@@ -1,6 +1,5 @@
 import os
 import pickle
-import sys
 import threading
 import time
 
@@ -16,12 +15,9 @@ from utils.helper import set_logger, JobContext
 logger = set_logger()
 
 
-def input_fn_builder(msg, seq_length, batch_size):
+def input_fn_builder(msg, seq_length, batch_size, tokenizer):
     def gen():
-        msg = pickle.loads(msg)
-        if is_valid_input(msg):
-
-        for f in features:
+        for f in convert_lst_to_features(msg, seq_length, tokenizer):
             yield {
                 'unique_ids': f.unique_id,
                 'input_ids': f.input_ids,
@@ -49,7 +45,7 @@ class ServerTask(threading.Thread):
     """ServerTask"""
 
     def __init__(self, model_dir, num_server=2,
-                 max_seq_len=200, batch_size=32, port=5555):
+                 max_seq_len=200, batch_size=128, port=5555):
         threading.Thread.__init__(self)
         self.model_dir = model_dir
         self.max_seq_len = max_seq_len
@@ -109,15 +105,13 @@ class ServerWorker(threading.Thread):
             start_t = time.time()
             with JobContext('pickle.loads'):
                 msg = pickle.loads(msg)
-            if self.is_valid_input(msg):
-                with JobContext('build input_fn'):
-                    features = convert_lst_to_features(msg, self.max_seq_len, self.tokenizer)
-                    input_fn = input_fn_builder(features, self.max_seq_len, self.batch_size)
 
+            if self.is_valid_input(msg):
+                input_fn = input_fn_builder(msg, self.max_seq_len, self.batch_size, self.tokenizer)
                 result = []
                 with JobContext('predict'):
                     for r in self.estimator.predict(input_fn):
-                        result.append([round(float(x), 8) for x in r['pooled'].flat])
+                        result.append([round(float(x), 8) for x in r['unique_id'].flat])
 
                 with JobContext('send back'):
                     worker.send_multipart([ident, pickle.dumps(result)])
@@ -130,9 +124,3 @@ class ServerWorker(threading.Thread):
                 logger.warning('worker %d: received unsupported type! sending back None' % self.id)
                 worker.send_multipart([ident, pickle.dumps(None)])
         worker.close()
-
-
-if __name__ == '__main__':
-    server = ServerTask(sys.argv[1])
-    server.start()
-    server.join()
