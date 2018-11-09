@@ -65,6 +65,7 @@ class ServerWorker(threading.Thread):
         self.model_fn = model_fn_builder(
             bert_config=modeling.BertConfig.from_json_file(self.config_fp),
             init_checkpoint=self.checkpoint_fp)
+        self.estimator = Estimator(self.model_fn)
 
     def is_valid_input(self, texts):
         return isinstance(texts, list) and all(isinstance(s, str) for s in texts)
@@ -82,7 +83,7 @@ class ServerWorker(threading.Thread):
                 input_fn = input_fn_builder(features, self.max_seq_len, self.batch_size)
 
                 result = []
-                for r in Estimator(self.model_fn).predict(input_fn):
+                for r in self.estimator.predict(input_fn):
                     result.append([round(float(x), 8) for x in r['pooled'].flat])
 
                 worker.send_multipart([ident, pickle.dumps(result)])
