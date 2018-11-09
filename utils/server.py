@@ -32,7 +32,7 @@ class ServerTask(threading.Thread):
     def run(self):
         context = zmq.Context()
         frontend = context.socket(zmq.ROUTER)
-        frontend.bind('ipc:///tmp/%d' % self.port)
+        frontend.bind('tcp://*:%d' % self.port)
 
         backend = context.socket(zmq.DEALER)
         backend.bind('inproc://backend')
@@ -75,7 +75,7 @@ class ServerWorker(threading.Thread):
         input_fn = self.input_fn_builder(worker)
         logger.info('worker %d is ready and listening' % self.id)
         for r in self.estimator.predict(input_fn):
-            self.result.append([round(float(x), 8) for x in r['unique_id'].flat])
+            self.result.append([round(float(x), 8) for x in r['pooled'].flat])
         worker.close()
 
     def input_fn_builder(self, worker):

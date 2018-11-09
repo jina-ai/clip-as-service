@@ -8,7 +8,7 @@ class EncoderClient:
         context = zmq.Context()
         self.socket = context.socket(zmq.DEALER)
         self.socket.identity = ('client-%d' % datetime.now().timestamp()).encode('ascii')
-        self.socket.connect('ipc:///tmp/%d' % (port))
+        self.socket.connect('tcp://%s:%d' % (ip, port))
 
     def encode(self, texts):
         if self.is_valid_input(texts):
