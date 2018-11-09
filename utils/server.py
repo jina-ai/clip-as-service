@@ -1,7 +1,6 @@
 import os
 import pickle
 import threading
-import time
 
 import tensorflow as tf
 import zmq
@@ -10,35 +9,13 @@ from tensorflow.python.estimator.estimator import Estimator
 import modeling
 import tokenization
 from extract_features import model_fn_builder, convert_lst_to_features
-from utils.helper import set_logger, JobContext
+from utils.helper import set_logger
 
 logger = set_logger()
 
 
-def input_fn_builder(msg, seq_length, batch_size, tokenizer):
-    def gen():
-        for f in convert_lst_to_features(msg, seq_length, tokenizer):
-            yield {
-                'unique_ids': f.unique_id,
-                'input_ids': f.input_ids,
-                'input_mask': f.input_mask,
-                'input_type_ids': f.input_type_ids
-            }
-
-    def input_fn():
-        return (tf.data.Dataset.from_generator(
-            gen,
-            output_types={k: tf.int32
-                          for k in ['unique_ids', 'input_ids', 'input_mask',
-                                    'input_type_ids']},
-            output_shapes={'unique_ids': (),
-                           'input_ids': (seq_length,),
-                           'input_mask': (seq_length,),
-                           'input_type_ids': (seq_length,)})
-                .batch(batch_size)
-                .make_one_shot_iterator().get_next())
-
-    return input_fn
+def is_valid_input(texts):
+    return isinstance(texts, list) and all(isinstance(s, str) for s in texts)
 
 
 class ServerTask(threading.Thread):
@@ -92,35 +69,49 @@ class ServerWorker(threading.Thread):
             bert_config=modeling.BertConfig.from_json_file(self.config_fp),
             init_checkpoint=self.checkpoint_fp)
         self.estimator = Estimator(self.model_fn)
-
-    def is_valid_input(self, texts):
-        return isinstance(texts, list) and all(isinstance(s, str) for s in texts)
+        self.result = []
 
     def run(self):
         worker = self.context.socket(zmq.DEALER)
         worker.connect('inproc://backend')
+        input_fn = self.input_fn_builder(worker)
         logger.info('worker %d is ready and listening' % self.id)
-        while True:
-            ident, msg = worker.recv_multipart()
-            start_t = time.time()
-            with JobContext('pickle.loads'):
-                msg = pickle.loads(msg)
-
-            if self.is_valid_input(msg):
-                input_fn = input_fn_builder(msg, self.max_seq_len, self.batch_size, self.tokenizer)
-                result = []
-                with JobContext('predict'):
-                    for r in self.estimator.predict(input_fn):
-                        result.append([round(float(x), 8) for x in r['unique_id'].flat])
-
-                with JobContext('send back'):
-                    worker.send_multipart([ident, pickle.dumps(result)])
-                logger.info('worker %d: '
-                            'encoding %d strings '
-                            'in %.4fs speed: %d/s' % (self.id,
-                                                      len(msg), time.time() - start_t,
-                                                      int(len(msg) / (time.time() - start_t))))
-            else:
-                logger.warning('worker %d: received unsupported type! sending back None' % self.id)
-                worker.send_multipart([ident, pickle.dumps(None)])
+        for r in self.estimator.predict(input_fn):
+            self.result.append([round(float(x), 8) for x in r['unique_id'].flat])
         worker.close()
+
+    def input_fn_builder(self, worker):
+        def gen():
+            while True:
+                if self.result:
+                    worker.send_multipart([ident, pickle.dumps(self.result)])
+                    self.result = []
+                ident, msg = worker.recv_multipart()
+                msg = pickle.loads(msg)
+                logger.info('received new data!')
+                if is_valid_input(msg):
+                    for f in convert_lst_to_features(msg, self.max_seq_len, self.tokenizer):
+                        yield {
+                            'unique_ids': f.unique_id,
+                            'input_ids': f.input_ids,
+                            'input_mask': f.input_mask,
+                            'input_type_ids': f.input_type_ids
+                        }
+                else:
+                    logger.warning('worker %d: received unsupported type! sending back None' % self.id)
+                    worker.send_multipart([ident, pickle.dumps(None)])
+
+        def input_fn():
+            return (tf.data.Dataset.from_generator(
+                gen,
+                output_types={k: tf.int32
+                              for k in ['unique_ids', 'input_ids', 'input_mask',
+                                        'input_type_ids']},
+                output_shapes={'unique_ids': (),
+                               'input_ids': (self.max_seq_len,),
+                               'input_mask': (self.max_seq_len,),
+                               'input_type_ids': (self.max_seq_len,)})
+                    .batch(self.batch_size)
+                    .make_one_shot_iterator().get_next())
+
+        return input_fn
