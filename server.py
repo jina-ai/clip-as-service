@@ -4,15 +4,36 @@ import sys
 import threading
 import time
 
+import tensorflow as tf
 import zmq
 from tensorflow.python.estimator.estimator import Estimator
 
 import modeling
 import tokenization
-from extract_features import model_fn_builder, convert_lst_to_features, input_fn_builder
+from extract_features import model_fn_builder, convert_lst_to_features
 from utils.helper import set_logger, JobContext
 
 logger = set_logger()
+
+
+def input_fn_builder(features):
+    def gen():
+        for feature in features:
+            yield {
+                'unique_ids': feature.unique_id,
+                'input_ids': feature.input_ids,
+                'input_mask': feature.input_mask,
+                'input_type_ids': feature.input_type_ids
+            }
+
+    def input_fn():
+        return (tf.data.Dataset.from_generator(
+            gen,
+            output_types={k: tf.int32
+                          for k in ['unique_ids', 'input_ids', 'input_mask',
+                                    'input_type_ids']}).make_one_shot_iterator().get_next())
+
+    return input_fn
 
 
 class ServerTask(threading.Thread):
@@ -82,7 +103,7 @@ class ServerWorker(threading.Thread):
             if self.is_valid_input(msg):
                 with JobContext('build input_fn'):
                     features = convert_lst_to_features(msg, self.max_seq_len, self.tokenizer)
-                    input_fn = input_fn_builder(features, self.max_seq_len, self.batch_size)
+                    input_fn = input_fn_builder(features)
 
                 result = []
                 with JobContext('predict'):
