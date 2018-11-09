@@ -76,7 +76,7 @@ class ServerWorker(threading.Thread):
         worker.connect('inproc://backend')
         input_fn = self.input_fn_builder(worker)
         logger.info('worker %d is ready and listening' % self.id)
-        for r in self.estimator.predict(input_fn):
+        for r in self.estimator.predict(input_fn, yield_single_examples=True):
             logger.info('add new result')
             self.result.append([round(float(x), 8) for x in r['unique_id'].flat])
         worker.close()
@@ -113,7 +113,6 @@ class ServerWorker(threading.Thread):
                                'input_ids': (self.max_seq_len,),
                                'input_mask': (self.max_seq_len,),
                                'input_type_ids': (self.max_seq_len,)})
-                    .batch(self.batch_size)
-                    .make_one_shot_iterator().get_next())
+                    .batch(self.batch_size))
 
         return input_fn
