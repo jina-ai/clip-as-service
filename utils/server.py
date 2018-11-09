@@ -90,8 +90,6 @@ class ServerWorker(threading.Thread):
                 with JobContext('pickle.loads'):
                     msg = pickle.loads(msg)
                 if is_valid_input(msg):
-                    self.max_seq_len = max(len(l) for l in msg)
-                    logger.info('max_seq_len: %d' % self.max_seq_len)
                     with JobContext('convert_lst_to_features'):
                         tmp_f = list(convert_lst_to_features(msg, self.max_seq_len, self.tokenizer))
                     logger.info('received %d data from %s' % (len(tmp_f), ident))
