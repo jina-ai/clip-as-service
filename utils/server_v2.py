@@ -91,14 +91,15 @@ class ServerWorker(threading.Thread):
                 msg = pickle.loads(msg)
                 logger.info('received new data from %s' % ident)
                 if is_valid_input(msg):
+                    batch = []
                     for f in convert_lst_to_features(msg, self.max_seq_len, self.tokenizer):
-                        logger.info('yield new sample')
-                        yield {
+                        batch.append({
                             'unique_ids': f.unique_id,
                             'input_ids': f.input_ids,
                             'input_mask': f.input_mask,
                             'input_type_ids': f.input_type_ids
-                        }
+                        })
+                    yield batch
                 else:
                     logger.warning('worker %d: received unsupported type! sending back None' % self.id)
                     worker.send_multipart([ident, pickle.dumps(None)])
@@ -109,10 +110,9 @@ class ServerWorker(threading.Thread):
                 output_types={k: tf.int32
                               for k in ['unique_ids', 'input_ids', 'input_mask',
                                         'input_type_ids']},
-                output_shapes={'unique_ids': (),
-                               'input_ids': (self.max_seq_len,),
-                               'input_mask': (self.max_seq_len,),
-                               'input_type_ids': (self.max_seq_len,)})
-                    .batch(10))
+                output_shapes={'unique_ids': (None,),
+                               'input_ids': (None, self.max_seq_len),
+                               'input_mask': (None, self.max_seq_len),
+                               'input_type_ids': (None, self.max_seq_len)}))
 
         return input_fn
