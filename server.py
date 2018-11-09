@@ -31,7 +31,12 @@ def input_fn_builder(features):
             gen,
             output_types={k: tf.int32
                           for k in ['unique_ids', 'input_ids', 'input_mask',
-                                    'input_type_ids']}).make_one_shot_iterator().get_next())
+                                    'input_type_ids']},
+            output_shapes={'unique_ids': (None,),
+                           'input_ids': (None, None),
+                           'input_mask': (None, None),
+                           'input_type_ids': (None, None)})
+                .make_one_shot_iterator().get_next())
 
     return input_fn
 
