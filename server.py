@@ -107,9 +107,8 @@ class ServerWorker(threading.Thread):
             with JobContext('pickle.loads'):
                 msg = pickle.loads(msg)
             if self.is_valid_input(msg):
-                with JobContext('build input_fn'):
-                    features = convert_lst_to_features(msg, self.max_seq_len, self.tokenizer)
-                    input_fn = input_fn_builder(features, self.max_seq_len, self.batch_size)
+                features = convert_lst_to_features(msg, self.max_seq_len, self.tokenizer)
+                input_fn = input_fn_builder(features, self.max_seq_len, self.batch_size)
 
                 result = []
                 with JobContext('predict'):
