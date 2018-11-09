@@ -35,8 +35,7 @@ def input_fn_builder(msg, seq_length, batch_size, tokenizer):
                            'input_ids': (seq_length,),
                            'input_mask': (seq_length,),
                            'input_type_ids': (seq_length,)})
-                .batch(batch_size)
-                .make_one_shot_iterator().get_next())
+                .batch(batch_size))
 
     return input_fn
 
