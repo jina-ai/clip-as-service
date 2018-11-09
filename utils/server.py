@@ -90,6 +90,8 @@ class ServerWorker(threading.Thread):
                 with JobContext('pickle.loads'):
                     msg = pickle.loads(msg)
                 if is_valid_input(msg):
+                    self.max_seq_len = max(len(l) for l in msg)
+                    logger.info('max_seq_len: %d' % self.max_seq_len)
                     with JobContext('convert_lst_to_features'):
                         tmp_f = list(convert_lst_to_features(msg, self.max_seq_len, self.tokenizer))
                     logger.info('received %d data from %s' % (len(tmp_f), ident))
@@ -106,8 +108,8 @@ class ServerWorker(threading.Thread):
             return (tf.data.Dataset.from_generator(
                 gen,
                 output_types={k: tf.int32 for k in ['input_ids', 'input_mask', 'input_type_ids']},
-                output_shapes={'input_ids': (None, None),
-                               'input_mask': (None, None),
-                               'input_type_ids': (None, None)}))
+                output_shapes={'input_ids': (None, self.max_seq_len),
+                               'input_mask': (None, self.max_seq_len),
+                               'input_type_ids': (None, self.max_seq_len)}))
 
         return input_fn
