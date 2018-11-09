@@ -32,7 +32,7 @@ class ServerTask(threading.Thread):
     def run(self):
         context = zmq.Context()
         frontend = context.socket(zmq.ROUTER)
-        frontend.bind('ipc:///tmp/feeds/%d' % self.port)
+        frontend.bind('ipc:///tmp/%d' % self.port)
 
         backend = context.socket(zmq.DEALER)
         backend.bind('inproc://backend')
