@@ -1,6 +1,7 @@
 import os
 import pickle
 import threading
+import time
 
 import tensorflow as tf
 import zmq
@@ -9,7 +10,7 @@ from tensorflow.python.estimator.estimator import Estimator
 import modeling
 import tokenization
 from extract_features import model_fn_builder, convert_lst_to_features
-from utils.helper import set_logger, JobContext
+from utils.helper import set_logger
 
 logger = set_logger()
 
@@ -82,17 +83,17 @@ class ServerWorker(threading.Thread):
         def gen():
             while True:
                 if self.result:
-                    logger.info('sending result back to %s' % ident)
-                    with JobContext('pickle.dumps'):
-                        worker.send_multipart([ident, pickle.dumps(self.result)])
+                    worker.send_multipart([ident, pickle.dumps(self.result)])
                     self.result = []
+                    time_used = time.clock() - start
+                    logger.info('finished %d strs from %s in %.3f @ %d/s' %
+                                (ident, len(self.result), time_used,
+                                 time_used / len(self.result)))
                 ident, msg = worker.recv_multipart()
-                with JobContext('pickle.loads'):
-                    msg = pickle.loads(msg)
+                start = time.clock()
+                msg = pickle.loads(msg)
                 if is_valid_input(msg):
-                    with JobContext('convert_lst_to_features'):
-                        tmp_f = list(convert_lst_to_features(msg, self.max_seq_len, self.tokenizer))
-                    logger.info('received %d data from %s' % (len(tmp_f), ident))
+                    tmp_f = list(convert_lst_to_features(msg, self.max_seq_len, self.tokenizer))
                     yield {
                         'input_ids': [f.input_ids for f in tmp_f],
                         'input_mask': [f.input_mask for f in tmp_f],
