@@ -36,7 +36,7 @@ class ServerTask(threading.Thread):
         frontend.bind('tcp://*:%d' % self.port)
 
         backend = context.socket(zmq.DEALER)
-        backend.bind('ipc:///tmp/backend/0')
+        backend.bind('inproc://backend')
 
         workers = []
         for id in range(self.num_server):
