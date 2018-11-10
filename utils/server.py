@@ -23,7 +23,7 @@ class ServerTask(threading.Thread):
     """ServerTask"""
 
     def __init__(self, args):
-        super().__init__(args)
+        super().__init__()
         self.model_dir = args.model_dir
         self.max_seq_len = args.max_len
         self.num_server = args.num_server
