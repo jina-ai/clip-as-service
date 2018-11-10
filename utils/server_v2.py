@@ -56,6 +56,7 @@ class ServerWorker(threading.Thread):
 
     def __init__(self, context, id, model_dir, max_seq_len, gpu_id):
         super().__init__()
+        os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_id)
         self.context = context
         self.model_dir = model_dir
         self.config_fp = os.path.join(self.model_dir, 'bert_config.json')
@@ -70,7 +71,7 @@ class ServerWorker(threading.Thread):
         # session_config = tf.ConfigProto()
         # session_config.gpu_options.visible_device_list = '%d' % gpu_id
         # run_config = tf.estimator.RunConfig(session_config=session_config)
-        os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_id)
+
         self.estimator = Estimator(self.model_fn)
         self.result = []
 
