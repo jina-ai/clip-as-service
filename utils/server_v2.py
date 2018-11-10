@@ -2,6 +2,7 @@ import os
 import pickle
 import threading
 import time
+from multiprocessing import Process
 
 import tensorflow as tf
 import zmq
@@ -15,6 +16,7 @@ from utils.helper import set_logger
 logger = set_logger()
 
 tf.logging.set_verbosity(tf.logging.INFO)
+
 
 def is_valid_input(texts):
     return isinstance(texts, list) and all(isinstance(s, str) for s in texts)
@@ -51,7 +53,7 @@ class ServerTask(threading.Thread):
         context.term()
 
 
-class ServerWorker(threading.Thread):
+class ServerWorker(Process):
     """ServerWorker"""
 
     def __init__(self, context, id, model_dir, max_seq_len, gpu_id):
