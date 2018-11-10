@@ -68,10 +68,10 @@ class ServerWorker(Process):
         self.model_fn = model_fn_builder(
             bert_config=modeling.BertConfig.from_json_file(self.config_fp),
             init_checkpoint=self.checkpoint_fp)
-        session_config = tf.ConfigProto()
-        session_config.gpu_options.visible_device_list = '%d' % gpu_id
-        run_config = tf.estimator.RunConfig(session_config=session_config)
-        self.estimator = Estimator(self.model_fn, config=run_config)
+        # session_config = tf.ConfigProto()
+        # session_config.gpu_options.visible_device_list = '%d' % gpu_id
+        # run_config = tf.estimator.RunConfig(session_config=session_config)
+        self.estimator = Estimator(self.model_fn)
         self.result = []
 
     def run(self):
