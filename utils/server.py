@@ -36,7 +36,7 @@ class ServerTask(threading.Thread):
         frontend.bind('tcp://*:%d' % self.port)
 
         backend = context.socket(zmq.DEALER)
-        backend.bind('ipc:///tmp/backend')
+        backend.bind('tcp://*:9999')
 
         workers = []
         for id in range(self.num_server):
@@ -72,7 +72,7 @@ class ServerWorker(Process):
 
     def run(self):
         worker = self.context.socket(zmq.DEALER)
-        worker.connect('ipc:///tmp/backend')
+        worker.connect('tcp://localhost:9999')
         input_fn = self.input_fn_builder(worker)
         logger.info('worker %d is ready and listening' % self.id)
         for r in self.estimator.predict(input_fn):
