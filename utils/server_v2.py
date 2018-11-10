@@ -73,7 +73,8 @@ class ServerWorker(Process):
 
     def run(self):
         worker = self.context.socket(zmq.DEALER)
-        worker.connect('tcp://localhost:6667')
+        rc = worker.connect('tcp://localhost:6667')
+        assert (rc == 0)
         input_fn = self.input_fn_builder(worker)
         logger.info('worker %d is ready and listening' % self.id)
         for r in self.estimator.predict(input_fn):
