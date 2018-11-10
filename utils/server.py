@@ -88,7 +88,7 @@ class ServerWorker(threading.Thread):
                     self.result = []
                     time_used = time.clock() - start
                     logger.info('finished %d strs from %s in %.3f @ %d/s' %
-                                (ident, num_result, time_used,
+                                (num_result, ident, time_used,
                                  time_used / num_result))
                 ident, msg = worker.recv_multipart()
                 start = time.clock()
