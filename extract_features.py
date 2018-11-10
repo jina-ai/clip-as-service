@@ -68,7 +68,7 @@ def model_fn_builder(bert_config, init_checkpoint, use_one_hot_embeddings=False)
         #     'pooled': model.get_pooled_output()
         # }
 
-        return EstimatorSpec(mode=mode, predictions=model.get_pooled_output())
+        return EstimatorSpec(mode=mode, predictions=model.get_sentence_encoding())
 
     return model_fn
 

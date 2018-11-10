@@ -214,6 +214,7 @@ class BertModel(object):
                 # We "pool" the model by simply taking the hidden state corresponding
                 # to the first token. We assume that this has been pre-trained
                 first_token_tensor = tf.squeeze(self.sequence_output[:, 0:1, :], axis=1)
+                # https://github.com/google-research/bert/issues/43#issuecomment-435980269
                 self.pooled_output = tf.layers.dense(
                     first_token_tensor,
                     config.hidden_size,
@@ -231,6 +232,10 @@ class BertModel(object):
           to the final hidden of the transformer encoder.
         """
         return self.sequence_output
+
+    def get_sentence_encoding(self):
+        # https://github.com/google-research/bert/issues/71#issuecomment-436507081
+        return tf.reduce_mean(self.all_encoder_layers[-2], axis=1)
 
     def get_all_encoder_layers(self):
         return self.all_encoder_layers
