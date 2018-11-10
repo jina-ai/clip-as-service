@@ -22,13 +22,12 @@ def is_valid_input(texts):
 class ServerTask(threading.Thread):
     """ServerTask"""
 
-    def __init__(self, model_dir, num_server=2,
-                 max_seq_len=200, port=5555):
+    def __init__(self, args):
         threading.Thread.__init__(self)
-        self.model_dir = model_dir
-        self.max_seq_len = max_seq_len
-        self.num_server = num_server
-        self.port = port
+        self.model_dir = args.model_dir
+        self.max_seq_len = args.max_seq_len
+        self.num_server = args.snum_server
+        self.port = args.sport
 
     def run(self):
         context = zmq.Context()
