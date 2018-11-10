@@ -1,6 +1,5 @@
 import os
 import pickle
-import threading
 import time
 from multiprocessing import Process
 
@@ -22,11 +21,10 @@ def is_valid_input(texts):
     return isinstance(texts, list) and all(isinstance(s, str) for s in texts)
 
 
-class ServerTask(threading.Thread):
+class ServerTask:
     """ServerTask"""
 
     def __init__(self, args):
-        super().__init__()
         self.model_dir = args.model_dir
         self.max_seq_len = args.max_len
         self.num_server = args.num_server
