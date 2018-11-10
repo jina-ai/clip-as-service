@@ -2,7 +2,6 @@ import os
 import pickle
 import threading
 import time
-from multiprocessing import Process
 
 import tensorflow as tf
 import zmq
@@ -36,11 +35,11 @@ class ServerTask(threading.Thread):
         frontend.bind('tcp://*:%d' % self.port)
 
         backend = context.socket(zmq.DEALER)
-        backend.bind('ipc:///tmp/backend')
+        backend.bind('inproc://backend')
 
         workers = []
         for id in range(self.num_server):
-            worker = ServerWorker(context, id, self.model_dir, self.max_seq_len)
+            worker = ServerWorker(context, id, self.model_dir, self.max_seq_len, id)
             worker.start()
             workers.append(worker)
 
@@ -51,10 +50,10 @@ class ServerTask(threading.Thread):
         context.term()
 
 
-class ServerWorker(Process):
+class ServerWorker(threading.Thread):
     """ServerWorker"""
 
-    def __init__(self, context, id, model_dir, max_seq_len):
+    def __init__(self, context, id, model_dir, max_seq_len, gpu_id):
         super().__init__()
         self.context = context
         self.model_dir = model_dir
@@ -67,17 +66,15 @@ class ServerWorker(Process):
         self.model_fn = model_fn_builder(
             bert_config=modeling.BertConfig.from_json_file(self.config_fp),
             init_checkpoint=self.checkpoint_fp)
-        self.estimator = Estimator(self.model_fn)
+        session_config = tf.ConfigProto()
+        session_config.gpu_options.visible_device_list = '%d' % gpu_id
+        run_config = tf.estimator.RunConfig(session_config=session_config)
+        self.estimator = Estimator(self.model_fn, config=run_config)
         self.result = []
 
     def run(self):
         worker = self.context.socket(zmq.DEALER)
-        worker.connect('ipc:///tmp/backend')
-        while True:
-            ident, msg = worker.recv_multipart()
-            print(ident)
-            print(pickle.loads(msg))
-
+        worker.connect('inproc://backend')
         input_fn = self.input_fn_builder(worker)
         logger.info('worker %d is ready and listening' % self.id)
         for r in self.estimator.predict(input_fn):
