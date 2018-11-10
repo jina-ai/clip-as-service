@@ -2,7 +2,6 @@ import os
 import pickle
 import threading
 import time
-from multiprocessing import Process
 
 import tensorflow as tf
 import zmq
@@ -24,7 +23,7 @@ class ServerTask(threading.Thread):
     """ServerTask"""
 
     def __init__(self, args):
-        super().__init__()
+        super().__init__(args)
         self.model_dir = args.model_dir
         self.max_seq_len = args.max_len
         self.num_server = args.num_server
@@ -36,7 +35,7 @@ class ServerTask(threading.Thread):
         frontend.bind('tcp://*:%d' % self.port)
 
         backend = context.socket(zmq.DEALER)
-        backend.bind('tcp://*:9420')
+        backend.bind('inproc://backend')
 
         workers = []
         for id in range(self.num_server):
@@ -51,7 +50,7 @@ class ServerTask(threading.Thread):
         context.term()
 
 
-class ServerWorker(Process):
+class ServerWorker(threading.Thread):
     """ServerWorker"""
 
     def __init__(self, context, id, model_dir, max_seq_len):
@@ -72,7 +71,7 @@ class ServerWorker(Process):
 
     def run(self):
         worker = self.context.socket(zmq.DEALER)
-        worker.connect('tcp://localhost:9420')
+        worker.connect('inproc://backend')
         input_fn = self.input_fn_builder(worker)
         logger.info('worker %d is ready and listening' % self.id)
         for r in self.estimator.predict(input_fn):
