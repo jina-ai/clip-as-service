@@ -22,7 +22,7 @@ def get_args():
     args = parser.parse_args()
     param_str = '\n'.join(['%20s = %s' % (k, v) for k, v in sorted(vars(args).items())])
     print('usage:\n{0}\nparameters: \n{1}'.format(' '.join([x for x in sys.argv]), param_str))
-    return parser
+    return args
 
 
 if __name__ == '__main__':
