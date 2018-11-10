@@ -1,4 +1,17 @@
 # coding=utf-8
+# Copyright 2018 The Google AI Language Team Authors.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 """Tokenization classes."""
 
 from __future__ import absolute_import
@@ -70,9 +83,20 @@ def load_vocab(vocab_file):
     return vocab
 
 
+def convert_by_vocab(vocab, items):
+    """Converts a sequence of [tokens|ids] using the vocab."""
+    output = []
+    for item in items:
+        output.append(vocab[item])
+    return output
+
+
 def convert_tokens_to_ids(vocab, tokens):
-    """Converts a sequence of tokens into ids using the vocab."""
-    return [vocab[token] for token in tokens]
+    return convert_by_vocab(vocab, tokens)
+
+
+def convert_ids_to_tokens(inv_vocab, ids):
+    return convert_by_vocab(inv_vocab, ids)
 
 
 def whitespace_tokenize(text):
@@ -89,6 +113,7 @@ class FullTokenizer(object):
 
     def __init__(self, vocab_file, do_lower_case=True):
         self.vocab = load_vocab(vocab_file)
+        self.inv_vocab = {v: k for k, v in self.vocab.items()}
         self.basic_tokenizer = BasicTokenizer(do_lower_case=do_lower_case)
         self.wordpiece_tokenizer = WordpieceTokenizer(vocab=self.vocab)
 
@@ -101,7 +126,10 @@ class FullTokenizer(object):
         return split_tokens
 
     def convert_tokens_to_ids(self, tokens):
-        return convert_tokens_to_ids(self.vocab, tokens)
+        return convert_by_vocab(self.vocab, tokens)
+
+    def convert_ids_to_tokens(self, ids):
+        return convert_by_vocab(self.inv_vocab, ids)
 
 
 class BasicTokenizer(object):
