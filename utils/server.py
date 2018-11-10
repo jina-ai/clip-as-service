@@ -27,7 +27,7 @@ class ServerTask(threading.Thread):
         self.model_dir = args.model_dir
         self.max_seq_len = args.max_seq_len
         self.num_server = args.num_server
-        self.port = args.sport
+        self.port = args.port
 
     def run(self):
         context = zmq.Context()
