@@ -87,9 +87,9 @@ class ServerWorker(threading.Thread):
                     worker.send_multipart([ident, pickle.dumps(self.result)])
                     self.result = []
                     time_used = time.clock() - start
-                    logger.info('finished %d strs from %s in %.3f @ %d/s' %
+                    logger.info('finished %d strs from %s in %.2fs @ %d/s' %
                                 (num_result, ident, time_used,
-                                 time_used / num_result))
+                                 int(num_result / time_used)))
                 ident, msg = worker.recv_multipart()
                 start = time.clock()
                 msg = pickle.loads(msg)
