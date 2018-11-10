@@ -25,7 +25,7 @@ class ServerTask(threading.Thread):
     def __init__(self, args):
         threading.Thread.__init__(self)
         self.model_dir = args.model_dir
-        self.max_seq_len = args.max_seq_len
+        self.max_seq_len = args.max_len
         self.num_server = args.num_server
         self.port = args.port
 
