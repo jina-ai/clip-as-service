@@ -3,7 +3,7 @@ import time
 from utils.client import EncoderClient
 
 if __name__ == '__main__':
-    ec = EncoderClient()
+    ec = EncoderClient(port=5556)
     # encode a list of strings
     with open('sample_text.txt', encoding='utf8') as fp:
         data = fp.readlines()
