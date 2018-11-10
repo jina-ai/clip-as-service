@@ -2,7 +2,6 @@ import os
 import pickle
 import threading
 import time
-from multiprocessing import Process
 
 import tensorflow as tf
 import zmq
@@ -37,7 +36,7 @@ class ServerTask(threading.Thread):
         frontend.bind('tcp://*:%d' % self.port)
 
         backend = context.socket(zmq.DEALER)
-        backend.bind('ipc:///tmp/backend0')
+        backend.bind('ipc:///tmp/backend/0')
 
         workers = []
         for id in range(self.num_server):
@@ -52,7 +51,7 @@ class ServerTask(threading.Thread):
         context.term()
 
 
-class ServerWorker(Process):
+class ServerWorker(threading.Thread):
     """ServerWorker"""
 
     def __init__(self, context, id, model_dir, max_seq_len, gpu_id):
@@ -71,12 +70,13 @@ class ServerWorker(Process):
         # session_config = tf.ConfigProto()
         # session_config.gpu_options.visible_device_list = '%d' % gpu_id
         # run_config = tf.estimator.RunConfig(session_config=session_config)
+        os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_id)
         self.estimator = Estimator(self.model_fn)
         self.result = []
 
     def run(self):
         worker = self.context.socket(zmq.DEALER)
-        worker.connect('ipc:///tmp/backend0')
+        worker.connect('inproc://backend')
         input_fn = self.input_fn_builder(worker)
         logger.info('worker %d is ready and listening' % self.id)
         for r in self.estimator.predict(input_fn):
