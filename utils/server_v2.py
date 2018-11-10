@@ -14,9 +14,6 @@ from utils.helper import set_logger
 
 logger = set_logger()
 
-tf.logging.set_verbosity(tf.logging.INFO)
-
-
 def is_valid_input(texts):
     return isinstance(texts, list) and all(isinstance(s, str) for s in texts)
 
@@ -82,6 +79,7 @@ class ServerWorker(Process):
         for r in self.estimator.predict(input_fn):
             self.result.append([round(float(x), 6) for x in r.flat])
         worker.close()
+        logger.info('closed!')
 
     def input_fn_builder(self, worker):
         def gen():
