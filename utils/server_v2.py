@@ -14,6 +14,7 @@ from utils.helper import set_logger
 
 logger = set_logger()
 
+tf.logging.set_verbosity(tf.logging.INFO)
 
 def is_valid_input(texts):
     return isinstance(texts, list) and all(isinstance(s, str) for s in texts)
