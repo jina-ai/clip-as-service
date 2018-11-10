@@ -40,7 +40,7 @@ class ServerTask(threading.Thread):
 
         workers = []
         for id in range(self.num_server):
-            worker = ServerWorker(context, id, self.model_dir, self.max_seq_len, id)
+            worker = ServerWorker(context, id, self.model_dir, self.max_seq_len, id + 1)
             worker.start()
             workers.append(worker)
 
