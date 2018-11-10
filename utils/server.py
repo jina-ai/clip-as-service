@@ -83,12 +83,13 @@ class ServerWorker(threading.Thread):
         def gen():
             while True:
                 if self.result:
+                    num_result = len(self.result)
                     worker.send_multipart([ident, pickle.dumps(self.result)])
                     self.result = []
                     time_used = time.clock() - start
                     logger.info('finished %d strs from %s in %.3f @ %d/s' %
-                                (ident, len(self.result), time_used,
-                                 time_used / len(self.result)))
+                                (ident, num_result, time_used,
+                                 time_used / num_result))
                 ident, msg = worker.recv_multipart()
                 start = time.clock()
                 msg = pickle.loads(msg)
