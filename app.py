@@ -5,7 +5,7 @@ try:
     import gpu_env
 except:
     print('no GPUutils!')
-from utils.server_v2 import ServerTask
+from utils.server import ServerTask
 
 
 def get_args():
@@ -28,4 +28,5 @@ def get_args():
 if __name__ == '__main__':
     args = get_args()
     server = ServerTask(args)
-    server.run()
+    server.start()
+    server.join()
