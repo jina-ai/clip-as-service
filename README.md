@@ -4,6 +4,8 @@
 
 Using BERT model as a sentence encoding service, i.e. mapping a variable-length sentence to a fixed-length vector.
 
+![](.github/carbon.svg)
+
 Author: Han Xiao [https://hanxiao.github.io](https://hanxiao.github.io)
 
 [BERT code of this repo](bert/) is forked from the [original BERT repo]((https://github.com/google-research/bert)) with necessary modification, [especially in extract_features.py](bert/extract_features.py).
