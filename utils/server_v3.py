@@ -16,13 +16,7 @@ from utils.helper import set_logger
 logger = set_logger()
 
 
-def is_valid_input(texts):
-    return isinstance(texts, list) and all(isinstance(s, str) for s in texts)
-
-
 class ServerTask(threading.Thread):
-    """ServerTask"""
-
     def __init__(self, args):
         super().__init__()
         self.model_dir = args.model_dir
@@ -34,24 +28,24 @@ class ServerTask(threading.Thread):
     def worker_task(ident):
         """Worker task, using a REQ socket to do load-balancing."""
         socket = zmq.Context().socket(zmq.REQ)
-        socket.identity = u"Worker-{}".format(ident).encode("ascii")
-        socket.connect("tcp://localhost:8866")
+        socket.identity = u'Worker-{}'.format(ident).encode('ascii')
+        socket.connect('tcp://localhost:8866')
 
         # Tell broker we're ready for work
-        socket.send(b"READY")
+        socket.send(b'READY')
 
         while True:
             address, empty, request = socket.recv_multipart()
-            print("{}: {}".format(socket.identity.decode("ascii"),
-                                  request.decode("ascii")))
-            socket.send_multipart([address, b"", b"OK"])
+            print('{}: {}'.format(socket.identity.decode('ascii'),
+                                  request.decode('ascii')))
+            socket.send_multipart([address, b'', b'OK'])
 
     def run(self):
         context = zmq.Context.instance()
         frontend = context.socket(zmq.ROUTER)
         frontend.bind('tcp://*:%d' % self.port)
         backend = context.socket(zmq.ROUTER)
-        backend.bind("tcp://*:8866")
+        backend.bind('ipc:///tmp/bert.service')
 
         for i in range(self.num_worker):
             process = ServerWorker(i, self.args)
@@ -75,16 +69,16 @@ class ServerTask(threading.Thread):
                     # Poll for clients now that a worker is available
                     poller.register(frontend, zmq.POLLIN)
                 workers.append(worker)
-                if client != b"READY" and len(request) > 3:
+                if client != b'READY' and len(request) > 3:
                     # If client reply, send rest back to frontend
                     empty, reply = request[3:]
-                    frontend.send_multipart([client, b"", reply])
+                    frontend.send_multipart([client, b'', reply])
 
             if frontend in sockets:
                 # Get next client request, route to last-used worker
                 client, empty, request = frontend.recv_multipart()
                 worker = workers.pop(0)
-                backend.send_multipart([worker, b"", client, b"", request])
+                backend.send_multipart([worker, b'', client, b'', request])
                 if not workers:
                     # Don't poll clients if no workers are available
                     poller.unregister(frontend)
@@ -95,7 +89,7 @@ class ServerTask(threading.Thread):
 
 
 class ServerWorker(Process):
-    """ServerWorker"""
+    '''ServerWorker'''
 
     def __init__(self, id, args):
         super().__init__()
@@ -113,29 +107,33 @@ class ServerWorker(Process):
         # session_config = tf.ConfigProto()
         # session_config.gpu_options.visible_device_list = '%d' % gpu_id
         # run_config = tf.estimator.RunConfig(session_config=session_config)
-        os.environ["CUDA_VISIBLE_DEVICES"] = str(self.worker_id)
+        os.environ['CUDA_VISIBLE_DEVICES'] = str(self.worker_id)
         self.estimator = Estimator(self.model_fn)
         self.result = []
 
     def run(self):
         socket = zmq.Context().socket(zmq.REQ)
-        socket.identity = u"Worker-{}".format(self.worker_id).encode("ascii")
-        socket.connect("tcp://localhost:8866")
+        socket.identity = u'Worker-{}'.format(self.worker_id).encode('ascii')
+        socket.connect('ipc:///tmp/bert.service')
 
         input_fn = self.input_fn_builder(socket)
-        socket.send(b"READY")
+        socket.send(b'READY')
         logger.info('worker %d is ready and listening' % self.worker_id)
         for r in self.estimator.predict(input_fn):
             self.result.append([round(float(x), 6) for x in r.flat])
         socket.close()
         logger.info('closed!')
 
+    @staticmethod
+    def is_valid_input(texts):
+        return isinstance(texts, list) and all(isinstance(s, str) for s in texts)
+
     def input_fn_builder(self, worker):
         def gen():
             while True:
                 if self.result:
                     num_result = len(self.result)
-                    worker.send_multipart([ident, b"", pickle.dumps(self.result)])
+                    worker.send_multipart([ident, b'', pickle.dumps(self.result)])
                     self.result = []
                     time_used = time.clock() - start
                     logger.info('encoded %d strs from %s in %.2fs @ %d/s' %
@@ -144,7 +142,7 @@ class ServerWorker(Process):
                 ident, empty, msg = worker.recv_multipart()
                 start = time.clock()
                 msg = pickle.loads(msg)
-                if is_valid_input(msg):
+                if self.is_valid_input(msg):
                     tmp_f = list(convert_lst_to_features(msg, self.max_len, self.tokenizer))
                     yield {
                         'input_ids': [f.input_ids for f in tmp_f],
