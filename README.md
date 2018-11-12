@@ -2,7 +2,7 @@
 
 [![Python: 3.6](https://img.shields.io/badge/Python-3.6-brightgreen.svg)](https://opensource.org/licenses/MIT)    [![Tensorflow: 1.10](https://img.shields.io/badge/Tensorflow-1.10-brightgreen.svg)](https://opensource.org/licenses/MIT)  [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Using BERT model as a sentence encoding service.
+Using BERT model as a sentence encoding service, i.e. mapping a variable length sentence to a fixed length vector.
 
 Author: Han Xiao [https://hanxiao.github.io](https://hanxiao.github.io)
 
@@ -11,6 +11,10 @@ Author: Han Xiao [https://hanxiao.github.io](https://hanxiao.github.io)
 
 [Developed by Google](https://github.com/google-research/bert), BERT is a method of pre-training language representations. It leverages an enormous amount of plain text data publicly available on the web and is trained in an unsupervised manner. Pre-training a BERT model is a fairly expensive yet one-time procedure for each language. Fortunately, Google released several pre-trained models where [you can download from here](https://github.com/google-research/bert#pre-trained-models).
 
+
+On the other hand, sentence encoding is a upstream task required in many NLP applications, e.g. sentiment analysis, text classification. The goal is to represent a variable length sentence into a fixed length vector, each element of which should "encode" some semantics of the original sentence.
+
+This repo uses BERT as the sentence encoder and allows you to convert sentences into fixed length representations in just two lines of code. 
 
 ## Usage
 
@@ -30,7 +34,23 @@ Now you can use pretrained BERT to encode sentences in your Python code simply a
 ec = BertClient()
 ec.encode(['abc', 'defg', 'uwxyz'])
 ```
-This will return List[List[float]]
+This will return a python object with type `List[List[float]]`.
+
+## Using BERT Service Remotely
+One can also start the service on one (GPU) machine and call it from another (CPU) machine, by doing
+
+#### 1. Start the service on a GPU machine:
+```bash
+python app.py -num_worker=4 -model_dir /tmp/english_L-12_H-768_A-12/
+```
+
+#### 2. Calling from another CPU machine
+```python
+ec = BertClient(ip='xx.xx.xx.xx')  # ip address of the gpu machine
+ec.encode(['abc', 'defg', 'uwxyz'])
+```
+ 
+
 
 
 
