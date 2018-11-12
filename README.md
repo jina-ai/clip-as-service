@@ -4,7 +4,7 @@
 
 Using BERT model as a sentence encoding service, i.e. mapping a variable-length sentence to a fixed-length vector.
 
-<img src=".github/demo.png" width="300">
+<img src=".github/demo.png" width="500">
 
 Author: Han Xiao [https://hanxiao.github.io](https://hanxiao.github.io)
 
