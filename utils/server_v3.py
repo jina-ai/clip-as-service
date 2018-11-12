@@ -26,7 +26,7 @@ class ServerTask(threading.Thread):
     def __init__(self, args):
         super().__init__()
         self.model_dir = args.model_dir
-        self.max_seq_len = args.max_len
+        self.max_len = args.max_len
         self.num_worker = args.num_worker
         self.port = args.port
         self.args = args
@@ -104,7 +104,7 @@ class ServerWorker(Process):
         self.checkpoint_fp = os.path.join(self.model_dir, 'bert_model.ckpt')
         self.vocab_fp = os.path.join(args.model_dir, 'vocab.txt')
         self.tokenizer = tokenization.FullTokenizer(vocab_file=self.vocab_fp)
-        self.max_seq_len = args.max_seq_len
+        self.max_len = args.max_len
         self.id = id
         self.daemon = True
         self.model_fn = model_fn_builder(
@@ -145,7 +145,7 @@ class ServerWorker(Process):
                 start = time.clock()
                 msg = pickle.loads(msg)
                 if is_valid_input(msg):
-                    tmp_f = list(convert_lst_to_features(msg, self.max_seq_len, self.tokenizer))
+                    tmp_f = list(convert_lst_to_features(msg, self.max_len, self.tokenizer))
                     yield {
                         'input_ids': [f.input_ids for f in tmp_f],
                         'input_mask': [f.input_mask for f in tmp_f],
@@ -159,8 +159,8 @@ class ServerWorker(Process):
             return (tf.data.Dataset.from_generator(
                 gen,
                 output_types={k: tf.int32 for k in ['input_ids', 'input_mask', 'input_type_ids']},
-                output_shapes={'input_ids': (None, self.max_seq_len),
-                               'input_mask': (None, self.max_seq_len),
-                               'input_type_ids': (None, self.max_seq_len)}))
+                output_shapes={'input_ids': (None, self.max_len),
+                               'input_mask': (None, self.max_len),
+                               'input_type_ids': (None, self.max_len)}))
 
         return input_fn
