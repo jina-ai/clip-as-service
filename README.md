@@ -49,11 +49,30 @@ ec.encode(['abc', 'defg', 'uwxyz'])
 
 **Q:** Where do you get the fixed representation? Did you do pooling or something?
 
-**A:** I take the second-to-last hidden layers of all of the tokens in the sentence and do average pooling. See [the function I add to the modeling.py](bert/modeling.py#L236)
+**A:** I take the second-to-last hidden layer of all of the tokens in the sentence and do average pooling. See [the function I added to the modeling.py](bert/modeling.py#L236)
 
 **Q:** Why not use the hidden state of the first token, i.e. the `[CLS]`?
 
-**A:** Because the model is not fine-tuned on any downstream tasks yet. In this case, the hidden state of the first token is not a good sentence representation.
+**A:** Because a pre-trained model is not fine-tuned on any downstream tasks yet. In this case, the hidden state of `[CLS]` is not a good sentence representation. If later you fine-tune the model, you may [use `get_pooled_output()` to get the fixed length representation](bert/modeling.py#L224) as well.
+
+**Q:** Why not the last hidden layer? Why second-to-last?
+
+**A:** The last layer is too closed to the target functions (i.e. masked language model and next sentence prediction) during pre-training, therefore may be biased to those targets.
+
+**Q:** Could I use other pooling techniques?
+
+**A:** For sure. Just follows [`get_sentence_encoding()` I added to the modeling.py](bert/modeling.py#L236). Note that, if you introduce new `tf.variables` to the graph, then you need to train those variables before using the model.
+
+**Q:** How many requests can a service handle concurrently?
+
+**A:** The maximum number of concurrent requests is determined by `num_worker` in `app.py`. If you a sending more than `num_worker` requests concurrently, the new requests will be temporally stored in a queue until a free worker becomes available.
+
+**Q:** So one request means one sentence?
+
+**A:** No. One request means a list of sentences sent from a client. A request may contain 256, 512 or 1024 sentences. The optimal size of a request is often determined empirically. One large request can certainly  improve the GPU utilization, yet it also increases the overhead of transmission. You may run `python client_example.py` for a simple benchmark.
+
+ 
+
 
 
 
