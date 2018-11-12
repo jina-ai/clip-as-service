@@ -2,8 +2,7 @@ class EncoderClient:
     def __init__(self, ip='localhost', port=5555):
         import zmq
         from datetime import datetime
-        context = zmq.Context()
-        self.socket = context.socket(zmq.DEALER)
+        self.socket = zmq.Context().socket(zmq.REQ)
         self.socket.identity = ('client-%d' % datetime.now().timestamp()).encode('ascii')
         self.socket.connect('tcp://%s:%d' % (ip, port))
 
