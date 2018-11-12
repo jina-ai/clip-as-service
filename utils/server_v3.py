@@ -54,7 +54,7 @@ class ServerTask(threading.Thread):
         backend.bind("tcp://*:8866")
 
         for i in range(self.num_worker):
-            process = ServerWorker(self.args)
+            process = ServerWorker(i, self.args)
             process.start()
 
         # Initialize main loop state
@@ -97,7 +97,7 @@ class ServerTask(threading.Thread):
 class ServerWorker(Process):
     """ServerWorker"""
 
-    def __init__(self, args):
+    def __init__(self, id, args):
         super().__init__()
         self.model_dir = args.model_dir
         self.config_fp = os.path.join(self.model_dir, 'bert_config.json')
@@ -105,7 +105,7 @@ class ServerWorker(Process):
         self.vocab_fp = os.path.join(args.model_dir, 'vocab.txt')
         self.tokenizer = tokenization.FullTokenizer(vocab_file=self.vocab_fp)
         self.max_len = args.max_len
-        self.id = id
+        self.worker_id = id
         self.daemon = True
         self.model_fn = model_fn_builder(
             bert_config=modeling.BertConfig.from_json_file(self.config_fp),
@@ -113,18 +113,18 @@ class ServerWorker(Process):
         # session_config = tf.ConfigProto()
         # session_config.gpu_options.visible_device_list = '%d' % gpu_id
         # run_config = tf.estimator.RunConfig(session_config=session_config)
-        os.environ["CUDA_VISIBLE_DEVICES"] = str(id)
+        os.environ["CUDA_VISIBLE_DEVICES"] = str(self.worker_id)
         self.estimator = Estimator(self.model_fn)
         self.result = []
 
     def run(self):
         socket = zmq.Context().socket(zmq.REQ)
-        socket.identity = u"Worker-{}".format(self.id).encode("ascii")
+        socket.identity = u"Worker-{}".format(self.worker_id).encode("ascii")
         socket.connect("tcp://localhost:8866")
 
         input_fn = self.input_fn_builder(socket)
         socket.send(b"READY")
-        logger.info('worker %d is ready and listening' % self.id)
+        logger.info('worker %d is ready and listening' % self.worker_id)
         for r in self.estimator.predict(input_fn):
             self.result.append([round(float(x), 6) for x in r.flat])
         socket.close()
