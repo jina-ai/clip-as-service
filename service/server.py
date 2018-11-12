@@ -105,7 +105,7 @@ class BertWorker(Process):
         for r in self.estimator.predict(input_fn):
             self.result.append([round(float(x), 6) for x in r.flat])
         socket.close()
-        logger.info('closed!')
+        logger.info('worker is terminated!')
 
     @staticmethod
     def is_valid_input(texts):

@@ -6,7 +6,7 @@ Using BERT model as a sentence encoding service, i.e. mapping a variable-length 
 
 Author: Han Xiao [https://hanxiao.github.io](https://hanxiao.github.io)
 
-[BERT code of this repo](bert/) is grabbed from the [original BERT repo]((https://github.com/google-research/bert)) with necessary modification, [especially in extract_features.py](bert/extract_features.py).
+[BERT code of this repo](bert/) is forked from the [original BERT repo]((https://github.com/google-research/bert)) with necessary modification, [especially in extract_features.py](bert/extract_features.py).
 
 
 ## What is it?
