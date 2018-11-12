@@ -36,17 +36,11 @@ ec.encode(['abc', 'defg', 'uwxyz'])
 ```
 This will return a python object with type `List[List[float]]`.
 
-## Using BERT Service Remotely
-One can also start the service on one (GPU) machine and call it from another (CPU) machine, by doing
+### Using BERT Service Remotely
+One can also start the service on one (GPU) machine and call it from another (CPU) machine as follows
 
-#### 1. Start the service on a GPU machine:
-```bash
-python app.py -num_worker=4 -model_dir /tmp/english_L-12_H-768_A-12/
-```
-
-#### 2. Calling from another CPU machine
 ```python
-ec = BertClient(ip='xx.xx.xx.xx')  # ip address of the gpu machine
+ec = BertClient(ip='xx.xx.xx.xx', port=5555)  # ip address of the gpu machine
 ec.encode(['abc', 'defg', 'uwxyz'])
 ```
  
