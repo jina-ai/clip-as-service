@@ -34,7 +34,7 @@ Now you can use pretrained BERT to encode sentences in your Python code simply a
 ec = BertClient()
 ec.encode(['abc', 'defg', 'uwxyz'])
 ```
-This will return a python object with type `List[List[float]]`.
+This will return a python object with type `List[List[float]]`, each element of the outer `List` is the fixed representation of a sentence.
 
 ### Using BERT Service Remotely
 One can also start the service on one (GPU) machine and call it from another (CPU) machine as follows
