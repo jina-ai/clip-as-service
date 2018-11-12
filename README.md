@@ -49,7 +49,11 @@ ec.encode(['abc', 'defg', 'uwxyz'])
 
 **Q:** Where do you get the fixed representation? Did you do pooling or something?
 
-**A:** 
+**A:** I take the second-to-last hidden layers of all of the tokens in the sentence and do average pooling. See [the function I add to the modeling.py](bert/modeling.py#L236)
+
+**Q:** Why not use the hidden state of the first token, i.e. the `[CLS]`?
+
+**A:** Because the model is not fine-tuned on any downstream tasks yet. In this case, the hidden state of the first token is not a good sentence representation.
 
 
 
