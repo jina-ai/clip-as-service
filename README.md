@@ -30,6 +30,7 @@ Now you can use pretrained BERT to encode sentences in your Python code simply a
 ec = BertClient()
 ec.encode(['abc', 'defg', 'uwxyz'])
 ```
+This will return List[List[float]]
 
 
 

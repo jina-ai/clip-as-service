@@ -11,7 +11,8 @@ if __name__ == '__main__':
     for j in range(1, 200, 10):
         start_t = time.time()
         tmp = data * j
-        ec.encode(tmp)
+        print(type(ec.encode(tmp)))
+
         time_t = time.time() - start_t
         print('encoding %d strs in %.2fs, speed: %d/s' %
               (len(tmp), time_t, int(len(tmp) / time_t)))
