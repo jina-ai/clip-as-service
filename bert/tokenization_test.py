@@ -8,7 +8,7 @@ import tempfile
 
 import tensorflow as tf
 
-import tokenization
+from bert import tokenization
 
 
 class TokenizationTest(tf.test.TestCase):

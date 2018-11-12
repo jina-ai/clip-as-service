@@ -4,8 +4,7 @@ import re
 import tensorflow as tf
 from tensorflow.python.estimator.model_fn import EstimatorSpec
 
-import modeling
-import tokenization
+from bert import tokenization, modeling
 
 
 class InputExample(object):

@@ -5,7 +5,7 @@ from __future__ import print_function
 
 import tensorflow as tf
 
-import optimization
+from bert import optimization
 
 
 class OptimizationTest(tf.test.TestCase):

@@ -1,3 +1,7 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# Han Xiao <artex.xh@gmail.com> <https://hanxiao.github.io>
+
 import argparse
 import sys
 
@@ -5,7 +9,7 @@ try:
     import gpu_env
 except:
     print('no GPUutils!')
-from utils.server_v3 import ServerTask
+from service.server import BertServer
 
 
 def get_args():
@@ -27,6 +31,6 @@ def get_args():
 
 if __name__ == '__main__':
     args = get_args()
-    server = ServerTask(args)
+    server = BertServer(args)
     server.start()
     server.join()

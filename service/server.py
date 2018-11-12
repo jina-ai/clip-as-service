@@ -1,3 +1,7 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# Han Xiao <artex.xh@gmail.com> <https://hanxiao.github.io>
+
 import os
 import pickle
 import threading
@@ -8,15 +12,14 @@ import tensorflow as tf
 import zmq
 from tensorflow.python.estimator.estimator import Estimator
 
-import modeling
-import tokenization
-from extract_features import model_fn_builder, convert_lst_to_features
-from utils.helper import set_logger
+from bert import tokenization, modeling
+from bert.extract_features import model_fn_builder, convert_lst_to_features
+from helper import set_logger
 
 logger = set_logger()
 
 
-class ServerTask(threading.Thread):
+class BertServer(threading.Thread):
     def __init__(self, args):
         super().__init__()
         self.model_dir = args.model_dir
@@ -33,7 +36,7 @@ class ServerTask(threading.Thread):
         backend.bind('ipc:///tmp/bert.service')
 
         for i in range(self.num_worker):
-            process = ServerWorker(i, self.args)
+            process = BertWorker(i, self.args)
             process.start()
 
         # Initialize main loop state
@@ -49,19 +52,19 @@ class ServerTask(threading.Thread):
             if backend in sockets:
                 # Handle worker activity on the backend
                 request = backend.recv_multipart()
-                worker, empty, client = request[:3]
+                worker, _, client = request[:3]
                 if not workers:
                     # Poll for clients now that a worker is available
                     poller.register(frontend, zmq.POLLIN)
                 workers.append(worker)
                 if client != b'READY' and len(request) > 3:
                     # If client reply, send rest back to frontend
-                    empty, reply = request[3:]
+                    _, reply = request[3:]
                     frontend.send_multipart([client, b'', reply])
 
             if frontend in sockets:
                 # Get next client request, route to last-used worker
-                client, empty, request = frontend.recv_multipart()
+                client, _, request = frontend.recv_multipart()
                 worker = workers.pop(0)
                 backend.send_multipart([worker, b'', client, b'', request])
                 if not workers:
@@ -73,7 +76,7 @@ class ServerTask(threading.Thread):
         context.term()
 
 
-class ServerWorker(Process):
+class BertWorker(Process):
     def __init__(self, id, args):
         super().__init__()
         self.model_dir = args.model_dir

@@ -11,7 +11,7 @@ import re
 import six
 import tensorflow as tf
 
-import modeling
+from bert import modeling
 
 
 class BertModelTest(tf.test.TestCase):

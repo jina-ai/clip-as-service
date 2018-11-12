@@ -1,10 +1,10 @@
 import sys
 import time
 
-from utils.client import EncoderClient
+from service.client import BertClient
 
 if __name__ == '__main__':
-    ec = EncoderClient(port=int(sys.argv[1]))
+    ec = BertClient(port=int(sys.argv[1]))
     # encode a list of strings
     with open('sample_text.txt', encoding='utf8') as fp:
         data = fp.readlines()

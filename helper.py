@@ -1,3 +1,7 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# Han Xiao <artex.xh@gmail.com> <https://hanxiao.github.io>
+
 import importlib
 import logging
 import math

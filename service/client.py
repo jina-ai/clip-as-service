@@ -1,4 +1,9 @@
-class EncoderClient:
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# Han Xiao <artex.xh@gmail.com> <https://hanxiao.github.io>
+
+
+class BertClient:
     def __init__(self, ip='localhost', port=5555):
         import zmq
         from datetime import datetime
