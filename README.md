@@ -2,9 +2,11 @@
 
 [![Python: 3.6](https://img.shields.io/badge/Python-3.6-brightgreen.svg)](https://opensource.org/licenses/MIT)    [![Tensorflow: 1.10](https://img.shields.io/badge/Tensorflow-1.10-brightgreen.svg)](https://opensource.org/licenses/MIT)  [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Using BERT model as a sentence encoding service, i.e. mapping a sentence with variable length to a fixed length vector.
+Using BERT model as a sentence encoding service, i.e. mapping a variable-length sentence to a fixed-length vector.
 
 Author: Han Xiao [https://hanxiao.github.io](https://hanxiao.github.io)
+
+[BERT code of this repo](bert/) is grabbed from the [original BERT repo]((https://github.com/google-research/bert)) with necessary modification, [especially in extract_features.py](bert/extract_features.py).
 
 
 ## What is it?
@@ -14,7 +16,7 @@ Author: Han Xiao [https://hanxiao.github.io](https://hanxiao.github.io)
 
 On the other hand, sentence encoding is a upstream task required in many NLP applications, e.g. sentiment analysis, text classification. The goal is to represent a variable length sentence into a fixed length vector, each element of which should "encode" some semantics of the original sentence.
 
-This repo uses BERT as the sentence encoder and allows you to convert sentences into fixed length representations in just two lines of code. 
+This repo uses BERT as the sentence encoder and allows you to convert sentences into fixed-length representations in just two lines of code. 
 
 ## Usage
 
