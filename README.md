@@ -2,7 +2,7 @@
 
 [![Python: 3.6](https://img.shields.io/badge/Python-3.6-brightgreen.svg)](https://opensource.org/licenses/MIT)    [![Tensorflow: 1.10](https://img.shields.io/badge/Tensorflow-1.10-brightgreen.svg)](https://opensource.org/licenses/MIT)  [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Using BERT model as a sentence encoding service, i.e. mapping a variable length sentence to a fixed length vector.
+Using BERT model as a sentence encoding service, i.e. mapping a sentence with variable length to a fixed length vector.
 
 Author: Han Xiao [https://hanxiao.github.io](https://hanxiao.github.io)
 
@@ -61,7 +61,7 @@ ec.encode(['abc', 'defg', 'uwxyz'])
 
 **Q:** Could I use other pooling techniques?
 
-**A:** For sure. Just follows [`get_sentence_encoding()` I added to the modeling.py](bert/modeling.py#L236). Note that, if you introduce new `tf.variables` to the graph, then you need to train those variables before using the model.
+**A:** For sure. Just follows [`get_sentence_encoding()` I added to the modeling.py](bert/modeling.py#L236). Note that, if you introduce new `tf.variables` to the graph, then you need to train those variables before using the model. You may also want to check [some pooling techniques I mentioned in my blog post](https://hanxiao.github.io/2018/06/24/4-Encoding-Blocks-You-Need-to-Know-Besides-LSTM-RNN-in-Tensorflow/#pooling-block).
 
 **Q:** How many requests can a service handle concurrently?
 
@@ -69,7 +69,14 @@ ec.encode(['abc', 'defg', 'uwxyz'])
 
 **Q:** So one request means one sentence?
 
-**A:** No. One request means a list of sentences sent from a client. A request may contain 256, 512 or 1024 sentences. The optimal size of a request is often determined empirically. One large request can certainly  improve the GPU utilization, yet it also increases the overhead of transmission. You may run `python client_example.py` for a simple benchmark.
+**A:** No. One request means a list of sentences sent from a client. Think the size of a request as the batch size. A request may contain 256, 512 or 1024 sentences. The optimal size of a request is often determined empirically. One large request can certainly improve the GPU utilization, yet it also increases the overhead of transmission. You may run `python client_example.py` for a simple benchmark.
+
+**Q:** How about the speed? Is it fast enough for production?
+
+**A:** It highly depends on the `max_seq_len` and the size of a request. On a single Tesla M40 24GB with `max_seq_len=25`, you should get about 390/s using a 12-layer BERT. In general, I'd suggest smaller `max_seq_len` (e.g. 20~30) and larger request size (e.g. 512~1024).
+
+**Q:** What is backend based on?
+**A:** [ZeroMQ](http://zeromq.org/).
 
  
 
