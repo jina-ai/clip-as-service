@@ -25,21 +25,6 @@ class ServerTask(threading.Thread):
         self.port = args.port
         self.args = args
 
-    def worker_task(ident):
-        """Worker task, using a REQ socket to do load-balancing."""
-        socket = zmq.Context().socket(zmq.REQ)
-        socket.identity = u'Worker-{}'.format(ident).encode('ascii')
-        socket.connect('tcp://localhost:8866')
-
-        # Tell broker we're ready for work
-        socket.send(b'READY')
-
-        while True:
-            address, empty, request = socket.recv_multipart()
-            print('{}: {}'.format(socket.identity.decode('ascii'),
-                                  request.decode('ascii')))
-            socket.send_multipart([address, b'', b'OK'])
-
     def run(self):
         context = zmq.Context.instance()
         frontend = context.socket(zmq.ROUTER)
@@ -89,8 +74,6 @@ class ServerTask(threading.Thread):
 
 
 class ServerWorker(Process):
-    '''ServerWorker'''
-
     def __init__(self, id, args):
         super().__init__()
         self.model_dir = args.model_dir
@@ -151,7 +134,7 @@ class ServerWorker(Process):
                     }
                 else:
                     logger.warning('worker %d: received unsupported type! sending back None' % self.id)
-                    worker.send_multipart([ident, pickle.dumps(None)])
+                    worker.send_multipart([ident, b'', pickle.dumps(None)])
 
         def input_fn():
             return (tf.data.Dataset.from_generator(
