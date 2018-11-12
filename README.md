@@ -40,10 +40,17 @@ This will return a python object with type `List[List[float]]`, each element of 
 One can also start the service on one (GPU) machine and call it from another (CPU) machine as follows
 
 ```python
-ec = BertClient(ip='xx.xx.xx.xx', port=5555)  # ip address of the gpu machine
+# on another CPU machine
+ec = BertClient(ip='xx.xx.xx.xx', port=5555)  # ip address of the GPU machine
 ec.encode(['abc', 'defg', 'uwxyz'])
 ```
  
+## QA on Technical Details
+
+**Q:** Where do you get the fixed representation? Did you do pooling or something?
+
+**A:** 
+
 
 
 
