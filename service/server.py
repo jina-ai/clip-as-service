@@ -7,7 +7,6 @@ import os
 import pickle
 import threading
 import time
-from math import ceil
 from multiprocessing import Process
 
 import GPUtil
@@ -46,6 +45,8 @@ class BertServer(threading.Thread):
 
     def run(self):
         def get_a_worker():
+            while not self.workers:
+                pass
             w = self.workers.pop(0)
             if not self.workers:
                 # Don't poll clients if no workers are available
@@ -111,12 +112,11 @@ class BertServer(threading.Thread):
 
                 if num_seqs > self.batch_size_per_worker and num_avail_worker > 1:
                     # divide the list by number of available workers
-                    num_seq_each_worker = ceil(num_seqs / num_avail_worker)
                     s_idx = 0
                     pending_part_jobs[client] = num_seqs
                     finish_part_jobs[client] = []
                     while s_idx < num_seqs:
-                        tmp = seqs[s_idx: (s_idx + num_seq_each_worker)]
+                        tmp = seqs[s_idx: (s_idx + self.batch_size_per_worker)]
                         if tmp:
                             worker = get_a_worker()
                             self.backend.send_multipart([worker, b'', client, b'', pickle.dumps(tmp)])

@@ -46,6 +46,12 @@ if __name__ == '__main__':
     }
     experiments = [
         {
+            'max_seq_len': 40,
+            'batch_size_per_worker': [32, 64, 128, 256],
+            'client_batch_size': 2048,
+            'num_client': 1
+        },
+        {
             'max_seq_len': [20, 40, 80, 160],
             'batch_size_per_worker': 128,
             'client_batch_size': 2048,
@@ -65,13 +71,14 @@ if __name__ == '__main__':
         },
     ]
 
-    for exp, var_name in zip(experiments, ['max_seq_len', 'client_batch_size', 'num_client']):
+    for cur_exp in experiments:
+        var_name = [k for k, v in cur_exp.values() if isinstance(v, list)][0]
         avg_speed = []
-        for var in exp[var_name]:
-            args = namedtuple('args', ','.join(list(common.keys()) + list(exp.keys())))
+        for var in cur_exp[var_name]:
+            args = namedtuple('args', ','.join(list(common.keys()) + list(cur_exp.keys())))
             for k, v in common.items():
                 setattr(args, k, v)
-            for k, v in exp.items():
+            for k, v in cur_exp.items():
                 setattr(args, k, v)
             # override the var_name
             setattr(args, var_name, var)
@@ -94,6 +101,6 @@ if __name__ == '__main__':
                 avg_speed.append(cur_speed)
             server.close()
         tprint('______\nspeed wrt. %s' % var_name)
-        for i, j in zip(exp[var_name], avg_speed):
+        for i, j in zip(cur_exp[var_name], avg_speed):
             tprint('%d\t%d' % (i, j))
         tprint('______')
