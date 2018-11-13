@@ -26,6 +26,7 @@ class BenchmarkClient(threading.Thread):
             start_t = time.clock()
             self.bc.encode(self.batch)
             time_all.append(time.clock() - start_t)
+        print(time_all)
         self.avg_time = mean(time_all)
 
 
@@ -84,8 +85,7 @@ if __name__ == '__main__':
         server.start()
 
         # sleep until server is ready
-        print('pausing for 10s')
-        time.sleep(10)
+        time.sleep(15)
         for _ in range(args.num_client):
             bc = BenchmarkClient(args)
             bc.start()
