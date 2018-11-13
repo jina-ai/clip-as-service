@@ -54,6 +54,7 @@ class BertServer(threading.Thread):
         available_gpus = GPUtil.getAvailable(limit=self.num_worker)
         if len(available_gpus) < self.num_worker:
             logger.warning('only %d GPU(s) is available, ask for %d' % (len(available_gpus), self.num_worker))
+
         for i in available_gpus:
             process = BertWorker(i, self.args)
             process.start()
