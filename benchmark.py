@@ -46,7 +46,7 @@ if __name__ == '__main__':
     }
     experiments = [
         {
-            'max_seq_len': [20, 40, 80, 100],
+            'max_seq_len': [20, 40, 80, 160],
             'batch_size_per_worker': 128,
             'client_batch_size': 2048,
             'client_seq_len': 100,
@@ -54,15 +54,8 @@ if __name__ == '__main__':
         },
         {
             'max_seq_len': 20,
-            'batch_size_per_worker': [64, 128, 256, 512],
-            'client_batch_size': 2048,
-            'client_seq_len': 100,
-            'num_client': 1
-        },
-        {
-            'max_seq_len': 20,
             'batch_size_per_worker': 128,
-            'client_batch_size': [64, 256, 1024, 2048],
+            'client_batch_size': [256, 1024, 2048, 4096],
             'client_seq_len': 100,
             'num_client': 1,
         },
@@ -91,9 +84,13 @@ if __name__ == '__main__':
 
             # sleep until server is ready
             time.sleep(15)
+            all_clients = []
             for _ in range(args.num_client):
                 bc = BenchmarkClient(args)
                 bc.start()
+                all_clients.append(bc)
+
+            for bc in all_clients:
                 bc.join()
                 cur_speed = args.client_batch_size / bc.avg_time
                 tprint('%s: %5d\t%.3f\t%d/s' % (var_name, var, bc.avg_time, int(cur_speed)))
