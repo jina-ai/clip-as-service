@@ -1,5 +1,6 @@
 import random
 import string
+import sys
 import threading
 import time
 from collections import namedtuple
@@ -8,6 +9,12 @@ from numpy import mean
 
 from service.client import BertClient
 from service.server import BertServer
+
+
+def tprint(msg):
+    """like print, but won't get newlines confused with multiple threads"""
+    sys.stdout.write(msg + '\n')
+    sys.stdout.flush()
 
 
 class BenchmarkClient(threading.Thread):
@@ -89,10 +96,10 @@ if __name__ == '__main__':
                 bc.start()
                 bc.join()
                 cur_speed = args.client_batch_size / bc.avg_time
-                print('%s: %5d\t%.3f\t%d/s' % (var_name, var, bc.avg_time, int(cur_speed)))
+                tprint('%s: %5d\t%.3f\t%d/s' % (var_name, var, bc.avg_time, int(cur_speed)))
                 avg_speed.append(cur_speed)
             server.close()
-            print('______\nspeed wrt. %s' % var_name)
+            tprint('______\nspeed wrt. %s' % var_name)
             for i, j in zip(exp[var_name], avg_speed):
-                print('%d\t%d' % (i, j))
-            print('______')
+                tprint('%d\t%d' % (i, j))
+            tprint('______')
