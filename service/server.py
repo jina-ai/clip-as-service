@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 # Han Xiao <artex.xh@gmail.com> <https://hanxiao.github.io>
 
+import multiprocessing
 import os
 import pickle
 import threading
@@ -143,10 +144,11 @@ class BertWorker(Process):
         self.estimator = Estimator(self.model_fn)
         self.result = []
         self.socket = None
+        self.exit_flag = multiprocessing.Event()
 
     def close(self):
         logger.info('shutting down bert-worker %d ...' % self.worker_id)
-        self.socket.close()
+        self.exit_flag.set()
         self.terminate()
         self.join()
         logger.info('bert-worker %d is terminated!' % self.worker_id)
@@ -168,7 +170,7 @@ class BertWorker(Process):
 
     def input_fn_builder(self, worker):
         def gen():
-            while True:
+            while not self.exit_flag.is_set():
                 if self.result:
                     num_result = len(self.result)
                     worker.send_multipart([ident, b'', pickle.dumps(self.result)])
@@ -189,6 +191,7 @@ class BertWorker(Process):
                 else:
                     logger.warning('worker %d: received unsupported type! sending back None' % self.id)
                     worker.send_multipart([ident, b'', pickle.dumps(None)])
+            self.socket.close()
 
         def input_fn():
             return (tf.data.Dataset.from_generator(
