@@ -83,6 +83,8 @@ if __name__ == '__main__':
         server = BertServer(args)
         server.start()
 
+        # sleep until server is ready
+        time.sleep(10)
         for _ in range(args.num_client):
             bc = BenchmarkClient(args)
             bc.start()
