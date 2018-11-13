@@ -30,7 +30,8 @@ class BertServer(threading.Thread):
         self.batch_size_per_worker = args.batch_size_per_worker
         self.port = args.port
         self.args = args
-        self.processes, self.frontend, self.backend, self.context = [], None, None, None
+        self.processes, self.workers = [], []
+        self.frontend, self.backend, self.context = None, None, None
 
     def close(self):
         logger.info('shutting down bert-server...')
