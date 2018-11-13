@@ -122,6 +122,7 @@ class BertServer(threading.Thread):
         frontend.close()
         backend.close()
         context.term()
+        logger.info('server is closed')
 
 
 class BertWorker(Process):
