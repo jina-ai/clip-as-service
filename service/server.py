@@ -30,58 +30,60 @@ class BertServer(threading.Thread):
         self.batch_size_per_worker = args.batch_size_per_worker
         self.port = args.port
         self.args = args
-        self.exit_flag = threading.Event()
+        self.workers, self.frontend, self.backend, self.context = [], None, None, None
 
     def close(self):
         logger.info('shutting down bert-server...')
-        self.exit_flag.set()
+        for w in self.workers:
+            w.close()
+        self.frontend.close()
+        self.backend.close()
+        self.context.term()
         self.join()
-        logger.info('bert-server is terminated')
+        logger.info('bert-server is terminated!')
 
     def run(self):
         def get_a_worker():
-            w = workers.pop(0)
-            if not workers:
+            w = self.workers.pop(0)
+            if not self.workers:
                 # Don't poll clients if no workers are available
-                poller.unregister(frontend)
+                poller.unregister(self.frontend)
             return w
 
         def free_a_worker(w):
-            if not workers:
+            if not self.workers:
                 # Poll for clients now that a worker is available
-                poller.register(frontend, zmq.POLLIN)
-            workers.append(w)
+                poller.register(self.frontend, zmq.POLLIN)
+            self.workers.append(w)
 
-        context = zmq.Context.instance()
-        frontend = context.socket(zmq.ROUTER)
-        frontend.bind('tcp://*:%d' % self.port)
-        backend = context.socket(zmq.ROUTER)
-        backend.bind('ipc:///tmp/bert.service')
+        self.context = zmq.Context.instance()
+        self.frontend = self.context.socket(zmq.ROUTER)
+        self.frontend.bind('tcp://*:%d' % self.port)
+        self.backend = self.context.socket(zmq.ROUTER)
+        self.backend.bind('ipc:///tmp/bert.service')
 
         available_gpus = GPUtil.getAvailable(limit=self.num_worker)
         if len(available_gpus) < self.num_worker:
-            logger.warning('only %d GPU(s) is available, ask for %d' % (len(available_gpus), self.num_worker))
+            logger.warning('only %d GPU(s) is available, but ask for %d' % (len(available_gpus), self.num_worker))
 
         for i in available_gpus:
             process = BertWorker(i, self.args)
             process.start()
 
-        # Initialize main loop state
-        workers = []
         poller = zmq.Poller()
         # Only poll for requests from backend until workers are available
-        poller.register(backend, zmq.POLLIN)
+        poller.register(self.backend, zmq.POLLIN)
 
         pending_part_jobs = {}
         finish_part_jobs = {}
 
-        while not self.exit_flag.is_set():
-            logger.info('available workers: %d' % len(workers))
+        while True:
+            logger.info('available workers: %d' % len(self.workers))
             sockets = dict(poller.poll())
 
-            if backend in sockets:
+            if self.backend in sockets:
                 # Handle worker activity on the backend
-                request = backend.recv_multipart()
+                request = self.backend.recv_multipart()
                 worker, _, client = request[:3]
                 free_a_worker(worker)
                 if client != b'READY' and len(request) > 3:
@@ -92,18 +94,18 @@ class BertServer(threading.Thread):
                         # wait until all partial jobs from this client is done
                         # then concat all and send them back
                         if len(finish_part_jobs[client]) == pending_part_jobs[client]:
-                            frontend.send_multipart([client, b'', pickle.dumps(finish_part_jobs[client])])
+                            self.frontend.send_multipart([client, b'', pickle.dumps(finish_part_jobs[client])])
                             finish_part_jobs.pop(client)
                             pending_part_jobs.pop(client)
                     else:
-                        frontend.send_multipart([client, b'', reply])
+                        self.frontend.send_multipart([client, b'', reply])
 
-            if frontend in sockets:
+            if self.frontend in sockets:
                 # Get next client request, route to last-used worker
-                client, _, request = frontend.recv_multipart()
+                client, _, request = self.frontend.recv_multipart()
                 seqs = pickle.loads(request)
                 num_seqs = len(seqs)
-                num_avail_worker = len(workers)
+                num_avail_worker = len(self.workers)
 
                 if num_seqs > self.batch_size_per_worker and num_avail_worker > 1:
                     # divide the list by number of available workers
@@ -115,18 +117,11 @@ class BertServer(threading.Thread):
                         tmp = seqs[s_idx: (s_idx + num_seq_each_worker)]
                         if tmp:
                             worker = get_a_worker()
-                            backend.send_multipart([worker, b'', client, b'', pickle.dumps(tmp)])
+                            self.backend.send_multipart([worker, b'', client, b'', pickle.dumps(tmp)])
                         s_idx += len(tmp)
                 else:
                     worker = get_a_worker()
-                    backend.send_multipart([worker, b'', client, b'', request])
-
-        for w in workers:
-            w.close()
-        frontend.close()
-        backend.close()
-        context.term()
-        logger.info('server is closed')
+                    self.backend.send_multipart([worker, b'', client, b'', request])
 
 
 class BertWorker(Process):
