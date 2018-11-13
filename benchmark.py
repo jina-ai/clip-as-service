@@ -70,6 +70,7 @@ if __name__ == '__main__':
     # exp1
     exp = experiments[0]
     var_name = 'max_seq_len'
+    avg_speed = []
     for var in exp[var_name]:
         args = namedtuple('args', ','.join(list(common.keys()) + list(exp.keys())))
         for k, v in common.items():
@@ -89,5 +90,6 @@ if __name__ == '__main__':
             bc = BenchmarkClient(args)
             bc.start()
             bc.join()
-            print('time used: %5d\t%.3f' % (var, bc.avg_time))
+            cur_speed = args.client_batch_size / bc.avg_time
+            print('%s: %5d\t%.3f\t%d/s' % (var_name, var, bc.avg_time, int(cur_speed)))
         server.close()

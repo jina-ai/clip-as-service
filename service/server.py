@@ -33,9 +33,11 @@ class BertServer(threading.Thread):
         self.args = args
         self.processes, self.workers = [], []
         self.frontend, self.backend, self.context = None, None, None
+        self.exit_flag = threading.Event()
 
     def close(self):
         logger.info('shutting down bert-server...')
+        self.exit_flag.set()
         for p in self.processes:
             p.close()
         self.frontend.close()
@@ -79,7 +81,7 @@ class BertServer(threading.Thread):
 
         pending_part_jobs, finish_part_jobs = {}, {}
 
-        while True:
+        while not self.exit_flag.is_set():
             logger.info('available workers: %d' % len(self.workers))
             sockets = dict(poller.poll())
 
