@@ -33,8 +33,11 @@ python app.py -num_worker=4 -model_dir /tmp/english_L-12_H-768_A-12/
 This will start a service with four workers, meaning that it can handel up to four **concurrent** requests. (These workers are behind a simple load balancer.)
 
 #### 3. Use Client to Encode Sentences
+> NOTE: please make sure your project includes [`client.py`](service/client.py), as we need to import `BertClient` class from this file. This is the **only file** that you will need as a client.
+
 Now you can use pretrained BERT to encode sentences in your Python code simply as follows:
 ```python
+from service.client import BertClient
 ec = BertClient()
 ec.encode(['abc', 'defg', 'uwxyz'])
 ```
@@ -48,6 +51,8 @@ One can also start the service on one (GPU) machine and call it from another (CP
 ec = BertClient(ip='xx.xx.xx.xx', port=5555)  # ip address of the GPU machine
 ec.encode(['abc', 'defg', 'uwxyz'])
 ```
+
+> NOTE: please make sure your project includes [`client.py`](service/client.py), as we need to import `BertClient` class from this file. Again, this is the **only file** that you will need as a client.
  
 ## QA on Technical Details
 
