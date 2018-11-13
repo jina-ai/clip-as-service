@@ -33,8 +33,10 @@ class BertServer(threading.Thread):
         self.exit_flag = threading.Event()
 
     def close(self):
+        logger.info('shutting down bert-server...')
         self.exit_flag.set()
         self.join()
+        logger.info('bert-server is terminated')
 
     def run(self):
         def get_a_worker():
@@ -147,9 +149,11 @@ class BertWorker(Process):
         self.socket = None
 
     def close(self):
+        logger.info('shutting down bert-worker %d ...' % self.worker_id)
         self.socket.close()
+        self.terminate()
         self.join()
-        logger.info('worker %d is terminated!' % self.worker_id)
+        logger.info('bert-worker %d is terminated!' % self.worker_id)
 
     def run(self):
         self.socket = zmq.Context().socket(zmq.REQ)
