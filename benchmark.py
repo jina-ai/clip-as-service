@@ -79,7 +79,6 @@ if __name__ == '__main__':
         # override the var_name
         setattr(args, var_name, var)
 
-        print('will start a sever with args: %s' % args)
         server = BertServer(args)
         server.start()
 
