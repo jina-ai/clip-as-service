@@ -72,7 +72,7 @@ if __name__ == '__main__':
     ]
 
     for cur_exp in experiments:
-        var_name = [k for k, v in cur_exp.values() if isinstance(v, list)][0]
+        var_name = [k for k, v in cur_exp.items() if isinstance(v, list)][0]
         avg_speed = []
         for var in cur_exp[var_name]:
             args = namedtuple('args', ','.join(list(common.keys()) + list(cur_exp.keys())))
