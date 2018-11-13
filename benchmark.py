@@ -49,21 +49,18 @@ if __name__ == '__main__':
             'max_seq_len': [20, 40, 80, 160],
             'batch_size_per_worker': 128,
             'client_batch_size': 2048,
-            'client_seq_len': 100,
             'num_client': 1
         },
         {
             'max_seq_len': 20,
             'batch_size_per_worker': 128,
             'client_batch_size': [256, 1024, 2048, 4096],
-            'client_seq_len': 100,
             'num_client': 1,
         },
         {
             'max_seq_len': 20,
             'batch_size_per_worker': 128,
             'client_batch_size': 2048,
-            'client_seq_len': 100,
             'num_client': [1, 2, 3, 4],
         },
     ]
