@@ -25,9 +25,9 @@ class BertServer(threading.Thread):
     def __init__(self, args):
         super().__init__()
         self.model_dir = args.model_dir
-        self.max_len = args.max_len
+        self.max_seq_len = args.max_seq_len
         self.num_worker = args.num_worker
-        self.max_seq_per_worker = args.max_seq_per_worker
+        self.batch_size_per_worker = args.batch_size_per_worker
         self.port = args.port
         self.args = args
 
@@ -98,7 +98,7 @@ class BertServer(threading.Thread):
                 num_seqs = len(seqs)
                 num_avail_worker = len(workers)
 
-                if num_seqs > self.max_seq_per_worker and num_avail_worker > 1:
+                if num_seqs > self.batch_size_per_worker and num_avail_worker > 1:
                     # divide the list by number of available workers
                     num_seq_each_worker = ceil(num_seqs / num_avail_worker)
                     s_idx = 0
