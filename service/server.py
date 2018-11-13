@@ -30,12 +30,12 @@ class BertServer(threading.Thread):
         self.batch_size_per_worker = args.batch_size_per_worker
         self.port = args.port
         self.args = args
-        self.workers, self.frontend, self.backend, self.context = [], None, None, None
+        self.processes, self.frontend, self.backend, self.context = [], None, None, None
 
     def close(self):
         logger.info('shutting down bert-server...')
-        for w in self.workers:
-            w.close()
+        for p in self.processes:
+            p.close()
         self.frontend.close()
         self.backend.close()
         self.context.term()
@@ -68,14 +68,14 @@ class BertServer(threading.Thread):
 
         for i in available_gpus:
             process = BertWorker(i, self.args)
+            self.processes.append(process)
             process.start()
 
         poller = zmq.Poller()
         # Only poll for requests from backend until workers are available
         poller.register(self.backend, zmq.POLLIN)
 
-        pending_part_jobs = {}
-        finish_part_jobs = {}
+        pending_part_jobs, finish_part_jobs = {}, {}
 
         while True:
             logger.info('available workers: %d' % len(self.workers))
