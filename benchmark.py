@@ -41,7 +41,7 @@ if __name__ == '__main__':
     common = {
         'model_dir': '/data/cips/save/chinese-bert/chinese_L-12_H-768_A-12/',
         'num_worker': 8,
-        'num_repeat': 5,
+        'num_repeat': 10,
         'port': 5555
     }
     experiments = [
