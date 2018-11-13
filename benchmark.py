@@ -99,7 +99,7 @@ if __name__ == '__main__':
                 tprint('%s: %5d\t%.3f\t%d/s' % (var_name, var, bc.avg_time, int(cur_speed)))
                 avg_speed.append(cur_speed)
             server.close()
-            tprint('______\nspeed wrt. %s' % var_name)
-            for i, j in zip(exp[var_name], avg_speed):
-                tprint('%d\t%d' % (i, j))
-            tprint('______')
+        tprint('______\nspeed wrt. %s' % var_name)
+        for i, j in zip(exp[var_name], avg_speed):
+            tprint('%d\t%d' % (i, j))
+        tprint('______')
