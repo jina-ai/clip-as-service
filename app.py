@@ -10,7 +10,7 @@ from service.server import BertServer
 
 def get_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-model_dir', type=str, default='/data/cips/save/chinese-bert/chinese_L-12_H-768_A-12/',
+    parser.add_argument('-model_dir', type=str, default='/data/cips/result/chinese_L-12_H-768_A-12/',
                         help='pretrained BERT model')
     parser.add_argument('-max_seq_len', type=int, default=25,
                         help='maximum length of a sequence')
