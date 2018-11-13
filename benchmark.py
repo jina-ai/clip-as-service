@@ -84,10 +84,10 @@ if __name__ == '__main__':
         server.start()
 
         # sleep until server is ready
+        print('pausing for 10s')
         time.sleep(10)
         for _ in range(args.num_client):
             bc = BenchmarkClient(args)
             bc.start()
             bc.join()
-            print('time used: %.3f' % bc.avg_time)
-        server.join()
+            print('time used: %5d\t%.3f' % (var, bc.avg_time))
