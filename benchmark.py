@@ -68,28 +68,31 @@ if __name__ == '__main__':
         },
     ]
 
-    # exp1
-    exp = experiments[0]
-    var_name = 'max_seq_len'
-    avg_speed = []
-    for var in exp[var_name]:
-        args = namedtuple('args', ','.join(list(common.keys()) + list(exp.keys())))
-        for k, v in common.items():
-            setattr(args, k, v)
-        for k, v in exp.items():
-            setattr(args, k, v)
-        # override the var_name
-        setattr(args, var_name, var)
+    for exp, var_name in zip(experiments, ['max_seq_len', 'batch_size_per_worker', 'client_batch_size', 'num_client']):
+        avg_speed = []
+        for var in exp[var_name]:
+            args = namedtuple('args', ','.join(list(common.keys()) + list(exp.keys())))
+            for k, v in common.items():
+                setattr(args, k, v)
+            for k, v in exp.items():
+                setattr(args, k, v)
+            # override the var_name
+            setattr(args, var_name, var)
 
-        server = BertServer(args)
-        server.start()
+            server = BertServer(args)
+            server.start()
 
-        # sleep until server is ready
-        time.sleep(15)
-        for _ in range(args.num_client):
-            bc = BenchmarkClient(args)
-            bc.start()
-            bc.join()
-            cur_speed = args.client_batch_size / bc.avg_time
-            print('%s: %5d\t%.3f\t%d/s' % (var_name, var, bc.avg_time, int(cur_speed)))
-        server.close()
+            # sleep until server is ready
+            time.sleep(15)
+            for _ in range(args.num_client):
+                bc = BenchmarkClient(args)
+                bc.start()
+                bc.join()
+                cur_speed = args.client_batch_size / bc.avg_time
+                print('%s: %5d\t%.3f\t%d/s' % (var_name, var, bc.avg_time, int(cur_speed)))
+                avg_speed.append(cur_speed)
+            server.close()
+            print('______\nspeed wrt. %s' % var_name)
+            for i, j in zip(exp[var_name], avg_speed):
+                print('%d\t%d' % (i, j))
+            print('______')
