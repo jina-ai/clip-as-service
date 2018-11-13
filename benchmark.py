@@ -14,7 +14,7 @@ class BenchmarkClient(threading.Thread):
     def __init__(self, args):
         super().__init__()
         self.batch = [''.join(random.choices(string.ascii_uppercase + string.digits,
-                                             k=args.client_seq_len)) for _ in args.client_batch_size]
+                                             k=args.client_seq_len)) for _ in range(args.client_batch_size)]
 
         self.bc = BertClient()
         self.num_repeat = args.num_repeat
