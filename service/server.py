@@ -127,7 +127,7 @@ class BertWorker(Process):
         self.checkpoint_fp = os.path.join(self.model_dir, 'bert_model.ckpt')
         self.vocab_fp = os.path.join(args.model_dir, 'vocab.txt')
         self.tokenizer = tokenization.FullTokenizer(vocab_file=self.vocab_fp)
-        self.max_len = args.max_len
+        self.max_seq_len = args.max_seq_len
         self.worker_id = id
         self.daemon = True
         self.model_fn = model_fn_builder(
@@ -168,7 +168,7 @@ class BertWorker(Process):
                 start = time.clock()
                 msg = pickle.loads(msg)
                 if self.is_valid_input(msg):
-                    tmp_f = list(convert_lst_to_features(msg, self.max_len, self.tokenizer))
+                    tmp_f = list(convert_lst_to_features(msg, self.max_seq_len, self.tokenizer))
                     yield {
                         'input_ids': [f.input_ids for f in tmp_f],
                         'input_mask': [f.input_mask for f in tmp_f],
@@ -182,8 +182,8 @@ class BertWorker(Process):
             return (tf.data.Dataset.from_generator(
                 gen,
                 output_types={k: tf.int32 for k in ['input_ids', 'input_mask', 'input_type_ids']},
-                output_shapes={'input_ids': (None, self.max_len),
-                               'input_mask': (None, self.max_len),
-                               'input_type_ids': (None, self.max_len)}))
+                output_shapes={'input_ids': (None, self.max_seq_len),
+                               'input_mask': (None, self.max_seq_len),
+                               'input_type_ids': (None, self.max_seq_len)}))
 
         return input_fn
