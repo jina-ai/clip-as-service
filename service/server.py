@@ -33,11 +33,9 @@ class BertServer(threading.Thread):
         self.args = args
         self.processes, self.workers = [], []
         self.frontend, self.backend, self.context = None, None, None
-        self.exit_flag = threading.Event()
 
     def close(self):
         logger.info('shutting down bert-server...')
-        self.exit_flag.set()
         for p in self.processes:
             p.close()
         self.frontend.close()
@@ -81,7 +79,7 @@ class BertServer(threading.Thread):
 
         pending_part_jobs, finish_part_jobs = {}, {}
 
-        while not self.exit_flag.is_set():
+        while True:
             logger.info('available workers: %d' % len(self.workers))
             sockets = dict(poller.poll())
 
@@ -177,11 +175,11 @@ class BertWorker(Process):
                     num_result = len(self.result)
                     worker.send_multipart([ident, b'', pickle.dumps(self.result)])
                     self.result.clear()
-                    time_used = time.process_time() - start
+                    time_used = time.perf_counter() - start
                     logger.info('encoded %d strs from %s in %.2fs @ %d/s' %
                                 (num_result, ident, time_used, int(num_result / time_used)))
                 ident, empty, msg = worker.recv_multipart()
-                start = time.process_time()
+                start = time.perf_counter()
                 msg = pickle.loads(msg)
                 if self.is_valid_input(msg):
                     tmp_f = list(convert_lst_to_features(msg, self.max_seq_len, self.tokenizer))
