@@ -9,6 +9,7 @@ import time
 from math import ceil
 from multiprocessing import Process
 
+import GPUtil
 import tensorflow as tf
 import zmq
 from tensorflow.python.estimator.estimator import Estimator
@@ -50,7 +51,10 @@ class BertServer(threading.Thread):
         backend = context.socket(zmq.ROUTER)
         backend.bind('ipc:///tmp/bert.service')
 
-        for i in range(self.num_worker):
+        available_gpus = GPUtil.getAvailable(limit=self.num_worker)
+        if len(available_gpus) < self.num_worker:
+            logger.warning('only %d GPU(s) is available, ask for %d' % (len(available_gpus), self.num_worker))
+        for i in available_gpus:
             process = BertWorker(i, self.args)
             process.start()
 
@@ -134,7 +138,7 @@ class BertWorker(Process):
 
     def run(self):
         socket = zmq.Context().socket(zmq.REQ)
-        socket.identity = u'Worker-{}'.format(self.worker_id).encode('ascii')
+        socket.identity = u'worker-{}'.format(self.worker_id).encode('ascii')
         socket.connect('ipc:///tmp/bert.service')
 
         input_fn = self.input_fn_builder(socket)

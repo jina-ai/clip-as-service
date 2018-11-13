@@ -12,8 +12,7 @@ os.environ['CUDA_DEVICE_ORDER'] = 'PCI_BUS_ID'
 IGNORE_PATTERNS = ('data', '*.pyc', 'CVS', '.git', 'tmp', '.svn', '__pycache__', '.gitignore', '.*.yaml')
 MODEL_ID = datetime.now().strftime("%m%d-%H%M%S") + (
     os.environ['suffix_model_id'] if 'suffix_model_id' in os.environ else '')
-APP_NAME = 'mrc'
-NUM_PROC = 16
+APP_NAME = 'bert'
 
 
 class SummaryType(Enum):
