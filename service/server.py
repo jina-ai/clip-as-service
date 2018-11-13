@@ -177,11 +177,11 @@ class BertWorker(Process):
                     num_result = len(self.result)
                     worker.send_multipart([ident, b'', pickle.dumps(self.result)])
                     self.result.clear()
-                    time_used = time.clock() - start
+                    time_used = time.process_time() - start
                     logger.info('encoded %d strs from %s in %.2fs @ %d/s' %
                                 (num_result, ident, time_used, int(num_result / time_used)))
                 ident, empty, msg = worker.recv_multipart()
-                start = time.clock()
+                start = time.process_time()
                 msg = pickle.loads(msg)
                 if self.is_valid_input(msg):
                     tmp_f = list(convert_lst_to_features(msg, self.max_seq_len, self.tokenizer))
