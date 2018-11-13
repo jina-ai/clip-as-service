@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 # Han Xiao <artex.xh@gmail.com> <https://hanxiao.github.io>
 
+import multiprocessing
 import os
 import pickle
 import threading
@@ -30,6 +31,10 @@ class BertServer(threading.Thread):
         self.batch_size_per_worker = args.batch_size_per_worker
         self.port = args.port
         self.args = args
+        self.exit_flag = threading.Event()
+
+    def close(self):
+        self.exit_flag.set()
 
     def run(self):
         def get_a_worker():
@@ -68,7 +73,7 @@ class BertServer(threading.Thread):
         pending_part_jobs = {}
         finish_part_jobs = {}
 
-        while True:
+        while not self.exit_flag.is_set():
             logger.info('available workers: %d' % len(workers))
             sockets = dict(poller.poll())
 
@@ -136,19 +141,24 @@ class BertWorker(Process):
         os.environ['CUDA_VISIBLE_DEVICES'] = str(self.worker_id)
         self.estimator = Estimator(self.model_fn)
         self.result = []
+        self.exit_flag = multiprocessing.Event()
+        self.socket = None
+
+    def close(self):
+        self.exit_flag.set()
+        self.socket.close()
+        logger.info('worker %d is terminated!' % self.worker_id)
 
     def run(self):
-        socket = zmq.Context().socket(zmq.REQ)
-        socket.identity = u'worker-{}'.format(self.worker_id).encode('ascii')
-        socket.connect('ipc:///tmp/bert.service')
+        self.socket = zmq.Context().socket(zmq.REQ)
+        self.socket.identity = u'worker-{}'.format(self.worker_id).encode('ascii')
+        self.socket.connect('ipc:///tmp/bert.service')
 
-        input_fn = self.input_fn_builder(socket)
-        socket.send(b'READY')
+        input_fn = self.input_fn_builder(self.socket)
+        self.socket.send(b'READY')
         logger.info('worker %d is ready and listening' % self.worker_id)
         for r in self.estimator.predict(input_fn):
             self.result.append([round(float(x), 6) for x in r.flat])
-        socket.close()
-        logger.info('worker is terminated!')
 
     @staticmethod
     def is_valid_input(texts):
@@ -156,7 +166,7 @@ class BertWorker(Process):
 
     def input_fn_builder(self, worker):
         def gen():
-            while True:
+            while not True:
                 if self.result:
                     num_result = len(self.result)
                     worker.send_multipart([ident, b'', pickle.dumps(self.result)])
