@@ -16,6 +16,8 @@ def get_args():
                         help='maximum length of a sequence')
     parser.add_argument('-num_worker', type=int, default=2,
                         help='number of server instances')
+    parser.add_argument('-max_seq_per_worker', type=int, default=256,
+                        help='maximum sequence handled by each worker')
     parser.add_argument('-port', type=int, default=5555,
                         help='port number for C-S communication')
 

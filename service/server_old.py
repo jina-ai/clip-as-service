@@ -6,7 +6,6 @@ import os
 import pickle
 import threading
 import time
-from math import ceil
 from multiprocessing import Process
 
 import tensorflow as tf
@@ -31,19 +30,6 @@ class BertServer(threading.Thread):
         self.args = args
 
     def run(self):
-        def get_a_worker():
-            w = workers.pop(0)
-            if not workers:
-                # Don't poll clients if no workers are available
-                poller.unregister(frontend)
-            return w
-
-        def free_a_worker(w):
-            if not workers:
-                # Poll for clients now that a worker is available
-                poller.register(frontend, zmq.POLLIN)
-            workers.append(w)
-
         context = zmq.Context.instance()
         frontend = context.socket(zmq.ROUTER)
         frontend.bind('tcp://*:%d' % self.port)
@@ -60,8 +46,7 @@ class BertServer(threading.Thread):
         # Only poll for requests from backend until workers are available
         poller.register(backend, zmq.POLLIN)
 
-        pending_part_jobs = {}
-        finish_part_jobs = {}
+        pending_jobs = {}
 
         while True:
             logger.info('available workers: %d' % len(workers))
@@ -71,43 +56,23 @@ class BertServer(threading.Thread):
                 # Handle worker activity on the backend
                 request = backend.recv_multipart()
                 worker, _, client = request[:3]
-                free_a_worker(worker)
+                if not workers:
+                    # Poll for clients now that a worker is available
+                    poller.register(frontend, zmq.POLLIN)
+                workers.append(worker)
                 if client != b'READY' and len(request) > 3:
                     # If client reply, send rest back to frontend
                     _, reply = request[3:]
-                    if client in pending_part_jobs and client in finish_part_jobs:
-                        finish_part_jobs[client].extend(pickle.loads(reply))
-                        # wait until all partial jobs from this client is done
-                        # then concat all and send them back
-                        if len(finish_part_jobs[client]) == pending_part_jobs[client]:
-                            frontend.send_multipart([client, b'', pickle.dumps(finish_part_jobs[client])])
-                            finish_part_jobs.pop(client)
-                            pending_part_jobs.pop(client)
-                    else:
-                        frontend.send_multipart([client, b'', reply])
+                    frontend.send_multipart([client, b'', reply])
 
             if frontend in sockets:
                 # Get next client request, route to last-used worker
                 client, _, request = frontend.recv_multipart()
-                seqs = pickle.loads(request)
-                num_seqs = len(seqs)
-                num_avail_worker = len(workers)
-
-                if num_seqs > self.max_seq_per_worker and num_avail_worker > 1:
-                    # divide the list by number of available workers
-                    num_seq_each_worker = ceil(num_seqs / num_avail_worker)
-                    s_idx = 0
-                    pending_part_jobs[client] = num_seqs
-                    finish_part_jobs[client] = []
-                    while s_idx < num_seqs:
-                        tmp = seqs[s_idx: (s_idx + num_seq_each_worker)]
-                        if tmp:
-                            worker = get_a_worker()
-                            backend.send_multipart([worker, b'', client, b'', pickle.dumps(tmp)])
-                        s_idx += len(tmp)
-                else:
-                    worker = get_a_worker()
-                    backend.send_multipart([worker, b'', client, b'', request])
+                worker = workers.pop(0)
+                backend.send_multipart([worker, b'', client, b'', request])
+                if not workers:
+                    # Don't poll clients if no workers are available
+                    poller.unregister(frontend)
 
         frontend.close()
         backend.close()
