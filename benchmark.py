@@ -90,3 +90,4 @@ if __name__ == '__main__':
             bc.start()
             bc.join()
             print('time used: %5d\t%.3f' % (var, bc.avg_time))
+        server.close()
