@@ -34,6 +34,7 @@ class BertServer(threading.Thread):
 
     def close(self):
         self.exit_flag.set()
+        self.join()
 
     def run(self):
         def get_a_worker():
@@ -147,6 +148,7 @@ class BertWorker(Process):
 
     def close(self):
         self.socket.close()
+        self.join()
         logger.info('worker %d is terminated!' % self.worker_id)
 
     def run(self):
