@@ -48,6 +48,7 @@ One can also start the service on one (GPU) machine and call it from another (CP
 
 ```python
 # on another CPU machine
+from service.client import BertClient
 ec = BertClient(ip='xx.xx.xx.xx', port=5555)  # ip address of the GPU machine
 ec.encode(['abc', 'defg', 'uwxyz'])
 ```
