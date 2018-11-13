@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 # Han Xiao <artex.xh@gmail.com> <https://hanxiao.github.io>
 
-import multiprocessing
 import os
 import pickle
 import threading
@@ -119,6 +118,8 @@ class BertServer(threading.Thread):
                     worker = get_a_worker()
                     backend.send_multipart([worker, b'', client, b'', request])
 
+        for w in workers:
+            w.close()
         frontend.close()
         backend.close()
         context.term()
@@ -142,11 +143,9 @@ class BertWorker(Process):
         os.environ['CUDA_VISIBLE_DEVICES'] = str(self.worker_id)
         self.estimator = Estimator(self.model_fn)
         self.result = []
-        self.exit_flag = multiprocessing.Event()
         self.socket = None
 
     def close(self):
-        self.exit_flag.set()
         self.socket.close()
         logger.info('worker %d is terminated!' % self.worker_id)
 
