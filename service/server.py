@@ -166,7 +166,7 @@ class BertWorker(Process):
 
     def input_fn_builder(self, worker):
         def gen():
-            while not True:
+            while True:
                 if self.result:
                     num_result = len(self.result)
                     worker.send_multipart([ident, b'', pickle.dumps(self.result)])
