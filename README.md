@@ -79,6 +79,14 @@ ec.encode(['abc', 'defg', 'uwxyz'])
 
 **A:** It highly depends on the `max_seq_len` and the size of a request. On a single Tesla M40 24GB with `max_seq_len=25`, you should get about 390/s using a 12-layer BERT. In general, I'd suggest smaller `max_seq_len` (25) and larger request size (512/1024).
 
+**Q:** Do you have a benchmark in terms of efficiency.
+
+**A:** Yes. I tested the service speed in terms of number of processed sentences per second under different `max_seq_len` (a server side parameter) and batch size (a client side parameter). Here are the results on 6-core Tesla M40 24GB:
+
+<img src=".github/benchmark1.png" width="40%"><img src=".github/benchmark2.png" width="40%">
+
+To reproduce the results, please refer to [benchmark.py](benchmark.py).
+
 **Q:** What is backend based on?
 
 **A:** [ZeroMQ](http://zeromq.org/).
