@@ -31,23 +31,3 @@ class ModeKeys(Enum):
     BOTTLENECK = 6
     COMPETITION = 7
     ENSEMBLE = 8
-
-
-try:
-    import GPUtil
-
-    # GPUtil.showUtilization()
-    DEVICE_ID_LIST = GPUtil.getFirstAvailable(order='random', maxMemory=0.5, maxLoad=0.1)
-    DEVICE_ID = DEVICE_ID_LIST[0]  # grab first element from list
-    os.environ["CUDA_VISIBLE_DEVICES"] = str(DEVICE_ID)
-    CONFIG_SET = 'default_gpu'
-except FileNotFoundError:
-    print('no gpu found!')
-    DEVICE_ID = 'x'
-    CONFIG_SET = 'default'
-except RuntimeError:
-    print('all gpus are occupied!')
-    DEVICE_ID = '?'
-    CONFIG_SET = 'default_gpu'
-
-print('use config: %s' % CONFIG_SET)

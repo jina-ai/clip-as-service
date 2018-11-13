@@ -5,10 +5,6 @@
 import argparse
 import sys
 
-try:
-    import gpu_env
-except:
-    print('no GPUutils!')
 from service.server import BertServer
 
 
