@@ -1,9 +1,10 @@
+import sys
 import time
 
 from service.client import BertClient
 
 if __name__ == '__main__':
-    bc = BertClient(ip='localhost', port=5555)
+    bc = BertClient(ip='localhost', port=sys.argv[1])
     # encode a list of strings
     with open('README.md', encoding='utf8') as fp:
         data = [v for v in fp if v.strip()]
