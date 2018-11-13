@@ -23,9 +23,9 @@ class BenchmarkClient(threading.Thread):
     def run(self):
         time_all = []
         for _ in range(self.num_repeat):
-            start_t = time.process_time()
+            start_t = time.perf_counter()
             self.bc.encode(self.batch)
-            time_all.append(time.process_time() - start_t)
+            time_all.append(time.perf_counter() - start_t)
         print(time_all)
         self.avg_time = mean(time_all)
 
