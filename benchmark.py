@@ -95,15 +95,20 @@ if __name__ == '__main__':
 
             tprint('num_client: %d' % len(all_clients))
             for bc in all_clients:
-                print(bc.bc.socket.identity)
                 bc.start()
 
+            all_thread_speed = []
             for bc in all_clients:
                 bc.join()
+                cur_speed = args.client_batch_size / bc.avg_time
+                all_thread_speed.append(cur_speed)
 
-            cur_speed = args.client_batch_size / bc.avg_time
-            tprint('%s: %5d\t%.3f\t%d/s' % (var_name, var, bc.avg_time, int(cur_speed)))
-            avg_speed.append(cur_speed)
+            max_speed = int(max(all_thread_speed))
+            min_speed = int(min(all_thread_speed))
+            t_avg_speed = int(mean(all_thread_speed))
+
+            tprint('%s: %5d\t%.3f\t%d/s' % (var_name, var, bc.avg_time, t_avg_speed))
+            avg_speed.append(t_avg_speed)
             server.close()
         tprint('______\nspeed wrt. %s' % var_name)
         for i, j in zip(cur_exp[var_name], avg_speed):
