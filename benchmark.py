@@ -57,17 +57,17 @@ if __name__ == '__main__':
         #     'client_batch_size': 2048,
         #     'num_client': 1
         # },
-        {
-            'max_seq_len': 40,
-            'max_batch_size': 128,
-            'client_batch_size': [256, 1024, 2048, 4096],
-            'num_client': 1,
-        },
+        # {
+        #     'max_seq_len': 40,
+        #     'max_batch_size': 128,
+        #     'client_batch_size': [256, 1024, 2048, 4096],
+        #     'num_client': 1,
+        # },
         {
             'max_seq_len': 40,
             'max_batch_size': 128,
             'client_batch_size': 2048,
-            'num_client': [1, 2, 3, 4],
+            'num_client': [2, 4, 8, 16],
         },
     ]
 
