@@ -125,7 +125,7 @@ class BertServer(threading.Thread):
             # check if there are finished jobs, send it back to workers
             finished = [(k, v) for k, v in finish_jobs.items() if len(v) == job_checksum[k]]
             for client, tmp in finished:
-                self.frontend.send_multipart([client, b'', pickle.dumps(np.concatenate(tmp, axis=0), protocol=-1)])
+                send_ndarray(self.frontend, client, np.concatenate(tmp, axis=0))
                 unregister_job(client)
 
             # non-empty job queue and free workers, pop the last one and send it to a worker
@@ -174,7 +174,7 @@ class BertWorker(Process):
         self.socket.send(b'READY')
         logger.info('worker %d is ready and listening' % self.worker_id)
         for r in self.estimator.predict(input_fn, yield_single_examples=False):
-            self.send_ndarray(self.socket, self.dest, r)
+            send_ndarray(self.socket, self.dest, r)
             time_used = time.perf_counter() - self._start_t
             logger.info('job %s is done in %.2fs' % (self.dest, time_used))
 
@@ -206,12 +206,12 @@ class BertWorker(Process):
 
         return input_fn
 
-    @staticmethod
-    def send_ndarray(src, dest, X, flags=0, copy=True, track=False):
-        """send a numpy array with metadata"""
-        md = dict(
-            dtype=str(X.dtype),
-            shape=X.shape,
-        )
-        src.send_multipart([dest, b'', jsonapi.dumps(md)], flags | zmq.SNDMORE)
-        return src.send_multipart([dest, b'', X], flags, copy=copy, track=track)
+
+def send_ndarray(src, dest, X, flags=0, copy=True, track=False):
+    """send a numpy array with metadata"""
+    md = dict(
+        dtype=str(X.dtype),
+        shape=X.shape,
+    )
+    src.send_multipart([dest, b'', jsonapi.dumps(md)], flags | zmq.SNDMORE)
+    return src.send_multipart([dest, b'', X], flags, copy=copy, track=track)
