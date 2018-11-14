@@ -13,7 +13,7 @@ class BertClient:
     def __init__(self, ip='localhost', port=5555, output_fmt='ndarray'):
         self.socket = zmq.Context().socket(zmq.REQ)
         self.socket.identity = ('client-%d' %
-                                datetime.now().timestamp() + random.randint(0, 999)).encode('ascii')
+                                datetime.now().timestamp() + str(random.randint(0, 999))).encode('ascii')
         self.socket.connect('tcp://%s:%d' % (ip, port))
 
         if output_fmt == 'ndarray':
