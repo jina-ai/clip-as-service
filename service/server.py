@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # Han Xiao <artex.xh@gmail.com> <https://hanxiao.github.io>
+import json
 import multiprocessing
 import os
 import pickle
@@ -89,16 +90,20 @@ class BertServer(threading.Thread):
             sockets = dict(poller.poll(2))
 
             if self.backend in sockets:
-                md = self.backend.recv_json()
                 request = self.backend.recv_multipart()
                 worker, _, client = request[:3]
-                free_a_worker(worker)
-                if client != b'READY' and len(request) > 3:
+                if client == b'READY':
+                    poller.register(self.frontend, zmq.POLLIN)
+                else:
+                    # parsing data size
+                    md = json.loads(request[-1])
+                    # receiving actual data
+                    request = self.backend.recv_multipart()
+                    worker, _, client = request[:3]
+                    free_a_worker(worker)
                     _, reply = request[3:]
                     X = np.frombuffer(memoryview(reply), dtype=md['dtype'])
                     finish_jobs[client].append(X.reshape(md['shape']))
-                else:
-                    poller.register(self.frontend, zmq.POLLIN)
 
             if self.frontend in sockets:
                 # Get next client request, route to last-used worker
