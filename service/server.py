@@ -17,7 +17,6 @@ from tensorflow.python.estimator.estimator import Estimator
 from bert import tokenization, modeling
 from bert.extract_features import model_fn_builder, convert_lst_to_features
 from helper import set_logger
-from service.client import BertClient
 
 logger = set_logger()
 
@@ -83,7 +82,6 @@ class BertServer(threading.Thread):
         poller = zmq.Poller()
         # Only poll for requests from backend until workers are available
         poller.register(self.backend, zmq.POLLIN)
-        poller.register(self.frontend, zmq.POLLIN)
 
         job_queue, finish_jobs, job_checksum = [], {}, {}
 
@@ -91,17 +89,15 @@ class BertServer(threading.Thread):
             sockets = dict(poller.poll(2))
 
             if self.backend in sockets:
-                request = self.backend.recv_multipart()
-                worker, _, client = request[:3]
-                # parsing data size
-                md = json.loads(request[-1])
-                # receiving actual data
+                # Handle worker activity on the backend
                 request = self.backend.recv_multipart()
                 worker, _, client = request[:3]
                 free_a_worker(worker)
-                _, reply = request[3:]
-                X = np.frombuffer(memoryview(reply), dtype=md['dtype'])
-                finish_jobs[client].append(X.reshape(md['shape']))
+                if client != b'READY' and len(request) > 3:
+                    _, reply = request[3:]
+                    finish_jobs[client].append(pickle.loads(reply))
+                else:
+                    poller.register(self.frontend, zmq.POLLIN)
 
             if self.frontend in sockets:
                 # Get next client request, route to last-used worker
@@ -173,12 +169,16 @@ class BertWorker(Process):
         self.socket.connect('ipc:///tmp/bert.service')
 
         input_fn = self.input_fn_builder(self.socket)
+        self.socket.send(b'READY')
         logger.info('worker %d is ready and listening' % self.worker_id)
         for r in self.estimator.predict(input_fn, yield_single_examples=False):
-            BertClient.send_ndarray(self.socket, self.dest, r)
-            # self.socket.send_multipart([self.dest, b'', pickle.dumps(r, protocol=-1)])
+            self.socket.send_multipart([self.dest, b'', pickle.dumps(r, protocol=-1)])
             time_used = time.perf_counter() - self._start_t
             logger.info('job %s is done in %.2fs' % (self.dest, time_used))
+
+    @staticmethod
+    def is_valid_input(texts):
+        return isinstance(texts, list) and all(isinstance(s, str) for s in texts)
 
     def input_fn_builder(self, worker):
         def gen():
@@ -186,7 +186,7 @@ class BertWorker(Process):
                 self.dest, empty, msg = worker.recv_multipart()
                 self._start_t = time.perf_counter()
                 msg = pickle.loads(msg)
-                if BertClient.is_valid_input(msg):
+                if self.is_valid_input(msg):
                     tmp_f = list(convert_lst_to_features(msg, self.max_seq_len, self.tokenizer))
                     yield {
                         'input_ids': [f.input_ids for f in tmp_f],
@@ -194,7 +194,7 @@ class BertWorker(Process):
                         'input_type_ids': [f.input_type_ids for f in tmp_f]
                     }
                 else:
-                    logger.warning('worker %s: received unsupported type! sending empty back' % self.dest)
+                    logger.warning('worker %s: received unsupported type! sending back None' % self.dest)
                     worker.send_multipart([self.dest, b'', b''])
             worker.close()
 
@@ -207,3 +207,13 @@ class BertWorker(Process):
                                'input_type_ids': (None, self.max_seq_len)}))
 
         return input_fn
+
+    @staticmethod
+    def send_ndarray(src, dest, X, flags=0, copy=True, track=False):
+        """send a numpy array with metadata"""
+        md = dict(
+            dtype=str(X.dtype),
+            shape=X.shape,
+        )
+        src.send_multipart([dest, b'', json.dumps(md)], flags | zmq.SNDMORE)
+        return src.socket.send_multipart([dest, b'', X], flags, copy=copy, track=track)
