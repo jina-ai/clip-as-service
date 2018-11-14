@@ -1,9 +1,9 @@
 import random
 import string
 import sys
+import threading
 import time
 from collections import namedtuple
-from multiprocessing import Process
 
 from numpy import mean
 
@@ -17,7 +17,7 @@ def tprint(msg):
     sys.stdout.flush()
 
 
-class BenchmarkClient(Process):
+class BenchmarkClient(threading.Thread):
     def __init__(self, args):
         super().__init__()
         self.batch = [''.join(random.choices(string.ascii_uppercase + string.digits,
@@ -98,13 +98,11 @@ if __name__ == '__main__':
             tprint('num_client: %d' % len(all_clients))
             for bc in all_clients:
                 bc.join()
+                print(bc)
 
             cur_speed = args.client_batch_size / bc.avg_time
             tprint('%s: %5d\t%.3f\t%d/s' % (var_name, var, bc.avg_time, int(cur_speed)))
             avg_speed.append(cur_speed)
-
-            for bc in all_clients:
-                bc.terminate()
             server.close()
         tprint('______\nspeed wrt. %s' % var_name)
         for i, j in zip(cur_exp[var_name], avg_speed):
