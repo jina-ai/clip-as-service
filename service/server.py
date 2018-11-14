@@ -100,9 +100,10 @@ class BertServer(threading.Thread):
                 worker, _, client = request[:3]
                 free_a_worker(worker)
                 if client != b'READY' and len(request) > 3:
-                    # If client reply, send rest back to frontend
                     _, reply = request[3:]
                     finish_jobs[client].extend(pickle.loads(reply))
+                else:
+                    poller.register(self.frontend, zmq.POLLIN)
 
             if self.frontend in sockets:
                 # Get next client request, route to last-used worker
