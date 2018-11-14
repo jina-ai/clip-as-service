@@ -23,15 +23,15 @@ class BenchmarkClient(threading.Thread):
         self.batch = [''.join(random.choices(string.ascii_uppercase + string.digits,
                                              k=args.max_seq_len)) for _ in range(args.client_batch_size)]
 
-        self.bc = BertClient()
         self.num_repeat = args.num_repeat
         self.avg_time = 0
 
     def run(self):
         time_all = []
+        bc = BertClient()
         for _ in range(self.num_repeat):
             start_t = time.perf_counter()
-            self.bc.encode(self.batch)
+            bc.encode(self.batch)
             time_all.append(time.perf_counter() - start_t)
         print(time_all)
         self.avg_time = mean(time_all)
@@ -89,15 +89,12 @@ if __name__ == '__main__':
             # sleep until server is ready
             time.sleep(15)
             all_clients = [BenchmarkClient(args) for _ in range(args.num_client)]
-
             tprint('num_client: %d' % len(all_clients))
             for bc in all_clients:
-                print(bc)
                 bc.start()
 
             for bc in all_clients:
                 bc.join()
-                print(bc)
 
             cur_speed = args.client_batch_size / bc.avg_time
             tprint('%s: %5d\t%.3f\t%d/s' % (var_name, var, bc.avg_time, int(cur_speed)))
