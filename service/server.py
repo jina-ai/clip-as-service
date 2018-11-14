@@ -176,7 +176,7 @@ class BertWorker(Process):
         for r in self.estimator.predict(input_fn, yield_single_examples=False):
             self.socket.send_multipart([self.dest, b'', pickle.dumps(r, protocol=-1)])
             time_used = time.perf_counter() - self._start_t
-            logger.info('job %s is done in %.2fs' % (self.ident, time_used))
+            logger.info('job %s is done in %.2fs' % (self.dest, time_used))
 
     @staticmethod
     def is_valid_input(texts):
@@ -185,7 +185,7 @@ class BertWorker(Process):
     def input_fn_builder(self, worker):
         def gen():
             while not self.exit_flag.is_set():
-                ident, empty, msg = worker.recv_multipart()
+                self.dest, empty, msg = worker.recv_multipart()
                 self._start_t = time.perf_counter()
                 msg = pickle.loads(msg)
                 if self.is_valid_input(msg):
@@ -197,7 +197,7 @@ class BertWorker(Process):
                     }
                 else:
                     logger.warning('worker %d: received unsupported type! sending back None' % self.id)
-                    worker.send_multipart([ident, b'', pickle.dumps(None, protocol=-1)])
+                    worker.send_multipart([self.dest, b'', pickle.dumps(None, protocol=-1)])
             self.socket.close()
 
         def input_fn():
