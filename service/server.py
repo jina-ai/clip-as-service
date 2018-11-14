@@ -83,7 +83,6 @@ class BertServer(threading.Thread):
         poller = zmq.Poller()
         # Only poll for requests from backend until workers are available
         poller.register(self.backend, zmq.POLLIN)
-        poller.register(self.frontend, zmq.POLLIN)
 
         job_queue, finish_jobs, job_checksum = [], {}, {}
 
@@ -94,17 +93,19 @@ class BertServer(threading.Thread):
                 # Handle worker activity on the backend
                 request = self.backend.recv_multipart()
                 worker, _, client = request[:3]
+                if client == b'READY':
+                    poller.register(self.frontend, zmq.POLLIN)
+                    continue
+
                 # parsing data size
                 md = jsonapi.loads(request[-1])
                 # receiving actual data
                 request = self.backend.recv_multipart()
                 worker, _, client = request[:3]
                 free_a_worker(worker)
-                if client != b'READY' and len(request) > 3:
-                    _, reply = request[3:]
-                    X = np.frombuffer(memoryview(reply), dtype=md['dtype'])
-                    finish_jobs[client].append(X.reshape(md['shape']))
-
+                _, reply = request[3:]
+                X = np.frombuffer(memoryview(reply), dtype=md['dtype'])
+                finish_jobs[client].append(X.reshape(md['shape']))
 
             if self.frontend in sockets:
                 # Get next client request, route to last-used worker
@@ -176,7 +177,7 @@ class BertWorker(Process):
         self.socket.connect('ipc:///tmp/bert.service')
 
         input_fn = self.input_fn_builder(self.socket)
-        # self.socket.send(b'READY')
+        self.socket.send(b'READY')
         logger.info('worker %d is ready and listening' % self.worker_id)
         for r in self.estimator.predict(input_fn, yield_single_examples=False):
             self.send_ndarray(self.socket, self.dest, r)
