@@ -9,6 +9,7 @@ import threading
 import time
 from multiprocessing import Process
 
+import numpy as np
 import tensorflow as tf
 import zmq
 from tensorflow.python.estimator.estimator import Estimator
@@ -49,8 +50,8 @@ class BertServer(threading.Thread):
         def free_a_worker(w):
             self.workers.append(w)
 
-        def register_job(c, n):
-            job_checksum[c] = n
+        def register_job(c, num_part=1):
+            job_checksum[c] = num_part
             finish_jobs[c] = []
 
         def unregister_job(c):
@@ -94,7 +95,7 @@ class BertServer(threading.Thread):
                 free_a_worker(worker)
                 if client != b'READY' and len(request) > 3:
                     _, reply = request[3:]
-                    finish_jobs[client].extend(pickle.loads(reply))
+                    finish_jobs[client].append(pickle.loads(reply))
                 else:
                     poller.register(self.frontend, zmq.POLLIN)
 
@@ -103,23 +104,26 @@ class BertServer(threading.Thread):
                 client, _, request = self.frontend.recv_multipart()
                 seqs = pickle.loads(request)
                 num_seqs = len(seqs)
-                register_job(client, num_seqs)
 
-                s_idx = 0
                 if num_seqs > self.max_batch_size:
                     # divide the large batch into small batches
+                    s_idx = 0
+                    n = 0
                     while s_idx < num_seqs:
                         tmp = seqs[s_idx: (s_idx + self.max_batch_size)]
                         if tmp:
                             job_queue.append((client, pickle.dumps(tmp, protocol=-1)))
+                            n += 1
                         s_idx += len(tmp)
+                    register_job(client, num_part=n)
                 else:
+                    register_job(client)
                     job_queue.append((client, request))
 
             # check if there are finished jobs, send it back to workers
             finished = [(k, v) for k, v in finish_jobs.items() if len(v) == job_checksum[k]]
             for client, tmp in finished:
-                self.frontend.send_multipart([client, b'', pickle.dumps(tmp, protocol=-1)])
+                self.frontend.send_multipart([client, b'', pickle.dumps(np.concatenate(tmp, axis=0), protocol=-1)])
                 unregister_job(client)
 
             # non-empty job queue and free workers, pop the last one and send it to a worker

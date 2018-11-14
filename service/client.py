@@ -12,10 +12,9 @@ class BertClient:
         self.socket.connect('tcp://%s:%d' % (ip, port))
 
         if output_fmt == 'ndarray':
-            import numpy as np
-            self.formatter = lambda x: np.array(x)
+            self.formatter = lambda x: x
         elif output_fmt == 'list':
-            self.formatter = lambda x: [[y.tolist() for y in xx] for xx in x]
+            self.formatter = lambda x: x.tolist()
         else:
             raise AttributeError('"output_fmt" must be "ndarray" or "list"')
 
