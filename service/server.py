@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # Han Xiao <artex.xh@gmail.com> <https://hanxiao.github.io>
-
+import json
 import multiprocessing
 import os
 import pickle
@@ -166,9 +166,10 @@ class BertWorker(Process):
         input_fn = self.input_fn_builder(self.socket)
         self.socket.send(b'READY')
         logger.info('worker %d is ready and listening' % self.worker_id)
-        for r in self.estimator.predict(input_fn):
-            # print(type(r))
-            # print(type(r.flat))
+        for r in self.estimator.predict(input_fn, yield_single_examples=False):
+            print(type(r))
+            print(type(r.flat))
+            print(len(r))
             self.result.append(r)
 
     @staticmethod
@@ -180,6 +181,7 @@ class BertWorker(Process):
             while not self.exit_flag.is_set():
                 if self.result:
                     num_result = len(self.result)
+                    # self.send_ndarray(worker, ident, self.result)
                     worker.send_multipart([ident, b'', pickle.dumps(self.result, protocol=-1)])
                     self.result.clear()
                     time_used = time.perf_counter() - start
@@ -209,3 +211,13 @@ class BertWorker(Process):
                                'input_type_ids': (None, self.max_seq_len)}))
 
         return input_fn
+
+    @staticmethod
+    def send_ndarray(src, dest, X, flags=0, copy=True, track=False):
+        """send a numpy array with metadata"""
+        md = dict(
+            dtype=str(X.dtype),
+            shape=X.shape,
+        )
+        src.send_multipart([dest, b'', json.dumps(md)], flags | zmq.SNDMORE)
+        return src.socket.send_multipart([dest, b'', X], flags, copy=copy, track=track)
