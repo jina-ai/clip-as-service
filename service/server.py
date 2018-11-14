@@ -26,7 +26,7 @@ class BertServer(threading.Thread):
         self.model_dir = args.model_dir
         self.max_seq_len = args.max_seq_len
         self.num_worker = args.num_worker
-        self.max_batch_size = args.batch_size_per_worker
+        self.max_batch_size = args.max_batch_size
         self.port = args.port
         self.args = args
         self.processes, self.workers = [], []
