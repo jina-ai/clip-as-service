@@ -4,19 +4,27 @@
 
 
 class BertClient:
-    def __init__(self, ip='localhost', port=5555):
+    def __init__(self, ip='localhost', port=5555, output_fmt='ndarray'):
         import zmq
         from datetime import datetime
         self.socket = zmq.Context().socket(zmq.REQ)
         self.socket.identity = ('client-%d' % datetime.now().timestamp()).encode('ascii')
         self.socket.connect('tcp://%s:%d' % (ip, port))
 
+        if output_fmt == 'ndarray':
+            import numpy as np
+            self.formatter = lambda x: np.array(x)
+        elif output_fmt == 'list':
+            self.formatter = lambda x: [[y.tolist() for y in xx] for xx in x]
+        else:
+            raise AttributeError('"output_fmt" must be "ndarray" or "list"')
+
     def encode(self, texts):
         if self.is_valid_input(texts):
             self.socket.send_pyobj(texts)
-            return self.socket.recv_pyobj()
+            return self.formatter(self.socket.recv_pyobj())
         else:
-            raise AttributeError('"texts" must be List[str]!')
+            raise AttributeError('"texts" must be "List[str]"!')
 
     @staticmethod
     def is_valid_input(texts):
