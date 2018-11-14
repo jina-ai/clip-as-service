@@ -96,7 +96,6 @@ if __name__ == '__main__':
 
             tprint('num_client: %d' % len(all_clients))
             for bc in all_clients:
-                bc.join()
                 cur_speed = args.client_batch_size / bc.avg_time
                 tprint('%s: %5d\t%.3f\t%d/s' % (var_name, var, bc.avg_time, int(cur_speed)))
                 avg_speed.append(cur_speed)
