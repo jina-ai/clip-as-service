@@ -33,7 +33,7 @@ python app.py -num_worker=4 -model_dir /tmp/english_L-12_H-768_A-12/
 This will start a service with four workers, meaning that it can handel up to four **concurrent** requests. (These workers are behind a simple load balancer.)
 
 #### 3. Use Client to Encode Sentences
-> NOTE: please make sure your project includes [`client.py`](service/client.py), as we need to import `BertClient` class from this file. This is the **only file** that you will need as a client.
+> NOTE: please make sure your project includes [`client.py`](service/client.py), as we need to import `BertClient` class from this file. This is the **only file** that you will need as a client. You don't even need Tensorflow on client.
 
 Now you can use pretrained BERT to encode sentences in your Python code simply as follows:
 ```python
@@ -53,7 +53,7 @@ ec = BertClient(ip='xx.xx.xx.xx', port=5555)  # ip address of the GPU machine
 ec.encode(['abc', 'defg', 'uwxyz'])
 ```
 
-> NOTE: please make sure your project includes [`client.py`](service/client.py), as we need to import `BertClient` class from this file. Again, this is the **only file** that you will need as a client.
+> NOTE: please make sure your project includes [`client.py`](service/client.py), as we need to import `BertClient` class from this file. Again, this is the **only file** that you will need as a client. You don't even need Tensorflow on client.
  
 ## QA on Technical Details
 
@@ -100,6 +100,11 @@ To reproduce the results, please refer to [benchmark.py](benchmark.py).
 **Q:** What is backend based on?
 
 **A:** [ZeroMQ](http://zeromq.org/).
+
+
+**Q:** Do I need Tensorflow on the client side?
+
+**A:** No. Think of `BertClient` as a general feature extractor, whose output can be fed to *any* ML models, e.g. `scikit-learn`, `pytorch`, `tensorflow`. The only file that client need is [`client.py`](service/client.py). Copy this file to your project and import it, then you are ready to go.
 
 
 

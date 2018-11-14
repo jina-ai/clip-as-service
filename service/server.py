@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # Han Xiao <artex.xh@gmail.com> <https://hanxiao.github.io>
-import json
 import multiprocessing
 import os
 import pickle
@@ -17,6 +16,7 @@ from tensorflow.python.estimator.estimator import Estimator
 from bert import tokenization, modeling
 from bert.extract_features import model_fn_builder, convert_lst_to_features
 from helper import set_logger
+from service.client import BertClient
 
 logger = set_logger()
 
@@ -89,13 +89,14 @@ class BertServer(threading.Thread):
             sockets = dict(poller.poll(2))
 
             if self.backend in sockets:
-                # Handle worker activity on the backend
+                md = self.backend.recv_json()
                 request = self.backend.recv_multipart()
                 worker, _, client = request[:3]
                 free_a_worker(worker)
                 if client != b'READY' and len(request) > 3:
                     _, reply = request[3:]
-                    finish_jobs[client].append(pickle.loads(reply))
+                    X = np.frombuffer(memoryview(reply), dtype=md['dtype'])
+                    finish_jobs[client].append(X.reshape(md['shape']))
                 else:
                     poller.register(self.frontend, zmq.POLLIN)
 
@@ -123,8 +124,6 @@ class BertServer(threading.Thread):
             # check if there are finished jobs, send it back to workers
             finished = [(k, v) for k, v in finish_jobs.items() if len(v) == job_checksum[k]]
             for client, tmp in finished:
-                for k in tmp:
-                    print(k)
                 self.frontend.send_multipart([client, b'', pickle.dumps(np.concatenate(tmp, axis=0), protocol=-1)])
                 unregister_job(client)
 
@@ -178,17 +177,13 @@ class BertWorker(Process):
             time_used = time.perf_counter() - self._start_t
             logger.info('job %s is done in %.2fs' % (self.dest, time_used))
 
-    @staticmethod
-    def is_valid_input(texts):
-        return isinstance(texts, list) and all(isinstance(s, str) for s in texts)
-
     def input_fn_builder(self, worker):
         def gen():
             while not self.exit_flag.is_set():
                 self.dest, empty, msg = worker.recv_multipart()
                 self._start_t = time.perf_counter()
                 msg = pickle.loads(msg)
-                if self.is_valid_input(msg):
+                if BertClient.is_valid_input(msg):
                     tmp_f = list(convert_lst_to_features(msg, self.max_seq_len, self.tokenizer))
                     yield {
                         'input_ids': [f.input_ids for f in tmp_f],
@@ -196,8 +191,8 @@ class BertWorker(Process):
                         'input_type_ids': [f.input_type_ids for f in tmp_f]
                     }
                 else:
-                    logger.warning('worker %d: received unsupported type! sending back None' % self.id)
-                    worker.send_multipart([self.dest, b'', pickle.dumps(None, protocol=-1)])
+                    logger.warning('worker %s: received unsupported type! sending empty back' % self.dest)
+                    worker.send_multipart([self.dest, b'', b''])
             self.socket.close()
 
         def input_fn():
@@ -209,13 +204,3 @@ class BertWorker(Process):
                                'input_type_ids': (None, self.max_seq_len)}))
 
         return input_fn
-
-    @staticmethod
-    def send_ndarray(src, dest, X, flags=0, copy=True, track=False):
-        """send a numpy array with metadata"""
-        md = dict(
-            dtype=str(X.dtype),
-            shape=X.shape,
-        )
-        src.send_multipart([dest, b'', json.dumps(md)], flags | zmq.SNDMORE)
-        return src.socket.send_multipart([dest, b'', X], flags, copy=copy, track=track)

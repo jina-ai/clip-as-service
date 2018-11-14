@@ -1,0 +1,4 @@
+# client side requirements
+
+numpy
+pyzmq >= 17.1.0  # python zmq
