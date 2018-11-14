@@ -95,6 +95,7 @@ class BertServer(threading.Thread):
                 worker, _, client = request[:3]
                 free_a_worker(worker)
                 if client != b'READY' and len(request) > 3:
+                    print(request)
                     _, reply = request[3:]
                     finish_jobs[client].append(pickle.loads(reply))
                 else:
