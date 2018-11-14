@@ -92,7 +92,7 @@ class BertServer(threading.Thread):
         job_queue, finish_jobs, job_checksum = [], {}, {}
 
         while True:
-            sockets = dict(poller.poll(10))
+            sockets = dict(poller.poll(2))
 
             if self.backend in sockets:
                 # Handle worker activity on the backend
