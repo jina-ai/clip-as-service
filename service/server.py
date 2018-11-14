@@ -123,6 +123,8 @@ class BertServer(threading.Thread):
             # check if there are finished jobs, send it back to workers
             finished = [(k, v) for k, v in finish_jobs.items() if len(v) == job_checksum[k]]
             for client, tmp in finished:
+                for k in tmp:
+                    print(k.shape)
                 self.frontend.send_multipart([client, b'', pickle.dumps(np.concatenate(tmp, axis=0), protocol=-1)])
                 unregister_job(client)
 
