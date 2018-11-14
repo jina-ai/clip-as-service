@@ -46,24 +46,24 @@ if __name__ == '__main__':
         'port': 5555
     }
     experiments = [
-        {
-            'max_seq_len': 40,
-            'max_batch_size': [32, 64, 128, 256],
-            'client_batch_size': 2048,
-            'num_client': 1
-        },
-        {
-            'max_seq_len': [20, 40, 80, 160],
-            'max_batch_size': 128,
-            'client_batch_size': 2048,
-            'num_client': 1
-        },
-        {
-            'max_seq_len': 40,
-            'max_batch_size': 128,
-            'client_batch_size': [256, 1024, 2048, 4096],
-            'num_client': 1,
-        },
+        # {
+        #     'max_seq_len': 40,
+        #     'max_batch_size': [32, 64, 128, 256],
+        #     'client_batch_size': 2048,
+        #     'num_client': 1
+        # },
+        # {
+        #     'max_seq_len': [20, 40, 80, 160],
+        #     'max_batch_size': 128,
+        #     'client_batch_size': 2048,
+        #     'num_client': 1
+        # },
+        # {
+        #     'max_seq_len': 40,
+        #     'max_batch_size': 128,
+        #     'client_batch_size': [256, 1024, 2048, 4096],
+        #     'num_client': 1,
+        # },
         {
             'max_seq_len': 40,
             'max_batch_size': 128,
