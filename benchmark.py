@@ -23,10 +23,9 @@ class BenchmarkClient(threading.Thread):
         self.batch = [''.join(random.choices(string.ascii_uppercase + string.digits,
                                              k=args.max_seq_len)) for _ in range(args.client_batch_size)]
 
-        self.bc = BertClient()
         self.num_repeat = args.num_repeat
         self.avg_time = 0
-        self.daemon = True
+        self.bc = BertClient()
 
     def run(self):
         time_all = []
@@ -48,12 +47,12 @@ if __name__ == '__main__':
     experiments = [
         {
             'max_seq_len': 40,
-            'max_batch_size': [32, 64, 128, 256],
+            'max_batch_size': [32, 64, 128, 256, 512],
             'client_batch_size': 2048,
             'num_client': 1
         },
         {
-            'max_seq_len': [20, 40, 80, 160],
+            'max_seq_len': [20, 40, 80, 160, 320],
             'max_batch_size': 128,
             'client_batch_size': 2048,
             'num_client': 1
@@ -61,14 +60,14 @@ if __name__ == '__main__':
         {
             'max_seq_len': 40,
             'max_batch_size': 128,
-            'client_batch_size': [256, 1024, 2048, 4096],
+            'client_batch_size': [256, 512, 1024, 2048, 4096],
             'num_client': 1,
         },
         {
             'max_seq_len': 40,
             'max_batch_size': 128,
             'client_batch_size': 2048,
-            'num_client': [2, 4, 8, 16],
+            'num_client': [2, 4, 8, 16, 32],
         },
     ]
 
@@ -91,16 +90,26 @@ if __name__ == '__main__':
             time.sleep(15)
             all_clients = []
             for _ in range(args.num_client):
-                bc = BenchmarkClient(args)
-                bc.start()
-                all_clients.append(bc)
+                all_clients.append(BenchmarkClient(args))
+                time.sleep(1)
 
             tprint('num_client: %d' % len(all_clients))
             for bc in all_clients:
+                bc.start()
+
+            all_thread_speed = []
+            for bc in all_clients:
                 bc.join()
                 cur_speed = args.client_batch_size / bc.avg_time
-                tprint('%s: %5d\t%.3f\t%d/s' % (var_name, var, bc.avg_time, int(cur_speed)))
-                avg_speed.append(cur_speed)
+                all_thread_speed.append(cur_speed)
+
+            max_speed = int(max(all_thread_speed))
+            min_speed = int(min(all_thread_speed))
+            t_avg_speed = int(mean(all_thread_speed))
+
+            tprint('%s: %5d\t%.3f\t%d/s' % (var_name, var, bc.avg_time, t_avg_speed))
+            tprint('max speed: %d\t min speed: %d' % (max_speed, min_speed))
+            avg_speed.append(t_avg_speed)
             server.close()
         tprint('______\nspeed wrt. %s' % var_name)
         for i, j in zip(cur_exp[var_name], avg_speed):
