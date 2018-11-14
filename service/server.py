@@ -169,18 +169,19 @@ class BertWorker(Process):
         self.socket.identity = u'worker-{}'.format(self.worker_id).encode('ascii')
         self.socket.connect('ipc:///tmp/bert.service')
 
-        input_fn = self.input_fn_builder(self.socket)
+        input_fn = self.input_fn_builder()
         self.socket.send(b'READY')
         logger.info('worker %d is ready and listening' % self.worker_id)
         for r in self.estimator.predict(input_fn, yield_single_examples=False):
-            self.socket.send_multipart([self.dest, b'', pickle.dumps(r, protocol=-1)])
+            BertClient.send_ndarray(self.socket, self.dest, r)
+            # self.socket.send_multipart([self.dest, b'', pickle.dumps(r, protocol=-1)])
             time_used = time.perf_counter() - self._start_t
             logger.info('job %s is done in %.2fs' % (self.dest, time_used))
 
-    def input_fn_builder(self, worker):
+    def input_fn_builder(self):
         def gen():
             while not self.exit_flag.is_set():
-                self.dest, empty, msg = worker.recv_multipart()
+                self.dest, empty, msg = self.socket.recv_multipart()
                 self._start_t = time.perf_counter()
                 msg = pickle.loads(msg)
                 if BertClient.is_valid_input(msg):
@@ -192,7 +193,7 @@ class BertWorker(Process):
                     }
                 else:
                     logger.warning('worker %s: received unsupported type! sending empty back' % self.dest)
-                    worker.send_multipart([self.dest, b'', b''])
+                    self.socket.send_multipart([self.dest, b'', b''])
             self.socket.close()
 
         def input_fn():
