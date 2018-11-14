@@ -22,8 +22,10 @@ Author: Han Xiao [https://hanxiao.github.io](https://hanxiao.github.io)
 
 ## Usage
 
-#### 1. Download the Pre-trained BERT Model
-Download it from [here](https://github.com/google-research/bert#pre-trained-models), then uncompress the zip file into some folder, say `/tmp/english_L-12_H-768_A-12/`
+#### 1. Download a Pre-trained BERT Model
+Download a model from [here](https://github.com/google-research/bert#pre-trained-models), then uncompress the zip file into some folder, say `/tmp/english_L-12_H-768_A-12/`
+
+You can use all models listed, including `BERT-Base, Multilingual` and `BERT-Base, Chinese`.
 
 
 #### 2. Start a BERT service
@@ -39,7 +41,7 @@ Now you can use pretrained BERT to encode sentences in your Python code simply a
 ```python
 from service.client import BertClient
 ec = BertClient()
-ec.encode(['abc', 'defg', 'uwxyz'])
+ec.encode(['First do it', 'then do it right', 'then do it better'])
 ```
 This will return a python object with type `List[List[float]]`, each element of the outer `List` is the fixed representation of a sentence.
 
@@ -50,7 +52,7 @@ One can also start the service on one (GPU) machine and call it from another (CP
 # on another CPU machine
 from service.client import BertClient
 ec = BertClient(ip='xx.xx.xx.xx', port=5555)  # ip address of the GPU machine
-ec.encode(['abc', 'defg', 'uwxyz'])
+ec.encode(['First do it', 'then do it right', 'then do it better'])
 ```
 
 > NOTE: please make sure your project includes [`client.py`](service/client.py), as we need to import `BertClient` class from this file. Again, this is the **only file** that you will need as a client. You don't even need Tensorflow on client.
@@ -95,7 +97,7 @@ ec.encode(['abc', 'defg', 'uwxyz'])
 
 <img src=".github/b1.png" width="30%"><img src=".github/b2.png" width="30%"><img src=".github/b3.png" width="30%">
 
-To reproduce the results, please refer to [benchmark.py](benchmark.py).
+To reproduce the results, please run [`python benchmark.py`](benchmark.py).
 
 **Q:** What is backend based on?
 
@@ -106,8 +108,20 @@ To reproduce the results, please refer to [benchmark.py](benchmark.py).
 
 **A:** No. Think of `BertClient` as a general feature extractor, whose output can be fed to *any* ML models, e.g. `scikit-learn`, `pytorch`, `tensorflow`. The only file that client need is [`client.py`](service/client.py). Copy this file to your project and import it, then you are ready to go.
 
+**Q:** Can I use multilingual BERT model provided by Google?
 
+**A:** Yes.
 
+**Q:** Can I use my own fine-tuned BERT model?
 
+**A:** Yes. Make sure you have the following three items in `model_dir`:
+                             
+- A TensorFlow checkpoint (`bert_model.ckpt`) containing the pre-trained weights (which is actually 3 files).
+- A vocab file (`vocab.txt`) to map WordPiece to word id.
+- A config file (`bert_config.json`) which specifies the hyperparameters of the model.
+
+**Q:** Can I run in python 2?
+
+**A:** No.
 
 
