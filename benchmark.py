@@ -26,7 +26,6 @@ class BenchmarkClient(threading.Thread):
         self.bc = BertClient()
         self.num_repeat = args.num_repeat
         self.avg_time = 0
-        self.daemon = True
 
     def run(self):
         time_all = []
@@ -93,8 +92,9 @@ if __name__ == '__main__':
 
             tprint('num_client: %d' % len(all_clients))
             for bc in all_clients:
+                print(bc)
                 bc.start()
-                input()
+
             for bc in all_clients:
                 bc.join()
                 print(bc)
