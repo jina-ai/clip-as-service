@@ -31,6 +31,9 @@ class BertClient:
         else:
             raise AttributeError('"texts" must be "List[str]"!')
 
+    def close(self):
+        self.socket.term()
+
     @staticmethod
     def is_valid_input(texts):
         return isinstance(texts, list) and all(isinstance(s, str) for s in texts)

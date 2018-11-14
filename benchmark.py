@@ -36,6 +36,10 @@ class BenchmarkClient(threading.Thread):
         print(time_all)
         self.avg_time = mean(time_all)
 
+    def close(self):
+        self.bc.close()
+        self.join()
+
 
 if __name__ == '__main__':
     common = {
@@ -99,6 +103,7 @@ if __name__ == '__main__':
                 cur_speed = args.client_batch_size / bc.avg_time
                 tprint('%s: %5d\t%.3f\t%d/s' % (var_name, var, bc.avg_time, int(cur_speed)))
                 avg_speed.append(cur_speed)
+                bc.close()
             server.close()
         tprint('______\nspeed wrt. %s' % var_name)
         for i, j in zip(cur_exp[var_name], avg_speed):
