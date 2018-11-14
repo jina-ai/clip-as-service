@@ -91,7 +91,7 @@ ec.encode(['abc', 'defg', 'uwxyz'])
 
 **Q:** Did you benchmark the efficiency?
 
-**A:** Yes. I tested the service speed in terms of number of processed sentences per second under different `max_seq_len` (a server side parameter) and batch size (a client side parameter). Here are the results on 6-core Tesla M40 24GB:
+**A:** Yes. I tested the service speed in terms of number of processed sentences per second under different `max_seq_len` (a server side parameter) and batch size (a client side parameter). Here are the results on 4 Tesla M40 24GB:
 
 <img src=".github/b1.png" width="30%"><img src=".github/b2.png" width="30%"><img src=".github/b3.png" width="30%">
 
