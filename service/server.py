@@ -124,7 +124,7 @@ class BertServer(threading.Thread):
             finished = [(k, v) for k, v in finish_jobs.items() if len(v) == job_checksum[k]]
             for client, tmp in finished:
                 for k in tmp:
-                    print(k.shape)
+                    print(k)
                 self.frontend.send_multipart([client, b'', pickle.dumps(np.concatenate(tmp, axis=0), protocol=-1)])
                 unregister_job(client)
 
@@ -153,7 +153,8 @@ class BertWorker(Process):
             init_checkpoint=self.checkpoint_fp)
         os.environ['CUDA_VISIBLE_DEVICES'] = str(self.worker_id)
         self.estimator = Estimator(self.model_fn)
-        self.result = []
+        self.dest = None
+        self._start_t = time.perf_counter()
         self.socket = None
         self.exit_flag = multiprocessing.Event()
 
@@ -173,10 +174,9 @@ class BertWorker(Process):
         self.socket.send(b'READY')
         logger.info('worker %d is ready and listening' % self.worker_id)
         for r in self.estimator.predict(input_fn, yield_single_examples=False):
-            print(type(r))
-            print(type(r.flat))
-            print(len(r))
-            self.result.append(r)
+            self.socket.send_multipart([self.dest, b'', pickle.dumps(r, protocol=-1)])
+            time_used = time.perf_counter() - self._start_t
+            logger.info('job %s is done in %.2fs' % (self.ident, time_used))
 
     @staticmethod
     def is_valid_input(texts):
@@ -185,16 +185,8 @@ class BertWorker(Process):
     def input_fn_builder(self, worker):
         def gen():
             while not self.exit_flag.is_set():
-                if self.result:
-                    num_result = len(self.result)
-                    # self.send_ndarray(worker, ident, self.result)
-                    worker.send_multipart([ident, b'', pickle.dumps(self.result, protocol=-1)])
-                    self.result.clear()
-                    time_used = time.perf_counter() - start
-                    logger.info('encoded %d strs from %s in %.2fs @ %d/s' %
-                                (num_result, ident, time_used, int(num_result / time_used)))
                 ident, empty, msg = worker.recv_multipart()
-                start = time.perf_counter()
+                self._start_t = time.perf_counter()
                 msg = pickle.loads(msg)
                 if self.is_valid_input(msg):
                     tmp_f = list(convert_lst_to_features(msg, self.max_seq_len, self.tokenizer))
