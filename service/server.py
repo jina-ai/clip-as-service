@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # Han Xiao <artex.xh@gmail.com> <https://hanxiao.github.io>
-import json
 import multiprocessing
 import os
 import pickle
@@ -13,6 +12,7 @@ import numpy as np
 import tensorflow as tf
 import zmq
 from tensorflow.python.estimator.estimator import Estimator
+from zmq.utils import jsonapi
 
 from bert import tokenization, modeling
 from bert.extract_features import model_fn_builder, convert_lst_to_features
@@ -212,5 +212,5 @@ class BertWorker(Process):
             dtype=str(X.dtype),
             shape=X.shape,
         )
-        src.send_multipart([dest, b'', json.dumps(md)], flags | zmq.SNDMORE)
+        src.send_multipart([dest, b'', jsonapi.dumps(md)], flags | zmq.SNDMORE)
         return src.socket.send_multipart([dest, b'', X], flags, copy=copy, track=track)
