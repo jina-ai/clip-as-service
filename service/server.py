@@ -10,7 +10,6 @@ import time
 from math import ceil
 from multiprocessing import Process
 
-import GPUtil
 import tensorflow as tf
 import zmq
 from tensorflow.python.estimator.estimator import Estimator
@@ -64,9 +63,15 @@ class BertServer(threading.Thread):
         self.backend = self.context.socket(zmq.ROUTER)
         self.backend.bind('ipc:///tmp/bert.service')
 
-        available_gpus = GPUtil.getAvailable(limit=self.num_worker)
-        if len(available_gpus) < self.num_worker:
-            logger.warning('only %d GPU(s) is available, but ask for %d' % (len(available_gpus), self.num_worker))
+        available_gpus = range(self.num_worker)
+        try:
+            import GPUtil
+            available_gpus = GPUtil.getAvailable(limit=self.num_worker)
+            if len(available_gpus) < self.num_worker:
+                logger.warning('only %d GPU(s) is available, but ask for %d' % (len(available_gpus), self.num_worker))
+        except FileNotFoundError:
+            logger.warn('nvidia-smi is missing, often means no gpu found on this machine. '
+                        'will run service on cpu instead')
 
         for i in available_gpus:
             process = BertWorker(i, self.args)
