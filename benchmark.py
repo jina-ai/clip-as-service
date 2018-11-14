@@ -108,6 +108,7 @@ if __name__ == '__main__':
             t_avg_speed = int(mean(all_thread_speed))
 
             tprint('%s: %5d\t%.3f\t%d/s' % (var_name, var, bc.avg_time, t_avg_speed))
+            tprint('max speed: %d\t min speed: %d' % (max_speed, min_speed))
             avg_speed.append(t_avg_speed)
             server.close()
         tprint('______\nspeed wrt. %s' % var_name)
