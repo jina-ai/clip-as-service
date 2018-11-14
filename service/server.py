@@ -83,7 +83,6 @@ class BertServer(threading.Thread):
         poller = zmq.Poller()
         # Only poll for requests from backend until workers are available
         poller.register(self.backend, zmq.POLLIN)
-        poller.register(self.frontend, zmq.POLLIN)
 
         job_queue, finish_jobs, job_checksum = [], {}, {}
 
