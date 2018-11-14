@@ -172,18 +172,18 @@ class BertWorker(Process):
         self.socket.identity = u'worker-{}'.format(self.worker_id).encode('ascii')
         self.socket.connect('ipc:///tmp/bert.service')
 
-        input_fn = self.input_fn_builder()
+        input_fn = self.input_fn_builder(self.socket)
         logger.info('worker %d is ready and listening' % self.worker_id)
         for r in self.estimator.predict(input_fn, yield_single_examples=False):
-            # BertClient.send_ndarray(self.socket, self.dest, r)
+            BertClient.send_ndarray(self.socket, self.dest, r)
             # self.socket.send_multipart([self.dest, b'', pickle.dumps(r, protocol=-1)])
             time_used = time.perf_counter() - self._start_t
             logger.info('job %s is done in %.2fs' % (self.dest, time_used))
 
-    def input_fn_builder(self):
+    def input_fn_builder(self, worker):
         def gen():
             while not self.exit_flag.is_set():
-                self.dest, empty, msg = self.socket.recv_multipart()
+                self.dest, empty, msg = worker.recv_multipart()
                 self._start_t = time.perf_counter()
                 msg = pickle.loads(msg)
                 if BertClient.is_valid_input(msg):
@@ -195,8 +195,8 @@ class BertWorker(Process):
                     }
                 else:
                     logger.warning('worker %s: received unsupported type! sending empty back' % self.dest)
-                    self.socket.send_multipart([self.dest, b'', b''])
-            self.socket.close()
+                    worker.send_multipart([self.dest, b'', b''])
+            worker.close()
 
         def input_fn():
             return (tf.data.Dataset.from_generator(
