@@ -93,10 +93,16 @@ class BertServer(threading.Thread):
                 # Handle worker activity on the backend
                 request = self.backend.recv_multipart()
                 worker, _, client = request[:3]
+                # parsing data size
+                md = jsonapi.loads(request[-1])
+                # receiving actual data
+                request = self.backend.recv_multipart()
+                worker, _, client = request[:3]
                 free_a_worker(worker)
                 if client != b'READY' and len(request) > 3:
                     _, reply = request[3:]
-                    finish_jobs[client].append(pickle.loads(reply))
+                    X = np.frombuffer(memoryview(reply), dtype=md['dtype'])
+                    finish_jobs[client].append(X.reshape(md['shape']))
                 else:
                     poller.register(self.frontend, zmq.POLLIN)
 
