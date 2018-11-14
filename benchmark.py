@@ -34,7 +34,8 @@ class BenchmarkClient(threading.Thread):
             self.bc.encode(self.batch)
             time_all.append(time.perf_counter() - start_t)
         print(time_all)
-        self.avg_time = mean(time_all)
+        # consider first three as warmup
+        self.avg_time = mean(time_all[3:])
 
 
 if __name__ == '__main__':
