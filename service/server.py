@@ -126,13 +126,14 @@ class BertServer(threading.Thread):
                     client, tmp = job_queue.pop()
                     worker = get_a_worker()
                     self.backend.send_multipart([worker, b'', client, b'', pickle.dumps(tmp)])
-                    logger.info('available workers: %2d job queue: %3d' % (len(self.workers), len(job_queue)))
+                    logger.info('available workers: %2d\tjob queue: %3d\tpending clients: %3d' % (
+                        len(self.workers), len(job_queue), len(job_checksum)))
 
             # check if there are finished jobs, send it back to workers
-            for client, tmp in finish_jobs.items():
-                if len(tmp) == job_checksum[client]:
-                    self.frontend.send_multipart([client, b'', pickle.dumps(tmp)])
-                    unregister_job(client)
+            finished = [(k, v) for k, v in finish_jobs.items() if len(v) == job_checksum[k]]
+            for client, tmp in finished:
+                self.frontend.send_multipart([client, b'', pickle.dumps(tmp)])
+                unregister_job(client)
 
 
 class BertWorker(Process):
