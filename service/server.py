@@ -44,16 +44,9 @@ class BertServer(threading.Thread):
 
     def run(self):
         def get_a_worker():
-            # w =
-            # if not self.workers:
-            #     # Don't poll clients if no workers are available
-            #     poller.unregister(self.frontend)
             return self.workers.pop(0)
 
         def free_a_worker(w):
-            # if not self.workers:
-            #     # Poll for clients now that a worker is available
-            #     poller.register(self.frontend, zmq.POLLIN)
             self.workers.append(w)
 
         def register_job(c, n):
@@ -113,26 +106,29 @@ class BertServer(threading.Thread):
                 register_job(client, num_seqs)
 
                 s_idx = 0
-                # divide the large batch into small batches
-                while s_idx < num_seqs:
-                    tmp = seqs[s_idx: (s_idx + self.max_batch_size)]
-                    if tmp:
-                        job_queue.append((client, tmp))
-                    s_idx += len(tmp)
-
-            # non-empty job queue and free workers, pop the last one and send it to a worker
-            while self.workers and job_queue:
-                client, tmp = job_queue.pop()
-                worker = get_a_worker()
-                self.backend.send_multipart([worker, b'', client, b'', pickle.dumps(tmp)])
-                logger.info('available workers: %2d\tjob queue: %3d\tpending clients: %3d' % (
-                    len(self.workers), len(job_queue), len(job_checksum)))
+                if num_seqs > self.max_batch_size:
+                    # divide the large batch into small batches
+                    while s_idx < num_seqs:
+                        tmp = seqs[s_idx: (s_idx + self.max_batch_size)]
+                        if tmp:
+                            job_queue.append((client, pickle.dumps(tmp)))
+                        s_idx += len(tmp)
+                else:
+                    job_queue.append((client, request))
 
             # check if there are finished jobs, send it back to workers
             finished = [(k, v) for k, v in finish_jobs.items() if len(v) == job_checksum[k]]
             for client, tmp in finished:
                 self.frontend.send_multipart([client, b'', pickle.dumps(tmp)])
                 unregister_job(client)
+
+            # non-empty job queue and free workers, pop the last one and send it to a worker
+            while self.workers and job_queue:
+                client, tmp = job_queue.pop()
+                worker = get_a_worker()
+                self.backend.send_multipart([worker, b'', client, b'', tmp])
+                logger.info('available workers: %2d\tjob queue: %3d\tpending clients: %3d' % (
+                    len(self.workers), len(job_queue), len(job_checksum)))
 
 
 class BertWorker(Process):
