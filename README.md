@@ -4,7 +4,7 @@
 
 Using BERT model as a sentence encoding service, i.e. mapping a variable-length sentence to a fixed-length vector.
 
-<img src=".github/demo.gif" width="500">
+<img src=".github/demo.gif" width="600">
 
 Author: Han Xiao [https://hanxiao.github.io](https://hanxiao.github.io)
 
@@ -33,7 +33,7 @@ python app.py -num_worker=4 -model_dir /tmp/english_L-12_H-768_A-12/
 This will start a service with four workers, meaning that it can handel up to four **concurrent** requests. (These workers are behind a simple load balancer.)
 
 #### 3. Use Client to Encode Sentences
-> NOTE: please make sure your project includes [`client.py`](service/client.py), as we need to import `BertClient` class from this file. This is the **only file** that you will need as a client.
+> NOTE: please make sure your project includes [`client.py`](service/client.py), as we need to import `BertClient` class from this file. This is the **only file** that you will need as a client. You don't even need Tensorflow on client.
 
 Now you can use pretrained BERT to encode sentences in your Python code simply as follows:
 ```python
@@ -53,7 +53,7 @@ ec = BertClient(ip='xx.xx.xx.xx', port=5555)  # ip address of the GPU machine
 ec.encode(['abc', 'defg', 'uwxyz'])
 ```
 
-> NOTE: please make sure your project includes [`client.py`](service/client.py), as we need to import `BertClient` class from this file. Again, this is the **only file** that you will need as a client.
+> NOTE: please make sure your project includes [`client.py`](service/client.py), as we need to import `BertClient` class from this file. Again, this is the **only file** that you will need as a client. You don't even need Tensorflow on client.
  
 ## QA on Technical Details
 
@@ -73,7 +73,11 @@ ec.encode(['abc', 'defg', 'uwxyz'])
 
 **A:** For sure. Just follows [`get_sentence_encoding()` I added to the modeling.py](bert/modeling.py#L236). Note that, if you introduce new `tf.variables` to the graph, then you need to train those variables before using the model. You may also want to check [some pooling techniques I mentioned in my blog post](https://hanxiao.github.io/2018/06/24/4-Encoding-Blocks-You-Need-to-Know-Besides-LSTM-RNN-in-Tensorflow/#pooling-block).
 
-**Q:** How many requests can a service handle concurrently?
+**Q:** Can I start multiple clients and send requests to one server simultaneously?
+
+**A:** Yes! That's the purpose of this repo. In fact you can start as many clients as you want. One server can handle all of them (given enough time).
+
+**Q:** How many requests can one service handle concurrently?
 
 **A:** The maximum number of concurrent requests is determined by `num_worker` in `app.py`. If you a sending more than `num_worker` requests concurrently, the new requests will be temporally stored in a queue until a free worker becomes available.
 
@@ -97,7 +101,10 @@ To reproduce the results, please refer to [benchmark.py](benchmark.py).
 
 **A:** [ZeroMQ](http://zeromq.org/).
 
- 
+
+**Q:** Do I need Tensorflow on the client side?
+
+**A:** No. Think of `BertClient` as a general feature extractor, whose output can be fed to *any* ML models, e.g. `scikit-learn`, `pytorch`, `tensorflow`. The only file that client need is [`client.py`](service/client.py). Copy this file to your project and import it, then you are ready to go.
 
 
 
