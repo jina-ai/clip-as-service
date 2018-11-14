@@ -111,7 +111,7 @@ class BertServer(threading.Thread):
                     while s_idx < num_seqs:
                         tmp = seqs[s_idx: (s_idx + self.max_batch_size)]
                         if tmp:
-                            job_queue.append((client, pickle.dumps(tmp)))
+                            job_queue.append((client, pickle.dumps(tmp, protocol=pickle.HIGHEST_PROTOCOL)))
                         s_idx += len(tmp)
                 else:
                     job_queue.append((client, request))
@@ -119,7 +119,7 @@ class BertServer(threading.Thread):
             # check if there are finished jobs, send it back to workers
             finished = [(k, v) for k, v in finish_jobs.items() if len(v) == job_checksum[k]]
             for client, tmp in finished:
-                self.frontend.send_multipart([client, b'', pickle.dumps(tmp)])
+                self.frontend.send_multipart([client, b'', pickle.dumps(tmp, protocol=pickle.HIGHEST_PROTOCOL)])
                 unregister_job(client)
 
             # non-empty job queue and free workers, pop the last one and send it to a worker
@@ -178,7 +178,7 @@ class BertWorker(Process):
             while not self.exit_flag.is_set():
                 if self.result:
                     num_result = len(self.result)
-                    worker.send_multipart([ident, b'', pickle.dumps(self.result)])
+                    worker.send_multipart([ident, b'', pickle.dumps(self.result, protocol=pickle.HIGHEST_PROTOCOL)])
                     self.result.clear()
                     time_used = time.perf_counter() - start
                     logger.info('encoded %d strs from %s in %.2fs @ %d/s' %
@@ -195,7 +195,7 @@ class BertWorker(Process):
                     }
                 else:
                     logger.warning('worker %d: received unsupported type! sending back None' % self.id)
-                    worker.send_multipart([ident, b'', pickle.dumps(None)])
+                    worker.send_multipart([ident, b'', pickle.dumps(None, protocol=pickle.HIGHEST_PROTOCOL)])
             self.socket.close()
 
         def input_fn():
