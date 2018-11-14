@@ -95,11 +95,9 @@ class BertServer(threading.Thread):
                 worker, _, client = request[:3]
                 free_a_worker(worker)
                 if client != b'READY' and len(request) > 3:
-                    for j in request:
-                        print(j)
-                        input()
-                    _, reply = request[3:]
-                    finish_jobs[client].append(pickle.loads(reply))
+                    arr_info, arr_val = jsonapi.loads(request[4]), request[7]
+                    X = np.frombuffer(memoryview(arr_val), dtype=arr_info['dtype'])
+                    finish_jobs[client].append(X.reshape(arr_info['shape']))
                 else:
                     poller.register(self.frontend, zmq.POLLIN)
 
