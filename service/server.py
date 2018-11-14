@@ -213,4 +213,4 @@ class BertWorker(Process):
             shape=X.shape,
         )
         src.send_multipart([dest, b'', jsonapi.dumps(md)], flags | zmq.SNDMORE)
-        return src.socket.send_multipart([dest, b'', X], flags, copy=copy, track=track)
+        return src.send_multipart([dest, b'', X], flags, copy=copy, track=track)
