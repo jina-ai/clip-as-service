@@ -55,7 +55,7 @@ ec = BertClient(ip='xx.xx.xx.xx', port=5555)  # ip address of the GPU machine
 ec.encode(['First do it', 'then do it right', 'then do it better'])
 ```
 
-> NOTE: please make sure your project includes [`client.py`](service/client.py), as we need to import `BertClient` class from this file. Again, this is the **only file** that you will need as a client. You don't even need Tensorflow on client.
+> NOTE: please make sure your project includes [`client.py`](service/client.py), as we need to import `BertClient` class from this file. Again, this is the **only file** that you need as a client. You don't even need Tensorflow. Please refer to [`requirements.client.txt`](requirements.client.txt) for the dependency on the client side.
  
 ## QA on Technical Details
 
