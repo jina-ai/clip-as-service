@@ -7,7 +7,6 @@ import os
 import pickle
 import threading
 import time
-from math import ceil
 from multiprocessing import Process
 
 import tensorflow as tf
@@ -27,7 +26,7 @@ class BertServer(threading.Thread):
         self.model_dir = args.model_dir
         self.max_seq_len = args.max_seq_len
         self.num_worker = args.num_worker
-        self.batch_size_per_worker = args.batch_size_per_worker
+        self.max_batch_size = args.batch_size_per_worker
         self.port = args.port
         self.args = args
         self.processes, self.workers = [], []
@@ -45,17 +44,25 @@ class BertServer(threading.Thread):
 
     def run(self):
         def get_a_worker():
-            w = self.workers.pop(0)
-            if not self.workers:
-                # Don't poll clients if no workers are available
-                poller.unregister(self.frontend)
-            return w
+            # w =
+            # if not self.workers:
+            #     # Don't poll clients if no workers are available
+            #     poller.unregister(self.frontend)
+            return self.workers.pop(0)
 
         def free_a_worker(w):
-            if not self.workers:
-                # Poll for clients now that a worker is available
-                poller.register(self.frontend, zmq.POLLIN)
+            # if not self.workers:
+            #     # Poll for clients now that a worker is available
+            #     poller.register(self.frontend, zmq.POLLIN)
             self.workers.append(w)
+
+        def register_job(c, n):
+            job_checksum[c] = n
+            finish_jobs[c] = []
+
+        def unregister_job(c):
+            job_checksum.pop(c)
+            finish_jobs.pop(c)
 
         self.context = zmq.Context.instance()
         self.frontend = self.context.socket(zmq.ROUTER)
@@ -82,11 +89,11 @@ class BertServer(threading.Thread):
         # Only poll for requests from backend until workers are available
         poller.register(self.backend, zmq.POLLIN)
 
-        pending_part_jobs, finish_part_jobs = {}, {}
+        job_queue, finish_jobs, job_checksum = [], {}, {}
 
         while True:
-            logger.info('available workers: %d' % len(self.workers))
-            sockets = dict(poller.poll())
+            logger.info('available workers: %2d job queue: %3d' % (len(self.workers), len(job_queue)))
+            sockets = dict(poller.poll(10))
 
             if self.backend in sockets:
                 # Handle worker activity on the backend
@@ -96,39 +103,35 @@ class BertServer(threading.Thread):
                 if client != b'READY' and len(request) > 3:
                     # If client reply, send rest back to frontend
                     _, reply = request[3:]
-                    if client in pending_part_jobs and client in finish_part_jobs:
-                        finish_part_jobs[client].extend(pickle.loads(reply))
-                        # wait until all partial jobs from this client is done
-                        # then concat all and send them back
-                        if len(finish_part_jobs[client]) == pending_part_jobs[client]:
-                            self.frontend.send_multipart([client, b'', pickle.dumps(finish_part_jobs[client])])
-                            finish_part_jobs.pop(client)
-                            pending_part_jobs.pop(client)
-                    else:
-                        self.frontend.send_multipart([client, b'', reply])
+                    finish_jobs[client].extend(pickle.loads(reply))
 
             if self.frontend in sockets:
                 # Get next client request, route to last-used worker
                 client, _, request = self.frontend.recv_multipart()
                 seqs = pickle.loads(request)
                 num_seqs = len(seqs)
-                num_avail_worker = len(self.workers)
+                register_job(client, num_seqs)
 
-                if num_seqs > self.batch_size_per_worker and num_avail_worker > 1:
-                    # divide the list by number of available workers
-                    num_seq_each_worker = ceil(num_seqs / num_avail_worker)
-                    s_idx = 0
-                    pending_part_jobs[client] = num_seqs
-                    finish_part_jobs[client] = []
-                    while s_idx < num_seqs:
-                        tmp = seqs[s_idx: (s_idx + num_seq_each_worker)]
-                        if tmp:
-                            worker = get_a_worker()
-                            self.backend.send_multipart([worker, b'', client, b'', pickle.dumps(tmp)])
-                        s_idx += len(tmp)
-                else:
+                s_idx = 0
+                # divide the large batch into small batches
+                while s_idx < num_seqs:
+                    tmp = seqs[s_idx: (s_idx + self.max_batch_size)]
+                    if tmp:
+                        job_queue.append((client, tmp))
+                    s_idx += len(tmp)
+
+            # non-empty job queue and free workers, pop the last one and send it to a worker
+            if job_queue:
+                while self.workers:
+                    client, tmp = job_queue.pop()
                     worker = get_a_worker()
-                    self.backend.send_multipart([worker, b'', client, b'', request])
+                    self.backend.send_multipart([worker, b'', client, b'', pickle.dumps(tmp)])
+
+            # check if there are finished jobs, send it back to workers
+            for client, tmp in finish_jobs.items():
+                if len(tmp) == job_checksum[client]:
+                    self.frontend.send_multipart([client, b'', pickle.dumps(tmp)])
+                    unregister_job(client)
 
 
 class BertWorker(Process):
