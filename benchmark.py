@@ -92,6 +92,7 @@ if __name__ == '__main__':
             tprint('num_client: %d' % len(all_clients))
             for bc in all_clients:
                 bc.start()
+                print('start one')
 
             for bc in all_clients:
                 bc.join()
