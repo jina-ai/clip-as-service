@@ -83,6 +83,7 @@ class BertServer(threading.Thread):
         poller = zmq.Poller()
         # Only poll for requests from backend until workers are available
         poller.register(self.backend, zmq.POLLIN)
+        poller.register(self.frontend, zmq.POLLIN)
 
         job_queue, finish_jobs, job_checksum = [], {}, {}
 
@@ -174,7 +175,7 @@ class BertWorker(Process):
         input_fn = self.input_fn_builder()
         logger.info('worker %d is ready and listening' % self.worker_id)
         for r in self.estimator.predict(input_fn, yield_single_examples=False):
-            BertClient.send_ndarray(self.socket, self.dest, r)
+            # BertClient.send_ndarray(self.socket, self.dest, r)
             # self.socket.send_multipart([self.dest, b'', pickle.dumps(r, protocol=-1)])
             time_used = time.perf_counter() - self._start_t
             logger.info('job %s is done in %.2fs' % (self.dest, time_used))
