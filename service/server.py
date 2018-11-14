@@ -92,7 +92,6 @@ class BertServer(threading.Thread):
         job_queue, finish_jobs, job_checksum = [], {}, {}
 
         while True:
-            logger.info('available workers: %2d job queue: %3d' % (len(self.workers), len(job_queue)))
             sockets = dict(poller.poll(10))
 
             if self.backend in sockets:
@@ -126,6 +125,7 @@ class BertServer(threading.Thread):
                     client, tmp = job_queue.pop()
                     worker = get_a_worker()
                     self.backend.send_multipart([worker, b'', client, b'', pickle.dumps(tmp)])
+                    logger.info('available workers: %2d job queue: %3d' % (len(self.workers), len(job_queue)))
 
             # check if there are finished jobs, send it back to workers
             for client, tmp in finish_jobs.items():
