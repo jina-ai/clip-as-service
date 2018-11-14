@@ -95,6 +95,7 @@ class BertServer(threading.Thread):
                 worker, _, client = request[:3]
                 if client == b'READY':
                     poller.register(self.frontend, zmq.POLLIN)
+                    logger.info('registered!')
                     continue
 
                 # parsing data size
