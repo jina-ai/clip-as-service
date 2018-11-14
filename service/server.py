@@ -93,20 +93,19 @@ class BertServer(threading.Thread):
                 # Handle worker activity on the backend
                 request = self.backend.recv_multipart()
                 worker, _, client = request[:3]
-                if client == b'READY':
-                    poller.register(self.frontend, zmq.POLLIN)
-                    logger.info('registered!')
-                    continue
-
+                print(client)
                 # parsing data size
                 md = jsonapi.loads(request[-1])
                 # receiving actual data
                 request = self.backend.recv_multipart()
                 worker, _, client = request[:3]
                 free_a_worker(worker)
-                _, reply = request[3:]
-                X = np.frombuffer(memoryview(reply), dtype=md['dtype'])
-                finish_jobs[client].append(X.reshape(md['shape']))
+                if client != b'READY' and len(request) > 3:
+                    _, reply = request[3:]
+                    X = np.frombuffer(memoryview(reply), dtype=md['dtype'])
+                    finish_jobs[client].append(X.reshape(md['shape']))
+                else:
+                    poller.register(self.frontend, zmq.POLLIN)
 
             if self.frontend in sockets:
                 # Get next client request, route to last-used worker
