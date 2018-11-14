@@ -17,6 +17,7 @@ from tensorflow.python.estimator.estimator import Estimator
 from bert import tokenization, modeling
 from bert.extract_features import model_fn_builder, convert_lst_to_features
 from helper import set_logger
+from service.client import BertClient
 
 logger = set_logger()
 
@@ -176,17 +177,13 @@ class BertWorker(Process):
             time_used = time.perf_counter() - self._start_t
             logger.info('job %s is done in %.2fs' % (self.dest, time_used))
 
-    @staticmethod
-    def is_valid_input(texts):
-        return isinstance(texts, list) and all(isinstance(s, str) for s in texts)
-
     def input_fn_builder(self, worker):
         def gen():
             while not self.exit_flag.is_set():
                 self.dest, empty, msg = worker.recv_multipart()
                 self._start_t = time.perf_counter()
                 msg = pickle.loads(msg)
-                if self.is_valid_input(msg):
+                if BertClient.is_valid_input(msg):
                     tmp_f = list(convert_lst_to_features(msg, self.max_seq_len, self.tokenizer))
                     yield {
                         'input_ids': [f.input_ids for f in tmp_f],
