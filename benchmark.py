@@ -89,13 +89,11 @@ if __name__ == '__main__':
 
             # sleep until server is ready
             time.sleep(15)
-            all_clients = []
-            for _ in range(args.num_client):
-                bc = BenchmarkClient(args)
-                bc.start()
-                all_clients.append(bc)
+            all_clients = [BenchmarkClient(args) for _ in range(args.num_client)]
 
             tprint('num_client: %d' % len(all_clients))
+            for bc in all_clients:
+                bc.start()
             for bc in all_clients:
                 bc.join()
                 print(bc)
