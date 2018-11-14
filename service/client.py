@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # Han Xiao <artex.xh@gmail.com> <https://hanxiao.github.io>
+import random
 from datetime import datetime
 
 import numpy as np
@@ -11,7 +12,8 @@ from zmq.utils import jsonapi
 class BertClient:
     def __init__(self, ip='localhost', port=5555, output_fmt='ndarray'):
         self.socket = zmq.Context().socket(zmq.REQ)
-        self.socket.identity = ('client-%d' % datetime.now().timestamp()).encode('ascii')
+        self.socket.identity = ('client-%d' %
+                                datetime.now().timestamp() + random.randint(0, 999)).encode('ascii')
         self.socket.connect('tcp://%s:%d' % (ip, port))
 
         if output_fmt == 'ndarray':
