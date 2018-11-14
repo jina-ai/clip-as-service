@@ -167,8 +167,9 @@ class BertWorker(Process):
         self.socket.send(b'READY')
         logger.info('worker %d is ready and listening' % self.worker_id)
         for r in self.estimator.predict(input_fn):
-            print(type(r))
-            self.result.append([round(float(x), 6) for x in r.flat])
+            # print(type(r))
+            # print(type(r.flat))
+            self.result.append(r)
 
     @staticmethod
     def is_valid_input(texts):
