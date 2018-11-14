@@ -91,20 +91,20 @@ class BertServer(threading.Thread):
 
             if self.backend in sockets:
                 # Handle worker activity on the backend
-                request = self.backend.recv_multipart()
-                worker, _, client = request[:3]
+                response = self.backend.recv_multipart()
+                worker, _, client = response[:3]
                 free_a_worker(worker)
-                if client != b'READY' and len(request) > 3:
-                    arr_info, arr_val = jsonapi.loads(request[4]), request[7]
+                if client != b'READY' and len(response) > 3:
+                    arr_info, arr_val = jsonapi.loads(response[4]), response[7]
                     X = np.frombuffer(memoryview(arr_val), dtype=arr_info['dtype'])
                     finish_jobs[client].append(X.reshape(arr_info['shape']))
                 else:
                     poller.register(self.frontend, zmq.POLLIN)
 
             if self.frontend in sockets:
-                # Get next client request, route to last-used worker
-                client, _, request = self.frontend.recv_multipart()
-                seqs = pickle.loads(request)
+                # Get next client response, route to last-used worker
+                client, _, response = self.frontend.recv_multipart()
+                seqs = pickle.loads(response)
                 num_seqs = len(seqs)
 
                 if num_seqs > self.max_batch_size:
@@ -120,7 +120,7 @@ class BertServer(threading.Thread):
                     register_job(client, num_part=n)
                 else:
                     register_job(client)
-                    job_queue.append((client, request))
+                    job_queue.append((client, response))
 
             # check if there are finished jobs, send it back to workers
             finished = [(k, v) for k, v in finish_jobs.items() if len(v) == job_checksum[k]]

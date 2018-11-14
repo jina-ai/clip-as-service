@@ -4,7 +4,9 @@
 import json
 from datetime import datetime
 
+import numpy as np
 import zmq
+from zmq.utils import jsonapi
 
 
 class BertClient:
@@ -23,7 +25,10 @@ class BertClient:
     def encode(self, texts):
         if self.is_valid_input(texts):
             self.socket.send_pyobj(texts)
-            return self.formatter(self.socket.recv_pyobj())
+            response = self.socket.recv_multipart()
+            arr_info, arr_val = jsonapi.loads(response[4]), response[7]
+            X = np.frombuffer(memoryview(arr_val), dtype=arr_info['dtype'])
+            return self.formatter(X.reshape(arr_info['shape']))
         else:
             raise AttributeError('"texts" must be "List[str]"!')
 
