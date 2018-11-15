@@ -4,8 +4,10 @@
 import multiprocessing
 import os
 import pickle
+import sys
 import threading
 import time
+from datetime import datetime
 from multiprocessing import Process
 
 import numpy as np
@@ -31,6 +33,16 @@ class BertServer(threading.Thread):
         self.max_batch_size = args.max_batch_size
         self.port = args.port
         self.args = args
+        self.args_dict = {
+            'model_dir': args.model_dir,
+            'max_seq_len': args.max_seq_len,
+            'num_worker': args.num_worker,
+            'max_batch_size': args.max_batch_size,
+            'port': args.port,
+            'tensorflow_version': tf.__version__,
+            'python_version': sys.version,
+            'server_time': str(datetime.now())
+        }
         self.processes, self.workers = [], []
         self.frontend, self.backend, self.context = None, None, None
 
@@ -109,7 +121,7 @@ class BertServer(threading.Thread):
             if self.frontend in sockets:
                 client, _, msg = self.frontend.recv_multipart()
                 if msg == b'SHOW_CONFIG':
-                    self.frontend.send_multipart([client, b'', jsonapi.dumps(dict(self.args))])
+                    self.frontend.send_multipart([client, b'', jsonapi.dumps(self.args_dict)])
                     continue
 
                 seqs = pickle.loads(msg)
