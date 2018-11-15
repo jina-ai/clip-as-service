@@ -22,7 +22,7 @@ from service.client import BertClient
 
 logger = set_logger()
 WORKER_ADDR = 'ipc:///tmp/bert.workers'
-SINK_ADDR = 'ipc:///tmp/bert.sink'
+SINK_ADDR = 'tcp://localhost:5558'
 
 
 class BertServer(threading.Thread):
