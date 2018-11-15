@@ -10,7 +10,6 @@ import time
 from datetime import datetime
 from multiprocessing import Process
 
-import numpy as np
 import tensorflow as tf
 import zmq
 from tensorflow.python.estimator.estimator import Estimator
@@ -44,7 +43,10 @@ class BertServer(threading.Thread):
             'server_time': str(datetime.now())
         }
         self.processes = []
-        self.frontend, self.backend, self.context = None, None, None
+        self.frontend = None  # REQ->ROUTER
+        self.backend = None  # PUSH->PULL
+        self.sink = None  # PUSH->PULL
+        self.context = None
 
     def close(self):
         logger.info('shutting down bert-server...')
@@ -57,18 +59,10 @@ class BertServer(threading.Thread):
         logger.info('bert-server is terminated!')
 
     def run(self):
-        def register_job(c, num_part=1):
-            job_checksum[c] = num_part
-            finish_jobs[c] = []
-
-        def unregister_job(c):
-            job_checksum.pop(c)
-            finish_jobs.pop(c)
-
-        self.context = zmq.Context.instance()
+        self.context = zmq.Context()
         self.frontend = self.context.socket(zmq.ROUTER)
         self.frontend.bind('tcp://*:%d' % self.port)
-        self.backend = self.context.socket(zmq.ROUTER)
+        self.backend = self.context.socket(zmq.PUSH)
         self.backend.bind('ipc:///tmp/bert.service')
 
         available_gpus = range(self.num_worker)
@@ -86,63 +80,28 @@ class BertServer(threading.Thread):
             self.processes.append(process)
             process.start()
 
-        poller = zmq.Poller()
-        # Only poll for requests from backend until workers are available
-        poller.register(self.backend, zmq.POLLIN)
-
-        finish_jobs, job_checksum = {}, {}
-        workloads = {}
-
         while True:
-            sockets = dict(poller.poll())
+            client, _, msg = self.frontend.recv_multipart()
+            if msg == b'SHOW_CONFIG':
+                self.frontend.send_multipart(
+                    [client, b'',
+                     jsonapi.dumps({**{'client': client.decode('ascii')}, **self.args_dict})])
+                continue
 
-            if self.backend in sockets:
-                msg = self.backend.recv_multipart()
-                worker, _, client = msg[:3]
+            seqs = pickle.loads(msg)
+            num_seqs = len(seqs)
 
-                if client != b'READY' and len(msg) > 3:
-                    arr_info, arr_val = jsonapi.loads(msg[4]), msg[7]
-                    X = np.frombuffer(memoryview(arr_val), dtype=arr_info['dtype'])
-                    finish_jobs[client].append(X.reshape(arr_info['shape']))
-                    workloads[worker] -= arr_info['shape'][0]
-                else:
-                    workloads[worker] = 0
-                    poller.register(self.frontend, zmq.POLLIN)
-
-                # check if there are finished jobs, send it back to workers
-                finished = [(k, v) for k, v in finish_jobs.items() if len(v) == job_checksum[k]]
-                for client, tmp in finished:
-                    send_ndarray(self.frontend, client, np.concatenate(tmp, axis=0))
-                    unregister_job(client)
-
-            if self.frontend in sockets:
-                client, _, msg = self.frontend.recv_multipart()
-                if msg == b'SHOW_CONFIG':
-                    self.frontend.send_multipart(
-                        [client, b'',
-                         jsonapi.dumps({**{'client': client.decode('ascii')}, **self.args_dict})])
-                    continue
-
-                seqs = pickle.loads(msg)
-                num_seqs = len(seqs)
-
-                if num_seqs > self.max_batch_size:
-                    # divide the large batch into small batches
-                    s_idx = 0
-                    n = 0
-                    while s_idx < num_seqs:
-                        tmp = seqs[s_idx: (s_idx + self.max_batch_size)]
-                        if tmp:
-                            # get the worker with minimum workload
-                            worker = min(workloads, key=workloads.get)
-                            self.backend.send_multipart([worker, b'', client, b'', pickle.dumps(tmp, protocol=-1)])
-                            workloads[worker] += len(tmp)
-                            print('send %s to %s' % (client, worker))
-                            n += 1
-                        s_idx += len(tmp)
-                    register_job(client, num_part=n)
-                else:
-                    register_job(client)
+            if num_seqs > self.max_batch_size:
+                # divide the large batch into small batches
+                s_idx = 0
+                while s_idx < num_seqs:
+                    tmp = seqs[s_idx: (s_idx + self.max_batch_size)]
+                    if tmp:
+                        # get the worker with minimum workload
+                        self.backend.send_multipart([client, b'', pickle.dumps(tmp, protocol=-1)])
+                    s_idx += len(tmp)
+            else:
+                self.backend.send_multipart([client, b'', msg])
 
 
 class BertWorker(Process):
@@ -173,7 +132,7 @@ class BertWorker(Process):
         logger.info('bert-worker %d is terminated!' % self.worker_id)
 
     def run(self):
-        self.socket = zmq.Context().socket(zmq.REQ)
+        self.socket = zmq.Context().socket(zmq.PULL)
         self.socket.identity = u'worker-{}'.format(self.worker_id).encode('ascii')
         self.socket.connect('ipc:///tmp/bert.service')
 
