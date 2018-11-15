@@ -20,6 +20,20 @@ Author: Han Xiao [https://hanxiao.github.io](https://hanxiao.github.io)
 
 **Finally, this repo**: This repo uses BERT as the sentence encoder and hosts it as a service via ZeroMQ, allowing you to map sentences into fixed-length representations in just two lines of code. 
 
+## Highlight
+
+- :telescope: **State-of-the-art**: based on pretrained 12/24-layer models released by Google AI, which is considered as a milestone in the NLP community.
+- :zap: **Fast**: 2000 sentences/s on a single Tesla M40 24GB with `max_seq_len=40`.
+- :traffic_light: **Concurrency**: support single-server-multi-client.
+- :smiley: **Easy to use**: require only two lines of code to get sentence encoding once the server is set up.
+
+## Requirements
+
+- Python >= 3.5 (Python 2 is NOT supported!)
+- Tensorflow >= 1.10
+
+These two requirements MUST be satisfied. For other dependent packages, please refere to `requirments.txt`  and `requirments.client.txt`.
+
 ## Usage
 
 #### 1. Download a Pre-trained BERT Model
@@ -89,7 +103,7 @@ ec.encode(['First do it', 'then do it right', 'then do it better'])
 
 **Q:** How about the speed? Is it fast enough for production?
 
-**A:** It highly depends on the `max_seq_len` and the size of a request. On a single Tesla M40 24GB with `max_seq_len=25`, you should get about 390/s using a 12-layer BERT. In general, I'd suggest smaller `max_seq_len` (25) and larger request size (512/1024).
+**A:** It highly depends on the `max_seq_len` and the size of a request. On a single Tesla M40 24GB with `max_seq_len=40`, you should get about 2000 samples per second using a 12-layer BERT. In general, I'd suggest smaller `max_seq_len` (25) and larger request size (512/1024).
 
 **Q:** Did you benchmark the efficiency?
 
