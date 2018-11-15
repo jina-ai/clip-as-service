@@ -170,6 +170,8 @@ class BertSink(Process):
             else:
                 raise NotImplementedError
 
+            print(client_checksum)
+            print(pending_checksum)
             # check if there are finished jobs, send it back to workers
             finished = [(k, v) for k, v in pending_client.items() if pending_checksum[k] == client_checksum[k]]
             for client, tmp in finished:
