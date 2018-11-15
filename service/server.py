@@ -103,6 +103,7 @@ class BertServer(threading.Thread):
                                        'num_process': len(self.processes)}, **self.args_dict})])
                 continue
 
+            self.frontend.send_multipart([client, b'', b''])
             seqs = pickle.loads(msg)
             num_seqs = len(seqs)
             self.sink.send_multipart([client, b'', b'%d' % num_seqs])
@@ -175,7 +176,6 @@ class BertSink(Process):
             # check if there are finished jobs, send it back to workers
             finished = [(k, v) for k, v in pending_client.items() if pending_checksum[k] == client_checksum[k]]
             for client, tmp in finished:
-                self.frontend.send_multipart([client, b'', b''])
                 self.logger.info(
                     'client %s %d samples are done! sending back to client' % (client, client_checksum[client]))
                 send_ndarray(self.frontend, client, np.concatenate(tmp, axis=0))
