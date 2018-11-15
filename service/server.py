@@ -215,7 +215,10 @@ class BertWorker(Process):
         def input_fn():
             return (tf.data.Dataset.from_generator(
                 gen,
-                output_types={k: tf.int32 for k in ['input_ids', 'input_mask', 'input_type_ids']},
+                output_types={'input_ids': tf.int32,
+                              'input_mask': tf.int32,
+                              'input_type_ids': tf.int32,
+                              'client_id': tf.string},
                 output_shapes={
                     'client_id': (0,),
                     'input_ids': (None, self.max_seq_len),
