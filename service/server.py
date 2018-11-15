@@ -189,7 +189,7 @@ class BertWorker(Process):
         self.socket.send(b'READY')
         logger.info('worker %d is ready and listening' % self.worker_id)
         for r in self.estimator.predict(input_fn, yield_single_examples=False):
-            send_ndarray(self.socket, r['client_id'], r[''])
+            send_ndarray(self.socket, r['client_id'], r['encodes'])
             time_used = time.perf_counter() - self._start_t
             logger.info('job %s is done in %.2fs' % (r['client_id'], time_used))
 
