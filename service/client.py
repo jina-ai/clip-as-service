@@ -26,16 +26,16 @@ class BertClient:
 
         if show_server_config:
             self.get_server_config()
+            print('you should NOT see this message multiple times! '
+                  'if you see it appears repeatedly, '
+                  'please consider moving "BertClient()" out of the loop.')
 
     def get_server_config(self):
         self.socket.send(b'SHOW_CONFIG')
         response = self.socket.recv_multipart()
-        print('the server at %s:%d has the following conifgs: ' % (self.ip, self.port))
+        print('the server at %s:%d returns the following config:' % (self.ip, self.port))
         for k, v in jsonapi.loads(response[0]).items():
-            print('%30s\t=\t%30s' % (k, v))
-        print('you should NOT see this message multiple times! '
-              'if you see it repeatedly appear, '
-              'please consider moving "BertClient()" out of the loop.')
+            print('%30s\t=\t%-30s' % (k, v))
 
     def encode(self, texts):
         if self.is_valid_input(texts):
