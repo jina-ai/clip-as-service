@@ -164,14 +164,13 @@ class BertSink(Process):
             elif len(msg) == 5:
                 arr_info, arr_val = jsonapi.loads(msg[2]), msg[4]
                 X = np.frombuffer(memoryview(arr_val), dtype=arr_info['dtype'])
-                pending_client[client_id].append(X.reshape(arr_info['shape']))
+                X = X.reshape(arr_info['shape'])
+                pending_client[client_id].append(X)
                 pending_checksum[client_id] += X.shape[0]
-                self.logger.info('received %s of client %s' % (X.shape[0], client_id))
+                self.logger.info('received %d of client %s' % (X.shape[0], client_id))
             else:
                 raise NotImplementedError
 
-            print(client_checksum)
-            print(pending_checksum)
             # check if there are finished jobs, send it back to workers
             finished = [(k, v) for k, v in pending_client.items() if pending_checksum[k] == client_checksum[k]]
             for client, tmp in finished:
