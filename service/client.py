@@ -31,9 +31,11 @@ class BertClient:
         self.socket.send(b'SHOW_CONFIG')
         response = self.socket.recv_multipart()
         print('the server at %s:%d has the following conifgs: ' % (self.ip, self.port))
-        print(response)
-        print('you should not see this message multiple times! '
-              'for efficiency reason, please move "BertClient()" out of the loop.')
+        for k, v in jsonapi.loads(response):
+            print('%30s\t=\t%30s' % (k, v))
+        print('you should NOT see this message multiple times! '
+              'if you see it repeatedly appear, '
+              'please consider moving "BertClient()" out of the loop.')
 
     def encode(self, texts):
         if self.is_valid_input(texts):
