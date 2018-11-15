@@ -43,7 +43,7 @@ class BertServer(threading.Thread):
             'python_version': sys.version,
             'server_time': str(datetime.now())
         }
-        self.processes, self.workers = [], []
+        self.processes = []
         self.frontend, self.backend, self.context = None, None, None
 
     def close(self):
@@ -57,12 +57,6 @@ class BertServer(threading.Thread):
         logger.info('bert-server is terminated!')
 
     def run(self):
-        def get_a_worker():
-            return self.workers.pop(0)
-
-        def free_a_worker(w):
-            self.workers.append(w)
-
         def register_job(c, num_part=1):
             job_checksum[c] = num_part
             finish_jobs[c] = []
@@ -97,6 +91,7 @@ class BertServer(threading.Thread):
         poller.register(self.backend, zmq.POLLIN)
 
         job_queue, finish_jobs, job_checksum = [], {}, {}
+        workloads = {}
 
         while True:
             sockets = dict(poller.poll(2))
@@ -104,12 +99,14 @@ class BertServer(threading.Thread):
             if self.backend in sockets:
                 msg = self.backend.recv_multipart()
                 worker, _, client = msg[:3]
-                free_a_worker(worker)
+
                 if client != b'READY' and len(msg) > 3:
                     arr_info, arr_val = jsonapi.loads(msg[4]), msg[7]
                     X = np.frombuffer(memoryview(arr_val), dtype=arr_info['dtype'])
                     finish_jobs[client].append(X.reshape(arr_info['shape']))
+                    workloads[worker] -= arr_info['shape'][0]
                 else:
+                    workloads[worker] = 0
                     poller.register(self.frontend, zmq.POLLIN)
 
                 # check if there are finished jobs, send it back to workers
@@ -136,21 +133,16 @@ class BertServer(threading.Thread):
                     while s_idx < num_seqs:
                         tmp = seqs[s_idx: (s_idx + self.max_batch_size)]
                         if tmp:
-                            job_queue.append((client, pickle.dumps(tmp, protocol=-1)))
+                            # get the worker with minimum workload
+                            worker = min(workloads, key=workloads.get)
+                            self.backend.send_multipart([worker, b'', client, b'', pickle.dumps(tmp, protocol=-1)])
+                            workloads[worker] += len(tmp)
                             n += 1
                         s_idx += len(tmp)
                     register_job(client, num_part=n)
                 else:
                     register_job(client)
                     job_queue.append((client, msg))
-
-            # non-empty job queue and free workers, pop the last one and send it to a worker
-            while self.workers and job_queue:
-                client, tmp = job_queue.pop()
-                worker = get_a_worker()
-                self.backend.send_multipart([worker, b'', client, b'', tmp])
-                logger.info('available workers: %2d\tjob queue: %3d\tpending clients: %3d' % (
-                    len(self.workers), len(job_queue), len(job_checksum)))
 
 
 class BertWorker(Process):
@@ -169,7 +161,7 @@ class BertWorker(Process):
             init_checkpoint=self.checkpoint_fp)
         os.environ['CUDA_VISIBLE_DEVICES'] = str(self.worker_id)
         self.estimator = Estimator(self.model_fn)
-        self._start_t = time.perf_counter()
+
         self.socket = None
         self.exit_flag = multiprocessing.Event()
 
@@ -188,10 +180,12 @@ class BertWorker(Process):
         input_fn = self.input_fn_builder(self.socket)
         self.socket.send(b'READY')
         logger.info('worker %d is ready and listening' % self.worker_id)
+        start_t = time.perf_counter()
         for r in self.estimator.predict(input_fn, yield_single_examples=False):
             send_ndarray(self.socket, r['client_id'], r['encodes'])
-            time_used = time.perf_counter() - self._start_t
-            logger.info('bert-worker %2d: job %s\tsamples: %4d\tdone in %.2fs' %
+            time_used = time.perf_counter() - start_t
+            start_t = time.perf_counter()
+            logger.info('bert-worker %2d: job %s\tsamples: %4d\tdone: %.2fs' %
                         (self.worker_id, r['client_id'], r['encodes'].shape[0], time_used))
 
     def input_fn_builder(self, worker):
