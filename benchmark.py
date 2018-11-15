@@ -25,13 +25,13 @@ class BenchmarkClient(threading.Thread):
 
         self.num_repeat = args.num_repeat
         self.avg_time = 0
+        self.bc = BertClient(args)
 
     def run(self):
         time_all = []
-        bc = BertClient()
         for _ in range(self.num_repeat):
             start_t = time.perf_counter()
-            bc.encode(self.batch)
+            self.bc.encode(self.batch)
             time_all.append(time.perf_counter() - start_t)
         print(time_all)
         self.avg_time = mean(time_all)
