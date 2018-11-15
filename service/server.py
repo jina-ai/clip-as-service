@@ -157,8 +157,10 @@ class BertSink(Process):
             client_id = msg[0]
 
             if len(msg) == 3:
+                # register a new client
                 client_checksum[client_id] = int(msg[2])
                 pending_checksum[client_id] = 0
+                pending_client[client_id] = []
             elif len(msg) == 5:
                 arr_info, arr_val = jsonapi.loads(msg[2]), msg[4]
                 X = np.frombuffer(memoryview(arr_val), dtype=arr_info['dtype'])
