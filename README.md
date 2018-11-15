@@ -138,7 +138,14 @@ To reproduce the results, please run [`python benchmark.py`](benchmark.py).
 
 ## Benchmark
 
-Benchmark was done on Tesla M40 24GB, experiments were repeated 10 times and average value is reported. Common arguments across all experiments are:
+Benchmark was done on Tesla M40 24GB, experiments were repeated 10 times and average value is reported. 
+
+To reproduce the results, please run
+```bash
+python benchmark.py
+```
+
+Common arguments across all experiments are:
 
 | Parameter         | Value |
 |-------------------|-------|
