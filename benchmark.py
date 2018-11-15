@@ -39,7 +39,7 @@ class BenchmarkClient(threading.Thread):
 
 if __name__ == '__main__':
     common = {
-        'model_dir': '/data/cips/result/chinese_L-12_H-768_A-12/',
+        'model_dir': '/data/cips/data/lab/data/model/chinese_L-12_H-768_A-12',
         'num_worker': 1,
         'num_repeat': 10,
         'port': 5557,
