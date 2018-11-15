@@ -10,6 +10,7 @@ import time
 from datetime import datetime
 from multiprocessing import Process
 
+import numpy as np
 import tensorflow as tf
 import zmq
 from tensorflow.python.estimator.estimator import Estimator
@@ -20,7 +21,6 @@ from bert.extract_features import model_fn_builder, convert_lst_to_features
 from helper import set_logger
 from service.client import BertClient
 
-logger = set_logger()
 WORKER_ADDR = 'ipc:///tmp/bert.workers'
 SINK_ADDR = 'ipc:///tmp/bert.sink'
 
@@ -49,9 +49,10 @@ class BertServer(threading.Thread):
         self.backend = None  # PUSH->PULL
         self.sink = None  # PUSH->PULL
         self.context = None
+        self.logger = set_logger('DISPATCHER')
 
     def close(self):
-        logger.info('shutting down bert-server...')
+        self.logger.info('shutting down bert-server...')
         for p in self.processes:
             p.close()
         self.frontend.close()
@@ -59,7 +60,7 @@ class BertServer(threading.Thread):
         self.sink.close()
         self.context.term()
         self.join()
-        logger.info('bert-server is terminated!')
+        self.logger.info('bert-server is terminated!')
 
     def run(self):
         self.context = zmq.Context()
@@ -79,10 +80,10 @@ class BertServer(threading.Thread):
             import GPUtil
             available_gpus = GPUtil.getAvailable(limit=self.num_worker)
             if len(available_gpus) < self.num_worker:
-                logger.warning('only %d GPU(s) is available, but ask for %d' % (len(available_gpus), self.num_worker))
+                self.logger.warn('only %d GPU(s) is available, but ask for %d' % (len(available_gpus), self.num_worker))
         except FileNotFoundError:
-            logger.warn('nvidia-smi is missing, often means no gpu found on this machine. '
-                        'will run service on cpu instead')
+            self.logger.warn('nvidia-smi is missing, often means no gpu found on this machine. '
+                             'will run service on cpu instead')
 
         # start the backend processes
         for i in available_gpus:
@@ -124,24 +125,28 @@ class BertSink(Process):
         self.context = None
         self.receiver = None
         self.exit_flag = multiprocessing.Event()
+        self.logger = set_logger('SINK')
 
     def close(self):
+        self.logger.info('shutting down...')
         self.exit_flag.set()
         self.receiver.close()
         self.context.term()
         self.terminate()
         self.join()
+        self.logger.info('terminated!')
 
     def run(self):
         self.context = zmq.Context()
         self.receiver = self.context.socket(zmq.PULL)
         self.receiver.bind(SINK_ADDR)
         while not self.exit_flag.is_set():
-            resp = self.receiver.recv_multipart()
-            print(len(resp))
-            for j in resp:
-                print(j)
-                input()
+            msg = self.receiver.recv_multipart()
+            client_id = msg[0]
+            arr_info, arr_val = jsonapi.loads(msg[2]), msg[4]
+            X = np.frombuffer(memoryview(arr_val), dtype=arr_info['dtype'])
+            X = X.reshape(arr_info['shape'])
+            self.logger.info('received %s of client %s' % (X.shape, client_id))
 
 
 class BertWorker(Process):
@@ -165,16 +170,17 @@ class BertWorker(Process):
         self.receiver = None
         self.sink = None
         self.exit_flag = multiprocessing.Event()
+        self.logger = set_logger('WORKER-%d' % self.worker_id)
 
     def close(self):
-        logger.info('shutting down bert-worker %d ...' % self.worker_id)
+        self.logger.info('shutting down...')
         self.exit_flag.set()
         self.receiver.close()
         self.sink.close()
         self.context.term()
         self.terminate()
         self.join()
-        logger.info('bert-worker %d is terminated!' % self.worker_id)
+        self.logger.info('terminated!')
 
     def run(self):
         self.context = zmq.Context()
@@ -186,22 +192,22 @@ class BertWorker(Process):
 
         input_fn = self.input_fn_builder(self.receiver)
 
-        logger.info('worker %d is ready and listening' % self.worker_id)
+        self.logger.info('ready and listening' % self.worker_id)
         start_t = time.perf_counter()
         for r in self.estimator.predict(input_fn, yield_single_examples=False):
             # logger.info('new result!')
             send_ndarray(self.sink, r['client_id'], r['encodes'])
             time_used = time.perf_counter() - start_t
             start_t = time.perf_counter()
-            logger.info('bert-worker %2d: job %s\tsamples: %4d\tdone: %.2fs' %
-                        (self.worker_id, r['client_id'], r['encodes'].shape[0], time_used))
+            self.logger.info('job %s\tsamples: %4d\tdone: %.2fs' %
+                             (r['client_id'], r['encodes'].shape[0], time_used))
 
     def input_fn_builder(self, worker):
         def gen():
             while not self.exit_flag.is_set():
                 client_id, empty, msg = worker.recv_multipart()
                 msg = pickle.loads(msg)
-                logger.info('bert-worker %2d received %4d from %s' % (self.worker_id, len(msg), client_id))
+                self.logger.info('received %4d from %s' % (len(msg), client_id))
                 if BertClient.is_valid_input(msg):
                     tmp_f = list(convert_lst_to_features(msg, self.max_seq_len, self.tokenizer))
                     yield {
@@ -211,7 +217,7 @@ class BertWorker(Process):
                         'input_type_ids': [f.input_type_ids for f in tmp_f]
                     }
                 else:
-                    logger.warning('received unsupported type from %s! sending back None' % client_id)
+                    self.logger.warning('received unsupported type from %s! sending back None' % client_id)
                     worker.send_multipart([client_id, b'', b''])
             worker.close()
 
