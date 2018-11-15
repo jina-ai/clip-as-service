@@ -107,16 +107,13 @@ ec.encode(['First do it', 'then do it right', 'then do it better'])
 
 **Q:** Did you benchmark the efficiency?
 
-**A:** Yes. I tested the service speed in terms of number of processed sentences per second under different `max_seq_len` (a server side parameter) and batch size (a client side parameter). Here are the results on 4 Tesla M40 24GB:
-
-<img src=".github/b1.png" width="30%"><img src=".github/b2.png" width="30%"><img src=".github/b3.png" width="30%">
+**A:** Yes. See [Benchmark](#Benchmark).
 
 To reproduce the results, please run [`python benchmark.py`](benchmark.py).
 
 **Q:** What is backend based on?
 
 **A:** [ZeroMQ](http://zeromq.org/).
-
 
 **Q:** Do I need Tensorflow on the client side?
 
@@ -139,3 +136,51 @@ To reproduce the results, please run [`python benchmark.py`](benchmark.py).
 **A:** No.
 
 
+## Benchmark
+
+Benchmark was done on Tesla M40 24GB, experiments were repeated 10 times and average value is reported. Common arguments across all experiments are:
+
+| Parameter         | Value |
+|-------------------|-------|
+| num_worker        | 1     |
+| max_seq_len       | 40    |
+| client_batch_size | 2048  |
+| max_batch_size    | 256   |
+| num_client        | 1     |
+
+#### Speed wrt. `max_seq_len`
+
+| max_seq_len | sentence/s |
+|-------------|------------|
+| 20          | 2530       |
+| 40          | 2042       |
+| 80          | 1060       |
+
+#### Speed wrt. `client_batch_size`
+
+| client_batch_size | speed |
+|-------------------|-------|
+| 256               | 520   |
+| 512               | 1037  |
+| 1024              | 2065  |
+| 2048              | 2021  |
+| 4096              | 2013  |
+
+#### Speed wrt. `max_batch_size`
+
+| max_batch_size | speed |
+|----------------|-------|
+| 32             | 2025  |
+| 64             | 2020  |
+| 128            | 1963  |
+| 256            | 2058  |
+| 512            | 2047  |
+
+#### Speed wrt. `num_client`
+| num_client | speed |
+|------------|-------|
+| 2          | 1048  |
+| 4          | 775   |
+| 8          | 534   |
+| 16         | 350   |
+| 32         | 217   |
