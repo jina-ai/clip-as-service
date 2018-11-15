@@ -25,7 +25,7 @@ Author: Han Xiao [https://hanxiao.github.io](https://hanxiao.github.io)
 - :telescope: **State-of-the-art**: based on pretrained 12/24-layer models released by Google AI, which is considered as a milestone in the NLP community.
 - :zap: **Fast**: 2000 sentence/s on a single Tesla M40 24GB with `max_seq_len=40`.
 - :traffic_light: **Concurrency**: support single-server-multi-client.
-- :smiley: **Easy to use**: require only two lines of code to get sentence encoding once the server is set up.
+- :smiley: **Easy-to-use**: require only two lines of code to get sentence encoding once the server is set up.
 
 ## Requirements
 
@@ -158,7 +158,7 @@ Common arguments across all experiments are:
 
 #### Speed wrt. `max_seq_len`
 
-| max_seq_len | sentence/s |
+| max_seq_len | seqs/s |
 |-------------|------------|
 | 20          | 2530       |
 | 40          | 2042       |
@@ -166,7 +166,7 @@ Common arguments across all experiments are:
 
 #### Speed wrt. `client_batch_size`
 
-| client_batch_size | sentence/s |
+| client_batch_size | seqs/s |
 |-------------------|-------|
 | 256               | 520   |
 | 512               | 1037  |
@@ -176,7 +176,7 @@ Common arguments across all experiments are:
 
 #### Speed wrt. `max_batch_size`
 
-| max_batch_size | sentence/s |
+| max_batch_size | seqs/s |
 |----------------|-------|
 | 32             | 2025  |
 | 64             | 2020  |
@@ -187,7 +187,7 @@ Common arguments across all experiments are:
 ### Single GPU Multiple Client
 
 #### Speed wrt. `num_client`
-| num_client | sentence/s |
+| num_client | seqs/s |
 |------------|-------|
 | 2          | 1048  |
 | 4          | 775   |
