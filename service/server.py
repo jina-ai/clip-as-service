@@ -22,7 +22,7 @@ from service.client import BertClient
 
 logger = set_logger()
 WORKER_ADDR = 'ipc:///tmp/bert.workers'
-SINK_ADDR = 'tcp://localhost:5558'
+SINK_ADDR = 'ipc:///tmp/bert.sink'
 
 
 class BertServer(threading.Thread):
@@ -69,8 +69,10 @@ class BertServer(threading.Thread):
         self.backend = self.context.socket(zmq.PUSH)
         self.backend.bind(WORKER_ADDR)
 
-        self.sink = self.context.socket(zmq.PUSH)
-        self.sink.bind(SINK_ADDR)
+        # start the sink process
+        process = BertSink(self.args)
+        self.processes.append(process)
+        process.start()
 
         available_gpus = range(self.num_worker)
         try:
@@ -82,17 +84,22 @@ class BertServer(threading.Thread):
             logger.warn('nvidia-smi is missing, often means no gpu found on this machine. '
                         'will run service on cpu instead')
 
+        # start the backend processes
         for i in available_gpus:
             process = BertWorker(i, self.args)
             self.processes.append(process)
             process.start()
+
+        self.sink = self.context.socket(zmq.PUSH)
+        self.sink.connect(SINK_ADDR)
 
         while True:
             client, _, msg = self.frontend.recv_multipart()
             if msg == b'SHOW_CONFIG':
                 self.frontend.send_multipart(
                     [client, b'',
-                     jsonapi.dumps({**{'client': client.decode('ascii')}, **self.args_dict})])
+                     jsonapi.dumps({**{'client': client.decode('ascii'),
+                                       'num_process': len(self.processes)}, **self.args_dict})])
                 continue
 
             seqs = pickle.loads(msg)
@@ -128,7 +135,7 @@ class BertSink(Process):
     def run(self):
         self.context = zmq.Context()
         self.receiver = self.context.socket(zmq.PULL)
-        self.receiver.connect(SINK_ADDR)
+        self.receiver.bind(SINK_ADDR)
         while not self.exit_flag.is_set():
             print(self.receiver.recv())
 
