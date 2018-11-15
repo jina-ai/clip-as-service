@@ -209,9 +209,9 @@ class BertWorker(Process):
     def close(self):
         self.logger.info('shutting down...')
         self.exit_flag.set()
-        self.receiver.close()
-        self.sink.close()
-        self.context.term()
+        # self.receiver.close()
+        # self.sink.close()
+        # self.context.term()
         self.terminate()
         self.join()
         self.logger.info('terminated!')
