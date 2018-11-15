@@ -31,7 +31,7 @@ class BertClient:
         self.socket.send(b'SHOW_CONFIG')
         response = self.socket.recv_multipart()
         print('the server at %s:%d has the following conifgs: ' % (self.ip, self.port))
-        for k, v in jsonapi.loads(response[0]):
+        for k, v in jsonapi.loads(response[0]).items():
             print('%30s\t=\t%30s' % (k, v))
         print('you should NOT see this message multiple times! '
               'if you see it repeatedly appear, '
