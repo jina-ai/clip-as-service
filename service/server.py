@@ -174,13 +174,14 @@ class BertSink(Process):
             # check if there are finished jobs, send it back to workers
             finished = [(k, v) for k, v in pending_client.items() if pending_checksum[k] == client_checksum[k]]
             for client, tmp in finished:
+                self.frontend.send_multipart([client, b'', b''])
                 self.logger.info(
                     'client %s %d samples are done! sending back to client' % (client, client_checksum[client]))
                 send_ndarray(self.frontend, client, np.concatenate(tmp, axis=0))
                 pending_client.pop(client)
                 pending_checksum.pop(client)
                 client_checksum.pop(client)
-                self.logger.info('done!')
+
 
 class BertWorker(Process):
     def __init__(self, id, args):
