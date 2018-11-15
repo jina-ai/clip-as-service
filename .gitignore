@@ -116,3 +116,4 @@ dmypy.json
 .pyre/
 .idea/
 toy*.py
+.DS_Store
