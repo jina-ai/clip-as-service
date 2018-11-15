@@ -10,6 +10,8 @@ from numpy import mean
 from service.client import BertClient
 from service.server import BertServer
 
+PORT = 5557
+
 
 def tprint(msg):
     """like print, but won't get newlines confused with multiple threads"""
@@ -25,13 +27,13 @@ class BenchmarkClient(threading.Thread):
 
         self.num_repeat = args.num_repeat
         self.avg_time = 0
-        self.bc = BertClient()
 
     def run(self):
         time_all = []
+        bc = BertClient(port=PORT)
         for _ in range(self.num_repeat):
             start_t = time.perf_counter()
-            self.bc.encode(self.batch)
+            bc.encode(self.batch)
             time_all.append(time.perf_counter() - start_t)
         print(time_all)
         self.avg_time = mean(time_all)
@@ -42,7 +44,7 @@ if __name__ == '__main__':
         'model_dir': '/data/cips/data/lab/data/model/chinese_L-12_H-768_A-12',
         'num_worker': 1,
         'num_repeat': 10,
-        'port': 5557,
+        'port': PORT,
         'max_seq_len': 40,
         'client_batch_size': 2048,
         'max_batch_size': 256,
