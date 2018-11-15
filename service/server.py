@@ -111,6 +111,28 @@ class BertServer(threading.Thread):
                 self.backend.send_multipart([client, b'', msg])
 
 
+class BertSink(Process):
+    def __init__(self, args):
+        super().__init__()
+        self.context = None
+        self.receiver = None
+        self.exit_flag = multiprocessing.Event()
+
+    def close(self):
+        self.exit_flag.set()
+        self.receiver.close()
+        self.context.term()
+        self.terminate()
+        self.join()
+
+    def run(self):
+        self.context = zmq.Context()
+        self.receiver = self.context.socket(zmq.PULL)
+        self.receiver.connect(SINK_ADDR)
+        while not self.exit_flag.is_set():
+            print(self.receiver.recv())
+
+
 class BertWorker(Process):
     def __init__(self, id, args):
         super().__init__()
@@ -131,7 +153,6 @@ class BertWorker(Process):
         self.context = None
         self.receiver = None
         self.sink = None
-
         self.exit_flag = multiprocessing.Event()
 
     def close(self):
@@ -158,7 +179,7 @@ class BertWorker(Process):
         start_t = time.perf_counter()
         for r in self.estimator.predict(input_fn, yield_single_examples=False):
             # logger.info('new result!')
-            # send_ndarray(self.sink, r['client_id'], r['encodes'])
+            send_ndarray(self.sink, r['client_id'], r['encodes'])
             time_used = time.perf_counter() - start_t
             start_t = time.perf_counter()
             logger.info('bert-worker %2d: job %s\tsamples: %4d\tdone: %.2fs' %
