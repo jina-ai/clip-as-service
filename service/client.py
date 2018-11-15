@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # Han Xiao <artex.xh@gmail.com> <https://hanxiao.github.io>
-import random
-from datetime import datetime
+
+import uuid
 
 import numpy as np
 import zmq
@@ -10,11 +10,12 @@ from zmq.utils import jsonapi
 
 
 class BertClient:
-    def __init__(self, ip='localhost', port=5555, output_fmt='ndarray'):
+    def __init__(self, ip='localhost', port=5555, output_fmt='ndarray', show_server_config=True):
         self.socket = zmq.Context().socket(zmq.REQ)
-        self.socket.identity = ('client-%d-%d' %
-                                (datetime.now().timestamp(), random.randint(0, 999))).encode('ascii')
+        self.socket.identity = str(uuid.uuid4()).encode('ascii')
         self.socket.connect('tcp://%s:%d' % (ip, port))
+        self.ip = ip
+        self.port = port
 
         if output_fmt == 'ndarray':
             self.formatter = lambda x: x
@@ -22,6 +23,17 @@ class BertClient:
             self.formatter = lambda x: x.tolist()
         else:
             raise AttributeError('"output_fmt" must be "ndarray" or "list"')
+
+        if show_server_config:
+            self.get_server_config()
+
+    def get_server_config(self):
+        self.socket.send(b'SHOW_CONFIG')
+        response = self.socket.recv_multipart()
+        print('the server at %s:%d has the following conifgs: ' % (self.ip, self.port))
+        print(response)
+        print('you should not see this message multiple times! '
+              'for efficiency reason, please move "BertClient()" out of the loop.')
 
     def encode(self, texts):
         if self.is_valid_input(texts):

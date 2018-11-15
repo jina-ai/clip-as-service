@@ -90,21 +90,29 @@ class BertServer(threading.Thread):
             sockets = dict(poller.poll(2))
 
             if self.backend in sockets:
-                # Handle worker activity on the backend
-                response = self.backend.recv_multipart()
-                worker, _, client = response[:3]
+                msg = self.backend.recv_multipart()
+                worker, _, client = msg[:3]
                 free_a_worker(worker)
-                if client != b'READY' and len(response) > 3:
-                    arr_info, arr_val = jsonapi.loads(response[4]), response[7]
+                if client != b'READY' and len(msg) > 3:
+                    arr_info, arr_val = jsonapi.loads(msg[4]), msg[7]
                     X = np.frombuffer(memoryview(arr_val), dtype=arr_info['dtype'])
                     finish_jobs[client].append(X.reshape(arr_info['shape']))
                 else:
                     poller.register(self.frontend, zmq.POLLIN)
 
+                # check if there are finished jobs, send it back to workers
+                finished = [(k, v) for k, v in finish_jobs.items() if len(v) == job_checksum[k]]
+                for client, tmp in finished:
+                    send_ndarray(self.frontend, client, np.concatenate(tmp, axis=0))
+                    unregister_job(client)
+
             if self.frontend in sockets:
-                # Get next client response, route to last-used worker
-                client, _, response = self.frontend.recv_multipart()
-                seqs = pickle.loads(response)
+                client, _, msg = self.frontend.recv_multipart()
+                if msg == b'SHOW_CONFIG':
+                    self.frontend.send_multipart([client, b'', jsonapi.dumps(self.args)])
+                    continue
+
+                seqs = pickle.loads(msg)
                 num_seqs = len(seqs)
 
                 if num_seqs > self.max_batch_size:
@@ -120,13 +128,7 @@ class BertServer(threading.Thread):
                     register_job(client, num_part=n)
                 else:
                     register_job(client)
-                    job_queue.append((client, response))
-
-            # check if there are finished jobs, send it back to workers
-            finished = [(k, v) for k, v in finish_jobs.items() if len(v) == job_checksum[k]]
-            for client, tmp in finished:
-                send_ndarray(self.frontend, client, np.concatenate(tmp, axis=0))
-                unregister_job(client)
+                    job_queue.append((client, msg))
 
             # non-empty job queue and free workers, pop the last one and send it to a worker
             while self.workers and job_queue:
