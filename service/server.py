@@ -121,7 +121,9 @@ class BertServer(threading.Thread):
             if self.frontend in sockets:
                 client, _, msg = self.frontend.recv_multipart()
                 if msg == b'SHOW_CONFIG':
-                    self.frontend.send_multipart([client, b'', jsonapi.dumps({**{'client': client}, **self.args_dict})])
+                    self.frontend.send_multipart(
+                        [client, b'',
+                         jsonapi.dumps({**{'client': client.decode('ascii')}, **self.args_dict})])
                     continue
 
                 seqs = pickle.loads(msg)
