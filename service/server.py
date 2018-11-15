@@ -112,6 +112,12 @@ class BertServer(threading.Thread):
                 else:
                     poller.register(self.frontend, zmq.POLLIN)
 
+                # check if there are finished jobs, send it back to workers
+                finished = [(k, v) for k, v in finish_jobs.items() if len(v) == job_checksum[k]]
+                for client, tmp in finished:
+                    send_ndarray(self.frontend, client, np.concatenate(tmp, axis=0))
+                    unregister_job(client)
+
             if self.frontend in sockets:
                 client, _, msg = self.frontend.recv_multipart()
                 if msg == b'SHOW_CONFIG':
@@ -138,12 +144,6 @@ class BertServer(threading.Thread):
                     register_job(client)
                     job_queue.append((client, msg))
 
-            # check if there are finished jobs, send it back to workers
-            finished = [(k, v) for k, v in finish_jobs.items() if len(v) == job_checksum[k]]
-            for client, tmp in finished:
-                send_ndarray(self.frontend, client, np.concatenate(tmp, axis=0))
-                unregister_job(client)
-                
             # non-empty job queue and free workers, pop the last one and send it to a worker
             while self.workers and job_queue:
                 client, tmp = job_queue.pop()
