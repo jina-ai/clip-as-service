@@ -166,16 +166,16 @@ class BertSink(Process):
                 X = np.frombuffer(memoryview(arr_val), dtype=arr_info['dtype'])
                 pending_client[client_id].append(X.reshape(arr_info['shape']))
                 pending_checksum[client_id] += X.shape[0]
-                self.logger.info('received %s of client %s' % (X.shape, client_id))
+                self.logger.info('received %s of client %s' % (X.shape[0], client_id))
             else:
                 raise NotImplementedError
 
             # check if there are finished jobs, send it back to workers
             finished = [(k, v) for k, v in pending_client.items() if pending_checksum[k] == client_checksum[k]]
             for client, tmp in finished:
-                send_ndarray(self.frontend, client, np.concatenate(tmp, axis=0))
                 self.logger.info(
                     'client %s %d samples are done! send back to client' % (client, client_checksum[client]))
+                send_ndarray(self.frontend, client, np.concatenate(tmp, axis=0))
                 pending_client.pop(client)
                 pending_checksum.pop(client)
                 client_checksum.pop(client)
