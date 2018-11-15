@@ -49,10 +49,12 @@ class BertServer(threading.Thread):
         self.backend = None  # PUSH->PULL
         self.sink = None  # PUSH->PULL
         self.context = None
+        self.exit_flag = threading.Event()
         self.logger = set_logger('DISPATCHER')
 
     def close(self):
-        self.logger.info('shutting down bert-server...')
+        self.logger.info('shutting down...')
+        self.exit_flag.set()
         for p in self.processes:
             p.close()
         self.frontend.close()
@@ -95,7 +97,7 @@ class BertServer(threading.Thread):
         self.sink = self.context.socket(zmq.PUSH)
         self.sink.connect(SINK_ADDR)
 
-        while True:
+        while not self.exit_flag.is_set():
             client, _, msg = self.frontend.recv_multipart()
             if msg == b'SHOW_CONFIG':
                 self.frontend.send_multipart(
