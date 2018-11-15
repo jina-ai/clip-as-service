@@ -169,7 +169,6 @@ class BertWorker(Process):
             init_checkpoint=self.checkpoint_fp)
         os.environ['CUDA_VISIBLE_DEVICES'] = str(self.worker_id)
         self.estimator = Estimator(self.model_fn)
-        self.dest = None
         self._start_t = time.perf_counter()
         self.socket = None
         self.exit_flag = multiprocessing.Event()
@@ -190,35 +189,38 @@ class BertWorker(Process):
         self.socket.send(b'READY')
         logger.info('worker %d is ready and listening' % self.worker_id)
         for r in self.estimator.predict(input_fn, yield_single_examples=False):
-            send_ndarray(self.socket, self.dest, r)
+            send_ndarray(self.socket, r['client_id'], r[''])
             time_used = time.perf_counter() - self._start_t
-            logger.info('job %s is done in %.2fs' % (self.dest, time_used))
+            logger.info('job %s is done in %.2fs' % (r['client_id'], time_used))
 
     def input_fn_builder(self, worker):
         def gen():
             while not self.exit_flag.is_set():
-                self.dest, empty, msg = worker.recv_multipart()
+                client_id, empty, msg = worker.recv_multipart()
                 self._start_t = time.perf_counter()
                 msg = pickle.loads(msg)
                 if BertClient.is_valid_input(msg):
                     tmp_f = list(convert_lst_to_features(msg, self.max_seq_len, self.tokenizer))
                     yield {
+                        'client_id': client_id,
                         'input_ids': [f.input_ids for f in tmp_f],
                         'input_mask': [f.input_mask for f in tmp_f],
                         'input_type_ids': [f.input_type_ids for f in tmp_f]
                     }
                 else:
-                    logger.warning('worker %s: received unsupported type! sending back None' % self.dest)
-                    worker.send_multipart([self.dest, b'', b''])
+                    logger.warning('received unsupported type from %s! sending back None' % client_id)
+                    worker.send_multipart([client_id, b'', b''])
             worker.close()
 
         def input_fn():
             return (tf.data.Dataset.from_generator(
                 gen,
                 output_types={k: tf.int32 for k in ['input_ids', 'input_mask', 'input_type_ids']},
-                output_shapes={'input_ids': (None, self.max_seq_len),
-                               'input_mask': (None, self.max_seq_len),
-                               'input_type_ids': (None, self.max_seq_len)}))
+                output_shapes={
+                    'client_id': (0,),
+                    'input_ids': (None, self.max_seq_len),
+                    'input_mask': (None, self.max_seq_len),
+                    'input_type_ids': (None, self.max_seq_len)}))
 
         return input_fn
 

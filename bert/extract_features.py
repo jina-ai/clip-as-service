@@ -31,9 +31,9 @@ class InputExample(object):
 class InputFeatures(object):
     """A single set of features of data."""
 
-    def __init__(self, unique_id, tokens, input_ids, input_mask, input_type_ids):
-        self.unique_id = unique_id
-        self.tokens = tokens
+    def __init__(self, input_ids, input_mask, input_type_ids):
+        # self.unique_id = unique_id
+        # self.tokens = tokens
         self.input_ids = input_ids
         self.input_mask = input_mask
         self.input_type_ids = input_type_ids
@@ -45,7 +45,7 @@ def model_fn_builder(bert_config, init_checkpoint, use_one_hot_embeddings=False)
     def model_fn(features, labels, mode, params):  # pylint: disable=unused-argument
         """The `model_fn` for TPUEstimator."""
 
-        # unique_ids = features["unique_ids"]
+        client_id = features["client_id"]
         input_ids = features["input_ids"]
         input_mask = features["input_mask"]
         input_type_ids = features["input_type_ids"]
@@ -75,12 +75,12 @@ def model_fn_builder(bert_config, init_checkpoint, use_one_hot_embeddings=False)
         #     tf.logging.info("  name = %s, shape = %s%s", var.name, var.shape,
         #                     init_string)
 
-        # predictions = {
-        #     'unique_id': unique_ids,
-        #     'pooled': model.get_pooled_output()
-        # }
+        predictions = {
+            'client_id': client_id,
+            'encodes': model.get_sentence_encoding()
+        }
 
-        return EstimatorSpec(mode=mode, predictions=model.get_sentence_encoding())
+        return EstimatorSpec(mode=mode, predictions=predictions)
 
     return model_fn
 
@@ -167,8 +167,8 @@ def convert_lst_to_features(lst_str, seq_length, tokenizer):
         #         "input_type_ids: %s" % " ".join([str(x) for x in input_type_ids]))
 
         yield InputFeatures(
-            unique_id=example.unique_id,
-            tokens=tokens,
+            # unique_id=example.unique_id,
+            # tokens=tokens,
             input_ids=input_ids,
             input_mask=input_mask,
             input_type_ids=input_type_ids)
