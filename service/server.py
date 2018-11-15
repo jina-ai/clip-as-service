@@ -57,6 +57,10 @@ class BertServer(threading.Thread):
         for p in self.processes:
             p.close()
         self.exit_flag.set()
+        self.frontend.close()
+        self.backend.close()
+        self.sink.close()
+        self.context.term()
         self.logger.info('terminated!')
 
     def run(self):
