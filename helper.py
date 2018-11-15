@@ -1,10 +1,8 @@
 import logging
 
-from gpu_env import APP_NAME
 
-
-def set_logger(model_id=None):
-    logger = logging.getLogger(APP_NAME)
+def set_logger(model_id):
+    logger = logging.getLogger(model_id)
     logger.setLevel(logging.INFO)
     if model_id:
         formatter = logging.Formatter(
