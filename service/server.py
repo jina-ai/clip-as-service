@@ -157,7 +157,8 @@ class BertWorker(Process):
         logger.info('worker %d is ready and listening' % self.worker_id)
         start_t = time.perf_counter()
         for r in self.estimator.predict(input_fn, yield_single_examples=False):
-            send_ndarray(self.sink, r['client_id'], r['encodes'])
+            # logger.info('new result!')
+            # send_ndarray(self.sink, r['client_id'], r['encodes'])
             time_used = time.perf_counter() - start_t
             start_t = time.perf_counter()
             logger.info('bert-worker %2d: job %s\tsamples: %4d\tdone: %.2fs' %
