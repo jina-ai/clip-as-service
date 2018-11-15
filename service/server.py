@@ -66,12 +66,13 @@ class BertServer(threading.Thread):
         self.context = zmq.Context()
         self.frontend = self.context.socket(zmq.ROUTER)
         self.frontend.bind('tcp://*:%d' % self.port)
+        self.frontend.setsockopt(zmq.ROUTER_MANDATORY, 1)
 
         self.backend = self.context.socket(zmq.PUSH)
         self.backend.bind(WORKER_ADDR)
 
         # start the sink process
-        process = BertSink(self.args)
+        process = BertSink(self.args, self.frontend)
         self.processes.append(process)
         process.start()
 
@@ -103,7 +104,6 @@ class BertServer(threading.Thread):
                                        'num_process': len(self.processes)}, **self.args_dict})])
                 continue
 
-            self.frontend.send_multipart([client, b'', b''])
             seqs = pickle.loads(msg)
             num_seqs = len(seqs)
             self.sink.send_multipart([client, b'', b'%d' % num_seqs])
@@ -122,12 +122,12 @@ class BertServer(threading.Thread):
 
 
 class BertSink(Process):
-    def __init__(self, args):
+    def __init__(self, args, frontend):
         super().__init__()
         self.port = args.port
         self.context = None
         self.receiver = None
-        self.frontend = None
+        self.frontend = frontend
         self.exit_flag = multiprocessing.Event()
         self.logger = set_logger('SINK')
 
@@ -135,7 +135,6 @@ class BertSink(Process):
         self.logger.info('shutting down...')
         self.exit_flag.set()
         self.receiver.close()
-        self.frontend.close()
         self.context.term()
         self.terminate()
         self.join()
@@ -145,10 +144,6 @@ class BertSink(Process):
         self.context = zmq.Context()
         self.receiver = self.context.socket(zmq.PULL)
         self.receiver.bind(SINK_ADDR)
-
-        self.frontend = self.context.socket(zmq.ROUTER)
-        self.frontend.setsockopt(zmq.ROUTER_MANDATORY, 1)
-        self.frontend.connect('tcp://localhost:%d' % self.port)
 
         client_checksum = {}
         pending_client = {}
