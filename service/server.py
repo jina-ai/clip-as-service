@@ -129,7 +129,7 @@ class BertSink(threading.Thread):
         self.context_frontend = context
         self.receiver = None
         self.frontend = frontend
-        self.exit_flag = multiprocessing.Event()
+        self.exit_flag = threading.Event()
         self.logger = set_logger('SINK')
 
     def close(self):
@@ -211,7 +211,7 @@ class BertWorker(Process):
         self.exit_flag.set()
         # self.receiver.close()
         # self.sink.close()
-        # self.context.term()
+        self.context.term()
         self.terminate()
         self.join()
         self.logger.info('terminated!')
