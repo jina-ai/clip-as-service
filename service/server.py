@@ -72,7 +72,7 @@ class BertServer(threading.Thread):
         self.backend.bind(WORKER_ADDR)
 
         # start the sink process
-        process = BertSink(self.args, self.frontend)
+        process = BertSink(self.args, self.context)
         self.processes.append(process)
         process.start()
 
@@ -122,12 +122,12 @@ class BertServer(threading.Thread):
 
 
 class BertSink(Process):
-    def __init__(self, args, frontend):
+    def __init__(self, args, context):
         super().__init__()
         self.port = args.port
-        self.context = None
+        self.context = context
         self.receiver = None
-        self.frontend = frontend
+        self.frontend = None
         self.exit_flag = multiprocessing.Event()
         self.logger = set_logger('SINK')
 
@@ -135,6 +135,7 @@ class BertSink(Process):
         self.logger.info('shutting down...')
         self.exit_flag.set()
         self.receiver.close()
+        self.frontend.close()
         self.context.term()
         self.terminate()
         self.join()
@@ -144,6 +145,10 @@ class BertSink(Process):
         self.context = zmq.Context()
         self.receiver = self.context.socket(zmq.PULL)
         self.receiver.bind(SINK_ADDR)
+
+        self.frontend = self.context.socket(zmq.ROUTER)
+        self.frontend.bind('tcp://localhost:%d' % self.port)
+        self.frontend.setsockopt(zmq.ROUTER_MANDATORY, 1)
 
         client_checksum = {}
         pending_client = {}
