@@ -21,6 +21,8 @@ from helper import set_logger
 from service.client import BertClient
 
 logger = set_logger()
+WORKER_ADDR = 'ipc:///tmp/bert.workers'
+SINK_ADDR = 'ipc:///tmp/bert.sink'
 
 
 class BertServer(threading.Thread):
@@ -54,6 +56,7 @@ class BertServer(threading.Thread):
             p.close()
         self.frontend.close()
         self.backend.close()
+        self.sink.close()
         self.context.term()
         self.join()
         logger.info('bert-server is terminated!')
@@ -62,8 +65,12 @@ class BertServer(threading.Thread):
         self.context = zmq.Context()
         self.frontend = self.context.socket(zmq.ROUTER)
         self.frontend.bind('tcp://*:%d' % self.port)
+
         self.backend = self.context.socket(zmq.PUSH)
-        self.backend.bind('ipc:///tmp/bert.service')
+        self.backend.bind(WORKER_ADDR)
+
+        self.sink = self.context.socket(zmq.PUSH)
+        self.sink.bind(SINK_ADDR)
 
         available_gpus = range(self.num_worker)
         try:
@@ -121,27 +128,36 @@ class BertWorker(Process):
         os.environ['CUDA_VISIBLE_DEVICES'] = str(self.worker_id)
         self.estimator = Estimator(self.model_fn)
 
-        self.socket = None
+        self.context = None
+        self.receiver = None
+        self.sink = None
+
         self.exit_flag = multiprocessing.Event()
 
     def close(self):
         logger.info('shutting down bert-worker %d ...' % self.worker_id)
         self.exit_flag.set()
+        self.receiver.close()
+        self.sink.close()
+        self.context.term()
         self.terminate()
         self.join()
         logger.info('bert-worker %d is terminated!' % self.worker_id)
 
     def run(self):
-        self.socket = zmq.Context().socket(zmq.PULL)
-        self.socket.identity = u'worker-{}'.format(self.worker_id).encode('ascii')
-        self.socket.connect('ipc:///tmp/bert.service')
+        self.context = zmq.Context()
+        self.receiver = self.context.socket(zmq.PULL)
+        self.receiver.connect(WORKER_ADDR)
 
-        input_fn = self.input_fn_builder(self.socket)
-        self.socket.send(b'READY')
+        self.sink = self.context.socket(zmq.PUSH)
+        self.sink.connect(SINK_ADDR)
+
+        input_fn = self.input_fn_builder(self.receiver)
+
         logger.info('worker %d is ready and listening' % self.worker_id)
         start_t = time.perf_counter()
         for r in self.estimator.predict(input_fn, yield_single_examples=False):
-            send_ndarray(self.socket, r['client_id'], r['encodes'])
+            send_ndarray(self.sink, r['client_id'], r['encodes'])
             time_used = time.perf_counter() - start_t
             start_t = time.perf_counter()
             logger.info('bert-worker %2d: job %s\tsamples: %4d\tdone: %.2fs' %
