@@ -191,7 +191,8 @@ class BertWorker(Process):
         for r in self.estimator.predict(input_fn, yield_single_examples=False):
             send_ndarray(self.socket, r['client_id'], r['encodes'])
             time_used = time.perf_counter() - self._start_t
-            logger.info('job %s is done in %.2fs' % (r['client_id'], time_used))
+            logger.info('bert-worker %2d: job %s\tsamples: %4d\tdone in %.2fs' %
+                        (self.worker_id, r['client_id'], r['encodes'].shape[0], time_used))
 
     def input_fn_builder(self, worker):
         def gen():
