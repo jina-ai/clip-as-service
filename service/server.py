@@ -57,7 +57,6 @@ class BertServer(threading.Thread):
         self.exit_flag.set()
         for p in self.processes:
             p.close()
-        self.join()
         self.logger.info('bert-server is terminated!')
 
     def run(self):
