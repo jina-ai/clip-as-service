@@ -105,6 +105,7 @@ class BertServer(threading.Thread):
 
             seqs = pickle.loads(msg)
             num_seqs = len(seqs)
+            self.sink.send_multipart([client, b'', b'%d' % num_seqs])
 
             if num_seqs > self.max_batch_size:
                 # divide the large batch into small batches
@@ -122,8 +123,10 @@ class BertServer(threading.Thread):
 class BertSink(Process):
     def __init__(self, args):
         super().__init__()
+        self.port = args.port
         self.context = None
         self.receiver = None
+        self.frontend = None
         self.exit_flag = multiprocessing.Event()
         self.logger = set_logger('SINK')
 
@@ -131,6 +134,7 @@ class BertSink(Process):
         self.logger.info('shutting down...')
         self.exit_flag.set()
         self.receiver.close()
+        self.frontend.close()
         self.context.term()
         self.terminate()
         self.join()
@@ -140,13 +144,39 @@ class BertSink(Process):
         self.context = zmq.Context()
         self.receiver = self.context.socket(zmq.PULL)
         self.receiver.bind(SINK_ADDR)
+
+        self.frontend = self.context.socket(zmq.ROUTER)
+        self.frontend.connect('tcp://localhost:%d' % self.port)
+
+        client_checksum = {}
+        pending_client = {}
+        pending_checksum = {}
+
         while not self.exit_flag.is_set():
             msg = self.receiver.recv_multipart()
             client_id = msg[0]
-            arr_info, arr_val = jsonapi.loads(msg[2]), msg[4]
-            X = np.frombuffer(memoryview(arr_val), dtype=arr_info['dtype'])
-            X = X.reshape(arr_info['shape'])
-            self.logger.info('received %s of client %s' % (X.shape, client_id))
+
+            if len(msg) == 3:
+                client_checksum[client_id] = int(msg[2])
+                pending_checksum[client_id] = 0
+            elif len(msg) == 5:
+                arr_info, arr_val = jsonapi.loads(msg[2]), msg[4]
+                X = np.frombuffer(memoryview(arr_val), dtype=arr_info['dtype'])
+                pending_client[client_id].append(X.reshape(arr_info['shape']))
+                pending_checksum[client_id] += X.shape[0]
+                self.logger.info('received %s of client %s' % (X.shape, client_id))
+            else:
+                raise NotImplementedError
+
+            # check if there are finished jobs, send it back to workers
+            finished = [(k, v) for k, v in pending_client.items() if pending_checksum[k] == client_checksum[k]]
+            for client, tmp in finished:
+                send_ndarray(self.frontend, client, np.concatenate(tmp, axis=0))
+                self.logger.info(
+                    'client %s %d samples are done! send back to client' % (client, client_checksum[client]))
+                pending_client.pop(client)
+                pending_checksum.pop(client)
+                client_checksum.pop(client)
 
 
 class BertWorker(Process):
