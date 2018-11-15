@@ -142,12 +142,12 @@ class BertSink(Process):
         self.logger.info('terminated!')
 
     def run(self):
-        self.context = zmq.Context()
+        # self.context = zmq.Context()
         self.receiver = self.context.socket(zmq.PULL)
         self.receiver.bind(SINK_ADDR)
 
         self.frontend = self.context.socket(zmq.ROUTER)
-        self.frontend.connect('tcp://127.0.0.1:%d' % self.port)
+        self.frontend.connect('tcp://localhost:%d' % self.port)
         self.frontend.setsockopt(zmq.ROUTER_MANDATORY, 1)
 
         client_checksum = {}
