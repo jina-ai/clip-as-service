@@ -138,7 +138,6 @@ class BertSink(threading.Thread):
     def close(self):
         self.logger.info('shutting down...')
         self.exit_flag.set()
-        self.join()
         self.logger.info('terminated!')
 
     def run(self):

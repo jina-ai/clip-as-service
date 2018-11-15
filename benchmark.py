@@ -46,7 +46,7 @@ if __name__ == '__main__':
         'num_repeat': 3,
         'port': PORT,
         'max_seq_len': 40,
-        'client_batch_size': 1024,
+        'client_batch_size': 2048,
         'max_batch_size': 256,
         'num_client': 1
     }
