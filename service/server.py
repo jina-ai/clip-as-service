@@ -94,7 +94,7 @@ class BertServer(threading.Thread):
         workloads = {}
 
         while True:
-            sockets = dict(poller.poll(2))
+            sockets = dict(poller.poll())
 
             if self.backend in sockets:
                 msg = self.backend.recv_multipart()
