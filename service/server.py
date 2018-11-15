@@ -146,6 +146,7 @@ class BertSink(Process):
         self.receiver.bind(SINK_ADDR)
 
         self.frontend = self.context.socket(zmq.ROUTER)
+        self.frontend.setsockopt(zmq.ROUTER_MANDATORY)
         self.frontend.connect('tcp://localhost:%d' % self.port)
 
         client_checksum = {}
