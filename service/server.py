@@ -125,7 +125,8 @@ class BertSink(Process):
     def __init__(self, args, context):
         super().__init__()
         self.port = args.port
-        self.context = context
+        self.context = None
+        self.context_frontend = context
         self.receiver = None
         self.frontend = None
         self.exit_flag = multiprocessing.Event()
@@ -142,11 +143,11 @@ class BertSink(Process):
         self.logger.info('terminated!')
 
     def run(self):
-        # self.context = zmq.Context()
+        self.context = zmq.Context()
         self.receiver = self.context.socket(zmq.PULL)
         self.receiver.bind(SINK_ADDR)
 
-        self.frontend = self.context.socket(zmq.ROUTER)
+        self.frontend = self.context_frontend.socket(zmq.ROUTER)
         self.frontend.connect('tcp://localhost:%d' % self.port)
         self.frontend.setsockopt(zmq.ROUTER_MANDATORY, 1)
 
