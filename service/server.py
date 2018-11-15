@@ -90,7 +90,7 @@ class BertServer(threading.Thread):
         # Only poll for requests from backend until workers are available
         poller.register(self.backend, zmq.POLLIN)
 
-        job_queue, finish_jobs, job_checksum = [], {}, {}
+        finish_jobs, job_checksum = {}, {}
         workloads = {}
 
         while True:
@@ -142,7 +142,6 @@ class BertServer(threading.Thread):
                     register_job(client, num_part=n)
                 else:
                     register_job(client)
-                    job_queue.append((client, msg))
 
 
 class BertWorker(Process):
@@ -192,8 +191,8 @@ class BertWorker(Process):
         def gen():
             while not self.exit_flag.is_set():
                 client_id, empty, msg = worker.recv_multipart()
-                self._start_t = time.perf_counter()
                 msg = pickle.loads(msg)
+                logger.info('bert-worker %2d received %4d from %s' % (self.worker_id, len(msg), client_id))
                 if BertClient.is_valid_input(msg):
                     tmp_f = list(convert_lst_to_features(msg, self.max_seq_len, self.tokenizer))
                     yield {
