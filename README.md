@@ -20,6 +20,20 @@ Author: Han Xiao [https://hanxiao.github.io](https://hanxiao.github.io)
 
 **Finally, this repo**: This repo uses BERT as the sentence encoder and hosts it as a service via ZeroMQ, allowing you to map sentences into fixed-length representations in just two lines of code. 
 
+## Highlights
+
+- :telescope: **State-of-the-art**: based on pretrained 12/24-layer models released by Google AI, which is considered as a milestone in the NLP community.
+- :zap: **Fast**: 2000 sentence/s on a single Tesla M40 24GB with `max_seq_len=40`.
+- :traffic_light: **Concurrency**: support single-server-multi-client.
+- :smiley: **Easy to use**: require only two lines of code to get sentence encoding once the server is set up.
+
+## Requirements
+
+- Python >= 3.5 (Python 2 is NOT supported!)
+- Tensorflow >= 1.10
+
+These two requirements MUST be satisfied. For other dependent packages, please refere to `requirments.txt`  and `requirments.client.txt`.
+
 ## Usage
 
 #### 1. Download a Pre-trained BERT Model
@@ -89,20 +103,17 @@ ec.encode(['First do it', 'then do it right', 'then do it better'])
 
 **Q:** How about the speed? Is it fast enough for production?
 
-**A:** It highly depends on the `max_seq_len` and the size of a request. On a single Tesla M40 24GB with `max_seq_len=25`, you should get about 390/s using a 12-layer BERT. In general, I'd suggest smaller `max_seq_len` (25) and larger request size (512/1024).
+**A:** It highly depends on the `max_seq_len` and the size of a request. On a single Tesla M40 24GB with `max_seq_len=40`, you should get about 2000 samples per second using a 12-layer BERT. In general, I'd suggest smaller `max_seq_len` (25) and larger request size (512/1024).
 
 **Q:** Did you benchmark the efficiency?
 
-**A:** Yes. I tested the service speed in terms of number of processed sentences per second under different `max_seq_len` (a server side parameter) and batch size (a client side parameter). Here are the results on 4 Tesla M40 24GB:
-
-<img src=".github/b1.png" width="30%"><img src=".github/b2.png" width="30%"><img src=".github/b3.png" width="30%">
+**A:** Yes. See [Benchmark](#Benchmark).
 
 To reproduce the results, please run [`python benchmark.py`](benchmark.py).
 
 **Q:** What is backend based on?
 
 **A:** [ZeroMQ](http://zeromq.org/).
-
 
 **Q:** Do I need Tensorflow on the client side?
 
@@ -120,8 +131,63 @@ To reproduce the results, please run [`python benchmark.py`](benchmark.py).
 - A vocab file (`vocab.txt`) to map WordPiece to word id.
 - A config file (`bert_config.json`) which specifies the hyperparameters of the model.
 
-**Q:** Can I run in python 2?
+**Q:** Can I run it in python 2?
 
 **A:** No.
 
 
+## Benchmark
+
+Benchmark was done on Tesla M40 24GB, experiments were repeated 10 times and average value is reported. 
+
+To reproduce the results, please run
+```bash
+python benchmark.py
+```
+
+Common arguments across all experiments are:
+
+| Parameter         | Value |
+|-------------------|-------|
+| num_worker        | 1     |
+| max_seq_len       | 40    |
+| client_batch_size | 2048  |
+| max_batch_size    | 256   |
+| num_client        | 1     |
+
+#### Speed wrt. `max_seq_len`
+
+| max_seq_len | sentence/s |
+|-------------|------------|
+| 20          | 2530       |
+| 40          | 2042       |
+| 80          | 1060       |
+
+#### Speed wrt. `client_batch_size`
+
+| client_batch_size | speed |
+|-------------------|-------|
+| 256               | 520   |
+| 512               | 1037  |
+| 1024              | 2065  |
+| 2048              | 2021  |
+| 4096              | 2013  |
+
+#### Speed wrt. `max_batch_size`
+
+| max_batch_size | speed |
+|----------------|-------|
+| 32             | 2025  |
+| 64             | 2020  |
+| 128            | 1963  |
+| 256            | 2058  |
+| 512            | 2047  |
+
+#### Speed wrt. `num_client`
+| num_client | speed |
+|------------|-------|
+| 2          | 1048  |
+| 4          | 775   |
+| 8          | 534   |
+| 16         | 350   |
+| 32         | 217   |
