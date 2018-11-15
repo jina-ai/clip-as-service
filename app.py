@@ -14,7 +14,7 @@ def get_args():
                         help='pretrained BERT model')
     parser.add_argument('-max_seq_len', type=int, default=25,
                         help='maximum length of a sequence')
-    parser.add_argument('-num_worker', type=int, default=8,
+    parser.add_argument('-num_worker', type=int, default=1,
                         help='number of server instances')
     parser.add_argument('-max_batch_size', type=int, default=256,
                         help='maximum number of sequences handled by each worker')

@@ -45,7 +45,7 @@ if __name__ == '__main__':
         'port': 5557,
         'max_seq_len': 40,
         'client_batch_size': 2048,
-        'max_batch_size': 128,
+        'max_batch_size': 256,
         'num_client': 1
     }
     experiments = {

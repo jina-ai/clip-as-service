@@ -20,10 +20,10 @@ Author: Han Xiao [https://hanxiao.github.io](https://hanxiao.github.io)
 
 **Finally, this repo**: This repo uses BERT as the sentence encoder and hosts it as a service via ZeroMQ, allowing you to map sentences into fixed-length representations in just two lines of code. 
 
-## Highlight
+## Highlights
 
 - :telescope: **State-of-the-art**: based on pretrained 12/24-layer models released by Google AI, which is considered as a milestone in the NLP community.
-- :zap: **Fast**: 2000 sentences/s on a single Tesla M40 24GB with `max_seq_len=40`.
+- :zap: **Fast**: 2000 sentence/s on a single Tesla M40 24GB with `max_seq_len=40`.
 - :traffic_light: **Concurrency**: support single-server-multi-client.
 - :smiley: **Easy to use**: require only two lines of code to get sentence encoding once the server is set up.
 
@@ -134,7 +134,7 @@ To reproduce the results, please run [`python benchmark.py`](benchmark.py).
 - A vocab file (`vocab.txt`) to map WordPiece to word id.
 - A config file (`bert_config.json`) which specifies the hyperparameters of the model.
 
-**Q:** Can I run in python 2?
+**Q:** Can I run it in python 2?
 
 **A:** No.
 
