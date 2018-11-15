@@ -220,7 +220,7 @@ class BertWorker(Process):
                               'input_type_ids': tf.int32,
                               'client_id': tf.string},
                 output_shapes={
-                    'client_id': (0,),
+                    'client_id': (),
                     'input_ids': (None, self.max_seq_len),
                     'input_mask': (None, self.max_seq_len),
                     'input_type_ids': (None, self.max_seq_len)}))
