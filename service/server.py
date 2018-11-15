@@ -54,10 +54,10 @@ class BertServer(threading.Thread):
 
     def close(self):
         self.logger.info('shutting down...')
-        self.exit_flag.set()
         for p in self.processes:
             p.close()
-        self.logger.info('bert-server is terminated!')
+        self.exit_flag.set()
+        self.logger.info('terminated!')
 
     def run(self):
         self.context = zmq.Context()
@@ -69,7 +69,7 @@ class BertServer(threading.Thread):
         self.backend.bind(WORKER_ADDR)
 
         # start the sink process
-        process = BertSink(self.args, self.context, self.frontend)
+        process = BertSink(self.args, self.frontend)
         self.processes.append(process)
         process.start()
 
@@ -124,11 +124,10 @@ class BertServer(threading.Thread):
 
 
 class BertSink(threading.Thread):
-    def __init__(self, args, context, frontend):
+    def __init__(self, args, frontend):
         super().__init__()
         self.port = args.port
         self.context = None
-        self.context_frontend = context
         self.receiver = None
         self.frontend = frontend
         self.exit_flag = threading.Event()
