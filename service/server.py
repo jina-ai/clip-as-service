@@ -137,7 +137,11 @@ class BertSink(Process):
         self.receiver = self.context.socket(zmq.PULL)
         self.receiver.bind(SINK_ADDR)
         while not self.exit_flag.is_set():
-            print(self.receiver.recv())
+            resp = self.receiver.recv_multipart()
+            print(len(resp))
+            for j in resp:
+                print(j)
+                input()
 
 
 class BertWorker(Process):
@@ -229,9 +233,6 @@ class BertWorker(Process):
 
 def send_ndarray(src, dest, X, flags=0, copy=True, track=False):
     """send a numpy array with metadata"""
-    md = dict(
-        dtype=str(X.dtype),
-        shape=X.shape,
-    )
+    md = dict(dtype=str(X.dtype), shape=X.shape)
     return src.send_multipart([dest, b'', jsonapi.dumps(md), b'', X],
                               flags, copy=copy, track=track)
