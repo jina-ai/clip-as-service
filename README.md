@@ -71,6 +71,14 @@ ec.encode(['First do it', 'then do it right', 'then do it better'])
 
 > NOTE: please make sure your project includes [`client.py`](service/client.py), as we need to import `BertClient` class from this file. Again, this is the **only file** that you need as a client. You don't even need Tensorflow. Please refer to [`requirements.client.txt`](requirements.client.txt) for the dependency on the client side.
  
+### Run service on Nvidia Docker
+```bash
+docker build -t bert-as-service -f ./docker/Dockerfile .
+NUM_WORKER=1
+PATH_MODEL=<path of your model>
+docker run --runtime nvidia -dit -p 5555:5555 -v $PATH_MODEL:/model -t bert-as-service $NUM_WORKER
+```
+
 ## QA on Technical Details
 
 **Q:** Where do you get the fixed representation? Did you do pooling or something?
