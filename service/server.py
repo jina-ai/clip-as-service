@@ -137,6 +137,7 @@ class BertServer(threading.Thread):
                             worker = min(workloads, key=workloads.get)
                             self.backend.send_multipart([worker, b'', client, b'', pickle.dumps(tmp, protocol=-1)])
                             workloads[worker] += len(tmp)
+                            print('send')
                             n += 1
                         s_idx += len(tmp)
                     register_job(client, num_part=n)
