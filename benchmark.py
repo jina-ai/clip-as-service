@@ -46,12 +46,12 @@ if __name__ == '__main__':
         'num_repeat': 10,
         'port': PORT,
         'max_seq_len': 40,
-        'client_batch_size': 20480,
+        'client_batch_size': 2048,
         'max_batch_size': 256,
         'num_client': 1
     }
     experiments = {
-        'max_batch_size': [1024, 32, 64, 128, 256, 512],
+        'max_batch_size': [32, 64, 128, 256, 512],
         'max_seq_len': [20, 40, 80, 160, 320],
         'client_batch_size': [256, 512, 1024, 2048, 4096],
         'num_client': [2, 4, 8, 16, 32],
