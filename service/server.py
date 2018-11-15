@@ -226,5 +226,5 @@ def send_ndarray(src, dest, X, flags=0, copy=True, track=False):
         dtype=str(X.dtype),
         shape=X.shape,
     )
-    src.send_multipart([dest, b'', jsonapi.dumps(md)], flags | zmq.SNDMORE)
-    return src.send_multipart([dest, b'', X], flags, copy=copy, track=track)
+    return src.send_multipart([dest, b'', jsonapi.dumps(md), b'', X],
+                              flags, copy=copy, track=track)
