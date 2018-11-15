@@ -108,6 +108,8 @@ class BertServer(threading.Thread):
 
             if self.frontend in sockets:
                 client, _, msg = self.frontend.recv_multipart()
+                print(client)
+                print(msg)
                 if msg == b'SHOW_CONFIG':
                     self.frontend.send_multipart([client, b'', jsonapi.dumps(self.args)])
                     continue
