@@ -145,6 +145,7 @@ To reproduce the results, please run
 python benchmark.py
 ```
 
+### Single GPU Single Client
 Common arguments across all experiments are:
 
 | Parameter         | Value |
@@ -165,7 +166,7 @@ Common arguments across all experiments are:
 
 #### Speed wrt. `client_batch_size`
 
-| client_batch_size | speed |
+| client_batch_size | sentence/s |
 |-------------------|-------|
 | 256               | 520   |
 | 512               | 1037  |
@@ -175,7 +176,7 @@ Common arguments across all experiments are:
 
 #### Speed wrt. `max_batch_size`
 
-| max_batch_size | speed |
+| max_batch_size | sentence/s |
 |----------------|-------|
 | 32             | 2025  |
 | 64             | 2020  |
@@ -183,8 +184,10 @@ Common arguments across all experiments are:
 | 256            | 2058  |
 | 512            | 2047  |
 
+### Single GPU Multiple Client
+
 #### Speed wrt. `num_client`
-| num_client | speed |
+| num_client | sentence/s |
 |------------|-------|
 | 2          | 1048  |
 | 4          | 775   |
