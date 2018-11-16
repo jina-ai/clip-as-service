@@ -171,39 +171,69 @@ Common arguments across all experiments are:
 
 |`max_batch_size`|seqs/s|
 |---|---|
-|32|358|
-|64|365|
+|32|357|
+|64|364|
 |128|378|
-|256|380|
+|256|381|
 |512|381|
 
 #### Speed wrt. `client_batch_size`
 
-| client_batch_size | seqs/s |
-|-------------------|-------|
-| 256               | 520   |
-| 512               | 1037  |
-| 1024              | 2065  |
-| 2048              | 2021  |
-| 4096              | 2013  |
+`client_batch_size` is the number of sequences from a client when invoking `encode()`. For performance reason, please consider encoding sequences in batch rather than encoding them one by one. 
 
-#### Speed wrt. `max_batch_size`
+For example, do:
+```python
+# prepare your sent in advance
+bc = BertClient()
+my_sentences = [s for s in my_corpus.iter()]
+# doing encoding in one-shot
+vec = bc.encode(my_sentences)
+```
 
-| max_batch_size | seqs/s |
+don't:
+```python
+bc = BertClient()
+vec = []
+for s in my_corpus.iter():
+    vec.append(bc.encode(s))
+```
+
+It's even worse if you put `BertClient()` inside the loop. Don't do that.
+
+#### Speed wrt. `client_batch_size`
+
+|`client_batch_size`|seqs/s|
 |---|---|
-| 32             | 2025  |
-| 64             | 2020  |
-| 128            | 1963  |
-| 256            | 2058  |
-| 512            | 2047  |
+
+|256|383|
+|512|377|
+|1024|378|
+|2048|380|
+|4096|381|
+
+
+#### Speed wrt. `max_seq_len`
+
+`max_seq_len` is a parameter on the server side, which controls the maximum length of a sequence that a BERT model can handle. Sequences larger than `max_seq_len` will be truncated on the left side. Thus, if your client want to send long sequences to the model, please make sure the server can handle them correctly.
+
+Performance-wise, longer sequences means slower speed and  more chance of OOM, as the multi-head self-attention (the core unit of BERT) needs to do dot products and matrix multiplications between every two symbols in the sequence.
+
+|`max_seq_len`|seqs/s|
+|---|---|
+|20|787|
+|40|381|
+|80|156|
+|160|112|
+|320|51|
 
 ### Single GPU Multiple Client
 
 #### Speed wrt. `num_client`
-| num_client | seqs/s |
-|------------|-------|
-| 2          | 1048  |
-| 4          | 775   |
-| 8          | 534   |
-| 16         | 350   |
-| 32         | 217   |
+|`num_client`|seqs/s|
+|---|---|
+|1|381|
+|2|201|
+|4|103|
+|8|52|
+|16|26|
+|32|13|
