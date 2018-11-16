@@ -57,7 +57,7 @@ if __name__ == '__main__':
         'num_client': [2, 4, 8, 16, 32],
     }
 
-    fp = open('benchmark-gpu2.result', 'w')
+    fp = open('benchmark.result', 'w')
     for var_name, var_lst in experiments.items():
         # set common args
         args = namedtuple('args', ','.join(common.keys()))
