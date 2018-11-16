@@ -11,7 +11,14 @@ Author: Han Xiao [https://hanxiao.github.io](https://hanxiao.github.io)
 [BERT code of this repo](bert/) is forked from the [original BERT repo]((https://github.com/google-research/bert)) with necessary modification, [especially in extract_features.py](bert/extract_features.py).
 
 
-## What is it?
+* [Highlights](#highlights)
+* [What is it](#what-is-it)
+* [Requirements](#requirements)
+* [Usage](#usage)
+* [FAQ on Technical Details](#faq-on-technical-details)
+* [Benchmark](#benchmark)
+
+## What is it
 
 **BERT**: [Developed by Google](https://github.com/google-research/bert), BERT is a method of pre-training language representations. It leverages an enormous amount of plain text data publicly available on the web and is trained in an unsupervised manner. Pre-training a BERT model is a fairly expensive yet one-time procedure for each language. Fortunately, Google released several pre-trained models where [you can download from here](https://github.com/google-research/bert#pre-trained-models).
 
@@ -23,16 +30,16 @@ Author: Han Xiao [https://hanxiao.github.io](https://hanxiao.github.io)
 ## Highlights
 
 - :telescope: **State-of-the-art**: based on pretrained 12/24-layer models released by Google AI, which is considered as a milestone in the NLP community.
-- :zap: **Fast**: 380 sentences/s on a single Tesla M40 24GB with `max_seq_len=40`. See [Benchmark](#Benchmark).
-- :traffic_light: **Concurrency**: support multiple GPUs, multiple clients.
-- :smiley: **Easy-to-use**: require only two lines of code to get sentence encoding once the server is set up.
+- :zap: **Fast**: 380 sentences/s on a single Tesla M40 24GB with `max_seq_len=40`. Check out our [Benchmark](#Benchmark).
+- :octopus: **Concurrency**: scale nicely and smoothly on multiple GPUs and multiple clients.
+- :hatching_chick: **Easy-to-use**: require only two lines of code to get sentence encoding once the server is set up.
 
 ## Requirements
 
 - Python >= 3.5 (Python 2 is NOT supported!)
 - Tensorflow >= 1.10
 
-These two requirements MUST be satisfied. For other dependent packages, please refere to `requirments.txt`  and `requirments.client.txt`.
+These two requirements MUST be satisfied. For other dependent packages, please refer to `requirments.txt`  and `requirments.client.txt`.
 
 ## Usage
 
@@ -49,7 +56,7 @@ python app.py -num_worker=4 -model_dir /tmp/english_L-12_H-768_A-12/
 This will start a service with four workers, meaning that it can handel up to four **concurrent** requests. (These workers are behind a simple load balancer.)
 
 #### 3. Use Client to Encode Sentences
-> NOTE: please make sure your project includes [`client.py`](service/client.py), as we need to import `BertClient` class from this file. This is the **only file** that you will need as a client. You don't even need Tensorflow on client.
+> :children_crossing: NOTE: please make sure your project includes [`client.py`](service/client.py), as we need to import `BertClient` class from this file. This is the **only file** that you will need as a client. You don't even need Tensorflow on client.
 
 Now you can use pretrained BERT to encode sentences in your Python code simply as follows:
 ```python
@@ -57,7 +64,7 @@ from service.client import BertClient
 ec = BertClient()
 ec.encode(['First do it', 'then do it right', 'then do it better'])
 ```
-This will return a python object with type `List[List[float]]`, each element of the outer `List` is the fixed representation of a sentence.
+This will return a python object with type `ndarray` or `List[List[float]]`, each element of the outer `List` is the fixed representation of a sentence.
 
 ### Using BERT Service Remotely
 One can also start the service on one (GPU) machine and call it from another (CPU) machine as follows
@@ -69,9 +76,9 @@ ec = BertClient(ip='xx.xx.xx.xx', port=5555)  # ip address of the GPU machine
 ec.encode(['First do it', 'then do it right', 'then do it better'])
 ```
 
-> NOTE: please make sure your project includes [`client.py`](service/client.py), as we need to import `BertClient` class from this file. Again, this is the **only file** that you need as a client. You don't even need Tensorflow. Please refer to [`requirements.client.txt`](requirements.client.txt) for the dependency on the client side.
+> :children_crossing: NOTE: please make sure your project includes [`client.py`](service/client.py), as we need to import `BertClient` class from this file. Again, this is the **only file** that you need as a client. You don't even need Tensorflow. Please refer to [`requirements.client.txt`](requirements.client.txt) for the dependency on the client side.
  
-### Run service on Nvidia Docker
+### Run BERT Service on Nvidia Docker
 ```bash
 docker build -t bert-as-service -f ./docker/Dockerfile .
 NUM_WORKER=1
@@ -79,7 +86,11 @@ PATH_MODEL=<path of your model>
 docker run --runtime nvidia -dit -p 5555:5555 -v $PATH_MODEL:/model -t bert-as-service $NUM_WORKER
 ```
 
-## QA on Technical Details
+## FAQ on Technical Details
+
+**Q:** How large is a sentence vector?
+
+Each sentence is translated to a 768-dimensional vector.
 
 **Q:** Where do you get the fixed representation? Did you do pooling or something?
 
@@ -158,7 +169,6 @@ To reproduce the results, please run
 python benchmark.py
 ```
 
-### Single GPU Single Client
 Common arguments across all experiments are:
 
 | Parameter         | Value |
@@ -169,20 +179,24 @@ Common arguments across all experiments are:
 | max_batch_size    | 256   |
 | num_client        | 1     |
 
+#### Sequences per second wrt. `max_seq_len`
 
-#### Speed wrt. `max_batch_size`
+`max_seq_len` is a parameter on the server side, which controls the maximum length of a sequence that a BERT model can handle. Sequences larger than `max_seq_len` will be truncated on the left side. Thus, if your client want to send long sequences to the model, please make sure the server can handle them correctly.
 
-`max_batch_size` is a parameter on the server side, which controls the maximum number of samples per batch per worker. If a incoming batch from client is larger than `max_batch_size`, the server will split it into small batches so that each of them is less or equal than `max_batch_size` before sending it to workers.
+Performance-wise, longer sequences means slower speed and  more chance of OOM, as the multi-head self-attention (the core unit of BERT) needs to do dot products and matrix multiplications between every two symbols in the sequence.
 
-|`max_batch_size`|seqs/s|
-|---|---|
-|32|357|
-|64|364|
-|128|378|
-|256|381|
-|512|381|
+<img src=".github/max_seq_len.png" width="600">
 
-#### Speed wrt. `client_batch_size`
+| max_seq_len | 1 GPU | 2 GPU | 4 GPU |
+|-------------|-------|-------|-------|
+| 20          | 787   | 1551  | 3026  |
+| 40          | 381   | 760   | 1502  |
+| 80          | 156   | 313   | 621   |
+| 160         | 112   | 224   | 448   |
+| 320         | 51    | 102   | 205   |
+
+
+#### Sequences per second wrt. `client_batch_size`
 
 `client_batch_size` is the number of sequences from a client when invoking `encode()`. For performance reason, please consider encoding sequences in batch rather than encoding them one by one. 
 
@@ -195,7 +209,7 @@ my_sentences = [s for s in my_corpus.iter()]
 vec = bc.encode(my_sentences)
 ```
 
-don't:
+DON'T:
 ```python
 bc = BertClient()
 vec = []
@@ -205,44 +219,50 @@ for s in my_corpus.iter():
 
 It's even worse if you put `BertClient()` inside the loop. Don't do that.
 
-#### Speed wrt. `client_batch_size`
+<img src=".github/client_batch_size.png" width="600">
 
-|`client_batch_size`|seqs/s|
-|---|---|
-|1|33|
-|4|207|
-|8|275|
-|16|334|
-|64|365|
-|256|383|
-|512|377|
-|1024|378|
-|2048|380|
-|4096|381|
+| client_batch_size | 1 GPU | 2 GPU | 4 GPU |
+|-------------------|-------|-------|-------|
+| 1                 | 33    | 74    | 73    |
+| 4                 | 207   | 203   | 199   |
+| 8                 | 275   | 275   | 267   |
+| 16                | 334   | 333   | 330   |
+| 64                | 365   | 363   | 366   |
+| 256               | 383   | 382   | 383   |
+| 512               | 377   | 768   | 767   |
+| 1024              | 378   | 753   | 1525  |
+| 2048              | 380   | 758   | 1495  |
+| 4096              | 381   | 762   | 1511  |
 
 
-#### Speed wrt. `max_seq_len`
 
-`max_seq_len` is a parameter on the server side, which controls the maximum length of a sequence that a BERT model can handle. Sequences larger than `max_seq_len` will be truncated on the left side. Thus, if your client want to send long sequences to the model, please make sure the server can handle them correctly.
+#### Sequences per second wrt. `num_client`
+`num_client` represents the number of concurrent clients connected to the server at the same time.
 
-Performance-wise, longer sequences means slower speed and  more chance of OOM, as the multi-head self-attention (the core unit of BERT) needs to do dot products and matrix multiplications between every two symbols in the sequence.
+<img src=".github/num_clients.png" width="600">
 
-|`max_seq_len`|seqs/s|
-|---|---|
-|20|787|
-|40|381|
-|80|156|
-|160|112|
-|320|51|
+| num_client | 1 GPU | 2 GPU | 4 GPU |
+|------------|-------|-------|-------|
+| 1          | 381   | 758   | 1522  |
+| 2          | 201   | 402   | 802   |
+| 4          | 103   | 207   | 413   |
+| 8          | 52    | 105   | 210   |
+| 16         | 26    | 53    | 105   |
+| 32         | 13    | 26    | 53    |
 
-### Single GPU Multiple Client
 
-#### Speed wrt. `num_client`
-|`num_client`|seqs/s|
-|---|---|
-|1|381|
-|2|201|
-|4|103|
-|8|52|
-|16|26|
-|32|13|
+
+#### Sequences per second wrt. `max_batch_size`
+
+`max_batch_size` is a parameter on the server side, which controls the maximum number of samples per batch per worker. If a incoming batch from client is larger than `max_batch_size`, the server will split it into small batches so that each of them is less or equal than `max_batch_size` before sending it to workers.
+
+<img src=".github/max_batch_size.png" width="600">
+
+| max_batch_size | 1 GPU | 2 GPU | 4 GPU |
+|----------------|-------|-------|-------|
+| 32             | 357   | 717   | 1409  |
+| 64             | 364   | 733   | 1460  |
+| 128            | 378   | 759   | 1512  |
+| 256            | 381   | 758   | 1497  |
+| 512            | 381   | 762   | 1500  |
+
