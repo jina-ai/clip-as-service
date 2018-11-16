@@ -42,7 +42,7 @@ class BenchmarkClient(threading.Thread):
 if __name__ == '__main__':
     common = {
         'model_dir': '/data/cips/data/lab/data/model/chinese_L-12_H-768_A-12',
-        'num_worker': 4,
+        'num_worker': 1,
         'num_repeat': 3,
         'port': PORT,
         'max_seq_len': 40,
@@ -92,7 +92,6 @@ if __name__ == '__main__':
             tprint('max speed: %d\t min speed: %d' % (max_speed, min_speed))
             avg_speed.append(t_avg_speed)
             server.close()
-        tprint('______\nspeed wrt. %s' % var_name)
-        for i, j in zip(var_lst, avg_speed):
-            tprint('%d\t%d' % (i, j))
-        tprint('______')
+        with open('benchmark-%s' % var_name, 'w') as fp:
+            for i, j in zip(var_lst, avg_speed):
+                fp.write('%d\t%d\n' % (i, j))
