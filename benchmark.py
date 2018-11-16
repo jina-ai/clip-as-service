@@ -30,7 +30,7 @@ class BenchmarkClient(threading.Thread):
 
     def run(self):
         time_all = []
-        bc = BertClient(port=PORT)
+        bc = BertClient(port=PORT, show_server_config=False)
         for _ in range(self.num_repeat):
             start_t = time.perf_counter()
             bc.encode(self.batch)
@@ -42,8 +42,8 @@ class BenchmarkClient(threading.Thread):
 if __name__ == '__main__':
     common = {
         'model_dir': '/data/cips/data/lab/data/model/chinese_L-12_H-768_A-12',
-        'num_worker': 4,
-        'num_repeat': 3,
+        'num_worker': 2,
+        'num_repeat': 5,
         'port': PORT,
         'max_seq_len': 40,
         'client_batch_size': 2048,
@@ -51,12 +51,13 @@ if __name__ == '__main__':
         'num_client': 1
     }
     experiments = {
-        'num_client': [2, 4, 8, 16, 32],
+        'client_batch_size': [1, 4, 8, 16, 64, 256, 512, 1024, 2048, 4096],
         'max_batch_size': [32, 64, 128, 256, 512],
         'max_seq_len': [20, 40, 80, 160, 320],
-        'client_batch_size': [256, 512, 1024, 2048, 4096],
+        'num_client': [2, 4, 8, 16, 32],
     }
 
+    fp = open('benchmark.result', 'w')
     for var_name, var_lst in experiments.items():
         # set common args
         args = namedtuple('args', ','.join(common.keys()))
@@ -92,7 +93,11 @@ if __name__ == '__main__':
             tprint('max speed: %d\t min speed: %d' % (max_speed, min_speed))
             avg_speed.append(t_avg_speed)
             server.close()
-        tprint('______\nspeed wrt. %s' % var_name)
+
+        fp.write('#### Speed wrt. `%s`\n\n' % var_name)
+        fp.write('|`%s`|seqs/s|\n' % var_name)
+        fp.write('|---|---|\n')
         for i, j in zip(var_lst, avg_speed):
-            tprint('%d\t%d' % (i, j))
-        tprint('______')
+            fp.write('|%d|%d|\n' % (i, j))
+            fp.flush()
+    fp.close()

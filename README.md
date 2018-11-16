@@ -23,8 +23,8 @@ Author: Han Xiao [https://hanxiao.github.io](https://hanxiao.github.io)
 ## Highlights
 
 - :telescope: **State-of-the-art**: based on pretrained 12/24-layer models released by Google AI, which is considered as a milestone in the NLP community.
-- :zap: **Fast**: 2000 sentence/s on a single Tesla M40 24GB with `max_seq_len=40`.
-- :traffic_light: **Concurrency**: support single-server-multi-client.
+- :zap: **Fast**: 380 sentences/s on a single Tesla M40 24GB with `max_seq_len=40`. See [Benchmark](#Benchmark).
+- :traffic_light: **Concurrency**: support multiple GPUs, multiple clients.
 - :smiley: **Easy-to-use**: require only two lines of code to get sentence encoding once the server is set up.
 
 ## Requirements
@@ -123,6 +123,11 @@ To reproduce the results, please run [`python benchmark.py`](benchmark.py).
 
 **A:** [ZeroMQ](http://zeromq.org/).
 
+**Q:** What is the parallel processing model behind the scene?
+
+<img src=".github/bert-parallel-pipeline.png" width="600">
+
+
 **Q:** Do I need Tensorflow on the client side?
 
 **A:** No. Think of `BertClient` as a general feature extractor, whose output can be fed to *any* ML models, e.g. `scikit-learn`, `pytorch`, `tensorflow`. The only file that client need is [`client.py`](service/client.py). Copy this file to your project and import it, then you are ready to go.
@@ -164,41 +169,80 @@ Common arguments across all experiments are:
 | max_batch_size    | 256   |
 | num_client        | 1     |
 
-#### Speed wrt. `max_seq_len`
-
-| max_seq_len | seqs/s |
-|-------------|------------|
-| 20          | 2530       |
-| 40          | 2042       |
-| 80          | 1060       |
-
-#### Speed wrt. `client_batch_size`
-
-| client_batch_size | seqs/s |
-|-------------------|-------|
-| 256               | 520   |
-| 512               | 1037  |
-| 1024              | 2065  |
-| 2048              | 2021  |
-| 4096              | 2013  |
 
 #### Speed wrt. `max_batch_size`
 
-| max_batch_size | seqs/s |
-|----------------|-------|
-| 32             | 2025  |
-| 64             | 2020  |
-| 128            | 1963  |
-| 256            | 2058  |
-| 512            | 2047  |
+`max_batch_size` is a parameter on the server side, which controls the maximum number of samples per batch per worker. If a incoming batch from client is larger than `max_batch_size`, the server will split it into small batches so that each of them is less or equal than `max_batch_size` before sending it to workers.
+
+|`max_batch_size`|seqs/s|
+|---|---|
+|32|357|
+|64|364|
+|128|378|
+|256|381|
+|512|381|
+
+#### Speed wrt. `client_batch_size`
+
+`client_batch_size` is the number of sequences from a client when invoking `encode()`. For performance reason, please consider encoding sequences in batch rather than encoding them one by one. 
+
+For example, do:
+```python
+# prepare your sent in advance
+bc = BertClient()
+my_sentences = [s for s in my_corpus.iter()]
+# doing encoding in one-shot
+vec = bc.encode(my_sentences)
+```
+
+don't:
+```python
+bc = BertClient()
+vec = []
+for s in my_corpus.iter():
+    vec.append(bc.encode(s))
+```
+
+It's even worse if you put `BertClient()` inside the loop. Don't do that.
+
+#### Speed wrt. `client_batch_size`
+
+|`client_batch_size`|seqs/s|
+|---|---|
+|1|33|
+|4|207|
+|8|275|
+|16|334|
+|64|365|
+|256|383|
+|512|377|
+|1024|378|
+|2048|380|
+|4096|381|
+
+
+#### Speed wrt. `max_seq_len`
+
+`max_seq_len` is a parameter on the server side, which controls the maximum length of a sequence that a BERT model can handle. Sequences larger than `max_seq_len` will be truncated on the left side. Thus, if your client want to send long sequences to the model, please make sure the server can handle them correctly.
+
+Performance-wise, longer sequences means slower speed and  more chance of OOM, as the multi-head self-attention (the core unit of BERT) needs to do dot products and matrix multiplications between every two symbols in the sequence.
+
+|`max_seq_len`|seqs/s|
+|---|---|
+|20|787|
+|40|381|
+|80|156|
+|160|112|
+|320|51|
 
 ### Single GPU Multiple Client
 
 #### Speed wrt. `num_client`
-| num_client | seqs/s |
-|------------|-------|
-| 2          | 1048  |
-| 4          | 775   |
-| 8          | 534   |
-| 16         | 350   |
-| 32         | 217   |
+|`num_client`|seqs/s|
+|---|---|
+|1|381|
+|2|201|
+|4|103|
+|8|52|
+|16|26|
+|32|13|

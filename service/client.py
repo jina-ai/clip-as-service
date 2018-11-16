@@ -41,10 +41,6 @@ class BertClient:
         if self.is_valid_input(texts):
             self.socket.send_pyobj(texts)
             response = self.socket.recv_multipart()
-            # print(len(response))
-            # for j in response:
-            #     print(j)
-            #     input()
             arr_info, arr_val = jsonapi.loads(response[0]), response[2]
             X = np.frombuffer(memoryview(arr_val), dtype=arr_info['dtype'])
             return self.formatter(X.reshape(arr_info['shape']))
