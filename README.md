@@ -185,6 +185,8 @@ Common arguments across all experiments are:
 
 Performance-wise, longer sequences means slower speed and  more chance of OOM, as the multi-head self-attention (the core unit of BERT) needs to do dot products and matrix multiplications between every two symbols in the sequence.
 
+<img src=".github/max_seq_len.png" width="600">
+
 | max_seq_len | 1 GPU | 2 GPU | 4 GPU |
 |-------------|-------|-------|-------|
 | 20          | 787   | 1551  | 3026  |
@@ -217,6 +219,8 @@ for s in my_corpus.iter():
 
 It's even worse if you put `BertClient()` inside the loop. Don't do that.
 
+<img src=".github/client_batch_size.png" width="600">
+
 | client_batch_size | 1 GPU | 2 GPU | 4 GPU |
 |-------------------|-------|-------|-------|
 | 1                 | 33    | 74    | 73    |
@@ -231,8 +235,11 @@ It's even worse if you put `BertClient()` inside the loop. Don't do that.
 | 4096              | 381   | 762   | 1511  |
 
 
+
 #### Sequences per second wrt. `num_client`
 `num_client` represents the number of concurrent clients connected to the server at the same time.
+
+<img src=".github/num_clients.png" width="600">
 
 | num_client | 1 GPU | 2 GPU | 4 GPU |
 |------------|-------|-------|-------|
@@ -243,9 +250,13 @@ It's even worse if you put `BertClient()` inside the loop. Don't do that.
 | 16         | 26    | 53    | 105   |
 | 32         | 13    | 26    | 53    |
 
+
+
 #### Sequences per second wrt. `max_batch_size`
 
 `max_batch_size` is a parameter on the server side, which controls the maximum number of samples per batch per worker. If a incoming batch from client is larger than `max_batch_size`, the server will split it into small batches so that each of them is less or equal than `max_batch_size` before sending it to workers.
+
+<img src=".github/max_batch_size.png" width="600">
 
 | max_batch_size | 1 GPU | 2 GPU | 4 GPU |
 |----------------|-------|-------|-------|
@@ -254,3 +265,4 @@ It's even worse if you put `BertClient()` inside the loop. Don't do that.
 | 128            | 378   | 759   | 1512  |
 | 256            | 381   | 758   | 1497  |
 | 512            | 381   | 762   | 1500  |
+
