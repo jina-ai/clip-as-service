@@ -164,13 +164,18 @@ Common arguments across all experiments are:
 | max_batch_size    | 256   |
 | num_client        | 1     |
 
-#### Speed wrt. `max_seq_len`
 
-| max_seq_len | seqs/s |
-|-------------|------------|
-| 20          | 2530       |
-| 40          | 2042       |
-| 80          | 1060       |
+#### Speed wrt. `max_batch_size`
+
+`max_batch_size` is a parameter on the server side, which controls the maximum number of samples per batch per worker. If a incoming batch from client is larger than `max_batch_size`, the server will split it into small batches so that each of them is less or equal than `max_batch_size` before sending it to workers.
+
+|`max_batch_size`|seqs/s|
+|---|---|
+|32|358|
+|64|365|
+|128|378|
+|256|380|
+|512|381|
 
 #### Speed wrt. `client_batch_size`
 

@@ -100,4 +100,4 @@ if __name__ == '__main__':
         for i, j in zip(var_lst, avg_speed):
             fp.write('|%d|%d|\n' % (i, j))
             fp.flush()
-        fp.close()
+    fp.close()
