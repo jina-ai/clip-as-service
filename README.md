@@ -11,7 +11,14 @@ Author: Han Xiao [https://hanxiao.github.io](https://hanxiao.github.io)
 [BERT code of this repo](bert/) is forked from the [original BERT repo]((https://github.com/google-research/bert)) with necessary modification, [especially in extract_features.py](bert/extract_features.py).
 
 
-## What is it?
+* [Highlights](#highlights)
+* [What is it](#what-is-it)
+* [Requirements](#requirements)
+* [Usage](#usage)
+* [FAQ on Technical Details](#faq-on-technical-details)
+* [Benchmark](#benchmark)
+
+## What is it
 
 **BERT**: [Developed by Google](https://github.com/google-research/bert), BERT is a method of pre-training language representations. It leverages an enormous amount of plain text data publicly available on the web and is trained in an unsupervised manner. Pre-training a BERT model is a fairly expensive yet one-time procedure for each language. Fortunately, Google released several pre-trained models where [you can download from here](https://github.com/google-research/bert#pre-trained-models).
 
@@ -25,14 +32,14 @@ Author: Han Xiao [https://hanxiao.github.io](https://hanxiao.github.io)
 - :telescope: **State-of-the-art**: based on pretrained 12/24-layer models released by Google AI, which is considered as a milestone in the NLP community.
 - :zap: **Fast**: 380 sentences/s on a single Tesla M40 24GB with `max_seq_len=40`. See [Benchmark](#Benchmark).
 - :traffic_light: **Concurrency**: support multiple GPUs, multiple clients.
-- :smiley: **Easy-to-use**: require only two lines of code to get sentence encoding once the server is set up.
+- :hatching_chick: **Easy-to-use**: require only two lines of code to get sentence encoding once the server is set up.
 
 ## Requirements
 
 - Python >= 3.5 (Python 2 is NOT supported!)
 - Tensorflow >= 1.10
 
-These two requirements MUST be satisfied. For other dependent packages, please refere to `requirments.txt`  and `requirments.client.txt`.
+These two requirements MUST be satisfied. For other dependent packages, please refer to `requirments.txt`  and `requirments.client.txt`.
 
 ## Usage
 
@@ -49,7 +56,7 @@ python app.py -num_worker=4 -model_dir /tmp/english_L-12_H-768_A-12/
 This will start a service with four workers, meaning that it can handel up to four **concurrent** requests. (These workers are behind a simple load balancer.)
 
 #### 3. Use Client to Encode Sentences
-> NOTE: please make sure your project includes [`client.py`](service/client.py), as we need to import `BertClient` class from this file. This is the **only file** that you will need as a client. You don't even need Tensorflow on client.
+> :children_crossing: NOTE: please make sure your project includes [`client.py`](service/client.py), as we need to import `BertClient` class from this file. This is the **only file** that you will need as a client. You don't even need Tensorflow on client.
 
 Now you can use pretrained BERT to encode sentences in your Python code simply as follows:
 ```python
@@ -57,7 +64,7 @@ from service.client import BertClient
 ec = BertClient()
 ec.encode(['First do it', 'then do it right', 'then do it better'])
 ```
-This will return a python object with type `List[List[float]]`, each element of the outer `List` is the fixed representation of a sentence.
+This will return a python object with type `ndarray` or `List[List[float]]`, each element of the outer `List` is the fixed representation of a sentence.
 
 ### Using BERT Service Remotely
 One can also start the service on one (GPU) machine and call it from another (CPU) machine as follows
@@ -69,9 +76,9 @@ ec = BertClient(ip='xx.xx.xx.xx', port=5555)  # ip address of the GPU machine
 ec.encode(['First do it', 'then do it right', 'then do it better'])
 ```
 
-> NOTE: please make sure your project includes [`client.py`](service/client.py), as we need to import `BertClient` class from this file. Again, this is the **only file** that you need as a client. You don't even need Tensorflow. Please refer to [`requirements.client.txt`](requirements.client.txt) for the dependency on the client side.
+> :children_crossing: NOTE: please make sure your project includes [`client.py`](service/client.py), as we need to import `BertClient` class from this file. Again, this is the **only file** that you need as a client. You don't even need Tensorflow. Please refer to [`requirements.client.txt`](requirements.client.txt) for the dependency on the client side.
  
-### Run service on Nvidia Docker
+### Run BERT Service on Nvidia Docker
 ```bash
 docker build -t bert-as-service -f ./docker/Dockerfile .
 NUM_WORKER=1
@@ -79,7 +86,11 @@ PATH_MODEL=<path of your model>
 docker run --runtime nvidia -dit -p 5555:5555 -v $PATH_MODEL:/model -t bert-as-service $NUM_WORKER
 ```
 
-## QA on Technical Details
+## FAQ on Technical Details
+
+**Q:** How large is a sentence vector?
+
+Each sentence is translated to a 768-dimensional vector.
 
 **Q:** Where do you get the fixed representation? Did you do pooling or something?
 
@@ -195,7 +206,7 @@ my_sentences = [s for s in my_corpus.iter()]
 vec = bc.encode(my_sentences)
 ```
 
-don't:
+DON'T:
 ```python
 bc = BertClient()
 vec = []
