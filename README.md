@@ -23,8 +23,8 @@ Author: Han Xiao [https://hanxiao.github.io](https://hanxiao.github.io)
 ## Highlights
 
 - :telescope: **State-of-the-art**: based on pretrained 12/24-layer models released by Google AI, which is considered as a milestone in the NLP community.
-- :zap: **Fast**: 2000 sentence/s on a single Tesla M40 24GB with `max_seq_len=40`.
-- :traffic_light: **Concurrency**: support single-server-multi-client.
+- :zap: **Fast**: 380 sentences/s on a single Tesla M40 24GB with `max_seq_len=40`. See [Benchmark](#Benchmark).
+- :traffic_light: **Concurrency**: support multiple GPUs, multiple clients.
 - :smiley: **Easy-to-use**: require only two lines of code to get sentence encoding once the server is set up.
 
 ## Requirements
@@ -122,6 +122,11 @@ To reproduce the results, please run [`python benchmark.py`](benchmark.py).
 **Q:** What is backend based on?
 
 **A:** [ZeroMQ](http://zeromq.org/).
+
+**Q:** What is the parallel processing model behind the scene?
+
+<img src=".github/bert-parallel-pipeline.png" width="600">
+
 
 **Q:** Do I need Tensorflow on the client side?
 
