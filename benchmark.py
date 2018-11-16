@@ -30,7 +30,7 @@ class BenchmarkClient(threading.Thread):
 
     def run(self):
         time_all = []
-        bc = BertClient(port=PORT)
+        bc = BertClient(port=PORT, show_server_config=False)
         for _ in range(self.num_repeat):
             start_t = time.perf_counter()
             bc.encode(self.batch)
