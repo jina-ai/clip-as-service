@@ -51,7 +51,7 @@ if __name__ == '__main__':
         'num_client': 1
     }
     experiments = {
-        'client_batch_size': [1, 4, 8, 16, 64, 256, 512, 1024, 2048],
+        'client_batch_size': [1, 4, 8, 16, 64, 256, 512, 1024, 2048, 4096],
         'max_batch_size': [32, 64, 128, 256, 512],
         'max_seq_len': [20, 40, 80, 160, 320],
         'num_client': [2, 4, 8, 16, 32],
