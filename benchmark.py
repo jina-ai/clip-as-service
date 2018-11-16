@@ -57,6 +57,7 @@ if __name__ == '__main__':
         'client_batch_size': [256, 512, 1024, 2048, 4096],
     }
 
+    fp = open('benchmark.result', 'w')
     for var_name, var_lst in experiments.items():
         # set common args
         args = namedtuple('args', ','.join(common.keys()))
@@ -92,6 +93,9 @@ if __name__ == '__main__':
             tprint('max speed: %d\t min speed: %d' % (max_speed, min_speed))
             avg_speed.append(t_avg_speed)
             server.close()
-        with open('benchmark-%s' % var_name, 'w') as fp:
-            for i, j in zip(var_lst, avg_speed):
-                fp.write('%d\t%d\n' % (i, j))
+
+        fp.write('#### Speed wrt. `%s`\n\n' % var_name)
+        fp.write('|`%s`|seqs/s|\n' % var_name)
+        fp.write('|---|---|\n')
+        for i, j in zip(var_lst, avg_speed):
+            fp.write('|%d|%d|\n' % (i, j))

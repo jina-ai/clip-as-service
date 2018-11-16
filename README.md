@@ -185,7 +185,7 @@ Common arguments across all experiments are:
 #### Speed wrt. `max_batch_size`
 
 | max_batch_size | seqs/s |
-|----------------|-------|
+|---|---|
 | 32             | 2025  |
 | 64             | 2020  |
 | 128            | 1963  |
