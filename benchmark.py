@@ -10,7 +10,7 @@ from numpy import mean
 from service.client import BertClient
 from service.server import BertServer
 
-PORT = 5557
+PORT = 5559
 
 
 def tprint(msg):
