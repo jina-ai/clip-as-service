@@ -53,9 +53,9 @@ You can use all models listed, including `BERT-Base, Multilingual` and `BERT-Bas
 ```bash
 python app.py -num_worker=4 -model_dir /tmp/english_L-12_H-768_A-12/
 ```
-This will start a service with four workers, meaning that it can handel up to four **concurrent** requests. (These workers are behind a simple load balancer.)
+This will start a service with four workers, meaning that it can handle up to four **concurrent** requests.
 
-#### 3. Use Client to Encode Sentences
+#### 3. Use Client to Get Sentence Encodes
 > :children_crossing: NOTE: please make sure your project includes [`client.py`](service/client.py), as we need to import `BertClient` class from this file. This is the **only file** that you will need as a client. You don't even need Tensorflow on client.
 
 Now you can use pretrained BERT to encode sentences in your Python code simply as follows:
@@ -173,7 +173,7 @@ Common arguments across all experiments are:
 
 | Parameter         | Value |
 |-------------------|-------|
-| num_worker        | 1     |
+| num_worker        | 1,2,4 |
 | max_seq_len       | 40    |
 | client_batch_size | 2048  |
 | max_batch_size    | 256   |
