@@ -204,7 +204,11 @@ It's even worse if you put `BertClient()` inside the loop. Don't do that.
 
 |`client_batch_size`|seqs/s|
 |---|---|
-
+|1|33|
+|4|207|
+|8|275|
+|16|334|
+|64|365|
 |256|383|
 |512|377|
 |1024|378|
