@@ -179,7 +179,7 @@ Common arguments across all experiments are:
 | max_batch_size    | 256   |
 | num_client        | 1     |
 
-#### Sequences per second wrt. `max_seq_len`
+#### Speed wrt. `max_seq_len`
 
 `max_seq_len` is a parameter on the server side, which controls the maximum length of a sequence that a BERT model can handle. Sequences larger than `max_seq_len` will be truncated on the left side. Thus, if your client want to send long sequences to the model, please make sure the server can handle them correctly.
 
@@ -196,7 +196,7 @@ Performance-wise, longer sequences means slower speed and  more chance of OOM, a
 | 320         | 51    | 102   | 205   |
 
 
-#### Sequences per second wrt. `client_batch_size`
+#### Speed wrt. `client_batch_size`
 
 `client_batch_size` is the number of sequences from a client when invoking `encode()`. For performance reason, please consider encoding sequences in batch rather than encoding them one by one. 
 
@@ -236,7 +236,7 @@ It's even worse if you put `BertClient()` inside the loop. Don't do that.
 
 
 
-#### Sequences per second wrt. `num_client`
+#### Speed wrt. `num_client`
 `num_client` represents the number of concurrent clients connected to the server at the same time.
 
 <img src=".github/num_clients.png" width="600">
@@ -252,7 +252,7 @@ It's even worse if you put `BertClient()` inside the loop. Don't do that.
 
 
 
-#### Sequences per second wrt. `max_batch_size`
+#### Speed wrt. `max_batch_size`
 
 `max_batch_size` is a parameter on the server side, which controls the maximum number of samples per batch per worker. If a incoming batch from client is larger than `max_batch_size`, the server will split it into small batches so that each of them is less or equal than `max_batch_size` before sending it to workers.
 
