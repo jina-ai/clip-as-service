@@ -43,7 +43,7 @@ if __name__ == '__main__':
     common = {
         'model_dir': '/data/cips/data/lab/data/model/chinese_L-12_H-768_A-12',
         'num_worker': 1,
-        'num_repeat': 3,
+        'num_repeat': 10,
         'port': PORT,
         'max_seq_len': 40,
         'client_batch_size': 2048,
