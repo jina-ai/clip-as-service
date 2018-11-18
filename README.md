@@ -29,10 +29,10 @@ Author: Han Xiao [https://hanxiao.github.io](https://hanxiao.github.io)
 
 ## Highlights
 
-- :telescope: **State-of-the-art**: based on pretrained 12/24-layer models released by Google AI, which is considered as a milestone in the NLP community.
-- :zap: **Fast**: 380 sentences/s on a single Tesla M40 24GB with `max_seq_len=40`. Check out our [Benchmark](#Benchmark).
+- :telescope: **State-of-the-art**: build on pretrained 12/24-layer BERT models released by Google AI, which is considered as a milestone in the NLP community.
+- :hatching_chick: **Easy-to-use**: require only two lines of code to get sentence encoding.
+- :zap: **Fast**: 790 sentences/s on a single Tesla M40 24GB when `max_seq_len=20`. Check out our [Benchmark](#Benchmark).
 - :octopus: **Concurrency**: scale nicely and smoothly on multiple GPUs and multiple clients.
-- :hatching_chick: **Easy-to-use**: require only two lines of code to get sentence encoding once the server is set up.
 
 ## Requirements
 
@@ -53,7 +53,7 @@ You can use all models listed, including `BERT-Base, Multilingual` and `BERT-Bas
 ```bash
 python app.py -num_worker=4 -model_dir /tmp/english_L-12_H-768_A-12/
 ```
-This will start a service with four workers, meaning that it can handle up to four **concurrent** requests.
+This will start a service with four workers, meaning that it can handle up to four **concurrent** requests. More concurrent requests will be queued in a load balancer. Details can be found in our [FAQ](#faq-on-technical-details) and [the benchmark on number of clients](#speed-wrt-num_client)
 
 #### 3. Use Client to Get Sentence Encodes
 > :children_crossing: NOTE: please make sure your project includes [`client.py`](service/client.py), as we need to import `BertClient` class from this file. This is the **only file** that you will need as a client. You don't even need Tensorflow on client.
@@ -64,7 +64,7 @@ from service.client import BertClient
 ec = BertClient()
 ec.encode(['First do it', 'then do it right', 'then do it better'])
 ```
-This will return a python object with type `ndarray` or `List[List[float]]`, each element of the outer `List` is the fixed representation of a sentence.
+This will return a `ndarray`, in which each row is the fixed representation of a sentence. You can also let it return a pure python object in the type of `List[List[float]]`.
 
 ### Using BERT Service Remotely
 One can also start the service on one (GPU) machine and call it from another (CPU) machine as follows
@@ -86,6 +86,34 @@ PATH_MODEL=<path of your model>
 docker run --runtime nvidia -dit -p 5555:5555 -v $PATH_MODEL:/model -t bert-as-service $NUM_WORKER
 ```
 
+## Server and Client Configurations
+
+### Server-side configs
+
+Server-side configs are summarized below, which can be found in [`app.py`](app.py) as well.
+
+| Argument | Type | Default | Description |
+|--------------------|------|-------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `model_dir` | str |  | folder path of the pre-trained BERT model. |
+| `max_seq_len` | int | 25 | maximum length of sequence, longer sequence will be trimmed on the right side. |
+| `num_worker` | int | 1 | number of (GPU/CPU) worker runs BERT model, each works in a separate process. |
+| `max_batch_size` | int | 256 | maximum number of sequences handled by each worker, larger batch will be partitioned into small batches. |
+| `port` | int | 5555 | port number for client-server communication. |
+| `pooling_strategy` | str | REDUCE_MEAN | the pooling strategy for generating encoding vectors, choosing from {REDUCE_MEAN, REDUCE_MAX, REDUCE_MEAN_MAX, CLS_TOKEN, FIRST_TOKEN, SEP_TOKEN, LAST_TOKEN}. |
+| `pooling_layer` | int | -2 | the encoding layer that pooling operates on, where -1 means the last layer, -2 means the second-to-last, etc. |
+
+### Client-side configs
+
+Client-side configs are summarized below, which can be found in [`client.py`](service/client.py) as well.
+ 
+| Argument | Type | Default | Description |
+|----------------------|------|-----------|-------------------------------------------------------------------------------|
+| `ip` | str | localhost | IP address of the server |
+| `port` | int | 5555 | port of the server |
+| `output_fmt` | str | ndarray | output format of the sentence encoding, valid values are `ndarray` and `list` |
+| `show_server_config` | bool | True | show server configs when first connected |
+
+
 ## FAQ on Technical Details
 
 **Q:** How large is a sentence vector?
@@ -103,6 +131,19 @@ Each sentence is translated to a 768-dimensional vector.
 **Q:** Why not the last hidden layer? Why second-to-last?
 
 **A:** The last layer is too closed to the target functions (i.e. masked language model and next sentence prediction) during pre-training, therefore may be biased to those targets.
+
+
+**Q:** What are the available pooling strategies in this service?
+
+**A:** Here is a table summarizes all pooling strategies I implemented. Choose your favorite one by specifying `python app.py --pooling_strategy`
+
+|Strategy|Description|
+|---|---|
+| `REDUCE_MEAN` | take the average of the hidden state of encoding layer on the time axis |
+| `REDUCE_MAX` | take the maximum of the hidden state of encoding layer on the time axis |
+| `REDUCE_MEAN_MAX` | do `REDUCE_MEAN` and `REDUCE_MAX` separately and then concat them together on the last axis, resulting in 1536-dim sentence encoding |
+| `CLS_TOKEN` or `FIRST_TOKEN` | get the hidden state corresponding to `[CLS]`, i.e. the first token |
+| `SEP_TOKEN` or `LAST_TOKEN` | get the hidden state corresponding to `[SEP]`, i.e. the last token |
 
 **Q:** Could I use other pooling techniques?
 
@@ -137,7 +178,6 @@ To reproduce the results, please run [`python benchmark.py`](benchmark.py).
 **Q:** What is the parallel processing model behind the scene?
 
 <img src=".github/bert-parallel-pipeline.png" width="600">
-
 
 **Q:** Do I need Tensorflow on the client side?
 

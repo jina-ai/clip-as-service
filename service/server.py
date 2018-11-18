@@ -67,7 +67,7 @@ class BertServer(threading.Thread):
         self.context = zmq.Context()
         self.frontend = self.context.socket(zmq.ROUTER)
         self.frontend.bind('tcp://*:%d' % self.port)
-        self.frontend.setsockopt(zmq.ROUTER_MANDATORY, 1)
+        # self.frontend.setsockopt(zmq.ROUTER_MANDATORY, 1)
 
         self.backend = self.context.socket(zmq.PUSH)
         self.backend.bind(WORKER_ADDR)
@@ -197,7 +197,10 @@ class BertWorker(Process):
         self.daemon = True
         self.model_fn = model_fn_builder(
             bert_config=modeling.BertConfig.from_json_file(self.config_fp),
-            init_checkpoint=self.checkpoint_fp)
+            init_checkpoint=self.checkpoint_fp,
+            pooling_strategy=args.pooling_strategy,
+            pooling_layer=args.pooling_layer
+        )
         os.environ['CUDA_VISIBLE_DEVICES'] = str(self.worker_id)
         self.estimator = Estimator(self.model_fn)
         self.exit_flag = multiprocessing.Event()

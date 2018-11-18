@@ -5,6 +5,7 @@
 import argparse
 import sys
 
+from bert.extract_features import PoolingStrategy
 from service.server import BertServer
 
 
@@ -20,10 +21,15 @@ def get_args():
                         help='maximum number of sequences handled by each worker')
     parser.add_argument('-port', type=int, default=5555,
                         help='port number for C-S communication')
+    parser.add_argument('-pooling_layer', type=int, default=-2,
+                        help='the encoder layer that receives pooling')
+    parser.add_argument('-pooling_strategy', type=PoolingStrategy.from_string,
+                        default=PoolingStrategy.REDUCE_MEAN, choices=list(PoolingStrategy),
+                        help='the pooling strategy for generating encoding vectors')
 
     args = parser.parse_args()
     param_str = '\n'.join(['%20s = %s' % (k, v) for k, v in sorted(vars(args).items())])
-    print('usage:\n{0}\nparameters: \n{1}'.format(' '.join([x for x in sys.argv]), param_str))
+    print('usage: %s\n%20s   %s\n%s\n%s\n' % (' '.join(sys.argv), 'ARG', 'VALUE', '_' * 50, param_str))
     return args
 
 

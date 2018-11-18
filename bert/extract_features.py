@@ -13,11 +13,32 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import re
+from enum import Enum
 
 import tensorflow as tf
 from tensorflow.python.estimator.model_fn import EstimatorSpec
 
 from bert import tokenization, modeling
+
+
+class PoolingStrategy(Enum):
+    REDUCE_MAX = 1
+    REDUCE_MEAN = 2
+    REDUCE_MEAN_MAX = 3
+    FIRST_TOKEN = 4  # corresponds to [CLS] for single sequences
+    LAST_TOKEN = 5  # corresponds to [SEP] for single sequences
+    CLS_TOKEN = 4  # corresponds to the first token for single seq.
+    SEP_TOKEN = 5  # corresponds to the last token for single seq.
+
+    def __str__(self):
+        return self.name
+
+    @staticmethod
+    def from_string(s):
+        try:
+            return PoolingStrategy[s]
+        except KeyError:
+            raise ValueError()
 
 
 class InputExample(object):
@@ -39,7 +60,9 @@ class InputFeatures(object):
         self.input_type_ids = input_type_ids
 
 
-def model_fn_builder(bert_config, init_checkpoint, use_one_hot_embeddings=False):
+def model_fn_builder(bert_config, init_checkpoint, use_one_hot_embeddings=False,
+                     pooling_strategy=PoolingStrategy.REDUCE_MEAN,
+                     pooling_layer=-2):
     """Returns `model_fn` closure for TPUEstimator."""
 
     def model_fn(features, labels, mode, params):  # pylint: disable=unused-argument
@@ -67,17 +90,28 @@ def model_fn_builder(bert_config, init_checkpoint, use_one_hot_embeddings=False)
 
         tf.train.init_from_checkpoint(init_checkpoint, assignment_map)
 
-        # tf.logging.info("**** Trainable Variables ****")
-        # for var in tvars:
-        #     init_string = ""
-        #     if var.name in initialized_variable_names:
-        #         init_string = ", *INIT_FROM_CKPT*"
-        #     tf.logging.info("  name = %s, shape = %s%s", var.name, var.shape,
-        #                     init_string)
+        encoder_layer = model.all_encoder_layers[pooling_layer]
+
+        if pooling_strategy == PoolingStrategy.REDUCE_MEAN:
+            pooled = tf.reduce_mean(encoder_layer, axis=1)
+        elif pooling_strategy == PoolingStrategy.REDUCE_MAX:
+            pooled = tf.reduce_max(encoder_layer, axis=1)
+        elif pooling_strategy == PoolingStrategy.REDUCE_MEAN_MAX:
+            pooled = tf.concat([tf.reduce_max(encoder_layer, axis=1),
+                                tf.reduce_max(encoder_layer, axis=1)], axis=1)
+        elif pooling_strategy == PoolingStrategy.FIRST_TOKEN or pooling_strategy == PoolingStrategy.CLS_TOKEN:
+            pooled = tf.squeeze(encoder_layer[:, 0:1, :], axis=1)
+        elif pooling_strategy == PoolingStrategy.LAST_TOKEN or pooling_strategy == PoolingStrategy.SEP_TOKEN:
+            seq_len = tf.cast(tf.reduce_sum(input_mask, axis=1), tf.int32)
+            rng = tf.range(0, tf.shape(seq_len)[0])
+            indexes = tf.stack([rng, seq_len - 1], 1)
+            pooled = tf.gather_nd(encoder_layer, indexes)
+        else:
+            raise NotImplementedError()
 
         predictions = {
             'client_id': client_id,
-            'encodes': model.get_sentence_encoding()
+            'encodes': pooled
         }
 
         return EstimatorSpec(mode=mode, predictions=predictions)
