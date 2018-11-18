@@ -102,8 +102,9 @@ def model_fn_builder(bert_config, init_checkpoint, use_one_hot_embeddings=False,
         elif pooling_strategy == PoolingStrategy.FIRST_TOKEN or pooling_strategy == PoolingStrategy.CLS_TOKEN:
             pooled = tf.squeeze(encoder_layer[:, 0:1, :], axis=1)
         elif pooling_strategy == PoolingStrategy.LAST_TOKEN or pooling_strategy == PoolingStrategy.SEP_TOKEN:
-            rng = tf.range(0, tf.shape(input_mask)[0])
-            indexes = tf.stack([rng, input_mask - 1], 1)
+            seq_len = tf.cast(tf.reduce_sum(input_mask, axis=1), tf.int32)
+            rng = tf.range(0, tf.shape(seq_len)[0])
+            indexes = tf.stack([rng, seq_len - 1], 1)
             pooled = tf.gather_nd(encoder_layer, indexes)
         else:
             raise NotImplementedError()
