@@ -30,9 +30,9 @@ Author: Han Xiao [https://hanxiao.github.io](https://hanxiao.github.io)
 ## Highlights
 
 - :telescope: **State-of-the-art**: build on pretrained 12/24-layer BERT models released by Google AI, which is considered as a milestone in the NLP community.
-- :zap: **Fast**: 380 sentences/s on a single Tesla M40 24GB with `max_seq_len=40`. Check out our [Benchmark](#Benchmark).
+- :hatching_chick: **Easy-to-use**: require only two lines of code to get sentence encoding.
+- :zap: **Fast**: 790 sentences/s on a single Tesla M40 24GB when `max_seq_len=20`. Check out our [Benchmark](#Benchmark).
 - :octopus: **Concurrency**: scale nicely and smoothly on multiple GPUs and multiple clients.
-- :hatching_chick: **Easy-to-use**: require only two lines of code to get sentence encoding once the server is set up.
 
 ## Requirements
 
@@ -141,7 +141,7 @@ Each sentence is translated to a 768-dimensional vector.
 |---|---|
 | `REDUCE_MEAN` | take the average of the hidden state of encoding layer on the time axis |
 | `REDUCE_MAX` | take the maximum of the hidden state of encoding layer on the time axis |
-| `REDUCE_MEAN_MAX` | do `REDUCE_MEAN` and `REDUCE_MAX` separately and then concat them together on the last axis, resulting in a 1536-dim sentence encoding |
+| `REDUCE_MEAN_MAX` | do `REDUCE_MEAN` and `REDUCE_MAX` separately and then concat them together on the last axis, resulting in 1536-dim sentence encoding |
 | `CLS_TOKEN` or `FIRST_TOKEN` | get the hidden state corresponding to `[CLS]`, i.e. the first token |
 | `SEP_TOKEN` or `LAST_TOKEN` | get the hidden state corresponding to `[SEP]`, i.e. the last token |
 
