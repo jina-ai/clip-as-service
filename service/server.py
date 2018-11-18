@@ -8,7 +8,6 @@ import sys
 import threading
 import time
 from datetime import datetime
-from enum import Enum
 from multiprocessing import Process
 
 import numpy as np
@@ -24,26 +23,6 @@ from service.client import BertClient
 
 WORKER_ADDR = 'ipc:///tmp/bert.workers'
 SINK_ADDR = 'ipc:///tmp/bert.sink'
-
-
-class PoolingStrategy(Enum):
-    REDUCE_MAX = 1
-    REDUCE_MEAN = 2
-    REDUCE_MEAN_MAX = 3
-    GET_FIRST = 4  # corresponds to [CLS] for single sequences
-    GET_LAST = 5  # corresponds to [SEP] for single sequences
-    GET_CLS = 4  # corresponds to the first token for single seq.
-    GET_SEP = 5  # corresponds to the last token for single seq.
-
-    def __str__(self):
-        return self.name
-
-    @staticmethod
-    def from_string(s):
-        try:
-            return PoolingStrategy[s]
-        except KeyError:
-            raise ValueError()
 
 
 class BertServer(threading.Thread):

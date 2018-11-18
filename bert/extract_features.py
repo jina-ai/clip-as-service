@@ -13,12 +13,32 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import re
+from enum import Enum
 
 import tensorflow as tf
 from tensorflow.python.estimator.model_fn import EstimatorSpec
 
 from bert import tokenization, modeling
-from service.server import PoolingStrategy
+
+
+class PoolingStrategy(Enum):
+    REDUCE_MAX = 1
+    REDUCE_MEAN = 2
+    REDUCE_MEAN_MAX = 3
+    GET_FIRST = 4  # corresponds to [CLS] for single sequences
+    GET_LAST = 5  # corresponds to [SEP] for single sequences
+    GET_CLS = 4  # corresponds to the first token for single seq.
+    GET_SEP = 5  # corresponds to the last token for single seq.
+
+    def __str__(self):
+        return self.name
+
+    @staticmethod
+    def from_string(s):
+        try:
+            return PoolingStrategy[s]
+        except KeyError:
+            raise ValueError()
 
 
 class InputExample(object):
