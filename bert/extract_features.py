@@ -99,9 +99,9 @@ def model_fn_builder(bert_config, init_checkpoint, use_one_hot_embeddings=False,
         elif pooling_strategy == PoolingStrategy.REDUCE_MEAN_MAX:
             pooled = tf.concat([tf.reduce_max(encoder_layer, axis=1),
                                 tf.reduce_max(encoder_layer, axis=1)], axis=1)
-        elif pooling_strategy == PoolingStrategy.GET_FIRST or pooling_strategy == PoolingStrategy.GET_CLS:
+        elif pooling_strategy == PoolingStrategy.FIRST_TOKEN or pooling_strategy == PoolingStrategy.CLS_TOKEN:
             pooled = tf.squeeze(encoder_layer[:, 0:1, :], axis=1)
-        elif pooling_strategy == PoolingStrategy.GET_LAST or pooling_strategy == PoolingStrategy.GET_SEP:
+        elif pooling_strategy == PoolingStrategy.LAST_TOKEN or pooling_strategy == PoolingStrategy.SEP_TOKEN:
             pooled = tf.gather_nd(encoder_layer,
                                   tf.stack([tf.range(0, tf.shape(input_mask)[0]),
                                             input_mask - 1], 1))
