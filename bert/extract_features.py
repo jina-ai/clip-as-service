@@ -25,10 +25,10 @@ class PoolingStrategy(Enum):
     REDUCE_MAX = 1
     REDUCE_MEAN = 2
     REDUCE_MEAN_MAX = 3
-    GET_FIRST = 4  # corresponds to [CLS] for single sequences
-    GET_LAST = 5  # corresponds to [SEP] for single sequences
-    GET_CLS = 4  # corresponds to the first token for single seq.
-    GET_SEP = 5  # corresponds to the last token for single seq.
+    FIRST_TOKEN = 4  # corresponds to [CLS] for single sequences
+    LAST_TOKEN = 5  # corresponds to [SEP] for single sequences
+    CLS_TOKEN = 4  # corresponds to the first token for single seq.
+    SEP_TOKEN = 5  # corresponds to the last token for single seq.
 
     def __str__(self):
         return self.name
@@ -99,9 +99,9 @@ def model_fn_builder(bert_config, init_checkpoint, use_one_hot_embeddings=False,
         elif pooling_strategy == PoolingStrategy.REDUCE_MEAN_MAX:
             pooled = tf.concat([tf.reduce_max(encoder_layer, axis=1),
                                 tf.reduce_max(encoder_layer, axis=1)], axis=1)
-        elif pooling_strategy == PoolingStrategy.GET_FIRST:
+        elif pooling_strategy == PoolingStrategy.GET_FIRST or pooling_strategy == PoolingStrategy.GET_CLS:
             pooled = tf.squeeze(encoder_layer[:, 0:1, :], axis=1)
-        elif pooling_strategy == PoolingStrategy.GET_LAST:
+        elif pooling_strategy == PoolingStrategy.GET_LAST or pooling_strategy == PoolingStrategy.GET_SEP:
             pooled = tf.gather_nd(encoder_layer,
                                   tf.stack([tf.range(0, tf.shape(input_mask)[0]),
                                             input_mask - 1], 1))
