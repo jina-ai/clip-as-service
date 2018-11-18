@@ -29,7 +29,7 @@ def get_args():
 
     args = parser.parse_args()
     param_str = '\n'.join(['%20s = %s' % (k, v) for k, v in sorted(vars(args).items())])
-    print('usage: %s\n%20s   %s\n%s' % (' '.join(sys.argv), 'ARG', 'VALUE', param_str))
+    print('usage: %s\n%20s   %s\n%s\n%s\n' % (' '.join(sys.argv), 'ARG', 'VALUE', '_' * 50, param_str))
     return args
 
 

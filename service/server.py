@@ -67,7 +67,7 @@ class BertServer(threading.Thread):
         self.context = zmq.Context()
         self.frontend = self.context.socket(zmq.ROUTER)
         self.frontend.bind('tcp://*:%d' % self.port)
-        self.frontend.setsockopt(zmq.ROUTER_MANDATORY, 1)
+        # self.frontend.setsockopt(zmq.ROUTER_MANDATORY, 1)
 
         self.backend = self.context.socket(zmq.PUSH)
         self.backend.bind(WORKER_ADDR)
