@@ -108,10 +108,10 @@ Client-side configs are summarized below, which can be found in [`client.py`](se
  
 | Argument | Type | Default | Description |
 |----------------------|------|-----------|-------------------------------------------------------------------------------|
-| `ip` | str | localhost | IP address of the server |
-| `port` | int | 5555 | port of the server |
-| `output_fmt` | str | ndarray | output format of the sentence encoding, valid values are `ndarray` and `list` |
-| `show_server_config` | bool | True | show server configs when first connected |
+| `ip` | str | localhost | the IP address of the server |
+| `port` | int | 5555 | the port of the server |
+| `output_fmt` | str | ndarray | the output format of the sentence encoding, either in numpy array (`ndarray`) or python List[List[float]] (`list`) |
+| `show_server_config` | bool | True | whether to show server configs when first connected |
 
 
 ## FAQ on Technical Details
