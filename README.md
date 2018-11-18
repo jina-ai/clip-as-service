@@ -29,7 +29,7 @@ Author: Han Xiao [https://hanxiao.github.io](https://hanxiao.github.io)
 
 ## Highlights
 
-- :telescope: **State-of-the-art**: based on pretrained 12/24-layer models released by Google AI, which is considered as a milestone in the NLP community.
+- :telescope: **State-of-the-art**: build on pretrained 12/24-layer BERT models released by Google AI, which is considered as a milestone in the NLP community.
 - :zap: **Fast**: 380 sentences/s on a single Tesla M40 24GB with `max_seq_len=40`. Check out our [Benchmark](#Benchmark).
 - :octopus: **Concurrency**: scale nicely and smoothly on multiple GPUs and multiple clients.
 - :hatching_chick: **Easy-to-use**: require only two lines of code to get sentence encoding once the server is set up.
@@ -53,7 +53,7 @@ You can use all models listed, including `BERT-Base, Multilingual` and `BERT-Bas
 ```bash
 python app.py -num_worker=4 -model_dir /tmp/english_L-12_H-768_A-12/
 ```
-This will start a service with four workers, meaning that it can handle up to four **concurrent** requests.
+This will start a service with four workers, meaning that it can handle up to four **concurrent** requests. More concurrent requests will be queued in a load balancer. Details can be found in our [FAQ](#faq-on-technical-details) and [the benchmark on number of clients](#speed-wrt-num_client)
 
 #### 3. Use Client to Get Sentence Encodes
 > :children_crossing: NOTE: please make sure your project includes [`client.py`](service/client.py), as we need to import `BertClient` class from this file. This is the **only file** that you will need as a client. You don't even need Tensorflow on client.
@@ -64,7 +64,7 @@ from service.client import BertClient
 ec = BertClient()
 ec.encode(['First do it', 'then do it right', 'then do it better'])
 ```
-This will return a python object with type `ndarray` or `List[List[float]]`, each element of the outer `List` is the fixed representation of a sentence.
+This will return a `ndarray`, in which each row is the fixed representation of a sentence. You can also let it return a pure python object in the type of `List[List[float]]`.
 
 ### Using BERT Service Remotely
 One can also start the service on one (GPU) machine and call it from another (CPU) machine as follows
@@ -85,6 +85,15 @@ NUM_WORKER=1
 PATH_MODEL=<path of your model>
 docker run --runtime nvidia -dit -p 5555:5555 -v $PATH_MODEL:/model -t bert-as-service $NUM_WORKER
 ```
+
+## Sentence Encoding Strategies
+
+
+
+## Performance Tips
+
+
+
 
 ## FAQ on Technical Details
 
@@ -137,7 +146,6 @@ To reproduce the results, please run [`python benchmark.py`](benchmark.py).
 **Q:** What is the parallel processing model behind the scene?
 
 <img src=".github/bert-parallel-pipeline.png" width="600">
-
 
 **Q:** Do I need Tensorflow on the client side?
 

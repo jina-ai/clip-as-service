@@ -18,6 +18,7 @@ import tensorflow as tf
 from tensorflow.python.estimator.model_fn import EstimatorSpec
 
 from bert import tokenization, modeling
+from service.server import PoolingStrategy
 
 
 class InputExample(object):
@@ -39,7 +40,9 @@ class InputFeatures(object):
         self.input_type_ids = input_type_ids
 
 
-def model_fn_builder(bert_config, init_checkpoint, use_one_hot_embeddings=False):
+def model_fn_builder(bert_config, init_checkpoint, use_one_hot_embeddings=False,
+                     pooling_strategy=PoolingStrategy.REDUCE_MEAN,
+                     pooling_layer=-2):
     """Returns `model_fn` closure for TPUEstimator."""
 
     def model_fn(features, labels, mode, params):  # pylint: disable=unused-argument
@@ -67,17 +70,27 @@ def model_fn_builder(bert_config, init_checkpoint, use_one_hot_embeddings=False)
 
         tf.train.init_from_checkpoint(init_checkpoint, assignment_map)
 
-        # tf.logging.info("**** Trainable Variables ****")
-        # for var in tvars:
-        #     init_string = ""
-        #     if var.name in initialized_variable_names:
-        #         init_string = ", *INIT_FROM_CKPT*"
-        #     tf.logging.info("  name = %s, shape = %s%s", var.name, var.shape,
-        #                     init_string)
+        encoder_layer = model.all_encoder_layers[pooling_layer]
+
+        if pooling_strategy == PoolingStrategy.REDUCE_MEAN:
+            pooled = tf.reduce_mean(encoder_layer, axis=1)
+        elif pooling_strategy == PoolingStrategy.REDUCE_MAX:
+            pooled = tf.reduce_max(encoder_layer, axis=1)
+        elif pooling_strategy == PoolingStrategy.REDUCE_MEAN_MAX:
+            pooled = tf.concat([tf.reduce_max(encoder_layer, axis=1),
+                                tf.reduce_max(encoder_layer, axis=1)], axis=1)
+        elif pooling_strategy == PoolingStrategy.GET_FIRST:
+            pooled = tf.squeeze(encoder_layer[:, 0:1, :], axis=1)
+        elif pooling_strategy == PoolingStrategy.GET_LAST:
+            pooled = tf.gather_nd(encoder_layer,
+                                  tf.stack([tf.range(0, tf.shape(input_mask)[0]),
+                                            input_mask - 1], 1))
+        else:
+            raise NotImplementedError()
 
         predictions = {
             'client_id': client_id,
-            'encodes': model.get_sentence_encoding()
+            'encodes': pooled
         }
 
         return EstimatorSpec(mode=mode, predictions=predictions)
