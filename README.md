@@ -86,13 +86,32 @@ PATH_MODEL=<path of your model>
 docker run --runtime nvidia -dit -p 5555:5555 -v $PATH_MODEL:/model -t bert-as-service $NUM_WORKER
 ```
 
-## Sentence Encoding Strategies
+## Server and Client Configurations
 
+### Server-side configs
 
+Server-side configs are summarized below, which can be found in [`app.py`](app.py) as well.
 
-## Performance Tips
+| Argument | Type | Default | Description |
+|--------------------|------|-------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `model_dir` | str |  | folder path of the pre-trained BERT model. |
+| `max_seq_len` | int | 25 | maximum length of sequence, longer sequence will be trimmed on the right side. |
+| `num_worker` | int | 1 | number of (GPU/CPU) worker runs BERT model, each works in a separate process. |
+| `max_batch_size` | int | 256 | maximum number of sequences handled by each worker, larger batch will be partitioned into small batches. |
+| `port` | int | 5555 | port number for client-server communication. |
+| `pooling_strategy` | str | REDUCE_MEAN | the pooling strategy for generating encoding vectors, choosing from {REDUCE_MEAN, REDUCE_MAX, REDUCE_MEAN_MAX, CLS_TOKEN, FIRST_TOKEN, SEP_TOKEN, LAST_TOKEN}. |
+| `pooling_layer` | int | -2 | the encoding layer that pooling operates on, where -1 means the last layer, -2 means the second-to-last, etc. |
 
+### Client-side configs
 
+Client-side configs are summarized below, which can be found in [`client.py`](service/client.py) as well.
+ 
+| Argument | Type | Default | Description |
+|----------------------|------|-----------|-------------------------------------------------------------------------------|
+| `ip` | str | localhost | IP address of the server |
+| `port` | int | 5555 | port of the server |
+| `output_fmt` | str | ndarray | output format of the sentence encoding, valid values are `ndarray` and `list` |
+| `show_server_config` | bool | True | show server configs when first connected |
 
 
 ## FAQ on Technical Details
@@ -112,6 +131,19 @@ Each sentence is translated to a 768-dimensional vector.
 **Q:** Why not the last hidden layer? Why second-to-last?
 
 **A:** The last layer is too closed to the target functions (i.e. masked language model and next sentence prediction) during pre-training, therefore may be biased to those targets.
+
+
+**Q:** What are the available pooling strategies in this service?
+
+**A:** Here is a table summarizes all pooling strategies I implemented. Choose your favorite one by specifying `python app.py --pooling_strategy`
+
+|Strategy|Description|
+|---|---|
+| `REDUCE_MEAN` | take the average of the hidden state of encoding layer on the time axis |
+| `REDUCE_MAX` | take the maximum of the hidden state of encoding layer on the time axis |
+| `REDUCE_MEAN_MAX` | do `REDUCE_MEAN` and `REDUCE_MAX` separately and then concat them together on the last axis, resulting in a 1536-dim sentence encoding |
+| `CLS_TOKEN` or `FIRST_TOKEN` | get the hidden state corresponding to `[CLS]`, i.e. the first token |
+| `SEP_TOKEN` or `LAST_TOKEN` | get the hidden state corresponding to `[SEP]`, i.e. the last token |
 
 **Q:** Could I use other pooling techniques?
 
