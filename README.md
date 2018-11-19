@@ -31,7 +31,7 @@ Author: Han Xiao [https://hanxiao.github.io](https://hanxiao.github.io)
 
 - :telescope: **State-of-the-art**: build on pretrained 12/24-layer BERT models released by Google AI, which is considered as a milestone in the NLP community.
 - :hatching_chick: **Easy-to-use**: require only two lines of code to get sentence encoding.
-- :zap: **Fast**: 790 sentences/s on a single Tesla M40 24GB when `max_seq_len=20`. Check out our [Benchmark](#Benchmark).
+- :zap: **Fast**: 780 sentences/s on a single Tesla M40 24GB when `max_seq_len=20`. Check out our [Benchmark](#Benchmark).
 - :octopus: **Concurrency**: scale nicely and smoothly on multiple GPUs and multiple clients.
 
 ## Requirements
@@ -40,6 +40,8 @@ Author: Han Xiao [https://hanxiao.github.io](https://hanxiao.github.io)
 - Tensorflow >= 1.10
 
 These two requirements MUST be satisfied. For other dependent packages, please refer to `requirments.txt`  and `requirments.client.txt`.
+
+Python 2 is supported on the client side [for the following consideration](#q-can-i-run-it-in-python-2).
 
 ## Usage
 
@@ -53,7 +55,7 @@ You can use all models listed, including `BERT-Base, Multilingual` and `BERT-Bas
 ```bash
 python app.py -model_dir /tmp/english_L-12_H-768_A-12/ -num_worker=4 
 ```
-This will start a service with four workers, meaning that it can handle up to four **concurrent** requests. More concurrent requests will be queued in a load balancer. Details can be found in our [FAQ](#faq-on-technical-details) and [the benchmark on number of clients](#speed-wrt-num_client)
+This will start a service with four workers, meaning that it can handle up to four **concurrent** requests. More concurrent requests will be queued in a load balancer. Details can be found in our [FAQ](#q-what-is-the-parallel-processing-model-behind-the-scene) and [the benchmark on number of clients](#speed-wrt-num_client)
 
 #### 3. Use Client to Get Sentence Encodes
 > :children_crossing: NOTE: please make sure your project includes [`client.py`](service/client.py), as we need to import `BertClient` class from this file. This is the **only file** that you will need as a client. You don't even need Tensorflow on client.
@@ -99,8 +101,8 @@ Server-side configs are summarized below, which can be found in [`app.py`](app.p
 | `num_worker` | int | `1` | number of (GPU/CPU) worker runs BERT model, each works in a separate process. |
 | `max_batch_size` | int | `256` | maximum number of sequences handled by each worker, larger batch will be partitioned into small batches. |
 | `port` | int | `5555` | port for client-server communication. |
-| `pooling_strategy` | str | `REDUCE_MEAN` | the pooling strategy for generating encoding vectors, valid values are `REDUCE_MEAN`, `REDUCE_MAX`, `REDUCE_MEAN_MAX`, `CLS_TOKEN`, `FIRST_TOKEN`, `SEP_TOKEN`, `LAST_TOKEN`. |
-| `pooling_layer` | int | `-2` | the encoding layer that pooling operates on, where `-1` means the last layer, `-2` means the second-to-last, etc. |
+| `pooling_strategy` | str | `REDUCE_MEAN` | the pooling strategy for generating encoding vectors, valid values are `REDUCE_MEAN`, `REDUCE_MAX`, `REDUCE_MEAN_MAX`, `CLS_TOKEN`, `FIRST_TOKEN`, `SEP_TOKEN`, `LAST_TOKEN`. Explanation of these strategies [can be found here](#q-what-are-the-available-pooling-strategies). |
+| `pooling_layer` | int | `-2` | the encoding layer that pooling operates on, where `-1` means the last layer, `-2` means the second-to-last, etc.|
 
 ### Client-side configs
 
@@ -116,15 +118,15 @@ Client-side configs are summarized below, which can be found in [`client.py`](se
 
 ## FAQ on Technical Details
 
-**Q:** How large is a sentence vector?
+##### **Q:** How large is a sentence vector?
 
 Each sentence is translated to a 768-dimensional vector. One exception is `REDUCE_MEAN_MAX` pooling strategy, which translates a sentence into a 1536-dimensional vector.
 
-**Q:** How do you get the fixed representation? Did you do pooling or something?
+##### **Q:** How do you get the fixed representation? Did you do pooling or something?
 
 **A:** Yes, pooling is required to get a fixed representation of a sentence. In the default strategy `REDUCE_MEAN`, I take the second-to-last hidden layer of all of the tokens in the sentence and do average pooling.
 
-**Q:** What are the available pooling strategies?
+##### **Q:** What are the available pooling strategies?
 
 **A:** Here is a table summarizes all pooling strategies I implemented. Choose your favorite one by specifying `python app.py -pooling_strategy`
 
@@ -136,57 +138,57 @@ Each sentence is translated to a 768-dimensional vector. One exception is `REDUC
 | `CLS_TOKEN` or `FIRST_TOKEN` | get the hidden state corresponding to `[CLS]`, i.e. the first token |
 | `SEP_TOKEN` or `LAST_TOKEN` | get the hidden state corresponding to `[SEP]`, i.e. the last token |
 
-**Q:** Why not use the hidden state of the first token as default strategy, i.e. the `[CLS]`?
+##### **Q:** Why not use the hidden state of the first token as default strategy, i.e. the `[CLS]`?
 
 **A:** Because a pre-trained model is not fine-tuned on any downstream tasks yet. In this case, the hidden state of `[CLS]` is not a good sentence representation. If later you fine-tune the model, you may use `[CLS]` as well.
 
-**Q:** Why not the last hidden layer? Why second-to-last?
+##### **Q:** Why not the last hidden layer? Why second-to-last?
 
 **A:** The last layer is too closed to the target functions (i.e. masked language model and next sentence prediction) during pre-training, therefore may be biased to those targets. If you question about this argument and want to use the last hidden layer anyway, please feel free to set `pooling_layer=-1`.
 
-**Q:** Could I use other pooling techniques?
+##### **Q:** Could I use other pooling techniques?
 
 **A:** For sure. Just follows [`get_sentence_encoding()` I added to the modeling.py](bert/extract_features.py#L96). Note that, if you introduce new `tf.variables` to the graph, then you need to train those variables before using the model. You may also want to check [some pooling techniques I mentioned in my blog post](https://hanxiao.github.io/2018/06/24/4-Encoding-Blocks-You-Need-to-Know-Besides-LSTM-RNN-in-Tensorflow/#pooling-block).
 
-**Q:** Can I start multiple clients and send requests to one server simultaneously?
+##### **Q:** Can I start multiple clients and send requests to one server simultaneously?
 
 **A:** Yes! That's the purpose of this repo. In fact you can start as many clients as you want. One server can handle all of them (given enough time).
 
-**Q:** How many requests can one service handle concurrently?
+##### **Q:** How many requests can one service handle concurrently?
 
 **A:** The maximum number of concurrent requests is determined by `num_worker` in `app.py`. If you a sending more than `num_worker` requests concurrently, the new requests will be temporally stored in a queue until a free worker becomes available.
 
-**Q:** So one request means one sentence?
+##### **Q:** So one request means one sentence?
 
 **A:** No. One request means a list of sentences sent from a client. Think the size of a request as the batch size. A request may contain 256, 512 or 1024 sentences. The optimal size of a request is often determined empirically. One large request can certainly improve the GPU utilization, yet it also increases the overhead of transmission. You may run `python client_example.py` for a simple benchmark.
 
-**Q:** How about the speed? Is it fast enough for production?
+##### **Q:** How about the speed? Is it fast enough for production?
 
-**A:** It highly depends on the `max_seq_len` and the size of a request. On a single Tesla M40 24GB with `max_seq_len=40`, you should get about 2000 samples per second using a 12-layer BERT. In general, I'd suggest smaller `max_seq_len` (25) and larger request size (512/1024).
+**A:** It highly depends on the `max_seq_len` and the size of a request. On a single Tesla M40 24GB with `max_seq_len=40`, you should get about 780 samples per second using a 12-layer BERT. In general, I'd suggest smaller `max_seq_len` (25) and larger request size (512/1024).
 
-**Q:** Did you benchmark the efficiency?
+##### **Q:** Did you benchmark the efficiency?
 
 **A:** Yes. See [Benchmark](#Benchmark).
 
 To reproduce the results, please run [`python benchmark.py`](benchmark.py).
 
-**Q:** What is backend based on?
+##### **Q:** What is backend based on?
 
 **A:** [ZeroMQ](http://zeromq.org/).
 
-**Q:** What is the parallel processing model behind the scene?
+##### **Q:** What is the parallel processing model behind the scene?
 
 <img src=".github/bert-parallel-pipeline.png" width="600">
 
-**Q:** Do I need Tensorflow on the client side?
+##### **Q:** Do I need Tensorflow on the client side?
 
 **A:** No. Think of `BertClient` as a general feature extractor, whose output can be fed to *any* ML models, e.g. `scikit-learn`, `pytorch`, `tensorflow`. The only file that client need is [`client.py`](service/client.py). Copy this file to your project and import it, then you are ready to go.
 
-**Q:** Can I use multilingual BERT model provided by Google?
+##### **Q:** Can I use multilingual BERT model provided by Google?
 
 **A:** Yes.
 
-**Q:** Can I use my own fine-tuned BERT model?
+#####  **Q:** Can I use my own fine-tuned BERT model?
 
 **A:** Yes. Make sure you have the following three items in `model_dir`:
                              
@@ -194,14 +196,14 @@ To reproduce the results, please run [`python benchmark.py`](benchmark.py).
 - A vocab file (`vocab.txt`) to map WordPiece to word id.
 - A config file (`bert_config.json`) which specifies the hyperparameters of the model.
 
-**Q:** Can I run it in python 2?
+##### **Q:** Can I run it in python 2?
 
-**A:** No.
+**A:** Server side no, client side yes. This is based on the consideration that python 2.x might still be a major piece in some tech stack. Migrating the whole downstream stack to python 3 for supporting `bert-as-service` can take quite some effort. On the other hand, setting up `BertServer` is just a one-time thing, which can be even [run in a docker container](#run-bert-service-on-nvidia-docker). To ease the integration, we support python 2 on the client side so that you can directly use `BertClient` as a part of your python 2 project, whereas the server side should always be hosted with python 3.
 
 
 ## Benchmark
 
-Benchmark was done on Tesla M40 24GB, experiments were repeated 10 times and the average value is reported. 
+The primary goal of benchmarking is to test the scalability and the speed of this service, which is crucial for using it in a dev/prod environment. Benchmark was done on Tesla M40 24GB, experiments were repeated 10 times and the average value is reported.
 
 To reproduce the results, please run
 ```bash
