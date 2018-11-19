@@ -41,7 +41,7 @@ Author: Han Xiao [https://hanxiao.github.io](https://hanxiao.github.io)
 
 These two requirements MUST be satisfied. For other dependent packages, please refer to `requirments.txt`  and `requirments.client.txt`.
 
-On the client side, Python 2 is supported for the following consideration.
+Python 2 is supported on the client side [for the following consideration](#q-can-i-run-it-in-python-2).
 
 ## Usage
 
@@ -118,15 +118,15 @@ Client-side configs are summarized below, which can be found in [`client.py`](se
 
 ## FAQ on Technical Details
 
-**Q:** How large is a sentence vector?
+##### **Q:** How large is a sentence vector?
 
 Each sentence is translated to a 768-dimensional vector. One exception is `REDUCE_MEAN_MAX` pooling strategy, which translates a sentence into a 1536-dimensional vector.
 
-**Q:** How do you get the fixed representation? Did you do pooling or something?
+##### **Q:** How do you get the fixed representation? Did you do pooling or something?
 
 **A:** Yes, pooling is required to get a fixed representation of a sentence. In the default strategy `REDUCE_MEAN`, I take the second-to-last hidden layer of all of the tokens in the sentence and do average pooling.
 
-**Q:** What are the available pooling strategies?
+##### **Q:** What are the available pooling strategies?
 
 **A:** Here is a table summarizes all pooling strategies I implemented. Choose your favorite one by specifying `python app.py -pooling_strategy`
 
@@ -138,57 +138,57 @@ Each sentence is translated to a 768-dimensional vector. One exception is `REDUC
 | `CLS_TOKEN` or `FIRST_TOKEN` | get the hidden state corresponding to `[CLS]`, i.e. the first token |
 | `SEP_TOKEN` or `LAST_TOKEN` | get the hidden state corresponding to `[SEP]`, i.e. the last token |
 
-**Q:** Why not use the hidden state of the first token as default strategy, i.e. the `[CLS]`?
+##### **Q:** Why not use the hidden state of the first token as default strategy, i.e. the `[CLS]`?
 
 **A:** Because a pre-trained model is not fine-tuned on any downstream tasks yet. In this case, the hidden state of `[CLS]` is not a good sentence representation. If later you fine-tune the model, you may use `[CLS]` as well.
 
-**Q:** Why not the last hidden layer? Why second-to-last?
+##### **Q:** Why not the last hidden layer? Why second-to-last?
 
 **A:** The last layer is too closed to the target functions (i.e. masked language model and next sentence prediction) during pre-training, therefore may be biased to those targets. If you question about this argument and want to use the last hidden layer anyway, please feel free to set `pooling_layer=-1`.
 
-**Q:** Could I use other pooling techniques?
+##### **Q:** Could I use other pooling techniques?
 
 **A:** For sure. Just follows [`get_sentence_encoding()` I added to the modeling.py](bert/extract_features.py#L96). Note that, if you introduce new `tf.variables` to the graph, then you need to train those variables before using the model. You may also want to check [some pooling techniques I mentioned in my blog post](https://hanxiao.github.io/2018/06/24/4-Encoding-Blocks-You-Need-to-Know-Besides-LSTM-RNN-in-Tensorflow/#pooling-block).
 
-**Q:** Can I start multiple clients and send requests to one server simultaneously?
+##### **Q:** Can I start multiple clients and send requests to one server simultaneously?
 
 **A:** Yes! That's the purpose of this repo. In fact you can start as many clients as you want. One server can handle all of them (given enough time).
 
-**Q:** How many requests can one service handle concurrently?
+##### **Q:** How many requests can one service handle concurrently?
 
 **A:** The maximum number of concurrent requests is determined by `num_worker` in `app.py`. If you a sending more than `num_worker` requests concurrently, the new requests will be temporally stored in a queue until a free worker becomes available.
 
-**Q:** So one request means one sentence?
+##### **Q:** So one request means one sentence?
 
 **A:** No. One request means a list of sentences sent from a client. Think the size of a request as the batch size. A request may contain 256, 512 or 1024 sentences. The optimal size of a request is often determined empirically. One large request can certainly improve the GPU utilization, yet it also increases the overhead of transmission. You may run `python client_example.py` for a simple benchmark.
 
-**Q:** How about the speed? Is it fast enough for production?
+##### **Q:** How about the speed? Is it fast enough for production?
 
-**A:** It highly depends on the `max_seq_len` and the size of a request. On a single Tesla M40 24GB with `max_seq_len=40`, you should get about 2000 samples per second using a 12-layer BERT. In general, I'd suggest smaller `max_seq_len` (25) and larger request size (512/1024).
+**A:** It highly depends on the `max_seq_len` and the size of a request. On a single Tesla M40 24GB with `max_seq_len=40`, you should get about 780 samples per second using a 12-layer BERT. In general, I'd suggest smaller `max_seq_len` (25) and larger request size (512/1024).
 
-**Q:** Did you benchmark the efficiency?
+##### **Q:** Did you benchmark the efficiency?
 
 **A:** Yes. See [Benchmark](#Benchmark).
 
 To reproduce the results, please run [`python benchmark.py`](benchmark.py).
 
-**Q:** What is backend based on?
+##### **Q:** What is backend based on?
 
 **A:** [ZeroMQ](http://zeromq.org/).
 
-**Q:** What is the parallel processing model behind the scene?
+##### **Q:** What is the parallel processing model behind the scene?
 
 <img src=".github/bert-parallel-pipeline.png" width="600">
 
-**Q:** Do I need Tensorflow on the client side?
+##### **Q:** Do I need Tensorflow on the client side?
 
 **A:** No. Think of `BertClient` as a general feature extractor, whose output can be fed to *any* ML models, e.g. `scikit-learn`, `pytorch`, `tensorflow`. The only file that client need is [`client.py`](service/client.py). Copy this file to your project and import it, then you are ready to go.
 
-**Q:** Can I use multilingual BERT model provided by Google?
+##### **Q:** Can I use multilingual BERT model provided by Google?
 
 **A:** Yes.
 
-**Q:** Can I use my own fine-tuned BERT model?
+#####  **Q:** Can I use my own fine-tuned BERT model?
 
 **A:** Yes. Make sure you have the following three items in `model_dir`:
                              
