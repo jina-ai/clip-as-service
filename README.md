@@ -61,8 +61,8 @@ This will start a service with four workers, meaning that it can handle up to fo
 Now you can use pretrained BERT to encode sentences in your Python code simply as follows:
 ```python
 from service.client import BertClient
-ec = BertClient()
-ec.encode(['First do it', 'then do it right', 'then do it better'])
+bc = BertClient()
+bc.encode(['First do it', 'then do it right', 'then do it better'])
 ```
 This will return a `ndarray`, in which each row is the fixed representation of a sentence. You can also let it return a pure python object in the type of `List[List[float]]`.
 
@@ -72,8 +72,8 @@ One can also start the service on one (GPU) machine and call it from another (CP
 ```python
 # on another CPU machine
 from service.client import BertClient
-ec = BertClient(ip='xx.xx.xx.xx', port=5555)  # ip address of the GPU machine
-ec.encode(['First do it', 'then do it right', 'then do it better'])
+bc = BertClient(ip='xx.xx.xx.xx', port=5555)  # ip address of the GPU machine
+bc.encode(['First do it', 'then do it right', 'then do it better'])
 ```
 
 > :children_crossing: NOTE: please make sure your project includes [`client.py`](service/client.py), as we need to import `BertClient` class from this file. Again, this is the **only file** that you need as a client. You don't even need Tensorflow. Please refer to [`requirements.client.txt`](requirements.client.txt) for the dependency on the client side.
