@@ -51,7 +51,7 @@ You can use all models listed, including `BERT-Base, Multilingual` and `BERT-Bas
 
 #### 2. Start a BERT service
 ```bash
-python app.py -num_worker=4 -model_dir /tmp/english_L-12_H-768_A-12/
+python app.py -model_dir /tmp/english_L-12_H-768_A-12/ -num_worker=4 
 ```
 This will start a service with four workers, meaning that it can handle up to four **concurrent** requests. More concurrent requests will be queued in a load balancer. Details can be found in our [FAQ](#faq-on-technical-details) and [the benchmark on number of clients](#speed-wrt-num_client)
 
@@ -126,7 +126,7 @@ Each sentence is translated to a 768-dimensional vector. One exception is `REDUC
 
 **Q:** What are the available pooling strategies?
 
-**A:** Here is a table summarizes all pooling strategies I implemented. Choose your favorite one by specifying `python app.py --pooling_strategy`
+**A:** Here is a table summarizes all pooling strategies I implemented. Choose your favorite one by specifying `python app.py -pooling_strategy`
 
 |Strategy|Description|
 |---|---|
