@@ -31,8 +31,8 @@ Author: Han Xiao [https://hanxiao.github.io](https://hanxiao.github.io)
 
 - :telescope: **State-of-the-art**: build on pretrained 12/24-layer BERT models released by Google AI, which is considered as a milestone in the NLP community.
 - :hatching_chick: **Easy-to-use**: require only two lines of code to get sentence encodes.
-- :zap: **Fast**: 780 sentences/s on a single Tesla M40 24GB when `max_seq_len=20`. Check out our [Benchmark](#Benchmark).
-- :octopus: **Concurrency**: scale nicely and smoothly on multiple GPUs and multiple clients. Check out our [Benchmark](#speed-wrt-num_client).
+- :zap: **Fast**: 780 sentences/s on a single Tesla M40 24GB when `max_seq_len=20`. See [benchmark](#Benchmark).
+- :octopus: **Concurrency**: scale nicely and smoothly on multiple GPUs and multiple clients. See [benchmark](#speed-wrt-num_client).
 
 ## Requirements
 
