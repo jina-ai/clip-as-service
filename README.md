@@ -41,6 +41,8 @@ Author: Han Xiao [https://hanxiao.github.io](https://hanxiao.github.io)
 
 These two requirements MUST be satisfied. For other dependent packages, please refer to `requirments.txt`  and `requirments.client.txt`.
 
+On the client side, Python 2 is supported for the following consideration.
+
 ## Usage
 
 #### 1. Download a Pre-trained BERT Model
@@ -194,9 +196,9 @@ To reproduce the results, please run [`python benchmark.py`](benchmark.py).
 - A vocab file (`vocab.txt`) to map WordPiece to word id.
 - A config file (`bert_config.json`) which specifies the hyperparameters of the model.
 
-**Q:** Can I run it in python 2?
+##### **Q:** Can I run it in python 2?
 
-**A:** No.
+**A:** Server side no, client side yes. This is based on the consideration that python 2.x might still be a major piece in some tech stack. Migrating the whole downstream stack to python 3 for supporting `bert-as-service` can take quite some effort. On the other hand, setting up a server is just a one-time thing, which can be even [run in a docker container](#run-bert-service-on-nvidia-docker). To reduce the migration cost and ease the integration, we support python 2 on the client side so that you can directly use `BertClient` as a part of your python 2 downstream tech stack, whereas the server side should always be hosted with python 3.
 
 
 ## Benchmark
