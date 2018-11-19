@@ -30,9 +30,9 @@ Author: Han Xiao [https://hanxiao.github.io](https://hanxiao.github.io)
 ## Highlights
 
 - :telescope: **State-of-the-art**: build on pretrained 12/24-layer BERT models released by Google AI, which is considered as a milestone in the NLP community.
-- :hatching_chick: **Easy-to-use**: require only two lines of code to get sentence encoding.
+- :hatching_chick: **Easy-to-use**: require only two lines of code to get sentence encodes.
 - :zap: **Fast**: 780 sentences/s on a single Tesla M40 24GB when `max_seq_len=20`. Check out our [Benchmark](#Benchmark).
-- :octopus: **Concurrency**: scale nicely and smoothly on multiple GPUs and multiple clients.
+- :octopus: **Concurrency**: scale nicely and smoothly on multiple GPUs and multiple clients. Check out our [Benchmark](#speed-wrt-num_client).
 
 ## Requirements
 
@@ -112,7 +112,7 @@ Client-side configs are summarized below, which can be found in [`client.py`](se
 |----------------------|------|-----------|-------------------------------------------------------------------------------|
 | `ip` | str | `localhost` | IP address of the server |
 | `port` | int | `5555` | port of the server |
-| `output_fmt` | str | `ndarray` | the output format of the sentence encoding, either in numpy array or python List[List[float]] (`ndarray`/`list`) |
+| `output_fmt` | str | `ndarray` | the output format of the sentence encodes, either in numpy array or python List[List[float]] (`ndarray`/`list`) |
 | `show_server_config` | bool | `True` | whether to show server configs when first connected |
 
 
@@ -134,7 +134,7 @@ Each sentence is translated to a 768-dimensional vector. One exception is `REDUC
 |---|---|
 | `REDUCE_MEAN` | take the average of the hidden state of encoding layer on the time axis |
 | `REDUCE_MAX` | take the maximum of the hidden state of encoding layer on the time axis |
-| `REDUCE_MEAN_MAX` | do `REDUCE_MEAN` and `REDUCE_MAX` separately and then concat them together on the last axis, resulting in 1536-dim sentence encoding |
+| `REDUCE_MEAN_MAX` | do `REDUCE_MEAN` and `REDUCE_MAX` separately and then concat them together on the last axis, resulting in 1536-dim sentence encodes |
 | `CLS_TOKEN` or `FIRST_TOKEN` | get the hidden state corresponding to `[CLS]`, i.e. the first token |
 | `SEP_TOKEN` or `LAST_TOKEN` | get the hidden state corresponding to `[SEP]`, i.e. the last token |
 
