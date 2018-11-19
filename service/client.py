@@ -2,11 +2,20 @@
 # -*- coding: utf-8 -*-
 # Han Xiao <artex.xh@gmail.com> <https://hanxiao.github.io>
 
+import sys
 import uuid
 
 import numpy as np
 import zmq
 from zmq.utils import jsonapi
+
+if sys.version_info >= (3, 0):
+    _str = str
+    _buffer = memoryview
+else:
+    # make it compatible for py2
+    _str = basestring
+    _buffer = buffer
 
 
 class BertClient:
@@ -42,11 +51,11 @@ class BertClient:
             self.socket.send_pyobj(texts)
             response = self.socket.recv_multipart()
             arr_info, arr_val = jsonapi.loads(response[0]), response[2]
-            X = np.frombuffer(memoryview(arr_val), dtype=arr_info['dtype'])
+            X = np.frombuffer(_buffer(arr_val), dtype=arr_info['dtype'])
             return self.formatter(X.reshape(arr_info['shape']))
         else:
             raise AttributeError('"texts" must be "List[str]" and non-empty!')
 
     @staticmethod
     def is_valid_input(texts):
-        return isinstance(texts, list) and all(isinstance(s, str) and s.strip() for s in texts)
+        return isinstance(texts, list) and all(isinstance(s, _str) and s.strip() for s in texts)
