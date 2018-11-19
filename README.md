@@ -31,7 +31,7 @@ Author: Han Xiao [https://hanxiao.github.io](https://hanxiao.github.io)
 
 - :telescope: **State-of-the-art**: build on pretrained 12/24-layer BERT models released by Google AI, which is considered as a milestone in the NLP community.
 - :hatching_chick: **Easy-to-use**: require only two lines of code to get sentence encoding.
-- :zap: **Fast**: 790 sentences/s on a single Tesla M40 24GB when `max_seq_len=20`. Check out our [Benchmark](#Benchmark).
+- :zap: **Fast**: 780 sentences/s on a single Tesla M40 24GB when `max_seq_len=20`. Check out our [Benchmark](#Benchmark).
 - :octopus: **Concurrency**: scale nicely and smoothly on multiple GPUs and multiple clients.
 
 ## Requirements
@@ -55,7 +55,7 @@ You can use all models listed, including `BERT-Base, Multilingual` and `BERT-Bas
 ```bash
 python app.py -model_dir /tmp/english_L-12_H-768_A-12/ -num_worker=4 
 ```
-This will start a service with four workers, meaning that it can handle up to four **concurrent** requests. More concurrent requests will be queued in a load balancer. Details can be found in our [FAQ](#faq-on-technical-details) and [the benchmark on number of clients](#speed-wrt-num_client)
+This will start a service with four workers, meaning that it can handle up to four **concurrent** requests. More concurrent requests will be queued in a load balancer. Details can be found in our [FAQ](#q-what-is-the-parallel-processing-model-behind-the-scene) and [the benchmark on number of clients](#speed-wrt-num_client)
 
 #### 3. Use Client to Get Sentence Encodes
 > :children_crossing: NOTE: please make sure your project includes [`client.py`](service/client.py), as we need to import `BertClient` class from this file. This is the **only file** that you will need as a client. You don't even need Tensorflow on client.
@@ -101,8 +101,8 @@ Server-side configs are summarized below, which can be found in [`app.py`](app.p
 | `num_worker` | int | `1` | number of (GPU/CPU) worker runs BERT model, each works in a separate process. |
 | `max_batch_size` | int | `256` | maximum number of sequences handled by each worker, larger batch will be partitioned into small batches. |
 | `port` | int | `5555` | port for client-server communication. |
-| `pooling_strategy` | str | `REDUCE_MEAN` | the pooling strategy for generating encoding vectors, valid values are `REDUCE_MEAN`, `REDUCE_MAX`, `REDUCE_MEAN_MAX`, `CLS_TOKEN`, `FIRST_TOKEN`, `SEP_TOKEN`, `LAST_TOKEN`. |
-| `pooling_layer` | int | `-2` | the encoding layer that pooling operates on, where `-1` means the last layer, `-2` means the second-to-last, etc. |
+| `pooling_strategy` | str | `REDUCE_MEAN` | the pooling strategy for generating encoding vectors, valid values are `REDUCE_MEAN`, `REDUCE_MAX`, `REDUCE_MEAN_MAX`, `CLS_TOKEN`, `FIRST_TOKEN`, `SEP_TOKEN`, `LAST_TOKEN`. Explanation of these strategies [can be found here](#q-what-are-the-available-pooling-strategies). |
+| `pooling_layer` | int | `-2` | the encoding layer that pooling operates on, where `-1` means the last layer, `-2` means the second-to-last, etc.|
 
 ### Client-side configs
 
@@ -198,12 +198,12 @@ To reproduce the results, please run [`python benchmark.py`](benchmark.py).
 
 ##### **Q:** Can I run it in python 2?
 
-**A:** Server side no, client side yes. This is based on the consideration that python 2.x might still be a major piece in some tech stack. Migrating the whole downstream stack to python 3 for supporting `bert-as-service` can take quite some effort. On the other hand, setting up a server is just a one-time thing, which can be even [run in a docker container](#run-bert-service-on-nvidia-docker). To reduce the migration cost and ease the integration, we support python 2 on the client side so that you can directly use `BertClient` as a part of your python 2 downstream tech stack, whereas the server side should always be hosted with python 3.
+**A:** Server side no, client side yes. This is based on the consideration that python 2.x might still be a major piece in some tech stack. Migrating the whole downstream stack to python 3 for supporting `bert-as-service` can take quite some effort. On the other hand, setting up `BertServer` is just a one-time thing, which can be even [run in a docker container](#run-bert-service-on-nvidia-docker). To ease the integration, we support python 2 on the client side so that you can directly use `BertClient` as a part of your python 2 project, whereas the server side should always be hosted with python 3.
 
 
 ## Benchmark
 
-Benchmark was done on Tesla M40 24GB, experiments were repeated 10 times and the average value is reported. 
+The primary goal of benchmarking is to test the scalability and the speed of this service, which is crucial for using it in a dev/prod environment. Benchmark was done on Tesla M40 24GB, experiments were repeated 10 times and the average value is reported.
 
 To reproduce the results, please run
 ```bash
