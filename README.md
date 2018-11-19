@@ -118,22 +118,13 @@ Client-side configs are summarized below, which can be found in [`client.py`](se
 
 **Q:** How large is a sentence vector?
 
-Each sentence is translated to a 768-dimensional vector.
+Each sentence is translated to a 768-dimensional vector. One exception is `REDUCE_MEAN_MAX` pooling strategy, which translates a sentence into a 1536-dimensional vector.
 
-**Q:** Where do you get the fixed representation? Did you do pooling or something?
+**Q:** How do you get the fixed representation? Did you do pooling or something?
 
-**A:** I take the second-to-last hidden layer of all of the tokens in the sentence and do average pooling. See [the function I added to the modeling.py](bert/modeling.py#L236)
+**A:** Yes, pooling is required to get a fixed representation of a sentence. In the default strategy `REDUCE_MEAN`, I take the second-to-last hidden layer of all of the tokens in the sentence and do average pooling.
 
-**Q:** Why not use the hidden state of the first token, i.e. the `[CLS]`?
-
-**A:** Because a pre-trained model is not fine-tuned on any downstream tasks yet. In this case, the hidden state of `[CLS]` is not a good sentence representation. If later you fine-tune the model, you may [use `get_pooled_output()` to get the fixed length representation](bert/modeling.py#L224) as well.
-
-**Q:** Why not the last hidden layer? Why second-to-last?
-
-**A:** The last layer is too closed to the target functions (i.e. masked language model and next sentence prediction) during pre-training, therefore may be biased to those targets.
-
-
-**Q:** What are the available pooling strategies in this service?
+**Q:** What are the available pooling strategies?
 
 **A:** Here is a table summarizes all pooling strategies I implemented. Choose your favorite one by specifying `python app.py --pooling_strategy`
 
@@ -145,9 +136,17 @@ Each sentence is translated to a 768-dimensional vector.
 | `CLS_TOKEN` or `FIRST_TOKEN` | get the hidden state corresponding to `[CLS]`, i.e. the first token |
 | `SEP_TOKEN` or `LAST_TOKEN` | get the hidden state corresponding to `[SEP]`, i.e. the last token |
 
+**Q:** Why not use the hidden state of the first token as default strategy, i.e. the `[CLS]`?
+
+**A:** Because a pre-trained model is not fine-tuned on any downstream tasks yet. In this case, the hidden state of `[CLS]` is not a good sentence representation. If later you fine-tune the model, you may use `[CLS]` as well.
+
+**Q:** Why not the last hidden layer? Why second-to-last?
+
+**A:** The last layer is too closed to the target functions (i.e. masked language model and next sentence prediction) during pre-training, therefore may be biased to those targets. If you question about this argument and want to use the last hidden layer anyway, please feel free to set `pooling_layer=-1`.
+
 **Q:** Could I use other pooling techniques?
 
-**A:** For sure. Just follows [`get_sentence_encoding()` I added to the modeling.py](bert/modeling.py#L236). Note that, if you introduce new `tf.variables` to the graph, then you need to train those variables before using the model. You may also want to check [some pooling techniques I mentioned in my blog post](https://hanxiao.github.io/2018/06/24/4-Encoding-Blocks-You-Need-to-Know-Besides-LSTM-RNN-in-Tensorflow/#pooling-block).
+**A:** For sure. Just follows [`get_sentence_encoding()` I added to the modeling.py](bert/extract_features.py#L96). Note that, if you introduce new `tf.variables` to the graph, then you need to train those variables before using the model. You may also want to check [some pooling techniques I mentioned in my blog post](https://hanxiao.github.io/2018/06/24/4-Encoding-Blocks-You-Need-to-Know-Besides-LSTM-RNN-in-Tensorflow/#pooling-block).
 
 **Q:** Can I start multiple clients and send requests to one server simultaneously?
 
@@ -290,6 +289,7 @@ It's even worse if you put `BertClient()` inside the loop. Don't do that.
 | 16         | 26    | 53    | 105   |
 | 32         | 13    | 26    | 53    |
 
+As one can observe, 1 clients 1 GPU = 381 seqs/s, 2 clients 2 GPU 402 seqs/s, 4 clients 4 GPU 413 seqs/s. This shows the efficiency of our parallel pipeline and job scheduling, as the service can leverage the GPU time  more exhaustively as concurrent requests increase.
 
 
 #### Speed wrt. `max_batch_size`
