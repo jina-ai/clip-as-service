@@ -7,6 +7,7 @@ from collections import namedtuple
 
 from numpy import mean
 
+from bert.extract_features import PoolingStrategy
 from service.client import BertClient
 from service.server import BertServer
 
@@ -48,7 +49,9 @@ if __name__ == '__main__':
         'max_seq_len': 40,
         'client_batch_size': 2048,
         'max_batch_size': 256,
-        'num_client': 1
+        'num_client': 1,
+        'pooling_strategy': PoolingStrategy.REDUCE_MEAN,
+        'pooling_layer': -2
     }
     experiments = {
         'client_batch_size': [1, 4, 8, 16, 64, 256, 512, 1024, 2048, 4096],
