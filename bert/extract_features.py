@@ -22,6 +22,7 @@ from bert import tokenization, modeling
 
 
 class PoolingStrategy(Enum):
+    NONE = 0
     REDUCE_MAX = 1
     REDUCE_MEAN = 2
     REDUCE_MEAN_MAX = 3
@@ -106,6 +107,8 @@ def model_fn_builder(bert_config, init_checkpoint, use_one_hot_embeddings=False,
             rng = tf.range(0, tf.shape(seq_len)[0])
             indexes = tf.stack([rng, seq_len - 1], 1)
             pooled = tf.gather_nd(encoder_layer, indexes)
+        elif pooling_strategy == PoolingStrategy.NONE:
+            pooled = encoder_layer
         else:
             raise NotImplementedError()
 
