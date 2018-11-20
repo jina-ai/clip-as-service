@@ -48,7 +48,6 @@ class BertServer(threading.Thread):
         self.context = None
         self.exit_flag = threading.Event()
         self.logger = set_logger('DISPATCHER')
-        print(self.logger)
 
     def close(self):
         self.logger.info('shutting down...')
@@ -138,7 +137,6 @@ class BertSink(threading.Thread):
         self.exit_flag = threading.Event()
         self.logger = set_logger('SINK')
         self.sink_address = sink_address
-        print(self.logger)
 
     def close(self):
         self.logger.info('shutting down...')
@@ -214,10 +212,9 @@ class BertWorker(Process):
         os.environ['CUDA_VISIBLE_DEVICES'] = str(self.worker_id)
         self.estimator = Estimator(self.model_fn)
         self.exit_flag = multiprocessing.Event()
-        self.logger = set_logger('WORKER-%d' % self.worker_id),
+        self.logger = set_logger('WORKER-%d' % self.worker_id)
         self.worker_address = worker_address
         self.sink_address = sink_address
-        print(self.logger)
 
     def close(self):
         self.logger.info('shutting down...')
