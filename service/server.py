@@ -235,6 +235,7 @@ class BertWorker(Process):
         start_t = time.perf_counter()
         for r in self.estimator.predict(input_fn, yield_single_examples=False):
             # logger.info('new result!')
+            print(r['encodes'].shape)
             send_ndarray(sink, r['client_id'], r['encodes'])
             time_used = time.perf_counter() - start_t
             start_t = time.perf_counter()
