@@ -116,7 +116,8 @@ class BertServer(threading.Thread):
                     tmp = seqs[s_idx: (s_idx + self.max_batch_size)]
                     if tmp:
                         # get the worker with minimum workload
-                        self.backend.send_multipart([client, b'', pickle.dumps(tmp, protocol=-1)])
+                        client_partial_id = client + b'@%d' % s_idx
+                        self.backend.send_multipart([client_partial_id, b'', pickle.dumps(tmp, protocol=-1)])
                     s_idx += len(tmp)
             else:
                 self.backend.send_multipart([client, b'', msg])
@@ -164,9 +165,14 @@ class BertSink(threading.Thread):
                 arr_info, arr_val = jsonapi.loads(msg[2]), msg[4]
                 X = np.frombuffer(memoryview(arr_val), dtype=arr_info['dtype'])
                 X = X.reshape(arr_info['shape'])
-                pending_client[client_id].append(X)
+                client_info = client_id.split(b'@')
+                client_id = client_info[0]
+                partial_id = client_info[1] if len(client_info) == 2 else 0
+                pending_client[client_id].append((X, partial_id))
                 pending_checksum[client_id] += X.shape[0]
-                self.logger.info('received %d of client %s' % (X.shape[0], client_id))
+                self.logger.info('received %d of client %s (%d/%d)' % (X.shape[0], client_id,
+                                                                       pending_checksum[client_id],
+                                                                       client_checksum[client_id]))
             else:
                 raise NotImplementedError
 
@@ -175,6 +181,8 @@ class BertSink(threading.Thread):
             for client, tmp in finished:
                 self.logger.info(
                     'client %s %d samples are done! sending back to client' % (client, client_checksum[client]))
+                # re-sort to the original order
+                tmp = [x[0] for x in sorted(tmp, key=lambda x: x[1])]
                 send_ndarray(self.frontend, client, np.concatenate(tmp, axis=0))
                 pending_client.pop(client)
                 pending_checksum.pop(client)
