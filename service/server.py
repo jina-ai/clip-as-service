@@ -48,6 +48,7 @@ class BertServer(threading.Thread):
         self.context = None
         self.exit_flag = threading.Event()
         self.logger = set_logger('DISPATCHER')
+        print(self.logger)
 
     def close(self):
         self.logger.info('shutting down...')
@@ -137,6 +138,7 @@ class BertSink(threading.Thread):
         self.exit_flag = threading.Event()
         self.logger = set_logger('SINK')
         self.sink_address = sink_address
+        print(self.logger)
 
     def close(self):
         self.logger.info('shutting down...')
@@ -215,6 +217,7 @@ class BertWorker(Process):
         self.logger = set_logger('WORKER-%d' % self.worker_id),
         self.worker_address = worker_address
         self.sink_address = sink_address
+        print(self.logger)
 
     def close(self):
         self.logger.info('shutting down...')
@@ -233,7 +236,6 @@ class BertWorker(Process):
 
         input_fn = self.input_fn_builder(receiver)
 
-        print(self.logger)
         self.logger.info('ready and listening')
         start_t = time.perf_counter()
         for r in self.estimator.predict(input_fn, yield_single_examples=False):
