@@ -201,7 +201,7 @@ To reproduce the results, please run [`python benchmark.py`](benchmark.py).
 
 **A:** Server side no, client side yes. This is based on the consideration that python 2.x might still be a major piece in some tech stack. Migrating the whole downstream stack to python 3 for supporting `bert-as-service` can take quite some effort. On the other hand, setting up `BertServer` is just a one-time thing, which can be even [run in a docker container](#run-bert-service-on-nvidia-docker). To ease the integration, we support python 2 on the client side so that you can directly use `BertClient` as a part of your python 2 project, whereas the server side should always be hosted with python 3.
 
-##### **Q:** How can I get word embedding instead of sentence embedding.
+##### **Q:** How can I get word embedding instead of sentence embedding?
 
 **A:** To get word embedding please set `pooling_strategy = NONE`. This will omit the pooling operation on the encoding layer, resulting in a `[max_seq_len, 768]` matrix for every sequence. To get the word embedding corresponds to every token, you can simply use slice index.
 
@@ -212,17 +212,23 @@ Example:
 # max_seq_len = 25
 # pooling_strategy = NONE
 
-bc.encode(['hey you', 'whats up'])  # [2, 25, 768]
-bc.encode(['hey you', 'whats up'])[0]  # [1, 25, 768], word embeddings for `hey you`
-bc.encode(['hey you', 'whats up'])[0][0]  # [1, 1, 768], word embedding for `[CLS]`
-bc.encode(['hey you', 'whats up'])[0][1]  # [1, 1, 768], word embedding for `h`
-bc.encode(['hey you', 'whats up'])[0][2]  # [1, 1, 768], word embedding for `e`
-bc.encode(['hey you', 'whats up'])[0][8]  # [1, 1, 768], word embedding for `[SEP]`
-bc.encode(['hey you', 'whats up'])[0][9]  # [1, 1, 768], word embedding for `0_PAD`, meaningless
-bc.encode(['hey you', 'whats up'])[1][24]  # [1, 1, 768], word embedding for `0_PAD`, meaningless
-bc.encode(['hey you', 'whats up'])[0][25]  # error, out of index!
+bc = BertClient()
+x = ['hey you', 'whats up']
+
+bc.encode(x)  # [2, 25, 768]
+bc.encode(x)[0]  # [1, 25, 768], word embeddings for `hey you`
+bc.encode(x)[0][0]  # [1, 1, 768], word embedding for `[CLS]`
+bc.encode(x)[0][1]  # [1, 1, 768], word embedding for `h`
+bc.encode(x)[0][2]  # [1, 1, 768], word embedding for `e`
+bc.encode(x)[0][8]  # [1, 1, 768], word embedding for `[SEP]`
+bc.encode(x)[0][9]  # [1, 1, 768], word embedding for `0_PAD`, meaningless
+bc.encode(x)[1][24]  # [1, 1, 768], word embedding for `0_PAD`, meaningless
+bc.encode(x)[0][25]  # error, out of index!
 ```
 
+##### **Q:** my BERT has 12/24 layers, which layer are you talking about?
+
+**A:** By default  
 
 
 
