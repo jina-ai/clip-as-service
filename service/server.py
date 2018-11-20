@@ -68,6 +68,7 @@ class BertServer(threading.Thread):
 
         self.backend = self.context.socket(zmq.PUSH)
         self.backend.bind('ipc://*')
+        backend_addr = self.backend.getsockopt(zmq.LAST_ENDPOINT).decode('ascii')
 
         # start the sink thread
         sink_thread = BertSink(self.args, self.frontend)
@@ -86,7 +87,6 @@ class BertServer(threading.Thread):
 
         # start the backend processes
         for i in available_gpus:
-            backend_addr = self.backend.getsockopt(zmq.LAST_ENDPOINT).decode('ascii')
             process = BertWorker(i, self.args, backend_addr, sink_thread.address)
             self.processes.append(process)
             process.start()
@@ -101,7 +101,9 @@ class BertServer(threading.Thread):
                 self.frontend.send_multipart(
                     [client, b'',
                      jsonapi.dumps({**{'client': client.decode('ascii'),
-                                       'num_process': len(self.processes)}, **self.args_dict})])
+                                       'num_process': len(self.processes),
+                                       'ipc_backend': backend_addr,
+                                       'ipc_sink': sink_thread.address}, **self.args_dict})])
                 continue
 
             seqs = pickle.loads(msg)
