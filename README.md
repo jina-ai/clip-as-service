@@ -219,10 +219,8 @@ bc.encode(x)  # [2, 25, 768]
 bc.encode(x)[0]  # [1, 25, 768], word embeddings for `hey you`
 bc.encode(x)[0][0]  # [1, 1, 768], word embedding for `[CLS]`
 bc.encode(x)[0][1]  # [1, 1, 768], word embedding for `h`
-bc.encode(x)[0][2]  # [1, 1, 768], word embedding for `e`
 bc.encode(x)[0][8]  # [1, 1, 768], word embedding for `[SEP]`
 bc.encode(x)[0][9]  # [1, 1, 768], word embedding for `0_PAD`, meaningless
-bc.encode(x)[1][24]  # [1, 1, 768], word embedding for `0_PAD`, meaningless
 bc.encode(x)[0][25]  # error, out of index!
 ```
 
