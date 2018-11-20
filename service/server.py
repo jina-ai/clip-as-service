@@ -21,9 +21,6 @@ from bert.extract_features import model_fn_builder, convert_lst_to_features
 from helper import set_logger
 from service.client import BertClient
 
-WORKER_ADDR = 'ipc:///tmp/bert.workers'
-SINK_ADDR = 'ipc:///tmp/bert.sink'
-
 
 class BertServer(threading.Thread):
     def __init__(self, args):
@@ -70,12 +67,13 @@ class BertServer(threading.Thread):
         # self.frontend.setsockopt(zmq.ROUTER_MANDATORY, 1)
 
         self.backend = self.context.socket(zmq.PUSH)
-        self.backend.bind(WORKER_ADDR)
+        self.backend.bind('ipc://*')
+        backend_addr = self.backend.getsockopt(zmq.LAST_ENDPOINT).decode('ascii')
 
-        # start the sink process
-        process = BertSink(self.args, self.frontend)
-        self.processes.append(process)
-        process.start()
+        # start the sink thread
+        sink_thread = BertSink(self.args, self.frontend)
+        sink_thread.start()
+        self.processes.append(sink_thread)
 
         available_gpus = range(self.num_worker)
         try:
@@ -89,12 +87,13 @@ class BertServer(threading.Thread):
 
         # start the backend processes
         for i in available_gpus:
-            process = BertWorker(i, self.args)
+            process = BertWorker(i, self.args, backend_addr, sink_thread.address)
             self.processes.append(process)
             process.start()
 
+        # connect to sink
         self.sink = self.context.socket(zmq.PUSH)
-        self.sink.connect(SINK_ADDR)
+        self.sink.connect(sink_thread.address)
 
         while not self.exit_flag.is_set():
             client, _, msg = self.frontend.recv_multipart()
@@ -102,7 +101,9 @@ class BertServer(threading.Thread):
                 self.frontend.send_multipart(
                     [client, b'',
                      jsonapi.dumps({**{'client': client.decode('ascii'),
-                                       'num_process': len(self.processes)}, **self.args_dict})])
+                                       'num_process': len(self.processes),
+                                       'ipc_backend': backend_addr,
+                                       'ipc_sink': sink_thread.address}, **self.args_dict})])
                 continue
 
             seqs = pickle.loads(msg)
@@ -137,6 +138,7 @@ class BertSink(threading.Thread):
         self.frontend = frontend
         self.exit_flag = threading.Event()
         self.logger = set_logger('SINK')
+        self.address = None
 
     def close(self):
         self.logger.info('shutting down...')
@@ -146,7 +148,8 @@ class BertSink(threading.Thread):
     def run(self):
         self.context = zmq.Context()
         self.receiver = self.context.socket(zmq.PULL)
-        self.receiver.bind(SINK_ADDR)
+        self.receiver.bind('ipc://*')
+        self.address = self.receiver.getsockopt(zmq.LAST_ENDPOINT).decode('ascii')
 
         client_checksum = {}
         pending_client = {}
@@ -193,7 +196,7 @@ class BertSink(threading.Thread):
 
 
 class BertWorker(Process):
-    def __init__(self, id, args):
+    def __init__(self, id, args, worker_address, sink_address):
         super().__init__()
         self.model_dir = args.model_dir
         self.config_fp = os.path.join(self.model_dir, 'bert_config.json')
@@ -213,6 +216,8 @@ class BertWorker(Process):
         self.estimator = Estimator(self.model_fn)
         self.exit_flag = multiprocessing.Event()
         self.logger = set_logger('WORKER-%d' % self.worker_id)
+        self.worker_address = worker_address
+        self.sink_address = sink_address
 
     def close(self):
         self.logger.info('shutting down...')
@@ -224,14 +229,14 @@ class BertWorker(Process):
     def run(self):
         context = zmq.Context()
         receiver = context.socket(zmq.PULL)
-        receiver.connect(WORKER_ADDR)
+        receiver.connect(self.worker_address)
 
         sink = context.socket(zmq.PUSH)
-        sink.connect(SINK_ADDR)
+        sink.connect(self.sink_address)
 
         input_fn = self.input_fn_builder(receiver)
 
-        self.logger.info('ready and listening' % self.worker_id)
+        self.logger.info('ready and listening')
         start_t = time.perf_counter()
         for r in self.estimator.predict(input_fn, yield_single_examples=False):
             # logger.info('new result!')
