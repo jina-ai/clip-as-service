@@ -233,6 +233,7 @@ class BertWorker(Process):
 
         input_fn = self.input_fn_builder(receiver)
 
+        print(self.logger)
         self.logger.info('ready and listening')
         start_t = time.perf_counter()
         for r in self.estimator.predict(input_fn, yield_single_examples=False):
