@@ -22,7 +22,6 @@ from bert import tokenization, modeling
 
 
 class PoolingStrategy(Enum):
-    NONE = 0
     REDUCE_MAX = 1
     REDUCE_MEAN = 2
     REDUCE_MEAN_MAX = 3
@@ -30,6 +29,7 @@ class PoolingStrategy(Enum):
     LAST_TOKEN = 5  # corresponds to [SEP] for single sequences
     CLS_TOKEN = 4  # corresponds to the first token for single seq.
     SEP_TOKEN = 5  # corresponds to the last token for single seq.
+    NONE = 6
 
     def __str__(self):
         return self.name
