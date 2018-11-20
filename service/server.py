@@ -69,12 +69,8 @@ class BertServer(threading.Thread):
         self.backend = self.context.socket(zmq.PUSH)
         self.backend.bind('ipc://*')
 
-        self.sink = self.context.socket(zmq.PUSH)
-        self.sink.connect('ipc://*')
-
         # start the sink thread
-        sink_addr = self.sink.getsockopt(zmq.LAST_ENDPOINT).decode('ascii')
-        sink_thread = BertSink(self.args, self.frontend, sink_addr)
+        sink_thread = BertSink(self.args, self.frontend)
         sink_thread.start()
         self.processes.append(sink_thread)
 
@@ -91,9 +87,13 @@ class BertServer(threading.Thread):
         # start the backend processes
         for i in available_gpus:
             backend_addr = self.backend.getsockopt(zmq.LAST_ENDPOINT).decode('ascii')
-            process = BertWorker(i, self.args, backend_addr, sink_addr)
+            process = BertWorker(i, self.args, backend_addr, sink_thread.address)
             self.processes.append(process)
             process.start()
+
+        # connect to sink
+        self.sink = self.context.socket(zmq.PUSH)
+        self.sink.connect(sink_thread.address)
 
         while not self.exit_flag.is_set():
             client, _, msg = self.frontend.recv_multipart()
@@ -128,7 +128,7 @@ class BertServer(threading.Thread):
 
 
 class BertSink(threading.Thread):
-    def __init__(self, args, frontend, sink_address):
+    def __init__(self, args, frontend):
         super().__init__()
         self.port = args.port
         self.context = None
@@ -136,7 +136,7 @@ class BertSink(threading.Thread):
         self.frontend = frontend
         self.exit_flag = threading.Event()
         self.logger = set_logger('SINK')
-        self.sink_address = sink_address
+        self.address = None
 
     def close(self):
         self.logger.info('shutting down...')
@@ -146,7 +146,8 @@ class BertSink(threading.Thread):
     def run(self):
         self.context = zmq.Context()
         self.receiver = self.context.socket(zmq.PULL)
-        self.receiver.bind(self.sink_address)
+        self.receiver.bind('ipc://*')
+        self.address = self.receiver.getsockopt(zmq.LAST_ENDPOINT).decode('ascii')
 
         client_checksum = {}
         pending_client = {}
