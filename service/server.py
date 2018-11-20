@@ -73,7 +73,7 @@ class BertServer(threading.Thread):
         self.sink.connect('ipc://*')
 
         # start the sink thread
-        sink_addr = self.sink.getsockopt(zmq.LAST_ENDPOINT)
+        sink_addr = self.sink.getsockopt(zmq.LAST_ENDPOINT).decode('ascii')
         sink_thread = BertSink(self.args, self.frontend, sink_addr)
         sink_thread.start()
         self.processes.append(sink_thread)
@@ -90,7 +90,7 @@ class BertServer(threading.Thread):
 
         # start the backend processes
         for i in available_gpus:
-            backend_addr = self.backend.getsockopt(zmq.LAST_ENDPOINT)
+            backend_addr = self.backend.getsockopt(zmq.LAST_ENDPOINT).decode('ascii')
             process = BertWorker(i, self.args, backend_addr, sink_addr)
             self.processes.append(process)
             process.start()
