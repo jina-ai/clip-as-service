@@ -101,7 +101,7 @@ Server-side configs are summarized below, which can be found in [`app.py`](app.p
 | `num_worker` | int | `1` | number of (GPU/CPU) worker runs BERT model, each works in a separate process. |
 | `max_batch_size` | int | `256` | maximum number of sequences handled by each worker, larger batch will be partitioned into small batches. |
 | `port` | int | `5555` | port for client-server communication. |
-| `pooling_strategy` | str | `REDUCE_MEAN` | the pooling strategy for generating encoding vectors, valid values are `NONE`, `REDUCE_MEAN`, `REDUCE_MAX`, `REDUCE_MEAN_MAX`, `CLS_TOKEN`, `FIRST_TOKEN`, `SEP_TOKEN`, `LAST_TOKEN`. Explanation of these strategies [can be found here](#q-what-are-the-available-pooling-strategies). |
+| `pooling_strategy` | str | `REDUCE_MEAN` | the pooling strategy for generating encoding vectors, valid values are `NONE`, `REDUCE_MEAN`, `REDUCE_MAX`, `REDUCE_MEAN_MAX`, `CLS_TOKEN`, `FIRST_TOKEN`, `SEP_TOKEN`, `LAST_TOKEN`. Explanation of these strategies [can be found here](#q-what-are-the-available-pooling-strategies). To get encoding for each token in the sequence, please set this to `NONE`.|
 | `pooling_layer` | int | `-2` | the encoding layer that pooling operates on, where `-1` means the last layer, `-2` means the second-to-last, etc.|
 
 ### Client-side configs
@@ -132,7 +132,7 @@ Each sentence is translated to a 768-dimensional vector. One exception is `REDUC
 
 |Strategy|Description|
 |---|---|
-| `NONE` | no pooling at all, this will results in a `[max_seq_len, 768]` encode matrix for a sequence.|
+| `NONE` | no pooling at all, useful when you want to use word embedding instead of sentence embedding. This will results in a `[max_seq_len, 768]` encode matrix for a sequence.|
 | `REDUCE_MEAN` | take the average of the hidden state of encoding layer on the time axis |
 | `REDUCE_MAX` | take the maximum of the hidden state of encoding layer on the time axis |
 | `REDUCE_MEAN_MAX` | do `REDUCE_MEAN` and `REDUCE_MAX` separately and then concat them together on the last axis, resulting in 1536-dim sentence encodes |
