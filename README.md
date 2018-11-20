@@ -143,6 +143,10 @@ Each sentence is translated to a 768-dimensional vector. One exception is `REDUC
 
 **A:** Because a pre-trained model is not fine-tuned on any downstream tasks yet. In this case, the hidden state of `[CLS]` is not a good sentence representation. If later you fine-tune the model, you may use `[CLS]` as well.
 
+##### **Q:** BERT has 12/24 layers, so which layer are you talking about?
+
+**A:** By default this service works on the second last layer, i.e. `pooling_layer=-2`. You can change it by setting `pooling_layer` to other negative values, e.g. -1 corresponds to the last layer.
+
 ##### **Q:** Why not the last hidden layer? Why second-to-last?
 
 **A:** The last layer is too closed to the target functions (i.e. masked language model and next sentence prediction) during pre-training, therefore may be biased to those targets. If you question about this argument and want to use the last hidden layer anyway, please feel free to set `pooling_layer=-1`.
@@ -223,10 +227,6 @@ bc.encode(x)[0][8]  # [1, 1, 768], word embedding for `[SEP]`
 bc.encode(x)[0][9]  # [1, 1, 768], word embedding for `0_PAD`, meaningless
 bc.encode(x)[0][25]  # error, out of index!
 ```
-
-##### **Q:** my BERT has 12/24 layers, which layer are you talking about?
-
-**A:** By default  
 
 
 
