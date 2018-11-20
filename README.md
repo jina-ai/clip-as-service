@@ -101,7 +101,7 @@ Server-side configs are summarized below, which can be found in [`app.py`](app.p
 | `num_worker` | int | `1` | number of (GPU/CPU) worker runs BERT model, each works in a separate process. |
 | `max_batch_size` | int | `256` | maximum number of sequences handled by each worker, larger batch will be partitioned into small batches. |
 | `port` | int | `5555` | port for client-server communication. |
-| `pooling_strategy` | str | `REDUCE_MEAN` | the pooling strategy for generating encoding vectors, valid values are `REDUCE_MEAN`, `REDUCE_MAX`, `REDUCE_MEAN_MAX`, `CLS_TOKEN`, `FIRST_TOKEN`, `SEP_TOKEN`, `LAST_TOKEN`. Explanation of these strategies [can be found here](#q-what-are-the-available-pooling-strategies). |
+| `pooling_strategy` | str | `REDUCE_MEAN` | the pooling strategy for generating encoding vectors, valid values are `NONE`, `REDUCE_MEAN`, `REDUCE_MAX`, `REDUCE_MEAN_MAX`, `CLS_TOKEN`, `FIRST_TOKEN`, `SEP_TOKEN`, `LAST_TOKEN`. Explanation of these strategies [can be found here](#q-what-are-the-available-pooling-strategies). |
 | `pooling_layer` | int | `-2` | the encoding layer that pooling operates on, where `-1` means the last layer, `-2` means the second-to-last, etc.|
 
 ### Client-side configs
@@ -132,6 +132,7 @@ Each sentence is translated to a 768-dimensional vector. One exception is `REDUC
 
 |Strategy|Description|
 |---|---|
+| `NONE` | no pooling at all, this will results in a `[max_seq_len, 768]` encode matrix for a sequence.|
 | `REDUCE_MEAN` | take the average of the hidden state of encoding layer on the time axis |
 | `REDUCE_MAX` | take the maximum of the hidden state of encoding layer on the time axis |
 | `REDUCE_MEAN_MAX` | do `REDUCE_MEAN` and `REDUCE_MAX` separately and then concat them together on the last axis, resulting in 1536-dim sentence encodes |
@@ -199,6 +200,30 @@ To reproduce the results, please run [`python benchmark.py`](benchmark.py).
 ##### **Q:** Can I run it in python 2?
 
 **A:** Server side no, client side yes. This is based on the consideration that python 2.x might still be a major piece in some tech stack. Migrating the whole downstream stack to python 3 for supporting `bert-as-service` can take quite some effort. On the other hand, setting up `BertServer` is just a one-time thing, which can be even [run in a docker container](#run-bert-service-on-nvidia-docker). To ease the integration, we support python 2 on the client side so that you can directly use `BertClient` as a part of your python 2 project, whereas the server side should always be hosted with python 3.
+
+##### **Q:** How can I get word embedding instead of sentence embedding.
+
+**A:** To get word embedding please set `pooling_strategy = NONE`. This will omit the pooling operation on the encoding layer, resulting in a `[max_seq_len, 768]` matrix for every sequence. To get the word embedding corresponds to every token, you can simply use slice index.
+
+> :children_crossing: NOTE: no matter how long your original sequence is, the service will always return a `[max_seq_len, 768]` matrix for every sequence. Beware of the special tokens padded to the sequence, e.g. `[CLS]`, `[SEP]`, `0_PAD`, when getting the word embedding.
+
+Example:
+```python
+# max_seq_len = 25
+# pooling_strategy = NONE
+
+bc.encode(['hey you', 'whats up'])  # [2, 25, 768]
+bc.encode(['hey you', 'whats up'])[0]  # [1, 25, 768], word embeddings for `hey you`
+bc.encode(['hey you', 'whats up'])[0][0]  # [1, 1, 768], word embedding for `[CLS]`
+bc.encode(['hey you', 'whats up'])[0][1]  # [1, 1, 768], word embedding for `h`
+bc.encode(['hey you', 'whats up'])[0][2]  # [1, 1, 768], word embedding for `e`
+bc.encode(['hey you', 'whats up'])[0][8]  # [1, 1, 768], word embedding for `[SEP]`
+bc.encode(['hey you', 'whats up'])[0][9]  # [1, 1, 768], word embedding for `0_PAD`, meaningless
+bc.encode(['hey you', 'whats up'])[1][24]  # [1, 1, 768], word embedding for `0_PAD`, meaningless
+bc.encode(['hey you', 'whats up'])[0][25]  # error, out of index!
+```
+
+
 
 
 ## Benchmark
