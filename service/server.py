@@ -7,6 +7,7 @@ import pickle
 import sys
 import threading
 import time
+from collections import defaultdict
 from datetime import datetime
 from multiprocessing import Process
 
@@ -44,10 +45,12 @@ class BertServer(threading.Thread):
         self.processes = []
         self.frontend = None  # REQ->ROUTER
         self.backend = None  # PUSH->PULL
-        self.sink = None  # PUSH->PULL
         self.context = None
         self.exit_flag = threading.Event()
         self.logger = set_logger('DISPATCHER')
+        self.client_checksum = {}
+        self.pending_client = {}
+        self.pending_checksum = {}
 
     def close(self):
         self.logger.info('shutting down...')
@@ -56,7 +59,6 @@ class BertServer(threading.Thread):
         self.exit_flag.set()
         self.frontend.close()
         self.backend.close()
-        self.sink.close()
         self.context.term()
         self.logger.info('terminated!')
 
@@ -71,7 +73,7 @@ class BertServer(threading.Thread):
         backend_addr = self.backend.getsockopt(zmq.LAST_ENDPOINT).decode('ascii')
 
         # start the sink thread
-        sink_thread = BertSink(self.args, self.frontend)
+        sink_thread = BertSink(self.args, self.frontend, self.client_checksum)
         sink_thread.start()
         self.processes.append(sink_thread)
 
@@ -91,10 +93,6 @@ class BertServer(threading.Thread):
             self.processes.append(process)
             process.start()
 
-        # connect to sink
-        self.sink = self.context.socket(zmq.PUSH)
-        self.sink.connect(sink_thread.address)
-
         while not self.exit_flag.is_set():
             client, _, msg = self.frontend.recv_multipart()
             if msg == b'SHOW_CONFIG':
@@ -108,7 +106,7 @@ class BertServer(threading.Thread):
 
             seqs = pickle.loads(msg)
             num_seqs = len(seqs)
-            self.sink.send_multipart([client, b'', b'%d' % num_seqs])
+            self.client_checksum[client] = num_seqs
 
             if num_seqs > self.max_batch_size:
                 # divide the large batch into small batches
@@ -125,12 +123,11 @@ class BertServer(threading.Thread):
 
         self.frontend.close()
         self.backend.close()
-        self.sink.close()
         self.context.term()
 
 
 class BertSink(threading.Thread):
-    def __init__(self, args, frontend):
+    def __init__(self, args, frontend, client_chk):
         super().__init__()
         self.port = args.port
         self.context = None
@@ -139,6 +136,7 @@ class BertSink(threading.Thread):
         self.exit_flag = threading.Event()
         self.logger = set_logger('SINK')
         self.address = None
+        self.client_checksum = client_chk
 
     def close(self):
         self.logger.info('shutting down...')
@@ -150,46 +148,36 @@ class BertSink(threading.Thread):
         self.receiver = self.context.socket(zmq.PULL)
         self.receiver.bind('ipc://*')
         self.address = self.receiver.getsockopt(zmq.LAST_ENDPOINT).decode('ascii')
-
-        client_checksum = {}
-        pending_client = {}
-        pending_checksum = {}
+        pending_checksum = defaultdict(int)
+        pending_client = defaultdict(list)
 
         while not self.exit_flag.is_set():
             msg = self.receiver.recv_multipart()
             client_id = msg[0]
-
-            if len(msg) == 3:
-                # register a new client
-                client_checksum[client_id] = int(msg[2])
-                pending_checksum[client_id] = 0
-                pending_client[client_id] = []
-            elif len(msg) == 5:
-                arr_info, arr_val = jsonapi.loads(msg[2]), msg[4]
-                X = np.frombuffer(memoryview(arr_val), dtype=arr_info['dtype'])
-                X = X.reshape(arr_info['shape'])
-                client_info = client_id.split(b'@')
-                client_id = client_info[0]
-                partial_id = client_info[1] if len(client_info) == 2 else 0
-                pending_client[client_id].append((X, partial_id))
-                pending_checksum[client_id] += X.shape[0]
-                self.logger.info('received %d of client %s (%d/%d)' % (X.shape[0], client_id,
-                                                                       pending_checksum[client_id],
-                                                                       client_checksum[client_id]))
-            else:
-                raise NotImplementedError
+            # parsing the ndarray
+            arr_info, arr_val = jsonapi.loads(msg[2]), msg[4]
+            X = np.frombuffer(memoryview(arr_val), dtype=arr_info['dtype'])
+            X = X.reshape(arr_info['shape'])
+            client_info = client_id.split(b'@')
+            client_id = client_info[0]
+            partial_id = client_info[1] if len(client_info) == 2 else 0
+            pending_client[client_id].append((X, partial_id))
+            pending_checksum[client_id] += X.shape[0]
+            self.logger.info('received %d of client %s (%d/%d)' % (X.shape[0], client_id,
+                                                                   pending_checksum[client_id],
+                                                                   self.client_checksum[client_id]))
 
             # check if there are finished jobs, send it back to workers
-            finished = [(k, v) for k, v in pending_client.items() if pending_checksum[k] == client_checksum[k]]
+            finished = [(k, v) for k, v in pending_client.items() if pending_checksum[k] == self.client_checksum[k]]
             for client, tmp in finished:
                 self.logger.info(
-                    'client %s %d samples are done! sending back to client' % (client, client_checksum[client]))
+                    'client %s %d samples are done! sending back to client' % (client, self.client_checksum[client]))
                 # re-sort to the original order
                 tmp = [x[0] for x in sorted(tmp, key=lambda x: x[1])]
                 send_ndarray(self.frontend, client, np.concatenate(tmp, axis=0))
                 pending_client.pop(client)
                 pending_checksum.pop(client)
-                client_checksum.pop(client)
+                self.client_checksum.pop(client)
 
         self.receiver.close()
         self.context.term()
