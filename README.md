@@ -228,6 +228,32 @@ bc.encode(x)[0][9]  # [1, 1, 768], word embedding for `0_PAD`, meaningless
 bc.encode(x)[0][25]  # error, out of index!
 ```
 
+##### **Q:** I encounter `zmq.error.ZMQError: Operation cannot be accomplished in current state` when using `BertClient`, what should I do?
+
+**A:** This is often due to the misuse of `BertClient` in multi-thread/process environment. Note that you can’t reuse one `BertClient` among multiple threads/processes, you have to make a separate instance for each thread/process. For example, the following won't work at all:
+
+```python
+# BAD example
+bc = BertClient()
+
+# in Proc1/Thread1 scope:
+bc.encode(lst_str)
+
+# in Proc2/Thread2 scope:
+bc.encode(lst_str)
+```
+
+Instead, please do:
+
+```python
+# in Proc1/Thread1 scope:
+bc1 = BertClient()
+bc1.encode(lst_str)
+
+# in Proc2/Thread2 scope:
+bc2 = BertClient()
+bc2.encode(lst_str)
+```
 
 
 ## Benchmark
