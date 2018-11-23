@@ -259,6 +259,9 @@ input_mask: 1 1 1 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 input_type_ids: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 ```
 
+That means the word embedding is actually the character embedding for Chinese-BERT.
+
+
 ##### **Q:** Why my (English) word is tokenized to `##something`?
 
 Because your word is out-of-vocabulary (OOV). The tokenizer from Google uses a greedy longest-match-first algorithm to perform tokenization using the given vocabulary.
