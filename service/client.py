@@ -12,10 +12,12 @@ from zmq.utils import jsonapi
 if sys.version_info >= (3, 0):
     _str = str
     _buffer = memoryview
+    _unicode = lambda x: x
 else:
     # make it compatible for py2
     _str = basestring
     _buffer = buffer
+    _unicode = lambda x: [BertClient.force_to_unicode(y) for y in x]
 
 
 class BertClient:
@@ -47,6 +49,7 @@ class BertClient:
             print('%30s\t=\t%-30s' % (k, v))
 
     def encode(self, texts):
+        texts = _unicode(texts)
         if self.is_valid_input(texts):
             self.socket.send_pyobj(texts)
             response = self.socket.recv_multipart()
@@ -59,3 +62,8 @@ class BertClient:
     @staticmethod
     def is_valid_input(texts):
         return isinstance(texts, list) and all(isinstance(s, _str) and s.strip() for s in texts)
+
+    @staticmethod
+    def force_to_unicode(text):
+        "If text is unicode, it is returned as is. If it's str, convert it to Unicode using UTF-8 encoding"
+        return text if isinstance(text, unicode) else text.decode('utf-8')
