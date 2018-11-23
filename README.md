@@ -217,15 +217,56 @@ Example:
 # pooling_strategy = NONE
 
 bc = BertClient()
-x = ['hey you', 'whats up']
+x = ['hey you', 'whats up?']
 
 bc.encode(x)  # [2, 25, 768]
-bc.encode(x)[0]  # [1, 25, 768], word embeddings for `hey you`
+bc.encode(x)[0]  # [1, 25, 768], sentence embeddings for `hey you`
 bc.encode(x)[0][0]  # [1, 1, 768], word embedding for `[CLS]`
-bc.encode(x)[0][1]  # [1, 1, 768], word embedding for `h`
-bc.encode(x)[0][8]  # [1, 1, 768], word embedding for `[SEP]`
-bc.encode(x)[0][9]  # [1, 1, 768], word embedding for `0_PAD`, meaningless
+bc.encode(x)[0][1]  # [1, 1, 768], word embedding for `hey`
+bc.encode(x)[0][2]  # [1, 1, 768], word embedding for `you`
+bc.encode(x)[0][3]  # [1, 1, 768], word embedding for `[SEP]`
+bc.encode(x)[0][4]  # [1, 1, 768], word embedding for padding symbol
 bc.encode(x)[0][25]  # error, out of index!
+```
+
+##### **Q:** Do I need to do segmentation for Chinese?
+
+No, if you are using [the pretrained Chinese BERT released by Google](https://github.com/google-research/bert#pre-trained-models) you don't need word segmentation. As this Chinese BERT is character-based model. It won't recognize word/phrase even if you intentionally add space in-between. To see that more clearly, this is what the BERT model actually receives after tokenization:
+
+```python
+bc.encode(['hey you', 'whats up?', '你好么？', '我 还 可以'])
+```
+
+```
+tokens: [CLS] hey you [SEP]
+input_ids: 101 13153 8357 102 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+input_mask: 1 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+input_type_ids: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+
+tokens: [CLS] what ##s up ? [SEP]
+input_ids: 101 9100 8118 8644 136 102 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+input_mask: 1 1 1 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+input_type_ids: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+
+tokens: [CLS] 你 好 么 ？ [SEP]
+input_ids: 101 872 1962 720 8043 102 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+input_mask: 1 1 1 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+input_type_ids: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+
+tokens: [CLS] 我 还 可 以 [SEP]
+input_ids: 101 2769 6820 1377 809 102 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+input_mask: 1 1 1 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+input_type_ids: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+```
+
+##### **Q:** Why my (English) word is tokenized to `##something`?
+
+Because your word is out-of-vocabulary (OOV). The tokenizer from Google uses a greedy longest-match-first algorithm to perform tokenization using the given vocabulary.
+
+For example:
+```python
+input = "unaffable"
+tokenizer_output = ["un", "##aff", "##able"]
 ```
 
 ##### **Q:** I encounter `zmq.error.ZMQError: Operation cannot be accomplished in current state` when using `BertClient`, what should I do?
