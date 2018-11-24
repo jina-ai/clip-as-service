@@ -32,7 +32,7 @@ Author: Han Xiao [https://hanxiao.github.io](https://hanxiao.github.io)
 - :telescope: **State-of-the-art**: build on pretrained 12/24-layer BERT models released by Google AI, which is considered as a milestone in the NLP community.
 - :hatching_chick: **Easy-to-use**: require only two lines of code to get sentence encodes.
 - :zap: **Fast**: 780 sentences/s on a single Tesla M40 24GB when `max_seq_len=20`. See [benchmark](#Benchmark).
-- :octopus: **Concurrency**: scale nicely and smoothly on multiple GPUs and multiple clients. See [benchmark](#speed-wrt-num_client).
+- :octopus: **Scalable**: scale nicely and smoothly on multiple GPUs and multiple clients without worrying about concurrency. See [benchmark](#speed-wrt-num_client).
 
 ## Requirements
 
@@ -126,9 +126,13 @@ Each sentence is translated to a 768-dimensional vector. One exception is `REDUC
 
 **A:** Yes, pooling is required to get a fixed representation of a sentence. In the default strategy `REDUCE_MEAN`, I take the second-to-last hidden layer of all of the tokens in the sentence and do average pooling.
 
+##### **Q:** Are you suggesting using BERT without fine-tuning?
+
+**A:** Yes and no. On the one hand, Google pretrained BERT on Wikipedia data, thus should encode enough prior knowledge of the language into the model. Having such feature is not a bad idea. On the other hand, these prior knowledge is not specific to any particular domain. It should be totally reasonable if the performance is not ideal if you are using it on, for example, classifying legal cases. Nonetheless, you can always first fine-tune your own BERT on the downstream task and then use `bert-as-service` to extract the feature vectors efficiently.   
+
 ##### **Q:** What are the available pooling strategies?
 
-**A:** Here is a table summarizes all pooling strategies I implemented. Choose your favorite one by specifying `python app.py -pooling_strategy`
+**A:** Here is a table summarizes all pooling strategies I implemented. Choose your favorite one by specifying `python app.py -pooling_strategy`.
 
 |Strategy|Description|
 |---|---|
@@ -193,9 +197,9 @@ To reproduce the results, please run [`python benchmark.py`](benchmark.py).
 
 **A:** Yes.
 
-#####  **Q:** Can I use my own fine-tuned BERT model?
+##### **Q:** Can I use my own fine-tuned BERT model?
 
-**A:** Yes. Make sure you have the following three items in `model_dir`:
+**A:** Yes. In fact, this is suggested. Make sure you have the following three items in `model_dir`:
                              
 - A TensorFlow checkpoint (`bert_model.ckpt`) containing the pre-trained weights (which is actually 3 files).
 - A vocab file (`vocab.txt`) to map WordPiece to word id.
@@ -299,6 +303,16 @@ bc2 = BertClient()
 bc2.encode(lst_str)
 ```
 
+##### **Q:** The cosine similarity of two sentence vectors is unreasonably high (e.g. always > 0.8), what's wrong?
+
+**A:** A decent representation for a downstream task doesn't mean that it will be meaningful in terms of cosine distance. Since cosine distance is a linear space where all dimensions are weighted equally. if you want to use cosine distance anyway, then please focus on the rank not the absolute value. Namely, do not use:
+```
+if cosine(A, B) > 0.9, then A and B are similar
+```
+Please consider the following instead:
+```
+if cosine(A, B) > cosine(A, C), then A is more similar to B than C.
+```
 
 ## Benchmark
 
