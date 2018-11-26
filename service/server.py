@@ -144,7 +144,7 @@ class BertSink(threading.Thread):
         pending_checksum = defaultdict(int)
         pending_client = defaultdict(list)
 
-        while True:
+        while self.stop_event.is_set():
             msg = self.receiver.recv_multipart()
             client_id = msg[0]
             # parsing the ndarray
