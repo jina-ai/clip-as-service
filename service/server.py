@@ -128,11 +128,13 @@ class BertSink(threading.Thread):
         self.sender = self.context.socket(zmq.PUB)
         self.sender.bind('tcp://*:%d' % args.port_out)
 
+        self.stop_event = threading.Event()
         self.logger = set_logger('SINK')
         self.client_checksum = client_chk
 
     def close(self):
         self.logger.info('shutting down...')
+        self.stop_event.set()
         self.receiver.close()
         self.sender.close()
         self.context.term()
