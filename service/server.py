@@ -96,7 +96,7 @@ class BertServer(threading.Thread):
         try:
             while True:
                 client, msg = self.frontend.recv_multipart()
-                client += b'#%s' % str(uuid.uuid4())
+                client = b'%s#%s' % (client, str(uuid.uuid4()))
                 seqs = jsonapi.loads(msg)
                 num_seqs = len(seqs)
                 # tell sink to collect a new job
