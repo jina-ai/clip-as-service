@@ -110,7 +110,7 @@ class BertServer(threading.Thread):
                             self.backend.send_multipart([client_partial_id, jsonapi.dumps(tmp)])
                         s_idx += len(tmp)
                 else:
-                    self.backend.send_multipart([client, b'', msg])
+                    self.backend.send_multipart([client, msg])
         except zmq.error.ContextTerminated:
             self.logger.error('context is closed!')
 
