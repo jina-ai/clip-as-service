@@ -55,13 +55,34 @@ class BertClient:
         return jsonapi.loads(response[1])
 
     def encode(self, texts):
-        texts = _unicode(texts)
         if self.is_valid_input(texts):
+            texts = _unicode(texts)
             self.send(jsonapi.dumps(texts))
             response = self.receiver.recv_multipart()
             arr_info, arr_val = jsonapi.loads(response[1]), response[2]
             X = np.frombuffer(_buffer(arr_val), dtype=arr_info['dtype'])
             return self.formatter(X.reshape(arr_info['shape']))
+        else:
+            raise AttributeError('"texts" must be "List[str]" and non-empty!')
+
+    def encode_async(self, texts, batch_size=256):
+        if self.is_valid_input(texts):
+            if len(texts) <= batch_size:
+                yield self.encode(texts)
+            else:
+                s_idx = 0
+                num_part = 0
+                while s_idx < len(texts):
+                    tmp = texts[s_idx: (s_idx + batch_size)]
+                    if tmp:
+                        self.send(jsonapi.dumps(tmp))
+                    s_idx += len(tmp)
+                    num_part += 1
+                for _ in range(num_part):
+                    response = self.receiver.recv_multipart()
+                    arr_info, arr_val = jsonapi.loads(response[1]), response[2]
+                    X = np.frombuffer(_buffer(arr_val), dtype=arr_info['dtype'])
+                    yield self.formatter(X.reshape(arr_info['shape']))
         else:
             raise AttributeError('"texts" must be "List[str]" and non-empty!')
 
