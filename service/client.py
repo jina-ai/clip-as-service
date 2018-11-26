@@ -3,6 +3,7 @@
 # Han Xiao <artex.xh@gmail.com> <https://hanxiao.github.io>
 
 import sys
+import threading
 import uuid
 
 import numpy as np
@@ -21,10 +22,12 @@ else:
 
 
 class BertClient:
-    def __init__(self, ip='localhost', port=5555, port_out=5556, output_fmt='ndarray', show_server_config=False):
+    def __init__(self, ip='localhost', port=5555, port_out=5556,
+                 output_fmt='ndarray', show_server_config=False,
+                 identity=None):
         self.context = zmq.Context()
         self.sender = self.context.socket(zmq.PUSH)
-        self.identity = str(uuid.uuid4()).encode('ascii')
+        self.identity = identity or str(uuid.uuid4()).encode('ascii')
         self.sender.connect('tcp://%s:%d' % (ip, port))
 
         self.receiver = self.context.socket(zmq.SUB)
@@ -52,42 +55,40 @@ class BertClient:
     def recv(self):
         return self.receiver.recv_multipart()
 
+    def recv_ndarray(self):
+        response = self.recv()
+        arr_info, arr_val = jsonapi.loads(response[1]), response[2]
+        X = np.frombuffer(_buffer(arr_val), dtype=arr_info['dtype'])
+        return self.formatter(X.reshape(arr_info['shape']))
+
     def get_server_config(self):
         self.send(b'SHOW_CONFIG')
         response = self.recv()
         return jsonapi.loads(response[1])
 
-    def encode(self, texts):
+    def encode(self, texts, blocking=True):
         if self.is_valid_input(texts):
             texts = _unicode(texts)
             self.send(jsonapi.dumps(texts))
-            response = self.recv()
-            arr_info, arr_val = jsonapi.loads(response[1]), response[2]
-            X = np.frombuffer(_buffer(arr_val), dtype=arr_info['dtype'])
-            return self.formatter(X.reshape(arr_info['shape']))
+            return self.recv_ndarray() if blocking else None
         else:
             raise AttributeError('"texts" must be "List[str]" and non-empty!')
 
-    def encode_async(self, texts, batch_size=256):
-        if self.is_valid_input(texts):
-            if len(texts) <= batch_size:
-                yield self.encode(texts)
-            else:
-                s_idx = 0
-                num_part = 0
-                while s_idx < len(texts):
-                    tmp = texts[s_idx: (s_idx + batch_size)]
-                    if tmp:
-                        self.send(jsonapi.dumps(tmp))
-                    s_idx += len(tmp)
-                    num_part += 1
-                for _ in range(num_part):
-                    response = self.recv()
-                    arr_info, arr_val = jsonapi.loads(response[1]), response[2]
-                    X = np.frombuffer(_buffer(arr_val), dtype=arr_info['dtype'])
-                    yield self.formatter(X.reshape(arr_info['shape']))
-        else:
-            raise AttributeError('"texts" must be "List[str]" and non-empty!')
+    def _yield_encode(self, max_time=None):
+        forever = max_time is None
+        cnt = 0
+        while forever or cnt < max_time:
+            yield self.recv_ndarray()
+            cnt += 1
+
+    def encode_async(self, texts_generator):
+        def run():
+            for texts in texts_generator:
+                self.encode(texts, blocking=False)
+
+        t = threading.Thread(target=run)
+        t.start()
+        return self._yield_encode()
 
     @staticmethod
     def is_valid_input(texts):
