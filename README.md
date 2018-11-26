@@ -140,7 +140,7 @@ for j in bc.encode_async(text_gen(), max_num_batch=10):
     print('received %d x %d' % (j.shape[0], j.shape[1]))
 ```
 
-Complete example can [be found here](example2.py).
+The complete example can [be found here](example2.py).
 
 ### Broadcast to multiple `BertClient`
 
@@ -162,6 +162,7 @@ if __name__ == '__main__':
     for _ in range(3):
         bc.encode(lst_str)
 ```
+The complete example can [be found here](example3.py).
 
 ## FAQ on Technical Details
 

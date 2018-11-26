@@ -23,4 +23,5 @@ if __name__ == '__main__':
         data = [v for v in fp if v.strip()]
 
     for _ in range(3):
-        bc.encode(data)
+        vec = bc.encode(data)
+        print('bc received %d x %d' % (vec.shape[0], vec.shape[1]))
