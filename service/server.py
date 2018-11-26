@@ -93,24 +93,27 @@ class BertServer(threading.Thread):
             self.processes.append(process)
             process.start()
 
-        while True:
-            client, msg = self.frontend.recv_multipart()
-            seqs = pickle.loads(msg)
-            num_seqs = len(seqs)
-            self.client_checksum[client] = num_seqs
+        try:
+            while True:
+                client, msg = self.frontend.recv_multipart()
+                seqs = pickle.loads(msg)
+                num_seqs = len(seqs)
+                self.client_checksum[client] = num_seqs
 
-            if num_seqs > self.max_batch_size:
-                # divide the large batch into small batches
-                s_idx = 0
-                while s_idx < num_seqs:
-                    tmp = seqs[s_idx: (s_idx + self.max_batch_size)]
-                    if tmp:
-                        # get the worker with minimum workload
-                        client_partial_id = client + b'@%d' % s_idx
-                        self.backend.send_multipart([client_partial_id, b'', pickle.dumps(tmp, protocol=-1)])
-                    s_idx += len(tmp)
-            else:
-                self.backend.send_multipart([client, b'', msg])
+                if num_seqs > self.max_batch_size:
+                    # divide the large batch into small batches
+                    s_idx = 0
+                    while s_idx < num_seqs:
+                        tmp = seqs[s_idx: (s_idx + self.max_batch_size)]
+                        if tmp:
+                            # get the worker with minimum workload
+                            client_partial_id = client + b'@%d' % s_idx
+                            self.backend.send_multipart([client_partial_id, b'', pickle.dumps(tmp, protocol=-1)])
+                        s_idx += len(tmp)
+                else:
+                    self.backend.send_multipart([client, b'', msg])
+        except zmq.error.ContextTerminated:
+            self.logger.error('context is closed!')
 
 
 class BertSink(threading.Thread):
@@ -128,13 +131,11 @@ class BertSink(threading.Thread):
         self.sender = self.context.socket(zmq.PUB)
         self.sender.bind('tcp://*:%d' % args.port_out)
 
-        self.stop_event = threading.Event()
         self.logger = set_logger('SINK')
         self.client_checksum = client_chk
 
     def close(self):
         self.logger.info('shutting down...')
-        self.stop_event.set()
         self.receiver.close()
         self.sender.close()
         self.context.term()
@@ -144,33 +145,37 @@ class BertSink(threading.Thread):
         pending_checksum = defaultdict(int)
         pending_client = defaultdict(list)
 
-        while self.stop_event.is_set():
-            msg = self.receiver.recv_multipart()
-            client_id = msg[0]
-            # parsing the ndarray
-            arr_info, arr_val = jsonapi.loads(msg[1]), msg[2]
-            X = np.frombuffer(memoryview(arr_val), dtype=arr_info['dtype'])
-            X = X.reshape(arr_info['shape'])
-            client_info = client_id.split(b'@')
-            client_id = client_info[0]
-            partial_id = client_info[1] if len(client_info) == 2 else 0
-            pending_client[client_id].append((X, partial_id))
-            pending_checksum[client_id] += X.shape[0]
-            self.logger.info('received %d of client %s (%d/%d)' % (X.shape[0], client_id,
-                                                                   pending_checksum[client_id],
-                                                                   self.client_checksum[client_id]))
+        try:
+            while True:
+                msg = self.receiver.recv_multipart()
+                client_id = msg[0]
+                # parsing the ndarray
+                arr_info, arr_val = jsonapi.loads(msg[1]), msg[2]
+                X = np.frombuffer(memoryview(arr_val), dtype=arr_info['dtype'])
+                X = X.reshape(arr_info['shape'])
+                client_info = client_id.split(b'@')
+                client_id = client_info[0]
+                partial_id = client_info[1] if len(client_info) == 2 else 0
+                pending_client[client_id].append((X, partial_id))
+                pending_checksum[client_id] += X.shape[0]
+                self.logger.info('received %d of client %s (%d/%d)' % (X.shape[0], client_id,
+                                                                       pending_checksum[client_id],
+                                                                       self.client_checksum[client_id]))
 
-            # check if there are finished jobs, send it back to workers
-            finished = [(k, v) for k, v in pending_client.items() if pending_checksum[k] == self.client_checksum[k]]
-            for client, tmp in finished:
-                self.logger.info(
-                    'client %s %d samples are done! sending back to client' % (client, self.client_checksum[client]))
-                # re-sort to the original order
-                tmp = [x[0] for x in sorted(tmp, key=lambda x: x[1])]
-                send_ndarray(self.sender, client, np.concatenate(tmp, axis=0))
-                pending_client.pop(client)
-                pending_checksum.pop(client)
-                self.client_checksum.pop(client)
+                # check if there are finished jobs, send it back to workers
+                finished = [(k, v) for k, v in pending_client.items() if pending_checksum[k] == self.client_checksum[k]]
+                for client, tmp in finished:
+                    self.logger.info(
+                        'client %s %d samples are done! sending back to client' % (
+                            client, self.client_checksum[client]))
+                    # re-sort to the original order
+                    tmp = [x[0] for x in sorted(tmp, key=lambda x: x[1])]
+                    send_ndarray(self.sender, client, np.concatenate(tmp, axis=0))
+                    pending_client.pop(client)
+                    pending_checksum.pop(client)
+                    self.client_checksum.pop(client)
+        except zmq.error.ContextTerminated:
+            self.logger.error('context is closed!')
 
 
 class BertWorker(Process):
@@ -200,33 +205,32 @@ class BertWorker(Process):
     def close(self):
         self.logger.info('shutting down...')
         self.exit_flag.set()
-        self.join()
+        self.receiver.close()
+        self.sink.close()
+        self.context.term()
         self.terminate()
+        self.join()
+        self.logger.info('terminated!')
 
     def run(self):
-        context = zmq.Context()
-        receiver = context.socket(zmq.PULL)
-        receiver.connect(self.worker_address)
+        self.context = zmq.Context()
+        self.receiver = self.context.socket(zmq.PULL)
+        self.receiver.connect(self.worker_address)
 
-        sink = context.socket(zmq.PUSH)
-        sink.connect(self.sink_address)
+        self.sink = self.context.socket(zmq.PUSH)
+        self.sink.connect(self.sink_address)
 
-        input_fn = self.input_fn_builder(receiver)
+        input_fn = self.input_fn_builder(self.receiver)
 
         self.logger.info('ready and listening')
         start_t = time.perf_counter()
         for r in self.estimator.predict(input_fn, yield_single_examples=False):
             # logger.info('new result!')
-            send_ndarray(sink, r['client_id'], r['encodes'])
+            send_ndarray(self.sink, r['client_id'], r['encodes'])
             time_used = time.perf_counter() - start_t
             start_t = time.perf_counter()
             self.logger.info('job %s\tsamples: %4d\tdone: %.2fs' %
                              (r['client_id'], r['encodes'].shape[0], time_used))
-
-        receiver.close()
-        sink.close()
-        context.term()
-        self.logger.info('terminated!')
 
     def input_fn_builder(self, worker):
         def gen():
