@@ -250,7 +250,7 @@ class BertWorker(Process):
                 else:
                     self.logger.warning('received unsupported type from %s! sending back None' % client_id)
                     worker.send_multipart([client_id, b'', b''])
-            worker.close()
+            self.logger.info('exit triggered!')
 
         def input_fn():
             return (tf.data.Dataset.from_generator(
