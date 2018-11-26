@@ -63,7 +63,7 @@ class BertServer(threading.Thread):
         self.addr_sink = sink_thread.address
 
         self.exit_flag = threading.Event()
-        self.logger = set_logger('DISPATCHER')
+        self.logger = set_logger('VENTILATOR')
 
         self.pending_client = {}
         self.pending_checksum = {}
