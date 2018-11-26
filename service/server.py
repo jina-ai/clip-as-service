@@ -56,6 +56,7 @@ class BertServer(threading.Thread):
         self.addr_backend = self.backend.getsockopt(zmq.LAST_ENDPOINT).decode('ascii')
 
         # start the sink thread
+        self.client_checksum = {}
         sink_thread = BertSink(self.args, self.client_checksum)
         sink_thread.start()
         self.processes.append(sink_thread)
@@ -63,7 +64,7 @@ class BertServer(threading.Thread):
 
         self.exit_flag = threading.Event()
         self.logger = set_logger('DISPATCHER')
-        self.client_checksum = {}
+
         self.pending_client = {}
         self.pending_checksum = {}
 
