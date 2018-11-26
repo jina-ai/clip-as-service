@@ -34,12 +34,19 @@ class BertServer(threading.Thread):
         self.max_batch_size = args.max_batch_size
         self.port = args.port
         self.args = args
-        self.args_dict = dict(args._asdict()) if isinstance(args, tuple) else vars(args)
-        self.args_dict.update({
+        self.args_dict = {
+            'model_dir': args.model_dir,
+            'max_seq_len': args.max_seq_len,
+            'num_worker': args.num_worker,
+            'max_batch_size': args.max_batch_size,
+            'port': args.port,
+            'port_out': args.port_out,
+            'pooling_layer': args.pooling_layer,
+            'pooling_strategy': args.pooling_strategy,
             'tensorflow_version': tf.__version__,
             'python_version': sys.version,
             'server_start': str(datetime.now())
-        })
+        }
         self.processes = []
         self.context = zmq.Context()
 
