@@ -45,7 +45,7 @@ class BertServer(threading.Thread):
             'pooling_strategy': args.pooling_strategy.value,
             'tensorflow_version': tf.__version__,
             'python_version': sys.version,
-            'server_start': str(datetime.now())
+            'server_start_time': str(datetime.now())
         }
         self.processes = []
         self.context = zmq.Context()
@@ -83,6 +83,8 @@ class BertServer(threading.Thread):
 
     def run(self):
         available_gpus = range(self.num_worker)
+        run_on_gpu = True
+        num_req = 0
         try:
             import GPUtil
             available_gpus = GPUtil.getAvailable(limit=self.num_worker, maxLoad=0.1, maxMemory=0.01)
@@ -91,6 +93,7 @@ class BertServer(threading.Thread):
         except FileNotFoundError:
             self.logger.warn('nvidia-smi is missing, often means no gpu found on this machine. '
                              'will run service on cpu instead')
+            run_on_gpu = False
 
         # start the backend processes
         for i in available_gpus:
@@ -104,12 +107,17 @@ class BertServer(threading.Thread):
                 if msg == b'SHOW_CONFIG':
                     self.sink.send_multipart([client, b'CONFIG',
                                               jsonapi.dumps({**{'client': client.decode('ascii'),
-                                                                'num_process': len(self.processes),
-                                                                'frontend  -> backend': self.addr_backend,
-                                                                'backend   -> sink': self.addr_sink,
-                                                                'frontend <-> sink': self.addr_front2sink},
+                                                                'num_subprocess': len(self.processes),
+                                                                'frontend -> backend': self.addr_backend,
+                                                                'backend -> sink': self.addr_sink,
+                                                                'frontend <-> sink': self.addr_front2sink,
+                                                                'server_current_time': str(datetime.now()),
+                                                                'run_on_gpu': run_on_gpu,
+                                                                'num_request': num_req},
                                                              **self.args_dict})])
                     continue
+
+                num_req += 1
                 client = client + b'#' + str(uuid.uuid4()).encode('ascii')
                 seqs = jsonapi.loads(msg)
                 num_seqs = len(seqs)
