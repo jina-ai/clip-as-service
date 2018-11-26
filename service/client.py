@@ -28,7 +28,7 @@ class BertClient:
         self.identity = str(uuid.uuid4()).encode('ascii')
         self.sender.connect('tcp://%s:%d' % (ip, port))
         self.receiver = self.context.socket(zmq.SUB)
-        self.receiver.setsockopt(zmq.SUBSCRIBE, b'A')
+        self.receiver.setsockopt(zmq.SUBSCRIBE, self.identity)
         self.receiver.connect('tcp://%s:%d' % (ip, port_out))
         self.ip = ip
         self.port = port
