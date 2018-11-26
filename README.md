@@ -15,8 +15,9 @@ Author: Han Xiao [https://hanxiao.github.io](https://hanxiao.github.io)
 * [What is it](#what-is-it)
 * [Requirements](#requirements)
 * [Usage](#usage)
-* [FAQ on Technical Details](#faq-on-technical-details)
+* [FAQ](#faq-on-technical-details)
 * [Benchmark](#benchmark)
+* [Advance Usage](#advance-usage)
 
 ## What is it
 
@@ -120,51 +121,8 @@ Client-side configs are summarized below, which can be found in [`client.py`](se
 | `output_fmt` | str | `ndarray` | the output format of the sentence encodes, either in numpy array or python List[List[float]] (`ndarray`/`list`) |
 | `show_server_config` | bool | `True` | whether to show server configs when first connected |
 
-## Advance Usage
 
-> :children_crossing: Those are some cool yet unstable features, please use them with caution!
-
-### Asynchronous `BertClient.encode()`
-
-`BertClient.encode()` offers a nice synchronous way to get sentence encodes. However,   sometimes we want to do it in an asynchronous manner by feeding all textual data to the server first, then later fetch the encoded results. This can be easily done by:
-```python
-# an endless data stream, generating data in an extremely fast speed
-def text_gen():
-    while True:
-        yield lst_str  # yield a batch of text lines
-
-bc = BertClient()
-
-# get encoded vectors
-for j in bc.encode_async(text_gen(), max_num_batch=10):
-    print('received %d x %d' % (j.shape[0], j.shape[1]))
-```
-
-The complete example can [be found here](example2.py).
-
-### Broadcast to multiple `BertClient`
-
-The encoded result is routed to the client with certain identity. If you have multiple clients with same identity, then they all receive the results! You can use this multicast feature to do some cool things, e.g. training multiple different models (some using `scikit-learn` some using `tensorflow`) in multiple separated processes while only call `BertServer` once. In the example below, `bc` and its two clones will all receive encoded vector.
-
-```python
-# clone a client by reusing the identity 
-def client_clone(id, idx):
-    bc = BertClient(identity=id)
-    for j in bc.listen():
-        print('clone-client-%d: received %d x %d' % (idx, j.shape[0], j.shape[1]))
-
-if __name__ == '__main__':
-    bc = BertClient()
-    # start two cloned clients sharing the same identity as bc
-    for j in range(2):
-        threading.Thread(target=client_clone, args=(bc.identity, j)).start()
-    
-    for _ in range(3):
-        bc.encode(lst_str)
-```
-The complete example can [be found here](example3.py).
-
-## FAQ on Technical Details
+## FAQ
 
 ##### **Q:** How large is a sentence vector?
 
@@ -472,3 +430,47 @@ As one can observe, 1 clients 1 GPU = 381 seqs/s, 2 clients 2 GPU 402 seqs/s, 4 
 | 256            | 381   | 758   | 1497  |
 | 512            | 381   | 762   | 1500  |
 
+
+## Advance Usage
+
+> :children_crossing: Those are some cool yet unstable features, please use them with caution!
+
+### Asynchronous `BertClient.encode()`
+
+`BertClient.encode()` offers a nice synchronous way to get sentence encodes. However,   sometimes we want to do it in an asynchronous manner by feeding all textual data to the server first, then later fetch the encoded results. This can be easily done by:
+```python
+# an endless data stream, generating data in an extremely fast speed
+def text_gen():
+    while True:
+        yield lst_str  # yield a batch of text lines
+
+bc = BertClient()
+
+# get encoded vectors
+for j in bc.encode_async(text_gen(), max_num_batch=10):
+    print('received %d x %d' % (j.shape[0], j.shape[1]))
+```
+
+The complete example can [be found here](example2.py).
+
+### Broadcast to multiple `BertClient`
+
+The encoded result is routed to the client with certain identity. If you have multiple clients with same identity, then they all receive the results! You can use this multicast feature to do some cool things, e.g. training multiple different models (some using `scikit-learn` some using `tensorflow`) in multiple separated processes while only call `BertServer` once. In the example below, `bc` and its two clones will all receive encoded vector.
+
+```python
+# clone a client by reusing the identity 
+def client_clone(id, idx):
+    bc = BertClient(identity=id)
+    for j in bc.listen():
+        print('clone-client-%d: received %d x %d' % (idx, j.shape[0], j.shape[1]))
+
+if __name__ == '__main__':
+    bc = BertClient()
+    # start two cloned clients sharing the same identity as bc
+    for j in range(2):
+        threading.Thread(target=client_clone, args=(bc.identity, j)).start()
+    
+    for _ in range(3):
+        bc.encode(lst_str)
+```
+The complete example can [be found here](example3.py).
