@@ -49,16 +49,19 @@ class BertClient:
     def send(self, msg):
         self.sender.send_multipart([self.identity, msg])
 
+    def recv(self):
+        return self.receiver.recv_multipart()
+
     def get_server_config(self):
         self.send(b'SHOW_CONFIG')
-        response = self.receiver.recv_multipart()
+        response = self.recv()
         return jsonapi.loads(response[1])
 
     def encode(self, texts):
         if self.is_valid_input(texts):
             texts = _unicode(texts)
             self.send(jsonapi.dumps(texts))
-            response = self.receiver.recv_multipart()
+            response = self.recv()
             arr_info, arr_val = jsonapi.loads(response[1]), response[2]
             X = np.frombuffer(_buffer(arr_val), dtype=arr_info['dtype'])
             return self.formatter(X.reshape(arr_info['shape']))
@@ -79,7 +82,7 @@ class BertClient:
                     s_idx += len(tmp)
                     num_part += 1
                 for _ in range(num_part):
-                    response = self.receiver.recv_multipart()
+                    response = self.recv()
                     arr_info, arr_val = jsonapi.loads(response[1]), response[2]
                     X = np.frombuffer(_buffer(arr_val), dtype=arr_info['dtype'])
                     yield self.formatter(X.reshape(arr_info['shape']))

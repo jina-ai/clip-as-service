@@ -12,8 +12,12 @@ if __name__ == '__main__':
     for j in range(1, 200, 10):
         start_t = time.time()
         tmp = data * j
+        total_size = len(tmp)
+        accu_size = 0
         for j in bc.encode_async(tmp):
-            print(j.shape)
+            accu_size += j.shape[0]
+            print(j.shape[0])
+        assert accu_size == total_size
         time_t = time.time() - start_t
         print('encoding %d strs in %.2fs, speed: %d/s' %
               (len(tmp), time_t, int(len(tmp) / time_t)))

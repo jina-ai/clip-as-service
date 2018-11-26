@@ -14,5 +14,4 @@ if __name__ == '__main__':
         tmp = data * j
         bc.encode(tmp)
         time_t = time.time() - start_t
-        print('encoding %d strs in %.2fs, speed: %d/s' %
-              (len(tmp), time_t, int(len(tmp) / time_t)))
+        print('encoding %d strs in %.2fs, speed: %d/s' % (len(tmp), time_t, int(len(tmp) / time_t)))
