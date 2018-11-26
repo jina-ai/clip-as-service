@@ -73,6 +73,7 @@ class BertServer(threading.Thread):
             p.close()
         self.frontend.close()
         self.backend.close()
+        self.sink.close()
         self.context.term()
         self.logger.info('terminated!')
 
@@ -130,7 +131,6 @@ class BertSink(Process):
         self.logger.info('shutting down...')
         self.exit_flag.set()
         self.terminate()
-        self.join()
         self.logger.info('terminated!')
 
     def run(self):
@@ -227,7 +227,6 @@ class BertWorker(Process):
         self.exit_flag.set()
         self.terminate()
         self.join()
-        self.logger.info('terminated!')
 
     def run(self):
         context = zmq.Context()
