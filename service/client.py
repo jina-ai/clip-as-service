@@ -21,10 +21,14 @@ else:
 
 
 class BertClient:
-    def __init__(self, ip='localhost', port=5555, output_fmt='ndarray', show_server_config=True):
-        self.socket = zmq.Context().socket(zmq.REQ)
-        self.socket.identity = str(uuid.uuid4()).encode('ascii')
-        self.socket.connect('tcp://%s:%d' % (ip, port))
+    def __init__(self, ip='localhost', port=5555, port_recv=5556, output_fmt='ndarray', show_server_config=False):
+        self.context = zmq.Context()
+        self.sender = self.context.socket(zmq.PUSH)
+        self.identity = str(uuid.uuid4()).encode('ascii')
+        self.sender.connect('tcp://%s:%d' % (ip, port))
+        self.receiver = self.context.socket(zmq.SUB)
+        self.receiver.setsockopt(zmq.SUBSCRIBE, b'A')
+        self.receiver.connect('tcp://%s:%d' % (ip, port_recv))
         self.ip = ip
         self.port = port
 
@@ -39,21 +43,24 @@ class BertClient:
             self.get_server_config()
             print('you should NOT see this message multiple times! '
                   'if you see it appears repeatedly, '
-                  'please consider moving "BertClient()" out of the loop.')
+                  'consider moving "BertClient()" out of the loop.')
+
+    def send(self, msg):
+        self.sender.send_multipart([self.identity, msg])
 
     def get_server_config(self):
-        self.socket.send(b'SHOW_CONFIG')
-        response = self.socket.recv_multipart()
-        print('the server at %s:%d returns the following config:' % (self.ip, self.port))
+        self.send(b'SHOW_CONFIG')
+        response = self.sender.recv_multipart()
+        print('connect success!\nserver at %s:%d returns the following config:' % (self.ip, self.port))
         for k, v in jsonapi.loads(response[0]).items():
             print('%30s\t=\t%-30s' % (k, v))
 
     def encode(self, texts):
         texts = _unicode(texts)
         if self.is_valid_input(texts):
-            self.socket.send_pyobj(texts)
-            response = self.socket.recv_multipart()
-            arr_info, arr_val = jsonapi.loads(response[0]), response[2]
+            self.send(jsonapi.dumps(texts))
+            response = self.sender.recv_multipart()
+            arr_info, arr_val = jsonapi.loads(response[1]), response[2]
             X = np.frombuffer(_buffer(arr_val), dtype=arr_info['dtype'])
             return self.formatter(X.reshape(arr_info['shape']))
         else:
