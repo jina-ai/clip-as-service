@@ -12,6 +12,7 @@ from service.client import BertClient
 from service.server import BertServer
 
 PORT = 5557
+PORT_OUT = 5558
 
 
 def tprint(msg):
@@ -31,7 +32,7 @@ class BenchmarkClient(threading.Thread):
 
     def run(self):
         time_all = []
-        bc = BertClient(port=PORT, show_server_config=False)
+        bc = BertClient(port=PORT, port_out=PORT_OUT, show_server_config=False)
         for _ in range(self.num_repeat):
             start_t = time.perf_counter()
             bc.encode(self.batch)
@@ -46,6 +47,7 @@ if __name__ == '__main__':
         'num_worker': 2,
         'num_repeat': 5,
         'port': PORT,
+        'port_out': PORT_OUT,
         'max_seq_len': 40,
         'client_batch_size': 2048,
         'max_batch_size': 256,

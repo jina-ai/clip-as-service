@@ -73,9 +73,6 @@ class BertServer(threading.Thread):
         for p in self.processes:
             p.close()
         self.exit_flag.set()
-        self.frontend.close()
-        self.backend.close()
-        self.context.term()
         self.logger.info('terminated!')
 
     def run(self):
@@ -176,6 +173,7 @@ class BertSink(threading.Thread):
                 self.client_checksum.pop(client)
 
         self.receiver.close()
+        self.sender.close()
         self.context.term()
 
 
