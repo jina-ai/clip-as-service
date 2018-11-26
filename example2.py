@@ -19,4 +19,4 @@ if __name__ == '__main__':
 
     # get encoded vectors
     for j in bc.encode_async(text_gen(), max_num_batch=10):
-        print('received %s' % j.shape)
+        print('received %d x %d' % (j.shape[0], j.shape[0]))
