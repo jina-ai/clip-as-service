@@ -132,7 +132,7 @@ class BertSink(threading.Thread):
 
         # publish to client
         self.sender = self.context.socket(zmq.PUB)
-        self.sender.bind('tcp://*:%d' % args.port_recv)
+        self.sender.bind('tcp://*:%d' % args.port_out)
 
         self.exit_flag = threading.Event()
         self.logger = set_logger('SINK')
