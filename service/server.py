@@ -62,7 +62,6 @@ class BertServer(threading.Thread):
         self.processes.append(sink_thread)
         self.addr_sink = sink_thread.address
 
-        self.exit_flag = threading.Event()
         self.logger = set_logger('VENTILATOR')
 
         self.pending_client = {}
@@ -72,8 +71,10 @@ class BertServer(threading.Thread):
         self.logger.info('shutting down...')
         for p in self.processes:
             p.close()
-        self.exit_flag.set()
-        self.join()
+        self.frontend.close()
+        self.backend.close()
+        self.context.term()
+        self.logger.info('terminated!')
 
     def run(self):
         available_gpus = range(self.num_worker)
@@ -92,7 +93,7 @@ class BertServer(threading.Thread):
             self.processes.append(process)
             process.start()
 
-        while not self.exit_flag.is_set():
+        while True:
             client, msg = self.frontend.recv_multipart()
             seqs = pickle.loads(msg)
             num_seqs = len(seqs)
@@ -111,11 +112,6 @@ class BertServer(threading.Thread):
             else:
                 self.backend.send_multipart([client, b'', msg])
 
-        self.frontend.close()
-        self.backend.close()
-        self.context.term()
-        self.logger.info('terminated!')
-
 
 class BertSink(threading.Thread):
     def __init__(self, args, client_chk):
@@ -132,19 +128,21 @@ class BertSink(threading.Thread):
         self.sender = self.context.socket(zmq.PUB)
         self.sender.bind('tcp://*:%d' % args.port_out)
 
-        self.exit_flag = threading.Event()
         self.logger = set_logger('SINK')
         self.client_checksum = client_chk
 
     def close(self):
         self.logger.info('shutting down...')
-        self.exit_flag.set()
+        self.receiver.close()
+        self.sender.close()
+        self.context.term()
+        self.logger.info('terminated!')
 
     def run(self):
         pending_checksum = defaultdict(int)
         pending_client = defaultdict(list)
 
-        while not self.exit_flag.is_set():
+        while True:
             msg = self.receiver.recv_multipart()
             client_id = msg[0]
             # parsing the ndarray
@@ -171,11 +169,6 @@ class BertSink(threading.Thread):
                 pending_client.pop(client)
                 pending_checksum.pop(client)
                 self.client_checksum.pop(client)
-
-        self.receiver.close()
-        self.sender.close()
-        self.context.term()
-        self.logger.info('terminated!')
 
 
 class BertWorker(Process):
@@ -205,9 +198,8 @@ class BertWorker(Process):
     def close(self):
         self.logger.info('shutting down...')
         self.exit_flag.set()
-        self.terminate()
         self.join()
-        self.logger.info('terminated!')
+        self.terminate()
 
     def run(self):
         context = zmq.Context()
@@ -232,6 +224,7 @@ class BertWorker(Process):
         receiver.close()
         sink.close()
         context.term()
+        self.logger.info('terminated!')
 
     def input_fn_builder(self, worker):
         def gen():
