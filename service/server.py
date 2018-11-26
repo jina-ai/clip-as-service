@@ -139,7 +139,6 @@ class BertSink(threading.Thread):
     def close(self):
         self.logger.info('shutting down...')
         self.exit_flag.set()
-        self.join()
 
     def run(self):
         pending_checksum = defaultdict(int)
