@@ -21,16 +21,15 @@ else:
 
 
 class BertClient:
-    def __init__(self, ip='localhost', port=5555, output_fmt='ndarray', show_server_config=False):
+    def __init__(self, ip='localhost', port=5555, port_out=5556, output_fmt='ndarray', show_server_config=False):
         self.context = zmq.Context()
         self.sender = self.context.socket(zmq.PUSH)
         self.identity = str(uuid.uuid4()).encode('ascii')
         self.sender.connect('tcp://%s:%d' % (ip, port))
 
-        server_config = self.get_server_config()
         self.receiver = self.context.socket(zmq.SUB)
         self.receiver.setsockopt(zmq.SUBSCRIBE, self.identity)
-        self.receiver.connect('tcp://%s:%d' % (ip, int(server_config['port_out'])))
+        self.receiver.connect('tcp://%s:%d' % (ip, port_out))
 
         if output_fmt == 'ndarray':
             self.formatter = lambda x: x
@@ -40,8 +39,8 @@ class BertClient:
             raise AttributeError('"output_fmt" must be "ndarray" or "list"')
 
         if show_server_config:
-            print('connect success!\nserver at %s:%d returns the following config:' % (self.ip, self.port))
-            for k, v in server_config.items():
+            print('connect success!\nserver returns the following config:')
+            for k, v in self.get_server_config().items():
                 print('%30s\t=\t%-30s' % (k, v))
             print('you should NOT see this message multiple times! '
                   'if you see it appears repeatedly, '
