@@ -7,7 +7,7 @@ import sys
 import threading
 import time
 import uuid
-from collections import defaultdict
+from collections import defaultdict, namedtuple
 from datetime import datetime
 from multiprocessing import Process
 
@@ -34,16 +34,12 @@ class BertServer(threading.Thread):
         self.max_batch_size = args.max_batch_size
         self.port = args.port
         self.args = args
-        self.args_dict = {
-            'model_dir': args.model_dir,
-            'max_seq_len': args.max_seq_len,
-            'num_worker': args.num_worker,
-            'max_batch_size': args.max_batch_size,
-            'port': args.port,
+        self.args_dict = args._asdict() if isinstance(args, namedtuple) else vars(args)
+        self.args_dict.update({
             'tensorflow_version': tf.__version__,
             'python_version': sys.version,
-            'server_time': str(datetime.now())
-        }
+            'server_start': str(datetime.now())
+        })
         self.processes = []
         self.context = zmq.Context()
 
@@ -54,6 +50,7 @@ class BertServer(threading.Thread):
         # pair connection between frontend and sink
         self.sink = self.context.socket(zmq.PAIR)
         self.sink.bind('ipc://*')
+        self.addr_front2sink = self.sink.getsockopt(zmq.LAST_ENDPOINT).decode('ascii')
 
         # backend facing workers
         self.backend = self.context.socket(zmq.PUSH)
@@ -61,7 +58,7 @@ class BertServer(threading.Thread):
         self.addr_backend = self.backend.getsockopt(zmq.LAST_ENDPOINT).decode('ascii')
 
         # start the sink thread
-        proc_sink = BertSink(self.args, self.sink.getsockopt(zmq.LAST_ENDPOINT).decode('ascii'))
+        proc_sink = BertSink(self.args, self.addr_front2sink)
         proc_sink.start()
         self.processes.append(proc_sink)
         self.addr_sink = self.sink.recv().decode('ascii')
@@ -97,11 +94,20 @@ class BertServer(threading.Thread):
         try:
             while True:
                 client, msg = self.frontend.recv_multipart()
+                if msg == b'SHOW_CONFIG':
+                    self.sink.send_multipart([client, b'CONFIG',
+                                              jsonapi.dumps({**{'client': client.decode('ascii'),
+                                                                'num_process': len(self.processes),
+                                                                'frontend  -> backend': self.addr_backend,
+                                                                'backend   -> sink': self.addr_sink,
+                                                                'frontend <-> sink': self.addr_front2sink},
+                                                             **self.args_dict})])
+                    continue
                 client = client + b'#' + str(uuid.uuid4()).encode('ascii')
                 seqs = jsonapi.loads(msg)
                 num_seqs = len(seqs)
                 # tell sink to collect a new job
-                self.sink.send_multipart([client, b'%d' % num_seqs])
+                self.sink.send_multipart([client, b'REGISTER', b'%d' % num_seqs])
 
                 if num_seqs > self.max_batch_size:
                     # divide the large batch into small batches
@@ -191,9 +197,12 @@ class BertSink(Process):
                         job_checksum.pop(job_info)
 
                 if socks.get(frontend) == zmq.POLLIN:
-                    job_info, num_seqs = frontend.recv_multipart()
-                    job_checksum[job_info] = int(num_seqs)
-                    self.logger.info('new job %s size: %d is registered!' % (job_info, int(num_seqs)))
+                    job_info, msg_type, msg_info = frontend.recv_multipart()
+                    if msg_type == b'REGISTER':
+                        job_checksum[job_info] = int(msg_info)
+                        self.logger.info('new job %s size: %d is registered!' % (job_info, int(msg_info)))
+                    elif msg_type == b'CONFIG':
+                        sender.send_multipart([job_info, msg_info])
         except zmq.error.ContextTerminated:
             self.logger.error('context is closed!')
 

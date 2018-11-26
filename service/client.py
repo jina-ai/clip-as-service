@@ -50,9 +50,9 @@ class BertClient:
 
     def get_server_config(self):
         self.send(b'SHOW_CONFIG')
-        response = self.sender.recv_multipart()
+        response = self.receiver.recv_multipart()
         print('connect success!\nserver at %s:%d returns the following config:' % (self.ip, self.port))
-        for k, v in jsonapi.loads(response[0]).items():
+        for k, v in jsonapi.loads(response[1]).items():
             print('%30s\t=\t%-30s' % (k, v))
 
     def encode(self, texts):
