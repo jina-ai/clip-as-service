@@ -97,6 +97,8 @@ class BertServer(threading.Thread):
 
         while not self.exit_flag.is_set():
             client, msg = self.frontend.recv_multipart()
+            print(client)
+            print(msg)
             seqs = pickle.loads(msg)
             num_seqs = len(seqs)
             self.client_checksum[client] = num_seqs
