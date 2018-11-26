@@ -74,7 +74,6 @@ class BertServer(threading.Thread):
             p.close()
         self.exit_flag.set()
         self.join()
-        self.logger.info('terminated!')
 
     def run(self):
         available_gpus = range(self.num_worker)
@@ -115,6 +114,7 @@ class BertServer(threading.Thread):
         self.frontend.close()
         self.backend.close()
         self.context.term()
+        self.logger.info('terminated!')
 
 
 class BertSink(threading.Thread):
@@ -140,7 +140,6 @@ class BertSink(threading.Thread):
         self.logger.info('shutting down...')
         self.exit_flag.set()
         self.join()
-        self.logger.info('terminated!')
 
     def run(self):
         pending_checksum = defaultdict(int)
@@ -177,6 +176,7 @@ class BertSink(threading.Thread):
         self.receiver.close()
         self.sender.close()
         self.context.term()
+        self.logger.info('terminated!')
 
 
 class BertWorker(Process):
