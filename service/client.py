@@ -3,6 +3,7 @@
 # Han Xiao <artex.xh@gmail.com> <https://hanxiao.github.io>
 
 import sys
+import threading
 import uuid
 
 import numpy as np
@@ -21,12 +22,17 @@ else:
 
 
 class BertClient:
-    def __init__(self, ip='localhost', port=5555, output_fmt='ndarray', show_server_config=True):
-        self.socket = zmq.Context().socket(zmq.REQ)
-        self.socket.identity = str(uuid.uuid4()).encode('ascii')
-        self.socket.connect('tcp://%s:%d' % (ip, port))
-        self.ip = ip
-        self.port = port
+    def __init__(self, ip='localhost', port=5555, port_out=5556,
+                 output_fmt='ndarray', show_server_config=False,
+                 identity=None):
+        self.context = zmq.Context()
+        self.sender = self.context.socket(zmq.PUSH)
+        self.identity = identity or str(uuid.uuid4()).encode('ascii')
+        self.sender.connect('tcp://%s:%d' % (ip, port))
+
+        self.receiver = self.context.socket(zmq.SUB)
+        self.receiver.setsockopt(zmq.SUBSCRIBE, self.identity)
+        self.receiver.connect('tcp://%s:%d' % (ip, port_out))
 
         if output_fmt == 'ndarray':
             self.formatter = lambda x: x
@@ -36,28 +42,58 @@ class BertClient:
             raise AttributeError('"output_fmt" must be "ndarray" or "list"')
 
         if show_server_config:
-            self.get_server_config()
+            print('connect success!\nserver returns the following config:')
+            for k, v in self.get_server_config().items():
+                print('%30s\t=\t%-30s' % (k, v))
             print('you should NOT see this message multiple times! '
                   'if you see it appears repeatedly, '
-                  'please consider moving "BertClient()" out of the loop.')
+                  'consider moving "BertClient()" out of the loop.')
+
+    def send(self, msg):
+        self.sender.send_multipart([self.identity, msg])
+
+    def recv(self):
+        return self.receiver.recv_multipart()
+
+    def recv_ndarray(self):
+        response = self.recv()
+        arr_info, arr_val = jsonapi.loads(response[1]), response[2]
+        X = np.frombuffer(_buffer(arr_val), dtype=arr_info['dtype'])
+        return self.formatter(X.reshape(arr_info['shape']))
 
     def get_server_config(self):
-        self.socket.send(b'SHOW_CONFIG')
-        response = self.socket.recv_multipart()
-        print('the server at %s:%d returns the following config:' % (self.ip, self.port))
-        for k, v in jsonapi.loads(response[0]).items():
-            print('%30s\t=\t%-30s' % (k, v))
+        self.send(b'SHOW_CONFIG')
+        response = self.recv()
+        return jsonapi.loads(response[1])
 
-    def encode(self, texts):
-        texts = _unicode(texts)
+    def encode(self, texts, blocking=True):
         if self.is_valid_input(texts):
-            self.socket.send_pyobj(texts)
-            response = self.socket.recv_multipart()
-            arr_info, arr_val = jsonapi.loads(response[0]), response[2]
-            X = np.frombuffer(_buffer(arr_val), dtype=arr_info['dtype'])
-            return self.formatter(X.reshape(arr_info['shape']))
+            texts = _unicode(texts)
+            self.send(jsonapi.dumps(texts))
+            return self.recv_ndarray() if blocking else None
         else:
             raise AttributeError('"texts" must be "List[str]" and non-empty!')
+
+    def listen(self, max_num_batch=None):
+        forever = max_num_batch is None
+        cnt = 0
+        while forever or cnt < max_num_batch:
+            yield self.recv_ndarray()
+            cnt += 1
+
+    # experimental, use with caution!
+    def encode_async(self, batch_generator, max_num_batch=None):
+        def run():
+            cnt = 0
+            for texts in batch_generator:
+                self.encode(texts, blocking=False)
+                cnt += 1
+                if max_num_batch and cnt == max_num_batch:
+                    break
+
+        t = threading.Thread(target=run)
+        t.start()
+        return self.listen(max_num_batch)
 
     @staticmethod
     def is_valid_input(texts):

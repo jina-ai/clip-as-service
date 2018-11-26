@@ -19,8 +19,10 @@ def get_args():
                         help='number of server instances')
     parser.add_argument('-max_batch_size', type=int, default=256,
                         help='maximum number of sequences handled by each worker')
-    parser.add_argument('-port', type=int, default=5555,
-                        help='port number for C-S communication')
+    parser.add_argument('-port', '-port_in', '-port_data', type=int, default=5555,
+                        help='server port for receiving data from client')
+    parser.add_argument('-port_out', '-port_result', type=int, default=5556,
+                        help='server port for outputting result to client')
     parser.add_argument('-pooling_layer', type=int, default=-2,
                         help='the encoder layer that receives pooling')
     parser.add_argument('-pooling_strategy', type=PoolingStrategy.from_string,

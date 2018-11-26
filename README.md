@@ -15,8 +15,9 @@ Author: Han Xiao [https://hanxiao.github.io](https://hanxiao.github.io)
 * [What is it](#what-is-it)
 * [Requirements](#requirements)
 * [Usage](#usage)
-* [FAQ on Technical Details](#faq-on-technical-details)
+* [FAQ](#faq-on-technical-details)
 * [Benchmark](#benchmark)
+* [Advance Usage](#advance-usage)
 
 ## What is it
 
@@ -74,7 +75,7 @@ One can also start the service on one (GPU) machine and call it from another (CP
 ```python
 # on another CPU machine
 from service.client import BertClient
-bc = BertClient(ip='xx.xx.xx.xx', port=5555)  # ip address of the GPU machine
+bc = BertClient(ip='xx.xx.xx.xx')  # ip address of the GPU machine
 bc.encode(['First do it', 'then do it right', 'then do it better'])
 ```
 
@@ -92,7 +93,10 @@ docker run --runtime nvidia -dit -p 5555:5555 -v $PATH_MODEL:/model -t bert-as-s
 
 ### Server-side configs
 
-Server-side configs are summarized below, which can be found in [`app.py`](app.py) as well.
+Server-side configs are summarized below, they can be also found in [`app.py`](app.py). You can specify those arguments via:
+```bash
+python app.py -model_dir [-max_seq_len] [-num_worker] [-max_batch_size] [-port] [-port_out] [-pooling_strategy] [-pooling_layer]
+```
 
 | Argument | Type | Default | Description |
 |--------------------|------|-------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -100,7 +104,8 @@ Server-side configs are summarized below, which can be found in [`app.py`](app.p
 | `max_seq_len` | int | `25` | maximum length of sequence, longer sequence will be trimmed on the right side. |
 | `num_worker` | int | `1` | number of (GPU/CPU) worker runs BERT model, each works in a separate process. |
 | `max_batch_size` | int | `256` | maximum number of sequences handled by each worker, larger batch will be partitioned into small batches. |
-| `port` | int | `5555` | port for client-server communication. |
+| `port` | int | `5555` | port for pushing data from client to server |
+| `port_out` | int | `5556`| port for publishing results from server to client |
 | `pooling_strategy` | str | `REDUCE_MEAN` | the pooling strategy for generating encoding vectors, valid values are `NONE`, `REDUCE_MEAN`, `REDUCE_MAX`, `REDUCE_MEAN_MAX`, `CLS_TOKEN`, `FIRST_TOKEN`, `SEP_TOKEN`, `LAST_TOKEN`. Explanation of these strategies [can be found here](#q-what-are-the-available-pooling-strategies). To get encoding for each token in the sequence, please set this to `NONE`.|
 | `pooling_layer` | int | `-2` | the encoding layer that pooling operates on, where `-1` means the last layer, `-2` means the second-to-last, etc.|
 
@@ -111,12 +116,13 @@ Client-side configs are summarized below, which can be found in [`client.py`](se
 | Argument | Type | Default | Description |
 |----------------------|------|-----------|-------------------------------------------------------------------------------|
 | `ip` | str | `localhost` | IP address of the server |
-| `port` | int | `5555` | port of the server |
+| `port` | int | `5555` | port for pushing data from client to server, *must be consistent with the server side config* |
+| `port_out` | int | `5556`| port for publishing results from server to client, *must be consistent with the server side config* |
 | `output_fmt` | str | `ndarray` | the output format of the sentence encodes, either in numpy array or python List[List[float]] (`ndarray`/`list`) |
 | `show_server_config` | bool | `True` | whether to show server configs when first connected |
 
 
-## FAQ on Technical Details
+## FAQ
 
 ##### **Q:** How large is a sentence vector?
 
@@ -169,7 +175,7 @@ Each sentence is translated to a 768-dimensional vector. One exception is `REDUC
 
 ##### **Q:** So one request means one sentence?
 
-**A:** No. One request means a list of sentences sent from a client. Think the size of a request as the batch size. A request may contain 256, 512 or 1024 sentences. The optimal size of a request is often determined empirically. One large request can certainly improve the GPU utilization, yet it also increases the overhead of transmission. You may run `python client_example.py` for a simple benchmark.
+**A:** No. One request means a list of sentences sent from a client. Think the size of a request as the batch size. A request may contain 256, 512 or 1024 sentences. The optimal size of a request is often determined empirically. One large request can certainly improve the GPU utilization, yet it also increases the overhead of transmission. You may run `python example1.py` for a simple benchmark.
 
 ##### **Q:** How about the speed? Is it fast enough for production?
 
@@ -188,6 +194,9 @@ To reproduce the results, please run [`python benchmark.py`](benchmark.py).
 ##### **Q:** What is the parallel processing model behind the scene?
 
 <img src=".github/bert-parallel-pipeline.png" width="600">
+
+##### **Q:** Why do the server need two ports?
+One port is for pushing text data into the server, the other port is for publishing the encoded result to the client(s). In this way, we get rid of back-chatter, meaning that at every level recipients never talk back to senders. The overall message flow is strictly one-way, as depicted in the above figure. Killing back-chatter is essential to real scalability, allowing us to use `BertClient` in an asynchronous way. 
 
 ##### **Q:** Do I need Tensorflow on the client side?
 
@@ -421,3 +430,47 @@ As one can observe, 1 clients 1 GPU = 381 seqs/s, 2 clients 2 GPU 402 seqs/s, 4 
 | 256            | 381   | 758   | 1497  |
 | 512            | 381   | 762   | 1500  |
 
+
+## Advance Usage
+
+> :children_crossing: Those are some cool yet unstable features, please use them with caution!
+
+### Asynchronous `BertClient.encode()`
+
+`BertClient.encode()` offers a nice synchronous way to get sentence encodes. However,   sometimes we want to do it in an asynchronous manner by feeding all textual data to the server first, then later fetch the encoded results. This can be easily done by:
+```python
+# an endless data stream, generating data in an extremely fast speed
+def text_gen():
+    while True:
+        yield lst_str  # yield a batch of text lines
+
+bc = BertClient()
+
+# get encoded vectors
+for j in bc.encode_async(text_gen(), max_num_batch=10):
+    print('received %d x %d' % (j.shape[0], j.shape[1]))
+```
+
+The complete example can [be found here](example2.py).
+
+### Broadcast to multiple `BertClient`
+
+The encoded result is routed to the client with certain identity. If you have multiple clients with same identity, then they all receive the results! You can use this multicast feature to do some cool things, e.g. training multiple different models (some using `scikit-learn` some using `tensorflow`) in multiple separated processes while only call `BertServer` once. In the example below, `bc` and its two clones will all receive encoded vector.
+
+```python
+# clone a client by reusing the identity 
+def client_clone(id, idx):
+    bc = BertClient(identity=id)
+    for j in bc.listen():
+        print('clone-client-%d: received %d x %d' % (idx, j.shape[0], j.shape[1]))
+
+if __name__ == '__main__':
+    bc = BertClient()
+    # start two cloned clients sharing the same identity as bc
+    for j in range(2):
+        threading.Thread(target=client_clone, args=(bc.identity, j)).start()
+    
+    for _ in range(3):
+        bc.encode(lst_str)
+```
+The complete example can [be found here](example3.py).
