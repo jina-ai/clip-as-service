@@ -60,7 +60,7 @@ class BertClient:
         texts = _unicode(texts)
         if self.is_valid_input(texts):
             self.send(pickle.dumps(texts))
-            response = self.sender.recv_multipart()
+            response = self.receiver.recv_multipart()
             arr_info, arr_val = jsonapi.loads(response[1]), response[2]
             X = np.frombuffer(_buffer(arr_val), dtype=arr_info['dtype'])
             return self.formatter(X.reshape(arr_info['shape']))
