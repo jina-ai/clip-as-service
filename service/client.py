@@ -74,21 +74,26 @@ class BertClient:
         else:
             raise AttributeError('"texts" must be "List[str]" and non-empty!')
 
-    def _yield_encode(self, max_time=None):
-        forever = max_time is None
+    def listen(self, max_num_batch=None):
+        forever = max_num_batch is None
         cnt = 0
-        while forever or cnt < max_time:
+        while forever or cnt < max_num_batch:
             yield self.recv_ndarray()
             cnt += 1
 
-    def encode_async(self, texts_generator):
+    # experimental, use with caution!
+    def encode_async(self, batch_generator, max_num_batch=None):
         def run():
-            for texts in texts_generator:
+            cnt = 0
+            for texts in batch_generator:
                 self.encode(texts, blocking=False)
+                cnt += 1
+                if max_num_batch and cnt == max_num_batch:
+                    break
 
         t = threading.Thread(target=run)
         t.start()
-        return self._yield_encode()
+        return self.listen(max_num_batch)
 
     @staticmethod
     def is_valid_input(texts):

@@ -1,3 +1,5 @@
+# using BertClient in sync way
+
 import sys
 import time
 
