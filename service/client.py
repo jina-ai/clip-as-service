@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 # Han Xiao <artex.xh@gmail.com> <https://hanxiao.github.io>
 
+import pickle
 import sys
 import uuid
 
@@ -21,14 +22,14 @@ else:
 
 
 class BertClient:
-    def __init__(self, ip='localhost', port=5555, port_recv=5556, output_fmt='ndarray', show_server_config=False):
+    def __init__(self, ip='localhost', port=5555, port_out=5556, output_fmt='ndarray', show_server_config=False):
         self.context = zmq.Context()
         self.sender = self.context.socket(zmq.PUSH)
         self.identity = str(uuid.uuid4()).encode('ascii')
         self.sender.connect('tcp://%s:%d' % (ip, port))
         self.receiver = self.context.socket(zmq.SUB)
         self.receiver.setsockopt(zmq.SUBSCRIBE, b'A')
-        self.receiver.connect('tcp://%s:%d' % (ip, port_recv))
+        self.receiver.connect('tcp://%s:%d' % (ip, port_out))
         self.ip = ip
         self.port = port
 
@@ -58,7 +59,7 @@ class BertClient:
     def encode(self, texts):
         texts = _unicode(texts)
         if self.is_valid_input(texts):
-            self.send(jsonapi.dumps(texts))
+            self.send(pickle.dumps(texts))
             response = self.sender.recv_multipart()
             arr_info, arr_val = jsonapi.loads(response[1]), response[2]
             X = np.frombuffer(_buffer(arr_val), dtype=arr_info['dtype'])
