@@ -3,7 +3,6 @@
 # Han Xiao <artex.xh@gmail.com> <https://hanxiao.github.io>
 import multiprocessing
 import os
-import pickle
 import sys
 import threading
 import time
@@ -96,7 +95,7 @@ class BertServer(threading.Thread):
         try:
             while True:
                 client, msg = self.frontend.recv_multipart()
-                seqs = pickle.loads(msg)
+                seqs = jsonapi.loads(msg)
                 num_seqs = len(seqs)
                 self.client_checksum[client] = num_seqs
 
@@ -108,7 +107,7 @@ class BertServer(threading.Thread):
                         if tmp:
                             # get the worker with minimum workload
                             client_partial_id = client + b'@%d' % s_idx
-                            self.backend.send_multipart([client_partial_id, b'', pickle.dumps(tmp, protocol=-1)])
+                            self.backend.send_multipart([client_partial_id, jsonapi.dumps(tmp)])
                         s_idx += len(tmp)
                 else:
                     self.backend.send_multipart([client, b'', msg])
@@ -236,8 +235,8 @@ class BertWorker(Process):
     def input_fn_builder(self, worker):
         def gen():
             while not self.exit_flag.is_set():
-                client_id, empty, msg = worker.recv_multipart()
-                msg = pickle.loads(msg)
+                client_id, msg = worker.recv_multipart()
+                msg = jsonapi.loads(msg)
                 self.logger.info('received %4d from %s' % (len(msg), client_id))
                 if BertClient.is_valid_input(msg):
                     tmp_f = list(convert_lst_to_features(msg, self.max_seq_len, self.tokenizer))

@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 # Han Xiao <artex.xh@gmail.com> <https://hanxiao.github.io>
 
-import pickle
 import sys
 import uuid
 
@@ -59,7 +58,7 @@ class BertClient:
     def encode(self, texts):
         texts = _unicode(texts)
         if self.is_valid_input(texts):
-            self.send(pickle.dumps(texts))
+            self.send(jsonapi.dumps(texts))
             response = self.receiver.recv_multipart()
             arr_info, arr_val = jsonapi.loads(response[1]), response[2]
             X = np.frombuffer(_buffer(arr_val), dtype=arr_info['dtype'])
