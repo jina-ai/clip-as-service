@@ -42,7 +42,7 @@ class BertServer(threading.Thread):
             'port': args.port,
             'port_out': args.port_out,
             'pooling_layer': args.pooling_layer,
-            'pooling_strategy': args.pooling_strategy,
+            'pooling_strategy': args.pooling_strategy.value,
             'tensorflow_version': tf.__version__,
             'python_version': sys.version,
             'server_start': str(datetime.now())
