@@ -116,8 +116,8 @@ Client-side configs are summarized below, which can be found in [`client.py`](se
 | Argument | Type | Default | Description |
 |----------------------|------|-----------|-------------------------------------------------------------------------------|
 | `ip` | str | `localhost` | IP address of the server |
-| `port` | int | `5555` | port for pushing data from client to server, need to be consistent with the server side config |
-| `port_out` | int | `5556`| port for publishing results from server to client, need to be consistent with the server side config |
+| `port` | int | `5555` | port for pushing data from client to server, *must be consistent with the server side config* |
+| `port_out` | int | `5556`| port for publishing results from server to client, *must be consistent with the server side config* |
 | `output_fmt` | str | `ndarray` | the output format of the sentence encodes, either in numpy array or python List[List[float]] (`ndarray`/`list`) |
 | `show_server_config` | bool | `True` | whether to show server configs when first connected |
 
@@ -196,7 +196,7 @@ To reproduce the results, please run [`python benchmark.py`](benchmark.py).
 <img src=".github/bert-parallel-pipeline.png" width="600">
 
 ##### **Q:** Why do the server need two ports?
-This is the new design since v1.2. One port is for pushing text data into the server, the other port is for publishing the encoded result to the client(s). In this way, we get rid of back-chatter, meaning that at every level recipients never talk back to senders. The overall message flow is strictly one-way, as depicted in the last figure. Killing back-chatter is essential to real scalability, allowing us to use `BertClient` in an asynchronous way. 
+One port is for pushing text data into the server, the other port is for publishing the encoded result to the client(s). In this way, we get rid of back-chatter, meaning that at every level recipients never talk back to senders. The overall message flow is strictly one-way, as depicted in the above figure. Killing back-chatter is essential to real scalability, allowing us to use `BertClient` in an asynchronous way. 
 
 ##### **Q:** Do I need Tensorflow on the client side?
 
