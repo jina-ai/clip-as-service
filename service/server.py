@@ -205,8 +205,8 @@ class BertWorker(Process):
     def close(self):
         self.logger.info('shutting down...')
         self.exit_flag.set()
-        self.terminate()
         self.join()
+        self.terminate()
 
     def run(self):
         context = zmq.Context()
