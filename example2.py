@@ -14,10 +14,11 @@ if __name__ == '__main__':
         tmp = data * j
         total_size = len(tmp)
         accu_size = 0
-        for j in bc.encode_async(tmp):
+        for j in bc.encode_async(tmp, batch_size=128):
             accu_size += j.shape[0]
             print(j.shape[0])
         assert accu_size == total_size
+        print('%d / %d finished' % (accu_size, total_size))
         time_t = time.time() - start_t
         print('encoding %d strs in %.2fs, speed: %d/s' %
               (len(tmp), time_t, int(len(tmp) / time_t)))
