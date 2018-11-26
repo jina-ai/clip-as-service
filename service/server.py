@@ -172,9 +172,9 @@ class BertSink(Process):
                     partial_id = job_info[1] if len(job_info) == 2 else 0
                     pending_result[job_id].append((X, partial_id))
                     pending_checksum[job_id] += X.shape[0]
-                    self.logger.info('received %d of job %s (%d/%d)' % (X.shape[0], job_id,
-                                                                        pending_checksum[job_id],
-                                                                        job_checksum[job_id]))
+                    self.logger.info('collected job %s (%d/%d)' % (job_id,
+                                                                   pending_checksum[job_id],
+                                                                   job_checksum[job_id]))
 
                     # check if there are finished jobs, send it back to workers
                     finished = [(k, v) for k, v in pending_result.items() if pending_checksum[k] == job_checksum[k]]
@@ -258,7 +258,7 @@ class BertWorker(Process):
             while not self.exit_flag.is_set():
                 client_id, msg = worker.recv_multipart()
                 msg = jsonapi.loads(msg)
-                self.logger.info('received %4d from %s' % (len(msg), client_id))
+                self.logger.info('new job %s, size: %d' % (client_id, len(msg)))
                 if BertClient.is_valid_input(msg):
                     tmp_f = list(convert_lst_to_features(msg, self.max_seq_len, self.tokenizer))
                     yield {
@@ -268,7 +268,7 @@ class BertWorker(Process):
                         'input_type_ids': [f.input_type_ids for f in tmp_f]
                     }
                 else:
-                    self.logger.warning('received unsupported type from %s! sending back None' % client_id)
+                    self.logger.warning('unsupported type of job %s! sending back None' % client_id)
                     worker.send_multipart([client_id, b'', b''])
 
         def input_fn():
