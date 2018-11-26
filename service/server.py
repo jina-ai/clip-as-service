@@ -205,32 +205,33 @@ class BertWorker(Process):
     def close(self):
         self.logger.info('shutting down...')
         self.exit_flag.set()
-        self.receiver.close()
-        self.sink.close()
-        self.context.term()
         self.terminate()
         self.join()
-        self.logger.info('terminated!')
 
     def run(self):
-        self.context = zmq.Context()
-        self.receiver = self.context.socket(zmq.PULL)
-        self.receiver.connect(self.worker_address)
+        context = zmq.Context()
+        receiver = context.socket(zmq.PULL)
+        receiver.connect(self.worker_address)
 
-        self.sink = self.context.socket(zmq.PUSH)
-        self.sink.connect(self.sink_address)
+        sink = context.socket(zmq.PUSH)
+        sink.connect(self.sink_address)
 
-        input_fn = self.input_fn_builder(self.receiver)
+        input_fn = self.input_fn_builder(receiver)
 
         self.logger.info('ready and listening')
         start_t = time.perf_counter()
         for r in self.estimator.predict(input_fn, yield_single_examples=False):
             # logger.info('new result!')
-            send_ndarray(self.sink, r['client_id'], r['encodes'])
+            send_ndarray(sink, r['client_id'], r['encodes'])
             time_used = time.perf_counter() - start_t
             start_t = time.perf_counter()
             self.logger.info('job %s\tsamples: %4d\tdone: %.2fs' %
                              (r['client_id'], r['encodes'].shape[0], time_used))
+
+        receiver.close()
+        sink.close()
+        context.term()
+        self.logger.info('terminated!')
 
     def input_fn_builder(self, worker):
         def gen():
