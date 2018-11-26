@@ -65,7 +65,7 @@ if __name__ == '__main__':
     fp = open('benchmark.result', 'w')
     for var_name, var_lst in experiments.items():
         # set common args
-        args = namedtuple('args', ','.join(common.keys()))
+        args = namedtuple('args_namedtuple', ','.join(common.keys()))
         for k, v in common.items():
             setattr(args, k, v)
 

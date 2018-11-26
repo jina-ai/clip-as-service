@@ -7,7 +7,7 @@ import sys
 import threading
 import time
 import uuid
-from collections import defaultdict, namedtuple
+from collections import defaultdict
 from datetime import datetime
 from multiprocessing import Process
 
@@ -34,7 +34,7 @@ class BertServer(threading.Thread):
         self.max_batch_size = args.max_batch_size
         self.port = args.port
         self.args = args
-        self.args_dict = args._asdict() if isinstance(args, namedtuple) else vars(args)
+        self.args_dict = args._asdict() if isinstance(args, args_namedtuple) else vars(args)
         self.args_dict.update({
             'tensorflow_version': tf.__version__,
             'python_version': sys.version,
