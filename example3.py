@@ -15,8 +15,8 @@ def client_clone(id, idx):
 if __name__ == '__main__':
     bc = BertClient(port=int(sys.argv[1]), port_out=int(sys.argv[2]))
     # start two cloned clients sharing the same identity as bc
-    for _ in range(2):
-        t = threading.Thread(target=client_clone, args=(bc.identity, 1))
+    for j in range(2):
+        t = threading.Thread(target=client_clone, args=(bc.identity, j))
         t.start()
 
     with open('README.md') as fp:
