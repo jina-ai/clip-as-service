@@ -24,7 +24,8 @@ def get_args():
     parser.add_argument('-port_out', '-port_result', type=int, default=5556,
                         help='server port for outputting result to client')
     parser.add_argument('-pooling_layer', type=int, nargs='+', default=[-2],
-                        help='the encoder layer(s) that receives pooling. Give a list in order to concatenate several layers into 1.')
+                        help='the encoder layer(s) that receives pooling. '
+                             'Give a list in order to concatenate several layers into 1.')
     parser.add_argument('-pooling_strategy', type=PoolingStrategy.from_string,
                         default=PoolingStrategy.REDUCE_MEAN, choices=list(PoolingStrategy),
                         help='the pooling strategy for generating encoding vectors')

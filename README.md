@@ -48,6 +48,7 @@ Download a model from [here](https://github.com/google-research/bert#pre-trained
 
 You can use all models listed, including `BERT-Base, Multilingual` and `BERT-Base, Chinese`.
 
+> **Optional:** fine-tuning the model on your downstream task. [Why is it optional?](#q-are-you-suggesting-using-bert-without-fine-tuning)
 
 #### 2. Start a BERT service
 ```bash
@@ -55,10 +56,22 @@ python app.py -model_dir /tmp/english_L-12_H-768_A-12/ -num_worker=4
 ```
 This will start a service with four workers, meaning that it can handle up to four **concurrent** requests. More concurrent requests will be queued in a load balancer. Details can be found in our [FAQ](#q-what-is-the-parallel-processing-model-behind-the-scene) and [the benchmark on number of clients](#speed-wrt-num_client)
 
+
+#### Start a BERT Service in a Docker Container
+One may also run BERT Service in a container:
+
+```bash
+docker build -t bert-as-service -f ./docker/Dockerfile .
+NUM_WORKER=1
+PATH_MODEL=<path of your model>
+docker run --runtime nvidia -dit -p 5555:5555 -v $PATH_MODEL:/model -t bert-as-service $NUM_WORKER
+```
+
+
 #### 3. Use Client to Get Sentence Encodes
 > :children_crossing: NOTE: please make sure your project includes [`client.py`](service/client.py), as we need to import `BertClient` class from this file. This is the **only file** that you will need as a client. You don't even need Tensorflow on client.
 
-Now you can use pretrained BERT to encode sentences in your Python code simply as follows:
+Now you can use BERT to encode sentences in your Python code simply as follows:
 ```python
 from service.client import BertClient
 bc = BertClient()
@@ -66,8 +79,8 @@ bc.encode(['First do it', 'then do it right', 'then do it better'])
 ```
 This will return a `ndarray`, in which each row is the fixed representation of a sentence. You can also let it return a pure python object in the type of `List[List[float]]`.
 
-### Using BERT Service Remotely
-One can also start the service on one (GPU) machine and call it from another (CPU) machine as follows
+#### Using BERT Service Remotely
+One may also start the service on one (GPU) machine and call it from another (CPU) machine as follows:
 
 ```python
 # on another CPU machine
@@ -78,14 +91,6 @@ bc.encode(['First do it', 'then do it right', 'then do it better'])
 
 > :children_crossing: NOTE: please make sure your project includes [`client.py`](service/client.py), as we need to import `BertClient` class from this file. Again, this is the **only file** that you need as a client. You don't even need Tensorflow. Please refer to [`requirements.client.txt`](requirements.client.txt) for the dependency on the client side.
  
-### Run BERT Service on Nvidia Docker
-```bash
-docker build -t bert-as-service -f ./docker/Dockerfile .
-NUM_WORKER=1
-PATH_MODEL=<path of your model>
-docker run --runtime nvidia -dit -p 5555:5555 -v $PATH_MODEL:/model -t bert-as-service $NUM_WORKER
-```
-
 ## Server and Client Configurations
 
 ### Server-side configs
@@ -121,9 +126,12 @@ Client-side configs are summarized below, which can be found in [`client.py`](se
 
 ## FAQ
 
-##### **Q:** How large is a sentence vector?
+##### **Q:** Where is the BERT code come from?
 
-Each sentence is translated to a 768-dimensional vector. One exception is `REDUCE_MEAN_MAX` pooling strategy, which translates a sentence into a 1536-dimensional vector.
+**A:** [BERT code of this repo](bert/) is forked from the [original BERT repo](https://github.com/google-research/bert) with necessary modification, [especially in extract_features.py](bert/extract_features.py).
+
+##### **Q:** How large is a sentence vector?
+In general, each sentence is translated to a 768-dimensional vector. Depending on the pretrained BERT you are using, `pooling_strategy` and `pooling_layer` the dimensions of the output vector could be different. 
 
 ##### **Q:** How do you get the fixed representation? Did you do pooling or something?
 
@@ -135,9 +143,11 @@ Each sentence is translated to a 768-dimensional vector. One exception is `REDUC
 
 ##### **Q:** Can I get a concatenation of several layers instead of a single layer ?
 
-**A:** Sure ! Just use a list of the layer you want to concatenate when calling the server. Example :
+**A:** Sure! Just use a list of the layer you want to concatenate when calling the server. Example:
 
-`python app.py -model_dir /tmp/english_L-12_H-768_A-12/ -num_worker=4 -pooling_layer -4 -3 -2 -1`
+```bash
+python app.py -pooling_layer -4 -3 -2 -1 -model_dir /tmp/english_L-12_H-768_A-12/
+```
 
 ##### **Q:** What are the available pooling strategies?
 
@@ -326,10 +336,9 @@ Please consider the following instead:
 if cosine(A, B) > cosine(A, C), then A is more similar to B than C.
 ```
 
-##### **Q:** Where is the BERT code come from?
+##### **Q:** I'm getting bad performance, what should I do?
 
-**A:** [BERT code of this repo](bert/) is forked from the [original BERT repo]((https://github.com/google-research/bert)) with necessary modification, [especially in extract_features.py](bert/extract_features.py).
-
+**A:** This often suggests that the pretrained BERT could not generate a descent representation of your downstream task. Thus, you can fine-tune the model on the downstream task and then use `bert-as-service` to serve the fine-tuned BERT. Note that, `bert-as-service` is just a feature extraction service based on BERT. Nothing stops you from using a fine-tuned BERT.
 
 ## Benchmark
 
