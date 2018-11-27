@@ -28,6 +28,7 @@ class ServerCommand:
     show_config = b'SHOW_CONFIG'
     new_job = b'REGISTER'
 
+
 class BertServer(threading.Thread):
     def __init__(self, args):
         super().__init__()
@@ -185,7 +186,7 @@ class BertSink(Process):
         frontend.send(receiver.getsockopt(zmq.LAST_ENDPOINT))
 
         try:
-            while True:
+            while not self.exit_flag.is_set():
                 socks = dict(poller.poll())
                 if socks.get(receiver) == zmq.POLLIN:
                     msg = receiver.recv_multipart()
