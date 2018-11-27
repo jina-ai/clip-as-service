@@ -11,7 +11,7 @@ os.environ['CUDA_VISIBLE_DEVICES'] = str(GPUtil.getFirstAvailable())
 train_fp = ['/data/cips/data/lab/data/dataset/final_all_data/exercise_contest/data_train.json']
 batch_size = 256
 
-bc_clients = [BertClient() for _ in range(10)]
+bc_clients = [BertClient(show_server_config=False) for _ in range(10)]
 
 
 def get_encodes(x):

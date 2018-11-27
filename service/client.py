@@ -23,7 +23,7 @@ else:
 
 class BertClient:
     def __init__(self, ip='localhost', port=5555, port_out=5556,
-                 output_fmt='ndarray', show_server_config=True,
+                 output_fmt='ndarray', show_server_config=False,
                  identity=None):
         self.context = zmq.Context()
         self.sender = self.context.socket(zmq.PUSH)
@@ -42,7 +42,7 @@ class BertClient:
             raise AttributeError('"output_fmt" must be "ndarray" or "list"')
 
         if show_server_config:
-            print('connect success!\nserver returns the following config:')
+            print('server returns the following config:')
             for k, v in self.get_server_config().items():
                 print('%30s\t=\t%-30s' % (k, v))
         print('you should NOT see this message multiple times! '
