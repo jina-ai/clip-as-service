@@ -37,7 +37,7 @@ Author: Han Xiao [https://hanxiao.github.io](https://hanxiao.github.io)
 - Python >= 3.5 (Python 2 is NOT supported!)
 - Tensorflow >= 1.10
 
-These two requirements MUST be satisfied. For other dependent packages, please refer to `requirments.txt`  and `requirments.client.txt`.
+These two requirements MUST be satisfied. For other dependent packages, please refer to `requirements.txt`  and `requirements.client.txt`.
 
 :point_up: Python 2 is supported on the client side [for the following consideration](#q-can-i-run-it-in-python-2).
 
