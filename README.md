@@ -47,7 +47,7 @@ These two requirements MUST be satisfied. For other dependent packages, please r
 Download a model from [here](https://github.com/google-research/bert#pre-trained-models), then uncompress the zip file into some folder, say `/tmp/english_L-12_H-768_A-12/`
 
 <details>
- <summary>:point_right: List of released pretrained BERT models</summary>
+ <summary>List of released pretrained BERT models (click to expand)</summary>
 
 
 <table>
@@ -72,7 +72,7 @@ python app.py -model_dir /tmp/english_L-12_H-768_A-12/ -num_worker=4
 This will start a service with four workers, meaning that it can handle up to four **concurrent** requests. More concurrent requests will be queued in a load balancer. Details can be found in our [FAQ](#q-what-is-the-parallel-processing-model-behind-the-scene) and [the benchmark on number of clients](#speed-wrt-num_client)
 
 <details>
- <summary>:point_right: Start a BERT Service in a Docker Container</summary>
+ <summary>Start a BERT Service in a Docker Container (click to expand)</summary>
 
 One may also run BERT Service in a container:
 
