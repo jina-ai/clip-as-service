@@ -47,12 +47,17 @@ These two requirements MUST be satisfied. For other dependent packages, please r
 Download a model from [here](https://github.com/google-research/bert#pre-trained-models), then uncompress the zip file into some folder, say `/tmp/english_L-12_H-768_A-12/`
 
 <details>
- <summary>List of released pretrained BERT models</summary>
+ <summary>:point_right: List of released pretrained BERT models</summary>
 
 
 <table>
-<tr><td><pre>BERT-Base, Uncased</pre></td><td>12-layer, 768-hidden, 12-heads, 110M parameters</td></tr>
-<tr><td><pre>BERT-Large, Uncased</pre></td><td>24-layer, 1024-hidden, 16-heads, 340M parameters</td></tr>
+<tr><td><a href="https://storage.googleapis.com/bert_models/2018_10_18/uncased_L-12_H-768_A-12.zip">BERT-Base, Uncased</a></td><td>12-layer, 768-hidden, 12-heads, 110M parameters</td></tr>
+<tr><td><a href="https://storage.googleapis.com/bert_models/2018_10_18/uncased_L-24_H-1024_A-16.zip">BERT-Large, Uncased</a></td><td>24-layer, 1024-hidden, 16-heads, 340M parameters</td></tr>
+<tr><td><a href="https://storage.googleapis.com/bert_models/2018_10_18/cased_L-12_H-768_A-12.zip">BERT-Base, Cased</a></td><td>12-layer, 768-hidden, 12-heads , 110M parameters</td></tr>
+<tr><td><a href="https://storage.googleapis.com/bert_models/2018_10_18/cased_L-24_H-1024_A-16.zip">BERT-Large, Cased</a></td><td>24-layer, 1024-hidden, 16-heads, 340M parameters</td></tr>
+<tr><td><a href="https://storage.googleapis.com/bert_models/2018_11_23/multi_cased_L-12_H-768_A-12.zip">BERT-Base, Multilingual Cased (New)</a></td><td>104 languages, 12-layer, 768-hidden, 12-heads, 110M parameters</td></tr>
+<tr><td><a href="https://storage.googleapis.com/bert_models/2018_11_03/multilingual_L-12_H-768_A-12.zip">BERT-Base, Multilingual Cased (Old)</a></td><td>102 languages, 12-layer, 768-hidden, 12-heads, 110M parameters</td></tr>
+<tr><td><a href="https://storage.googleapis.com/bert_models/2018_11_03/chinese_L-12_H-768_A-12.zip">BERT-Base, Chinese</a></td><td>Chinese Simplified and Traditional, 12-layer, 768-hidden, 12-heads, 110M parameters</td></tr>
 </table>
 
 </details>
@@ -66,7 +71,7 @@ python app.py -model_dir /tmp/english_L-12_H-768_A-12/ -num_worker=4
 This will start a service with four workers, meaning that it can handle up to four **concurrent** requests. More concurrent requests will be queued in a load balancer. Details can be found in our [FAQ](#q-what-is-the-parallel-processing-model-behind-the-scene) and [the benchmark on number of clients](#speed-wrt-num_client)
 
 <details>
- <summary>:small_orange_diamond: Start a BERT Service in a Docker Container</summary>
+ <summary>:point_right: Start a BERT Service in a Docker Container</summary>
 
 One may also run BERT Service in a container:
 
@@ -90,7 +95,7 @@ bc.encode(['First do it', 'then do it right', 'then do it better'])
 ```
 This will return a `ndarray`, in which each row is the fixed representation of a sentence. You can also let it return a pure python object in the type of `List[List[float]]`.
 
-#### :small_orange_diamond: Using BERT Service Remotely
+#### Use BERT Service Remotely
 One may also start the service on one (GPU) machine and call it from another (CPU) machine as follows:
 
 ```python
