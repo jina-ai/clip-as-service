@@ -1,6 +1,10 @@
 import json
+import os
 
+import GPUtil
 import tensorflow as tf
+
+os.environ['CUDA_VISIBLE_DEVICES'] = str(GPUtil.getFirstAvailable())
 
 train_fp = ['/data/cips/data/lab/data/dataset/final_all_data/exercise_contest/data_train.json']
 batch_size = 256
