@@ -18,6 +18,7 @@ bc_clients = [BertClient(show_server_config=False) for _ in range(num_concurrent
 
 
 def get_encodes(x):
+    # x is `batch_size` of lines, each of which is a json object
     samples = [json.loads(l) for l in x]
     text = [s['fact'][-50:] for s in samples]
     # get a client from available clients
