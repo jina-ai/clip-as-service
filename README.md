@@ -48,7 +48,7 @@ Download a model from [here](https://github.com/google-research/bert#pre-trained
 
 You can use all models listed, including `BERT-Base, Multilingual` and `BERT-Base, Chinese`.
 
-> **Optional:** fine-tuning the model on your downstream task. [Why is it optional?](#q-are-you-suggesting-using-bert-without-fine-tuning)
+> :small_orange_diamond: **Optional:** fine-tuning the model on your downstream task. [Why is it optional?](#q-are-you-suggesting-using-bert-without-fine-tuning)
 
 #### 2. Start a BERT service
 ```bash
@@ -57,7 +57,7 @@ python app.py -model_dir /tmp/english_L-12_H-768_A-12/ -num_worker=4
 This will start a service with four workers, meaning that it can handle up to four **concurrent** requests. More concurrent requests will be queued in a load balancer. Details can be found in our [FAQ](#q-what-is-the-parallel-processing-model-behind-the-scene) and [the benchmark on number of clients](#speed-wrt-num_client)
 
 
-#### Start a BERT Service in a Docker Container
+#### :small_orange_diamond: Start a BERT Service in a Docker Container
 One may also run BERT Service in a container:
 
 ```bash
@@ -69,7 +69,7 @@ docker run --runtime nvidia -dit -p 5555:5555 -v $PATH_MODEL:/model -t bert-as-s
 
 
 #### 3. Use Client to Get Sentence Encodes
-> :children_crossing: NOTE: please make sure your project includes [`client.py`](service/client.py), as we need to import `BertClient` class from this file. This is the **only file** that you will need as a client. You don't even need Tensorflow on client.
+> :children_crossing: NOTE: please make sure your project includes [`client.py`](service/client.py), as we need to import `BertClient` class from this file. Again, this is the **only file** that you need as a client. You don't even need Tensorflow. Please refer to [`requirements.client.txt`](requirements.client.txt) for the dependency on the client side.
 
 Now you can use BERT to encode sentences in your Python code simply as follows:
 ```python
@@ -79,7 +79,7 @@ bc.encode(['First do it', 'then do it right', 'then do it better'])
 ```
 This will return a `ndarray`, in which each row is the fixed representation of a sentence. You can also let it return a pure python object in the type of `List[List[float]]`.
 
-#### Using BERT Service Remotely
+#### :small_orange_diamond: Using BERT Service Remotely
 One may also start the service on one (GPU) machine and call it from another (CPU) machine as follows:
 
 ```python
@@ -88,8 +88,6 @@ from service.client import BertClient
 bc = BertClient(ip='xx.xx.xx.xx')  # ip address of the GPU machine
 bc.encode(['First do it', 'then do it right', 'then do it better'])
 ```
-
-> :children_crossing: NOTE: please make sure your project includes [`client.py`](service/client.py), as we need to import `BertClient` class from this file. Again, this is the **only file** that you need as a client. You don't even need Tensorflow. Please refer to [`requirements.client.txt`](requirements.client.txt) for the dependency on the client side.
  
 ## Server and Client Configurations
 
@@ -139,7 +137,7 @@ In general, each sentence is translated to a 768-dimensional vector. Depending o
 
 ##### **Q:** Are you suggesting using BERT without fine-tuning?
 
-**A:** Yes and no. On the one hand, Google pretrained BERT on Wikipedia data, thus should encode enough prior knowledge of the language into the model. Having such feature is not a bad idea. On the other hand, these prior knowledge is not specific to any particular domain. It should be totally reasonable if the performance is not ideal if you are using it on, for example, classifying legal cases. Nonetheless, you can always first fine-tune your own BERT on the downstream task and then use `bert-as-service` to extract the feature vectors efficiently.   
+**A:** Yes and no. On the one hand, Google pretrained BERT on Wikipedia data, thus should encode enough prior knowledge of the language into the model. Having such feature is not a bad idea. On the other hand, these prior knowledge is not specific to any particular domain. It should be totally reasonable if the performance is not ideal if you are using it on, for example, classifying legal cases. Nonetheless, you can always first fine-tune your own BERT on the downstream task and then use `bert-as-service` to extract the feature vectors efficiently. Keep in mind that `bert-as-service` is just a feature extraction service based on BERT. Nothing stops you from using a fine-tuned BERT.
 
 ##### **Q:** Can I get a concatenation of several layers instead of a single layer ?
 
