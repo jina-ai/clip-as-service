@@ -22,6 +22,6 @@ data_node = (tf.data.TextLineDataset(train_fp).batch(batch_size)
              .make_one_shot_iterator().get_next())
 
 with tf.Session() as sess:
-    sess.run(tf.global_variables_initializer)
+    sess.run(tf.global_variables_initializer())
     while True:
         print(sess.run(data_node))
