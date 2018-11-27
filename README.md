@@ -48,7 +48,7 @@ Download a model from [here](https://github.com/google-research/bert#pre-trained
 
 You can use all models listed, including `BERT-Base, Multilingual` and `BERT-Base, Chinese`.
 
-> :small_orange_diamond: **Optional:** fine-tuning the model on your downstream task. [Why is it optional?](#q-are-you-suggesting-using-bert-without-fine-tuning)
+> **Optional:** fine-tuning the model on your downstream task. [Why is it optional?](#q-are-you-suggesting-using-bert-without-fine-tuning)
 
 #### 2. Start a BERT service
 ```bash
@@ -56,8 +56,9 @@ python app.py -model_dir /tmp/english_L-12_H-768_A-12/ -num_worker=4
 ```
 This will start a service with four workers, meaning that it can handle up to four **concurrent** requests. More concurrent requests will be queued in a load balancer. Details can be found in our [FAQ](#q-what-is-the-parallel-processing-model-behind-the-scene) and [the benchmark on number of clients](#speed-wrt-num_client)
 
+<details>
+ <summary>:small_orange_diamond: Start a BERT Service in a Docker Container</summary>
 
-#### :small_orange_diamond: Start a BERT Service in a Docker Container
 One may also run BERT Service in a container:
 
 ```bash
@@ -66,6 +67,7 @@ NUM_WORKER=1
 PATH_MODEL=<path of your model>
 docker run --runtime nvidia -dit -p 5555:5555 -v $PATH_MODEL:/model -t bert-as-service $NUM_WORKER
 ```
+</details>
 
 
 #### 3. Use Client to Get Sentence Encodes
