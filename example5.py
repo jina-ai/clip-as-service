@@ -46,8 +46,7 @@ def get_encodes(x):
 
 
 data_node = (tf.data.TextLineDataset(train_fp)
-             .shuffle(buffer_size=10000)
-             .batch(batch_size)
+             .apply(tf.contrib.data.shuffle_and_repeat(buffer_size=10000))
              .map(lambda x: tf.py_func(get_encodes, [x], [tf.float32, tf.int64], name='bert_client'),
                   num_parallel_calls=num_parallel_calls)
              .map(lambda x, y: {'feature': x, 'label': y})
