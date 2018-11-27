@@ -23,6 +23,11 @@ from helper import set_logger
 from service.client import BertClient
 
 
+class ServerCommand:
+    terminate = b'TERMINATION'
+    show_config = b'SHOW_CONFIG'
+    new_job = b'REGISTER'
+
 class BertServer(threading.Thread):
     def __init__(self, args):
         super().__init__()
@@ -104,8 +109,8 @@ class BertServer(threading.Thread):
         try:
             while True:
                 client, msg = self.frontend.recv_multipart()
-                if msg == b'SHOW_CONFIG':
-                    self.sink.send_multipart([client, b'CONFIG',
+                if msg == ServerCommand.show_config:
+                    self.sink.send_multipart([client, msg,
                                               jsonapi.dumps({**{'client': client.decode('ascii'),
                                                                 'num_subprocess': len(self.processes),
                                                                 'frontend -> backend': self.addr_backend,
@@ -122,7 +127,7 @@ class BertServer(threading.Thread):
                 seqs = jsonapi.loads(msg)
                 num_seqs = len(seqs)
                 # tell sink to collect a new job
-                self.sink.send_multipart([client, b'REGISTER', b'%d' % num_seqs])
+                self.sink.send_multipart([client, ServerCommand.new_job, b'%d' % num_seqs])
 
                 if num_seqs > self.max_batch_size:
                     # divide the large batch into small batches
@@ -152,6 +157,7 @@ class BertSink(Process):
         self.logger.info('shutting down...')
         self.exit_flag.set()
         self.terminate()
+        self.join()
         self.logger.info('terminated!')
 
     def run(self):
@@ -213,10 +219,10 @@ class BertSink(Process):
 
                 if socks.get(frontend) == zmq.POLLIN:
                     job_info, msg_type, msg_info = frontend.recv_multipart()
-                    if msg_type == b'REGISTER':
+                    if msg_type == ServerCommand.new_job:
                         job_checksum[job_info] = int(msg_info)
                         self.logger.info('new job %s size: %d is registered!' % (job_info, int(msg_info)))
-                    elif msg_type == b'CONFIG':
+                    elif msg_type == ServerCommand.show_config:
                         sender.send_multipart([job_info, msg_info])
         except zmq.error.ContextTerminated:
             self.logger.error('context is closed!')
@@ -251,6 +257,7 @@ class BertWorker(Process):
         self.exit_flag.set()
         self.terminate()
         self.join()
+        self.logger.info('terminated!')
 
     def run(self):
         context = zmq.Context()
@@ -292,8 +299,7 @@ class BertWorker(Process):
                         'input_type_ids': [f.input_type_ids for f in tmp_f]
                     }
                 else:
-                    self.logger.warning('unsupported type of job %s! sending back None' % client_id)
-                    worker.send_multipart([client_id, b'', b''])
+                    self.logger.error('unsupported type of job %s! sending back None' % client_id)
 
         def input_fn():
             return (tf.data.Dataset.from_generator(
