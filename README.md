@@ -62,6 +62,7 @@ Download a model from [here](https://github.com/google-research/bert#pre-trained
 
 </details>
 
+
 > **Optional:** fine-tuning the model on your downstream task. [Why is it optional?](#q-are-you-suggesting-using-bert-without-fine-tuning)
 
 #### 2. Start a BERT service
