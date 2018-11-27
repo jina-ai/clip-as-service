@@ -26,7 +26,7 @@ def get_encodes(x):
 
 
 data_node = (tf.data.TextLineDataset(train_fp).batch(batch_size)
-             .map(lambda x: tf.py_func(get_encodes, [x], tf.string, name='train_mktokens_fn'))
+             .map(lambda x: tf.py_func(get_encodes, [x], tf.string, name='train_mktokens_fn'), num_parallel_calls=4)
              .make_one_shot_iterator().get_next())
 
 with tf.Session() as sess:
