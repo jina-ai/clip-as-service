@@ -46,7 +46,16 @@ These two requirements MUST be satisfied. For other dependent packages, please r
 #### 1. Download a Pre-trained BERT Model
 Download a model from [here](https://github.com/google-research/bert#pre-trained-models), then uncompress the zip file into some folder, say `/tmp/english_L-12_H-768_A-12/`
 
-You can use all models listed, including `BERT-Base, Multilingual` and `BERT-Base, Chinese`.
+<details>
+ <summary>List of released pretrained BERT models</summary>
+
+
+<table>
+<tr><td><pre>BERT-Base, Uncased</pre></td><td>12-layer, 768-hidden, 12-heads, 110M parameters</td></tr>
+<tr><td><pre>BERT-Large, Uncased</pre></td><td>24-layer, 1024-hidden, 16-heads, 340M parameters</td></tr>
+</table>
+
+</details>
 
 > **Optional:** fine-tuning the model on your downstream task. [Why is it optional?](#q-are-you-suggesting-using-bert-without-fine-tuning)
 
