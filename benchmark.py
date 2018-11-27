@@ -49,7 +49,7 @@ if __name__ == '__main__':
         'port': PORT,
         'port_out': PORT_OUT,
         'max_seq_len': 40,
-        'client_batch_size': 2048,
+        'client_batch_size': 4096,
         'max_batch_size': 256,
         'num_client': 1,
         'pooling_strategy': PoolingStrategy.REDUCE_MEAN,
@@ -62,7 +62,7 @@ if __name__ == '__main__':
         'num_client': [2, 4, 8, 16, 32],
     }
 
-    fp = open('benchmark.result', 'w')
+    fp = open('benchmark-%d.result' % common['num_worker'], 'w')
     for var_name, var_lst in experiments.items():
         # set common args
         args = namedtuple('args_namedtuple', ','.join(common.keys()))
