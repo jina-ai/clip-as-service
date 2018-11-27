@@ -37,8 +37,12 @@ data_node = (tf.data.TextLineDataset(train_fp).batch(batch_size)
 
 with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
+    cnt = 0
+    start_t = time.perf_counter()
     while True:
-        start_t = time.perf_counter()
         x = sess.run(data_node)
-        usage = time.perf_counter() - start_t
-        print('speed: %d/s' % int(x['feature'].shape[0] / usage))
+        cnt += 1
+        if cnt % 10 == 0:
+            time_used = time.perf_counter() - start_t
+            print('speed: %d/s' % int(x['feature'].shape[0] / time_used))
+            start_t = time.perf_counter()
