@@ -13,12 +13,11 @@ batch_size = 256
 def get_encodes(x):
     samples = [json.loads(l) for l in x]
     text = [s['fact'][-50:] for s in samples]
-    return json.dumps(text).encode()
+    return json.dumps(text, ensure_ascii=False).encode()
 
 
 data_node = (tf.data.TextLineDataset(train_fp).batch(batch_size)
-             .map(lambda x: tf.py_func(get_encodes, [x], tf.string, name='train_mktokens_fn'),
-                  num_parallel_calls=4)
+             .map(lambda x: tf.py_func(get_encodes, [x], tf.string, name='train_mktokens_fn'))
              .make_one_shot_iterator().get_next())
 
 with tf.Session() as sess:
