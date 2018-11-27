@@ -133,6 +133,12 @@ Each sentence is translated to a 768-dimensional vector. One exception is `REDUC
 
 **A:** Yes and no. On the one hand, Google pretrained BERT on Wikipedia data, thus should encode enough prior knowledge of the language into the model. Having such feature is not a bad idea. On the other hand, these prior knowledge is not specific to any particular domain. It should be totally reasonable if the performance is not ideal if you are using it on, for example, classifying legal cases. Nonetheless, you can always first fine-tune your own BERT on the downstream task and then use `bert-as-service` to extract the feature vectors efficiently.   
 
+##### **Q:** Can I get a concatenation of several layers instead of a single layer ?
+
+**A:** Sure ! Just use a list of the layer you want to concatenate when calling the server. Example :
+
+`python app.py -model_dir /tmp/english_L-12_H-768_A-12/ -num_worker=4 -pooling_layer -4 -3 -2 -1`
+
 ##### **Q:** What are the available pooling strategies?
 
 **A:** Here is a table summarizes all pooling strategies I implemented. Choose your favorite one by specifying `python app.py -pooling_strategy`.

@@ -91,7 +91,13 @@ def model_fn_builder(bert_config, init_checkpoint, use_one_hot_embeddings=False,
 
         tf.train.init_from_checkpoint(init_checkpoint, assignment_map)
 
-        encoder_layer = model.all_encoder_layers[pooling_layer]
+        all_layers = []
+        if len(pooling_layer) == 1:
+            encoder_layer = model.all_encoder_layers[pooling_layer[-1]]
+        else:
+            for layer in pooling_layer:
+                all_layers.append(model.all_encoder_layers[layer])
+            encoder_layer = tf.concat(all_layers, -1)
 
         if pooling_strategy == PoolingStrategy.REDUCE_MEAN:
             pooled = tf.reduce_mean(encoder_layer, axis=1)
