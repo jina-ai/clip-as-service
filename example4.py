@@ -21,6 +21,7 @@ def get_encodes(x):
     # get a client from available clients
     bc_client = bc_clients.pop()
     print(bc_client.encode(text))
+    bc_clients.append(bc_client)
     return json.dumps(text, ensure_ascii=False).encode()
 
 
