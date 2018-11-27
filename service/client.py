@@ -23,7 +23,7 @@ else:
 
 class BertClient:
     def __init__(self, ip='localhost', port=5555, port_out=5556,
-                 output_fmt='ndarray', show_server_config=False,
+                 output_fmt='ndarray', show_server_config=True,
                  identity=None):
         self.context = zmq.Context()
         self.sender = self.context.socket(zmq.PUSH)
@@ -45,9 +45,9 @@ class BertClient:
             print('connect success!\nserver returns the following config:')
             for k, v in self.get_server_config().items():
                 print('%30s\t=\t%-30s' % (k, v))
-            print('you should NOT see this message multiple times! '
-                  'if you see it appears repeatedly, '
-                  'consider moving "BertClient()" out of the loop.')
+        print('you should NOT see this message multiple times! '
+              'if you see it appears repeatedly, '
+              'consider moving "BertClient()" out of the loop.')
 
     def send(self, msg):
         self.sender.send_multipart([self.identity, msg])
