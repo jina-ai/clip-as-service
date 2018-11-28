@@ -57,7 +57,7 @@ run_config = RunConfig(model_dir='/data/cips/save/%s' % MODEL_ID,
                        save_checkpoints_steps=2000)
 
 estimator = DNNClassifier(
-    hidden_units=[1024, 512, 256],
+    hidden_units=[512],
     feature_columns=[tf.feature_column.numeric_column('feature', shape=(768,))],
     n_classes=len(laws),
     config=run_config,
