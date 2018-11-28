@@ -14,9 +14,9 @@ os.environ['CUDA_VISIBLE_DEVICES'] = str(GPUtil.getFirstAvailable()[0])
 tf.logging.set_verbosity(tf.logging.INFO)
 
 train_fp = ['/data/cips/data/lab/data/dataset/final_all_data/exercise_contest/data_train.json']
-batch_size = 256
-num_parallel_calls = 4
-num_concurrent_clients = 10  # should be greater than `num_parallel_calls`
+batch_size = 64
+num_parallel_calls = 8
+num_concurrent_clients = num_parallel_calls * 2  # should be at least greater than `num_parallel_calls`
 
 bc_clients = [BertClient(show_server_config=False) for _ in range(num_concurrent_clients)]
 
