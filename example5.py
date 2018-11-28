@@ -4,6 +4,7 @@ import random
 
 import GPUtil
 import tensorflow as tf
+from tensorflow.contrib.learn import DNNClassifier
 from tensorflow.python.estimator.run_config import RunConfig
 
 from gpu_env import MODEL_ID
@@ -54,9 +55,9 @@ run_config = RunConfig(model_dir='/data/cips/save/%s' % MODEL_ID,
                        session_config=config,
                        save_checkpoints_steps=2000)
 
-estimator = tf.estimator.DNNClassifier(
-    feature_columns=[tf.feature_column.numeric_column('feature', shape=(768,))],
+estimator = DNNClassifier(
     hidden_units=[1024, 512, 256],
+    feature_columns=[tf.feature_column.numeric_column('feature', shape=(768,))],
     n_classes=len(laws),
     config=run_config)
 
