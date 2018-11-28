@@ -5,6 +5,7 @@ import random
 import GPUtil
 import tensorflow as tf
 from tensorflow.python.estimator.canned.dnn import DNNClassifier
+from tensorflow.python.estimator.run_config import RunConfig
 
 from gpu_env import MODEL_ID
 from service.client import BertClient
@@ -47,22 +48,23 @@ def get_encodes(x):
     return features, labels
 
 
+config = tf.ConfigProto()
+config.gpu_options.allow_growth = True
+run_config = RunConfig(model_dir='/data/cips/save/%s' % MODEL_ID,
+                       session_config=config)
+
 estimator = DNNClassifier(
     feature_columns=[tf.feature_column.numeric_column('feature', shape=(768,))],
     hidden_units=[1024, 512, 256],
     n_classes=len(laws),
-    model_dir='/data/cips/save/%s' % MODEL_ID,
-    optimizer=tf.train.ProximalAdagradOptimizer(
-        learning_rate=0.1,
-        l1_regularization_strength=0.001
-    ))
+    config=run_config)
 
-input_fn = lambda: (tf.data.TextLineDataset(train_fp)
-                    .apply(tf.contrib.data.shuffle_and_repeat(buffer_size=10000))
-                    .batch(batch_size)
-                    .map(lambda x: tf.py_func(get_encodes, [x], [tf.float32, tf.int64], name='bert_client'),
-                         num_parallel_calls=num_parallel_calls)
-                    .map(lambda x, y: ({'feature': x}, y))
-                    .prefetch(20))
+input_fn = lambda fp: (tf.data.TextLineDataset(fp)
+                       .apply(tf.contrib.data.shuffle_and_repeat(buffer_size=10000))
+                       .batch(batch_size)
+                       .map(lambda x: tf.py_func(get_encodes, [x], [tf.float32, tf.int64], name='bert_client'),
+                            num_parallel_calls=num_parallel_calls)
+                       .map(lambda x, y: ({'feature': x}, y))
+                       .prefetch(20))
 
-estimator.train(input_fn=input_fn)
+estimator.train(input_fn=lambda: input_fn(train_fp))
