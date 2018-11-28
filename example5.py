@@ -68,7 +68,7 @@ input_fn = lambda fp: (tf.data.TextLineDataset(fp)
                        .batch(batch_size)
                        .map(lambda x: tf.py_func(get_encodes, [x], [tf.float32, tf.string], name='bert_client'),
                             num_parallel_calls=num_parallel_calls)
-                       .map(lambda x, y: ({'feature': x}, y))
+                       .map(lambda x, y: ({'feature': x}, y.reshape(-1, 1)))
                        .prefetch(20))
 
 train_spec = TrainSpec(input_fn=lambda: input_fn(train_fp))
