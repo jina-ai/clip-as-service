@@ -51,7 +51,7 @@ estimator = DNNClassifier(
     feature_columns=[tf.feature_column.numeric_column('feature', shape=(768,))],
     hidden_units=[256, 128],
     n_classes=len(laws),
-    model_dir='/save/%s' % MODEL_ID)
+    model_dir='/data/cips/save/%s' % MODEL_ID)
 
 input_fn = lambda: (tf.data.TextLineDataset(train_fp)
                     .apply(tf.contrib.data.shuffle_and_repeat(buffer_size=10000))
