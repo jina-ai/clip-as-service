@@ -6,9 +6,11 @@ import GPUtil
 import tensorflow as tf
 from tensorflow.python.estimator.canned.dnn import DNNClassifier
 
+from gpu_env import MODEL_ID
 from service.client import BertClient
 
 os.environ['CUDA_VISIBLE_DEVICES'] = str(GPUtil.getFirstAvailable())
+tf.logging.set_verbosity(tf.logging.INFO)
 
 train_fp = ['/data/cips/data/lab/data/dataset/final_all_data/exercise_contest/data_train.json']
 batch_size = 256
@@ -48,14 +50,15 @@ def get_encodes(x):
 estimator = DNNClassifier(
     feature_columns=[tf.feature_column.numeric_column('feature', shape=(768,))],
     hidden_units=[256, 128],
-    n_classes=len(laws))
+    n_classes=len(laws),
+    model_dir='/save/%s' % MODEL_ID)
 
 input_fn = lambda: (tf.data.TextLineDataset(train_fp)
                     .apply(tf.contrib.data.shuffle_and_repeat(buffer_size=10000))
                     .batch(batch_size)
                     .map(lambda x: tf.py_func(get_encodes, [x], [tf.float32, tf.int64], name='bert_client'),
                          num_parallel_calls=num_parallel_calls)
-                    .map(lambda x, y: ({'feature': x}, y)).make_one_shot_iterator().get_next())
+                    .map(lambda x, y: ({'feature': x}, y)))
 
 with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
