@@ -4,7 +4,9 @@ import random
 
 import GPUtil
 import tensorflow as tf
-from tensorflow.contrib.learn import DNNClassifier, RunConfig
+from tensorflow.python.estimator.canned.dnn import DNNClassifier
+from tensorflow.python.estimator.run_config import RunConfig
+from tensorflow.python.estimator.training import TrainSpec, EvalSpec, train_and_evaluate
 
 from gpu_env import MODEL_ID
 from service.client import BertClient
@@ -31,7 +33,7 @@ laws = [184, 336, 314, 351, 224, 132, 158, 128, 223, 308, 341, 349, 382, 238, 36
         316, 245, 232, 175, 149, 263, 387, 283, 391, 211, 396, 352, 345, 258, 253, 163, 140, 293, 194, 342, 161, 358,
         271, 156, 260, 384, 153, 277, 214]
 
-law2id = {law: idx for idx, law in enumerate(laws)}
+laws_str = [str(x) for x in laws]
 
 
 def get_encodes(x):
@@ -44,7 +46,7 @@ def get_encodes(x):
     # after use, put it back
     bc_clients.append(bc_client)
     # randomly choose a label
-    labels = [law2id[random.choice(s['meta']['relevant_articles'])] for s in samples]
+    labels = [str(random.choice(s['meta']['relevant_articles'])) for s in samples]
     return features, labels
 
 
@@ -58,7 +60,8 @@ estimator = DNNClassifier(
     hidden_units=[1024, 512, 256],
     feature_columns=[tf.feature_column.numeric_column('feature', shape=(768,))],
     n_classes=len(laws),
-    config=run_config)
+    config=run_config,
+    label_vocabulary=laws_str)
 
 input_fn = lambda fp: (tf.data.TextLineDataset(fp)
                        .apply(tf.contrib.data.shuffle_and_repeat(buffer_size=10000))
@@ -68,4 +71,6 @@ input_fn = lambda fp: (tf.data.TextLineDataset(fp)
                        .map(lambda x, y: ({'feature': x}, y))
                        .prefetch(20))
 
-estimator.fit(input_fn=lambda: input_fn(train_fp))
+train_spec = TrainSpec(input_fn=lambda: input_fn(train_fp))
+eval_spec = EvalSpec(input_fn=lambda: input_fn(eval_fp))
+train_and_evaluate(estimator, train_spec, eval_spec)
