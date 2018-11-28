@@ -14,6 +14,7 @@ os.environ['CUDA_VISIBLE_DEVICES'] = str(GPUtil.getFirstAvailable()[0])
 tf.logging.set_verbosity(tf.logging.INFO)
 
 train_fp = ['/data/cips/data/lab/data/dataset/final_all_data/exercise_contest/data_train.json']
+eval_fp = ['/data/cips/data/lab/data/dataset/final_all_data/exercise_contest/data_test.json']
 batch_size = 64
 num_parallel_calls = 8
 num_concurrent_clients = num_parallel_calls * 2  # should be at least greater than `num_parallel_calls`
@@ -67,4 +68,6 @@ input_fn = lambda fp: (tf.data.TextLineDataset(fp)
                        .map(lambda x, y: ({'feature': x}, y))
                        .prefetch(20))
 
-estimator.train(input_fn=lambda: input_fn(train_fp))
+train_spec = tf.estimator.TrainSpec(input_fn=lambda: input_fn(train_fp))
+eval_spec = tf.estimator.TrainSpec(input_fn=lambda: input_fn(eval_fp))
+tf.estimator.train_and_evaluate(estimator, train_spec, eval_spec)
