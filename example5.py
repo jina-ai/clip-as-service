@@ -46,7 +46,7 @@ def get_encodes(x):
     return features, labels
 
 
-with tf.Graph() as graph:
+with tf.Session() as sess:
     input_fn = (tf.data.TextLineDataset(train_fp)
                 .apply(tf.contrib.data.shuffle_and_repeat(buffer_size=10000))
                 .batch(batch_size)
@@ -59,7 +59,6 @@ with tf.Graph() as graph:
         hidden_units=[1024, 512, 256],
         n_classes=len(laws))
 
-    with tf.Session() as sess:
-        sess.run(tf.global_variables_initializer())
-        cnt, num_samples, start_t = 0, 0, time.perf_counter()
-        estimator.train(input_fn=lambda: input_fn, steps=100)
+    sess.run(tf.global_variables_initializer())
+    cnt, num_samples, start_t = 0, 0, time.perf_counter()
+    estimator.train(input_fn=lambda: input_fn, steps=100)
