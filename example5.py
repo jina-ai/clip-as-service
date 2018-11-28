@@ -4,8 +4,8 @@ import random
 
 import GPUtil
 import tensorflow as tf
-from tensorflow.contrib.learn import DNNClassifier
-from tensorflow.python.estimator.run_config import RunConfig
+from tensorflow.contrib.learn import DNNClassifier, RunConfig
+from tensorflow.python.estimator.training import train_and_evaluate
 
 from gpu_env import MODEL_ID
 from service.client import BertClient
@@ -71,4 +71,4 @@ input_fn = lambda fp: (tf.data.TextLineDataset(fp)
 
 train_spec = tf.estimator.TrainSpec(input_fn=lambda: input_fn(train_fp))
 eval_spec = tf.estimator.EvalSpec(input_fn=lambda: input_fn(eval_fp))
-tf.estimator.train_and_evaluate(estimator, train_spec, eval_spec)
+train_and_evaluate(estimator, train_spec, eval_spec)
