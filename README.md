@@ -4,7 +4,7 @@
 
 Using BERT model as a sentence encoding service, i.e. mapping a variable-length sentence to a fixed-length vector.
 
-<img src=".github/demo.gif" width="600">
+<img src=".github/demo.gif" width="700">
 
 Author: Han Xiao [https://hanxiao.github.io](https://hanxiao.github.io)
 
@@ -107,10 +107,10 @@ bc.encode(['First do it', 'then do it right', 'then do it better'])
 ```
 
 > :bulb: Checkout some advance usages below:
-> - [Using `BertClient` with `tf.data` API]
-> - [Building a text classifier using BERT features and `tf.estimator` API]
-> - [Asynchronous encoding]
-> - [Broadcasting to multiple clients]
+> - [Using `BertClient` with `tf.data` API](#using-bertclient-with-tfdata-api)
+> - [Building a text classifier using BERT features and `tf.estimator` API](#building-a-text-classifier-using-bert-features-and-tfestimator-api)
+> - [Asynchronous encoding](#asynchronous-encoding)
+> - [Broadcasting to multiple clients](#broadcasting-to-multiple-clients)
 
  
 ## Server and Client Configurations
