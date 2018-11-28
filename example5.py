@@ -51,7 +51,7 @@ input_fn = (tf.data.TextLineDataset(train_fp)
             .batch(batch_size)
             .map(lambda x: tf.py_func(get_encodes, [x], [tf.float32, tf.int64], name='bert_client'),
                  num_parallel_calls=num_parallel_calls)
-            .map(lambda x, y: ({'feature': x}, y)))
+            .map(lambda x, y: ({'feature': x}, y)).make_one_shot_iterator().get_next())
 
 estimator = DNNClassifier(
     feature_columns=[tf.feature_column.numeric_column('feature', shape=(768,))],
