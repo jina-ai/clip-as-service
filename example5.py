@@ -20,7 +20,7 @@ batch_size = 64
 num_parallel_calls = 4
 num_concurrent_clients = num_parallel_calls * 2  # should be at least greater than `num_parallel_calls`
 
-bc_clients = [BertClient(show_server_config=False) for _ in range(num_concurrent_clients)]
+bc_clients = [BertClient(show_server_config=False, port=5557, port_out=5558) for _ in range(num_concurrent_clients)]
 
 # hardcoded law_ids
 laws = [184, 336, 314, 351, 224, 132, 158, 128, 223, 308, 341, 349, 382, 238, 369, 248, 266, 313, 127, 340, 288, 172,
@@ -39,7 +39,7 @@ laws_str = [str(x) for x in laws]
 def get_encodes(x):
     # x is `batch_size` of lines, each of which is a json object
     samples = [json.loads(l) for l in x]
-    text = [s['fact'][-50:] for s in samples]
+    text = [s['fact'][:50] + s['fact'][-50:] for s in samples]
     # get a client from available clients
     bc_client = bc_clients.pop()
     features = bc_client.encode(text)
