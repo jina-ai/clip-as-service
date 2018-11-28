@@ -69,5 +69,5 @@ input_fn = lambda fp: (tf.data.TextLineDataset(fp)
                        .prefetch(20))
 
 train_spec = tf.estimator.TrainSpec(input_fn=lambda: input_fn(train_fp))
-eval_spec = tf.estimator.TrainSpec(input_fn=lambda: input_fn(eval_fp))
+eval_spec = tf.estimator.EvalSpec(input_fn=lambda: input_fn(eval_fp))
 tf.estimator.train_and_evaluate(estimator, train_spec, eval_spec)
