@@ -4,7 +4,7 @@
 
 Using BERT model as a sentence encoding service, i.e. mapping a variable-length sentence to a fixed-length vector.
 
-<img src=".github/demo.gif" width="600">
+<img src=".github/demo.gif" width="700">
 
 Author: Han Xiao [https://hanxiao.github.io](https://hanxiao.github.io)
 
@@ -105,6 +105,13 @@ from service.client import BertClient
 bc = BertClient(ip='xx.xx.xx.xx')  # ip address of the GPU machine
 bc.encode(['First do it', 'then do it right', 'then do it better'])
 ```
+
+> :bulb: **Checkout some advance usages below:**
+> - [Using `BertClient` with `tf.data` API](#using-bertclient-with-tfdata-api)
+> - [Building a text classifier using BERT features and `tf.estimator` API](#building-a-text-classifier-using-bert-features-and-tfestimator-api)
+> - [Asynchronous encoding](#asynchronous-encoding)
+> - [Broadcasting to multiple clients](#broadcasting-to-multiple-clients)
+
  
 ## Server and Client Configurations
 
@@ -282,22 +289,18 @@ bc.encode(['hey you', 'whats up?', '你好么？', '我 还 可以'])
 tokens: [CLS] hey you [SEP]
 input_ids: 101 13153 8357 102 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 input_mask: 1 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
-input_type_ids: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 
 tokens: [CLS] what ##s up ? [SEP]
 input_ids: 101 9100 8118 8644 136 102 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 input_mask: 1 1 1 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
-input_type_ids: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 
 tokens: [CLS] 你 好 么 ？ [SEP]
 input_ids: 101 872 1962 720 8043 102 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 input_mask: 1 1 1 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
-input_type_ids: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 
 tokens: [CLS] 我 还 可 以 [SEP]
 input_ids: 101 2769 6820 1377 809 102 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 input_mask: 1 1 1 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
-input_type_ids: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 ```
 
 That means the word embedding is actually the character embedding for Chinese-BERT.
@@ -467,6 +470,70 @@ As one can observe, 1 clients 1 GPU = 381 seqs/s, 2 clients 2 GPU 402 seqs/s, 4 
 
 > :children_crossing: Those are some cool yet unstable features, please use them with caution!
 
+### Using `BertClient` with `tf.data` API
+
+The [`tf.data`](https://www.tensorflow.org/guide/datasets) API enables you to build complex input pipelines from simple, reusable pieces. One can also use `BertClient` to encode sentences on-the-fly and use the vectors in a downstream model. Here is an example:
+
+```python
+batch_size = 256
+num_parallel_calls = 4
+num_clients = num_parallel_calls * 2  # should be at least greater than `num_parallel_calls`
+
+# start a pool of clients
+bc_clients = [BertClient(show_server_config=False) for _ in range(num_clients)]
+
+
+def get_encodes(x):
+    # x is `batch_size` of lines, each of which is a json object
+    samples = [json.loads(l) for l in x]
+    text = [s['raw_text'] for s in samples]  # List[List[str]]
+    labels = [s['label'] for s in samples]  # List[str]
+    # get a client from available clients
+    bc_client = bc_clients.pop()
+    features = bc_client.encode(text)
+    # after use, put it back
+    bc_clients.append(bc_client)
+    return features, labels
+
+
+ds = (tf.data.TextLineDataset(train_fp).batch(batch_size)
+        .map(lambda x: tf.py_func(get_encodes, [x], [tf.float32, tf.string]),  num_parallel_calls=num_parallel_calls)
+        .map(lambda x, y: {'feature': x, 'label': y})
+        .make_one_shot_iterator().get_next())
+```
+
+The trick here is to start a pool of `BertClient` and reuse them one by one. In this way, we can fully harness the power of `num_parallel_calls` of `Dataset.map()` API.  
+
+The complete example can [be found example4.py](example4.py).
+
+### Building a text classifier using BERT features and `tf.estimator` API
+
+Following the last example, we can easily extend it to a full classifier using `tf.estimator` API. One only need minor change on the input function as follows:
+
+```python
+estimator = DNNClassifier(
+    hidden_units=[512],
+    feature_columns=[tf.feature_column.numeric_column('feature', shape=(768,))],
+    n_classes=len(laws),
+    config=run_config,
+    label_vocabulary=laws_str,
+    dropout=0.1)
+
+input_fn = lambda fp: (tf.data.TextLineDataset(fp)
+                       .apply(tf.contrib.data.shuffle_and_repeat(buffer_size=10000))
+                       .batch(batch_size)
+                       .map(lambda x: tf.py_func(get_encodes, [x], [tf.float32, tf.string]), num_parallel_calls=num_parallel_calls)
+                       .map(lambda x, y: ({'feature': x}, y))
+                       .prefetch(20))
+
+train_spec = TrainSpec(input_fn=lambda: input_fn(train_fp))
+eval_spec = EvalSpec(input_fn=lambda: input_fn(eval_fp), throttle_secs=0)
+train_and_evaluate(estimator, train_spec, eval_spec)
+```
+
+The complete example can [be found example5.py](example5.py), in which a simple MLP is built on BERT features for predicting the relevant articles according to the fact description in the law documents. The problem is a part of the [Chinese AI and Law Challenge Competition](https://github.com/thunlp/CAIL/blob/master/README_en.md).
+
+
 ### Asynchronous encoding
 
 `BertClient.encode()` offers a nice synchronous way to get sentence encodes. However,   sometimes we want to do it in an asynchronous manner by feeding all textual data to the server first, fetching the encoded results later. This can be easily done by:
@@ -485,7 +552,7 @@ for j in bc.encode_async(text_gen(), max_num_batch=10):
 
 The complete example can [be found example2.py](example2.py).
 
-### Broadcast to multiple clients
+### Broadcasting to multiple clients
 
 The encoded result is routed to the client according to its identity. If you have multiple clients with same identity, then they all receive the results! You can use this *multicast* feature to do some cool things, e.g. training multiple different models (some using `scikit-learn` some using `tensorflow`) in multiple separated processes while only call `BertServer` once. In the example below, `bc` and its two clones will all receive encoded vector.
 
