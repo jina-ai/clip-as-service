@@ -52,7 +52,8 @@ def get_encodes(x):
 config = tf.ConfigProto()
 config.gpu_options.allow_growth = True
 run_config = RunConfig(model_dir='/data/cips/save/%s' % MODEL_ID,
-                       session_config=config)
+                       session_config=config,
+                       save_checkpoints_steps=2000)
 
 estimator = DNNClassifier(
     feature_columns=[tf.feature_column.numeric_column('feature', shape=(768,))],
