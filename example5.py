@@ -46,7 +46,7 @@ def get_encodes(x):
     # after use, put it back
     bc_clients.append(bc_client)
     # randomly choose a label
-    labels = [str(random.choice(s['meta']['relevant_articles'])) for s in samples]
+    labels = [[str(random.choice(s['meta']['relevant_articles']))] for s in samples]
     return features, labels
 
 
