@@ -59,5 +59,4 @@ input_fn = lambda: (tf.data.TextLineDataset(train_fp)
 
 with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
-    print(sess.run(input_fn()))
-    estimator.train(input_fn=input_fn, steps=100)
+    estimator.train(input_fn=input_fn)
