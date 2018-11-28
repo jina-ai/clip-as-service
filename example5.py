@@ -51,12 +51,12 @@ with tf.Session() as sess:
         hidden_units=[1024, 512, 256],
         n_classes=len(laws))
 
-    input_fn = (tf.data.TextLineDataset(train_fp)
-                .apply(tf.contrib.data.shuffle_and_repeat(buffer_size=10000))
-                .batch(batch_size)
-                .map(lambda x: tf.py_func(get_encodes, [x], [tf.float32, tf.int64], name='bert_client'),
-                     num_parallel_calls=num_parallel_calls)
-                .map(lambda x, y: ({'feature': x}, y)).make_one_shot_iterator().get_next())
+    input_fn = lambda: (tf.data.TextLineDataset(train_fp)
+                        .apply(tf.contrib.data.shuffle_and_repeat(buffer_size=10000))
+                        .batch(batch_size)
+                        .map(lambda x: tf.py_func(get_encodes, [x], [tf.float32, tf.int64], name='bert_client'),
+                             num_parallel_calls=num_parallel_calls)
+                        .map(lambda x, y: ({'feature': x}, y)).make_one_shot_iterator().get_next())
 
     sess.run(tf.global_variables_initializer())
-    estimator.train(input_fn=lambda: input_fn, steps=100)
+    estimator.train(input_fn=input_fn, steps=100)
