@@ -105,6 +105,13 @@ from service.client import BertClient
 bc = BertClient(ip='xx.xx.xx.xx')  # ip address of the GPU machine
 bc.encode(['First do it', 'then do it right', 'then do it better'])
 ```
+
+> :bulb: Checkout some advance usages below:
+> - [Using `BertClient` with `tf.data` API]
+> - [Building a text classifier using BERT features and `tf.estimator` API]
+> - [Asynchronous encoding]
+> - [Broadcasting to multiple clients]
+
  
 ## Server and Client Configurations
 
@@ -472,7 +479,7 @@ batch_size = 256
 num_parallel_calls = 4
 num_clients = num_parallel_calls * 2  # should be at least greater than `num_parallel_calls`
 
-# generating a pool of clients
+# start a pool of clients
 bc_clients = [BertClient(show_server_config=False) for _ in range(num_clients)]
 
 
@@ -489,12 +496,45 @@ def get_encodes(x):
     return features, labels
 
 
-das = (tf.data.TextLineDataset(train_fp).batch(batch_size)
-         .map(lambda x: tf.py_func(get_encodes, [x], [tf.float32, tf.string], name='bert_client'), 
-         num_parallel_calls=num_parallel_calls)
-         .map(lambda x, y: {'feature': x, 'label': y})
-         .make_one_shot_iterator().get_next())
+ds = (tf.data.TextLineDataset(train_fp).batch(batch_size)
+        .map(lambda x: tf.py_func(get_encodes, [x], [tf.float32, tf.string], name='bert_client'), 
+       num_parallel_calls=num_parallel_calls)
+        .map(lambda x, y: {'feature': x, 'label': y})
+        .make_one_shot_iterator().get_next())
 ```
+
+The trick here is to start a pool of `BertClient` and reuse them one by one. In this way, we can fully harness the power of `num_parallel_calls` of `Dataset.map()` API.  
+
+The complete example can [be found example4.py](example4.py).
+
+### Building a text classifier using BERT features and `tf.estimator` API
+
+Following the last example, we can easily extend it to a full classifier using `tf.estimator` API. One only need minor change on the input function as follows:
+
+```python
+estimator = DNNClassifier(
+    hidden_units=[512],
+    feature_columns=[tf.feature_column.numeric_column('feature', shape=(768,))],
+    n_classes=len(laws),
+    config=run_config,
+    label_vocabulary=laws_str,
+    dropout=0.1)
+
+input_fn = lambda fp: (tf.data.TextLineDataset(fp)
+                       .apply(tf.contrib.data.shuffle_and_repeat(buffer_size=10000))
+                       .batch(batch_size)
+                       .map(lambda x: tf.py_func(get_encodes, [x], [tf.float32, tf.string], name='bert_client'),
+                            num_parallel_calls=num_parallel_calls)
+                       .map(lambda x, y: ({'feature': x}, y))
+                       .prefetch(20))
+
+train_spec = TrainSpec(input_fn=lambda: input_fn(train_fp))
+eval_spec = EvalSpec(input_fn=lambda: input_fn(eval_fp), throttle_secs=0)
+train_and_evaluate(estimator, train_spec, eval_spec)
+```
+
+The complete example can [be found example5.py](example5.py), in which a simple MLP is built on BERT features for predicting the relevant articles according to the fact description in the law documents. The problem is a part of the [Chinese AI and Law Challenge Competition](https://github.com/thunlp/CAIL/blob/master/README_en.md).
+
 
 ### Asynchronous encoding
 

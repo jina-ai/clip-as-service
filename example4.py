@@ -1,3 +1,9 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# Han Xiao <artex.xh@gmail.com> <https://hanxiao.github.io>
+
+# using BertClient inside tf.data API
+
 import json
 import os
 import time

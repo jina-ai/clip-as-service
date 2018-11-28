@@ -1,3 +1,9 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# Han Xiao <artex.xh@gmail.com> <https://hanxiao.github.io>
+
+# solving chinese law-article classification problem: https://github.com/thunlp/CAIL/blob/master/README_en.md
+
 import json
 import os
 import random
@@ -16,6 +22,7 @@ tf.logging.set_verbosity(tf.logging.INFO)
 
 train_fp = ['/data/cips/data/lab/data/dataset/final_all_data/exercise_contest/data_train.json']
 eval_fp = ['/data/cips/data/lab/data/dataset/final_all_data/exercise_contest/data_test.json']
+
 batch_size = 128
 num_parallel_calls = 4
 num_concurrent_clients = num_parallel_calls * 2  # should be at least greater than `num_parallel_calls`
