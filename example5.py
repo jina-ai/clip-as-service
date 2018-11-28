@@ -4,7 +4,6 @@ import random
 
 import GPUtil
 import tensorflow as tf
-from tensorflow.python.estimator.canned.dnn import DNNClassifier
 from tensorflow.python.estimator.run_config import RunConfig
 
 from gpu_env import MODEL_ID
@@ -45,7 +44,7 @@ def get_encodes(x):
     # after use, put it back
     bc_clients.append(bc_client)
     # randomly choose a label
-    labels = [[law2id[random.choice(s['meta']['relevant_articles'])]] for s in samples]
+    labels = [law2id[random.choice(s['meta']['relevant_articles'])] for s in samples]
     return features, labels
 
 
@@ -55,7 +54,7 @@ run_config = RunConfig(model_dir='/data/cips/save/%s' % MODEL_ID,
                        session_config=config,
                        save_checkpoints_steps=2000)
 
-estimator = DNNClassifier(
+estimator = tf.estimator.DNNClassifier(
     feature_columns=[tf.feature_column.numeric_column('feature', shape=(768,))],
     hidden_units=[1024, 512, 256],
     n_classes=len(laws),
