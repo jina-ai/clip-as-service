@@ -16,7 +16,7 @@ tf.logging.set_verbosity(tf.logging.INFO)
 
 train_fp = ['/data/cips/data/lab/data/dataset/final_all_data/exercise_contest/data_train.json']
 eval_fp = ['/data/cips/data/lab/data/dataset/final_all_data/exercise_contest/data_test.json']
-batch_size = 64
+batch_size = 128
 num_parallel_calls = 4
 num_concurrent_clients = num_parallel_calls * 2  # should be at least greater than `num_parallel_calls`
 
@@ -54,7 +54,7 @@ config = tf.ConfigProto()
 config.gpu_options.allow_growth = True
 run_config = RunConfig(model_dir='/data/cips/save/%s' % MODEL_ID,
                        session_config=config,
-                       save_checkpoints_steps=2000)
+                       save_checkpoints_steps=1000)
 
 estimator = DNNClassifier(
     hidden_units=[512],
