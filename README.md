@@ -106,7 +106,7 @@ bc = BertClient(ip='xx.xx.xx.xx')  # ip address of the GPU machine
 bc.encode(['First do it', 'then do it right', 'then do it better'])
 ```
 
-> :bulb: Checkout some advance usages below:
+> :bulb: **Checkout some advance usages below:**
 > - [Using `BertClient` with `tf.data` API](#using-bertclient-with-tfdata-api)
 > - [Building a text classifier using BERT features and `tf.estimator` API](#building-a-text-classifier-using-bert-features-and-tfestimator-api)
 > - [Asynchronous encoding](#asynchronous-encoding)
@@ -497,8 +497,7 @@ def get_encodes(x):
 
 
 ds = (tf.data.TextLineDataset(train_fp).batch(batch_size)
-        .map(lambda x: tf.py_func(get_encodes, [x], [tf.float32, tf.string], name='bert_client'), 
-       num_parallel_calls=num_parallel_calls)
+        .map(lambda x: tf.py_func(get_encodes, [x], [tf.float32, tf.string]),  num_parallel_calls=num_parallel_calls)
         .map(lambda x, y: {'feature': x, 'label': y})
         .make_one_shot_iterator().get_next())
 ```
@@ -523,8 +522,7 @@ estimator = DNNClassifier(
 input_fn = lambda fp: (tf.data.TextLineDataset(fp)
                        .apply(tf.contrib.data.shuffle_and_repeat(buffer_size=10000))
                        .batch(batch_size)
-                       .map(lambda x: tf.py_func(get_encodes, [x], [tf.float32, tf.string], name='bert_client'),
-                            num_parallel_calls=num_parallel_calls)
+                       .map(lambda x: tf.py_func(get_encodes, [x], [tf.float32, tf.string]), num_parallel_calls=num_parallel_calls)
                        .map(lambda x, y: ({'feature': x}, y))
                        .prefetch(20))
 
