@@ -5,6 +5,7 @@ import time
 
 import GPUtil
 import tensorflow as tf
+from tensorflow.python.estimator.canned.dnn import DNNClassifier
 
 from service.client import BertClient
 
@@ -45,16 +46,20 @@ def get_encodes(x):
     return features, labels
 
 
-data_node = (tf.data.TextLineDataset(train_fp)
-             .apply(tf.contrib.data.shuffle_and_repeat(buffer_size=10000))
-             .batch(batch_size)
-             .map(lambda x: tf.py_func(get_encodes, [x], [tf.float32, tf.int64], name='bert_client'),
-                  num_parallel_calls=num_parallel_calls)
-             .map(lambda x, y: {'feature': x, 'label': y})
-             .make_one_shot_iterator().get_next())
+input_fn = (tf.data.TextLineDataset(train_fp)
+            .apply(tf.contrib.data.shuffle_and_repeat(buffer_size=10000))
+            .batch(batch_size)
+            .map(lambda x: tf.py_func(get_encodes, [x], [tf.float32, tf.int64], name='bert_client'),
+                 num_parallel_calls=num_parallel_calls)
+            .map(lambda x, y: ({'feature': x}, y))
+            .make_one_shot_iterator().get_next())
+
+estimator = DNNClassifier(
+    feature_columns=[tf.feature_column.numeric_column('feature', shape=(768,))],
+    hidden_units=[1024, 512, 256],
+    n_classes=len(laws))
 
 with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
     cnt, num_samples, start_t = 0, 0, time.perf_counter()
-    while True:
-        print(sess.run(data_node))
+    estimator.train(input_fn=input_fn, steps=100)
