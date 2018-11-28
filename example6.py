@@ -4,9 +4,10 @@ import random
 
 import GPUtil
 import tensorflow as tf
+from keras.layers import Dense
+from keras.models import Sequential
 from tensorflow.python.estimator.canned.dnn import DNNClassifier
 from tensorflow.python.estimator.run_config import RunConfig
-from tensorflow.python.estimator.training import TrainSpec, EvalSpec, train_and_evaluate
 
 from gpu_env import MODEL_ID
 from service.client import BertClient
@@ -34,6 +35,7 @@ laws = [184, 336, 314, 351, 224, 132, 158, 128, 223, 308, 341, 349, 382, 238, 36
         271, 156, 260, 384, 153, 277, 214]
 
 laws_str = [str(x) for x in laws]
+law2id = {l: idx for idx, l in enumerate(laws)}
 
 
 def get_encodes(x):
@@ -46,7 +48,7 @@ def get_encodes(x):
     # after use, put it back
     bc_clients.append(bc_client)
     # randomly choose a label
-    labels = [[str(random.choice(s['meta']['relevant_articles']))] for s in samples]
+    labels = [[law2id.get(random.choice(s['meta']['relevant_articles']))] for s in samples]
     return features, labels
 
 
@@ -71,6 +73,9 @@ input_fn = lambda fp: (tf.data.TextLineDataset(fp)
                        .map(lambda x, y: ({'feature': x}, y))
                        .prefetch(20))
 
-train_spec = TrainSpec(input_fn=lambda: input_fn(train_fp))
-eval_spec = EvalSpec(input_fn=lambda: input_fn(eval_fp), throttle_secs=0)
-train_and_evaluate(estimator, train_spec, eval_spec)
+model = Sequential()
+model.add(Dense(units=64, activation='relu', input_dim=100))
+model.add(Dense(units=10, activation='softmax'))
+model.compile('adam', 'categorical_crossentropy', metrics=['acc'])
+
+model.fit(input_fn(train_fp).make_one_shot_iterator())
