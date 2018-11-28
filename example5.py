@@ -66,7 +66,7 @@ estimator = DNNClassifier(
 input_fn = lambda fp: (tf.data.TextLineDataset(fp)
                        .apply(tf.contrib.data.shuffle_and_repeat(buffer_size=10000))
                        .batch(batch_size)
-                       .map(lambda x: tf.py_func(get_encodes, [x], [tf.float32, tf.int64], name='bert_client'),
+                       .map(lambda x: tf.py_func(get_encodes, [x], [tf.float32, tf.string], name='bert_client'),
                             num_parallel_calls=num_parallel_calls)
                        .map(lambda x, y: ({'feature': x}, y))
                        .prefetch(20))
