@@ -9,7 +9,9 @@ from tensorflow.python.estimator.canned.dnn import DNNClassifier
 from gpu_env import MODEL_ID
 from service.client import BertClient
 
-os.environ['CUDA_VISIBLE_DEVICES'] = str(GPUtil.getFirstAvailable())
+print(GPUtil.getFirstAvailable())
+exit()
+os.environ['CUDA_VISIBLE_DEVICES'] = str()
 tf.logging.set_verbosity(tf.logging.INFO)
 
 train_fp = ['/data/cips/data/lab/data/dataset/final_all_data/exercise_contest/data_train.json']
