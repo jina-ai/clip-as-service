@@ -61,4 +61,4 @@ estimator = DNNClassifier(
 with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
     cnt, num_samples, start_t = 0, 0, time.perf_counter()
-    estimator.train(input_fn=input_fn, steps=100)
+    estimator.train(input_fn=lambda: input_fn, steps=100)
