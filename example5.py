@@ -61,7 +61,8 @@ estimator = DNNClassifier(
     feature_columns=[tf.feature_column.numeric_column('feature', shape=(768,))],
     n_classes=len(laws),
     config=run_config,
-    label_vocabulary=laws_str)
+    label_vocabulary=laws_str,
+    dropout=0.1)
 
 input_fn = lambda fp: (tf.data.TextLineDataset(fp)
                        .apply(tf.contrib.data.shuffle_and_repeat(buffer_size=10000))
