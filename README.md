@@ -504,7 +504,7 @@ ds = (tf.data.TextLineDataset(train_fp).batch(batch_size)
 
 The trick here is to start a pool of `BertClient` and reuse them one by one. In this way, we can fully harness the power of `num_parallel_calls` of `Dataset.map()` API.  
 
-The complete example can [be found example4.py](example4.py).
+The complete example can [be found example4.py](example4.py). There is also [an example in Keras](https://github.com/hanxiao/bert-as-service/issues/29#issuecomment-442362241). 
 
 ### Building a text classifier using BERT features and `tf.estimator` API
 
