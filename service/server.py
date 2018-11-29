@@ -15,6 +15,7 @@ import numpy as np
 import tensorflow as tf
 import zmq
 from tensorflow.python.estimator.estimator import Estimator
+from tensorflow.python.estimator.run_config import RunConfig
 from zmq.utils import jsonapi
 
 from bert import tokenization, modeling
@@ -247,7 +248,10 @@ class BertWorker(Process):
             pooling_layer=args.pooling_layer
         )
         os.environ['CUDA_VISIBLE_DEVICES'] = str(self.worker_id)
-        self.estimator = Estimator(self.model_fn)
+        config = tf.ConfigProto()
+        config.gpu_options.allow_growth = True
+        config.gpu_options.per_process_gpu_memory_fraction = args.gpu_memory_fraction
+        self.estimator = Estimator(self.model_fn, config=RunConfig(session_config=config))
         self.exit_flag = multiprocessing.Event()
         self.logger = set_logger('WORKER-%d' % self.worker_id)
         self.worker_address = worker_address
