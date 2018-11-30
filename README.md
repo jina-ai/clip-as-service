@@ -600,9 +600,9 @@ ds = (tf.data.TFRecordDataset('tmp.tfrecord').repeat().shuffle(buffer_size=100).
 The complete example can [be found example7.py](example7.py).
 
 
-> :children_crossing: Below are some cool yet unstable features, please use them with caution!
-
 ### Asynchronous encoding
+
+> :children_crossing: Below are some cool yet unstable features, please use them with caution!
 
 `BertClient.encode()` offers a nice synchronous way to get sentence encodes. However,   sometimes we want to do it in an asynchronous manner by feeding all textual data to the server first, fetching the encoded results later. This can be easily done by:
 ```python
