@@ -562,6 +562,45 @@ train_and_evaluate(estimator, train_spec, eval_spec)
 The complete example can [be found example5.py](example5.py), in which a simple MLP is built on BERT features for predicting the relevant articles according to the fact description in the law documents. The problem is a part of the [Chinese AI and Law Challenge Competition](https://github.com/thunlp/CAIL/blob/master/README_en.md).
 
 
+### Save to and load from TFRecord data
+The TFRecord file format is a simple record-oriented binary format that many TensorFlow applications use for training data. You can also pre-encode all your sequences and store their encodings to a TFRecord file, then later load it to build a `tf.Dataset`. For example, to write encoding into a TFRecord file:
+
+```python
+bc = BertClient()
+list_vec = bc.encode(lst_str)
+list_label = [0 for _ in lst_str]  # a dummy list of all-zero labels
+
+# write to tfrecord
+with tf.python_io.TFRecordWriter('tmp.tfrecord') as writer:
+    def create_float_feature(values):
+        return tf.train.Feature(float_list=tf.train.FloatList(value=values))
+
+    def create_int_feature(values):
+        return tf.train.Feature(int64_list=tf.train.Int64List(value=list(values)))
+
+    for (vec, label) in zip(list_vec, list_label):
+        features = {'features': create_float_feature(vec), 'labels': create_int_feature([label])}
+        tf_example = tf.train.Example(features=tf.train.Features(feature=features))
+        writer.write(tf_example.SerializeToString())
+```
+
+Now we can load from it and build a `tf.Dataset`:
+```python
+def _decode_record(record):
+    """Decodes a record to a TensorFlow example."""
+    return tf.parse_single_example(record, {
+        'features': tf.FixedLenFeature([768], tf.float32),
+        'labels': tf.FixedLenFeature([], tf.int64),
+    })
+
+ds = (tf.data.TFRecordDataset('tmp.tfrecord').repeat().shuffle(buffer_size=100).apply(
+    tf.contrib.data.map_and_batch(lambda record: _decode_record(record), batch_size=64))
+      .make_one_shot_iterator().get_next())
+```
+
+The complete example can [be found example7.py](example7.py).
+
+
 ### Asynchronous encoding
 
 `BertClient.encode()` offers a nice synchronous way to get sentence encodes. However,   sometimes we want to do it in an asynchronous manner by feeding all textual data to the server first, fetching the encoded results later. This can be easily done by:
