@@ -38,8 +38,8 @@ num_hidden_unit = 768
 def _decode_record(record):
     """Decodes a record to a TensorFlow example."""
     return tf.parse_single_example(record, {
-        "features": tf.FixedLenFeature([num_hidden_unit], tf.float32),
-        "labels": tf.FixedLenFeature([], tf.int64),
+        'features': tf.FixedLenFeature([num_hidden_unit], tf.float32),
+        'labels': tf.FixedLenFeature([], tf.int64),
     })
 
 
