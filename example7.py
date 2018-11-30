@@ -26,7 +26,7 @@ with tf.python_io.TFRecordWriter('tmp.tfrecord') as writer:
 
 
     for (vec, label) in zip(list_vec, list_label):
-        features = {'features': create_float_feature(vec), 'label_ids': create_int_feature([label])}
+        features = {'features': create_float_feature(vec), 'labels': create_int_feature([label])}
         tf_example = tf.train.Example(features=tf.train.Features(feature=features))
         writer.write(tf_example.SerializeToString())
 
@@ -38,8 +38,8 @@ num_hidden_unit = 768
 def _decode_record(record):
     """Decodes a record to a TensorFlow example."""
     return tf.parse_single_example(record, {
-        "feature": tf.FixedLenFeature([num_hidden_unit], tf.float32),
-        "label_ids": tf.FixedLenFeature([], tf.int64),
+        "features": tf.FixedLenFeature([num_hidden_unit], tf.float32),
+        "labels": tf.FixedLenFeature([], tf.int64),
     })
 
 
