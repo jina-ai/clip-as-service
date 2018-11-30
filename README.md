@@ -88,18 +88,20 @@ docker run --runtime nvidia -dit -p 5555:5555 -p 5556:5556 -v $PATH_MODEL:/model
 #### 3. Use Client to Get Sentence Encodes
 > :children_crossing: NOTE: please make sure your project includes [`client.py`](service/client.py), as we need to import `BertClient` class from this file. Again, this is the **only file** that you need as a client. You don't even need Tensorflow. Please refer to [`requirements.client.txt`](requirements.client.txt) for the dependency on the client side.
 
-Now you can use BERT to encode sentences in your Python code simply as follows:
+Now you can use BERT to encode sentences simply as follows:
 ```python
 from service.client import BertClient
 bc = BertClient()
 bc.encode(['First do it', 'then do it right', 'then do it better'])
 ```
-This will return a `ndarray`, in which each row is the fixed representation of a sentence. You can also let it return a pure python object in the type of `List[List[float]]`.
+It will return a `ndarray`, in which each row is the fixed representation of a sentence. You can also let it return a pure python object with type `List[List[float]]`.
 
-As a feature of BERT, you may also get encodes of a pair of sentences by concatenating them with ` ||| `, e.g.
+As a feature of BERT, you may get encodes of a pair of sentences by concatenating them with ` ||| `, e.g.
 ```python
 bc.encode(['First do it ||| then do it right'])
 ```
+
+Getting the token-based embedding [is also possible](#q-how-can-i-get-word-embedding-instead-of-sentence-embedding).
 
 #### Use BERT Service Remotely
 One may also start the service on one (GPU) machine and call it from another (CPU) machine as follows:
