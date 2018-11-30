@@ -49,7 +49,7 @@ if __name__ == '__main__':
         'port': PORT,
         'port_out': PORT_OUT,
         'max_seq_len': 40,
-        'client_batch_size': 4096,
+        'client_batch_size': 2048,
         'max_batch_size': 256,
         'num_client': 1,
         'pooling_strategy': PoolingStrategy.REDUCE_MEAN,
