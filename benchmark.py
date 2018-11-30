@@ -44,7 +44,7 @@ class BenchmarkClient(threading.Thread):
 if __name__ == '__main__':
     common = {
         'model_dir': '/data/cips/data/lab/data/model/chinese_L-12_H-768_A-12',
-        'num_worker': 2,
+        'num_worker': 1,
         'num_repeat': 5,
         'port': PORT,
         'port_out': PORT_OUT,
@@ -53,13 +53,14 @@ if __name__ == '__main__':
         'max_batch_size': 256,
         'num_client': 1,
         'pooling_strategy': PoolingStrategy.REDUCE_MEAN,
-        'pooling_layer': -2
+        'pooling_layer': [-2]
     }
     experiments = {
-        'client_batch_size': [1, 4, 8, 16, 64, 256, 512, 1024, 2048, 4096],
-        'max_batch_size': [32, 64, 128, 256, 512],
-        'max_seq_len': [20, 40, 80, 160, 320],
-        'num_client': [2, 4, 8, 16, 32],
+        # 'client_batch_size': [1, 4, 8, 16, 64, 256, 512, 1024, 2048, 4096],
+        # 'max_batch_size': [32, 64, 128, 256, 512],
+        # 'max_seq_len': [20, 40, 80, 160, 320],
+        # 'num_client': [2, 4, 8, 16, 32],
+        'pooling_layer': [[-j] for j in range(1, 13)]
     }
 
     fp = open('benchmark-%d.result' % common['num_worker'], 'w')
