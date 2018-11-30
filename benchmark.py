@@ -105,6 +105,6 @@ if __name__ == '__main__':
         fp.write('|`%s`|seqs/s|\n' % var_name)
         fp.write('|---|---|\n')
         for i, j in zip(var_lst, avg_speed):
-            fp.write('|%d|%d|\n' % (i, j))
+            fp.write('|%d|%d|\n' % (i[0], j))
             fp.flush()
     fp.close()
