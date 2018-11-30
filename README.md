@@ -472,6 +472,28 @@ As one can observe, 1 clients 1 GPU = 381 seqs/s, 2 clients 2 GPU 402 seqs/s, 4 
 | 512            | 381   | 762   | 1500  |
 
 
+#### Speed wrt. `pooling_layer`
+
+`pooling_layer` determines the encoding layer that pooling operates on. For example, in a 12-layer BERT model, `-1` represents the layer closed to the output, `-12` represents the layer closed to the embedding layer. As one can observe below, the depth of the pooling layer affects the speed.
+
+<img src=".github/pooling_layer.png" width="600">
+
+| pooling_layer | 1 GPU | 2 GPU | 4 GPU |
+|---------------|-------|-------|-------|
+| -1 | 317 | 710 | 1422 |
+| -2 | 382 | 760 | 1516 |
+| -3 | 411 | 812 | 1632 |
+| -4 | 444 | 879 | 1762 |
+| -5 | 483 | 959 | 1913 |
+| -6 | 529 | 1050 | 2100 |
+| -7 | 585 | 1163 | 2320 |
+| -8 | 655 | 1292 | 2583 |
+| -9 | 744 | 1470 | 2928 |
+| -10 | 858 | 1687 | 3371 |
+| -11 | 1016 | 1994 | 4018 |
+| -12 | 1227 | 2432 | 4840 |
+
+
 ## Advance Usage
 
 > :children_crossing: Those are some cool yet unstable features, please use them with caution!
