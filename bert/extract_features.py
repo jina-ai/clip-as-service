@@ -104,7 +104,7 @@ def model_fn_builder(bert_config, init_checkpoint, use_one_hot_embeddings=False,
         elif pooling_strategy == PoolingStrategy.REDUCE_MAX:
             pooled = tf.reduce_max(encoder_layer, axis=1)
         elif pooling_strategy == PoolingStrategy.REDUCE_MEAN_MAX:
-            pooled = tf.concat([tf.reduce_max(encoder_layer, axis=1),
+            pooled = tf.concat([tf.reduce_mean(encoder_layer, axis=1),
                                 tf.reduce_max(encoder_layer, axis=1)], axis=1)
         elif pooling_strategy == PoolingStrategy.FIRST_TOKEN or pooling_strategy == PoolingStrategy.CLS_TOKEN:
             pooled = tf.squeeze(encoder_layer[:, 0:1, :], axis=1)
