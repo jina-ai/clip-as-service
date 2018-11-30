@@ -497,8 +497,6 @@ As one can observe, 1 clients 1 GPU = 381 seqs/s, 2 clients 2 GPU 402 seqs/s, 4 
 
 ## Advance Usage
 
-> :children_crossing: Those are some cool yet unstable features, please use them with caution!
-
 ### Using `BertClient` with `tf.data` API
 
 The [`tf.data`](https://www.tensorflow.org/guide/datasets) API enables you to build complex input pipelines from simple, reusable pieces. One can also use `BertClient` to encode sentences on-the-fly and use the vectors in a downstream model. Here is an example:
@@ -601,6 +599,8 @@ ds = (tf.data.TFRecordDataset('tmp.tfrecord').repeat().shuffle(buffer_size=100).
 
 The complete example can [be found example7.py](example7.py).
 
+
+> :children_crossing: Below are some cool yet unstable features, please use them with caution!
 
 ### Asynchronous encoding
 
