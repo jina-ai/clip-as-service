@@ -80,7 +80,7 @@ One may also run BERT Service in a container:
 docker build -t bert-as-service -f ./docker/Dockerfile .
 NUM_WORKER=1
 PATH_MODEL=<path of your model>
-docker run --runtime nvidia -dit -p 5555:5555 -v $PATH_MODEL:/model -t bert-as-service $NUM_WORKER
+docker run --runtime nvidia -dit -p 5555:5555 -p 5556:5556 -v $PATH_MODEL:/model -t bert-as-service $NUM_WORKER
 ```
 </details>
 
@@ -95,6 +95,11 @@ bc = BertClient()
 bc.encode(['First do it', 'then do it right', 'then do it better'])
 ```
 This will return a `ndarray`, in which each row is the fixed representation of a sentence. You can also let it return a pure python object in the type of `List[List[float]]`.
+
+As a feature of BERT, you may also get encodes of a pair of sentences by concatenating them with ` ||| `, e.g.
+```python
+bc.encode(['First do it ||| then do it right'])
+```
 
 #### Use BERT Service Remotely
 One may also start the service on one (GPU) machine and call it from another (CPU) machine as follows:
