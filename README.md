@@ -114,6 +114,7 @@ bc.encode(['First do it', 'then do it right', 'then do it better'])
 > :bulb: **Checkout some advance usages below:**
 > - [Using `BertClient` with `tf.data` API](#using-bertclient-with-tfdata-api)
 > - [Building a text classifier using BERT features and `tf.estimator` API](#building-a-text-classifier-using-bert-features-and-tfestimator-api)
+> - [Save to and load from TFRecord data](#save-to-and-load-from-tfrecord-data)
 > - [Asynchronous encoding](#asynchronous-encoding)
 > - [Broadcasting to multiple clients](#broadcasting-to-multiple-clients)
 
