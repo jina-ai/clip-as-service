@@ -57,10 +57,10 @@ if __name__ == '__main__':
         'gpu_memory_fraction': 0.5
     }
     experiments = {
-        # 'client_batch_size': [1, 4, 8, 16, 64, 256, 512, 1024, 2048, 4096],
-        # 'max_batch_size': [32, 64, 128, 256, 512],
-        # 'max_seq_len': [20, 40, 80, 160, 320],
-        # 'num_client': [2, 4, 8, 16, 32],
+        'client_batch_size': [1, 4, 8, 16, 64, 256, 512, 1024, 2048, 4096],
+        'max_batch_size': [32, 64, 128, 256, 512],
+        'max_seq_len': [20, 40, 80, 160, 320],
+        'num_client': [2, 4, 8, 16, 32],
         'pooling_layer': [[-j] for j in range(1, 13)]
     }
 
@@ -105,6 +105,6 @@ if __name__ == '__main__':
         fp.write('|`%s`|seqs/s|\n' % var_name)
         fp.write('|---|---|\n')
         for i, j in zip(var_lst, avg_speed):
-            fp.write('|%d|%d|\n' % (i[0], j))
+            fp.write('|%s|%d|\n' % (i, j))
             fp.flush()
     fp.close()
