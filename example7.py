@@ -1,6 +1,12 @@
+import os
+
+import GPUtil
 import tensorflow as tf
 
 from service.client import BertClient
+
+os.environ['CUDA_VISIBLE_DEVICES'] = str(GPUtil.getFirstAvailable()[0])
+tf.logging.set_verbosity(tf.logging.INFO)
 
 with open('README.md') as fp:
     data = [v for v in fp if v.strip()]
