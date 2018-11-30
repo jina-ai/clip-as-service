@@ -29,7 +29,10 @@ def get_args():
     parser.add_argument('-pooling_strategy', type=PoolingStrategy.from_string,
                         default=PoolingStrategy.REDUCE_MEAN, choices=list(PoolingStrategy),
                         help='the pooling strategy for generating encoding vectors')
-
+    parser.add_argument('-gpu_memory_fraction', type=float, default=0.5,
+                        help='determines the fraction of the overall amount of memory '
+                             'that each visible GPU should be allocated per worker. '
+                             'Should be in range [0.0, 1.0]')
     args = parser.parse_args()
     param_str = '\n'.join(['%20s = %s' % (k, v) for k, v in sorted(vars(args).items())])
     print('usage: %s\n%20s   %s\n%s\n%s\n' % (' '.join(sys.argv), 'ARG', 'VALUE', '_' * 50, param_str))
