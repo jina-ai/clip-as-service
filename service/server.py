@@ -94,7 +94,7 @@ class BertServer(threading.Thread):
         num_req = 0
         try:
             import GPUtil
-            available_gpus = GPUtil.getAvailable(limit=self.num_worker)
+            available_gpus = GPUtil.getAvailable(limit=self.num_worker, maxLoad=0.1, maxMemory=0.1)
             if len(available_gpus) < self.num_worker:
                 self.logger.warn('only %d GPU(s) is available, but ask for %d' % (len(available_gpus), self.num_worker))
         except FileNotFoundError:
