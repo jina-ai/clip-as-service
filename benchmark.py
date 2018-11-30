@@ -11,8 +11,8 @@ from bert.extract_features import PoolingStrategy
 from service.client import BertClient
 from service.server import BertServer
 
-PORT = 5557
-PORT_OUT = 5558
+PORT = 6666
+PORT_OUT = 6667
 
 
 def tprint(msg):
