@@ -599,7 +599,7 @@ ds = (tf.data.TFRecordDataset('tmp.tfrecord').repeat().shuffle(buffer_size=100).
       .make_one_shot_iterator().get_next())
 ```
 
-The complete example can [be found example7.py](example7.py). To save word/token-level embedding to TFRecord, one needs to first flatten `[max_seq_len, num_hidden]` tensor into an 1D array as follows:
+The complete example can [be found example6.py](example6.py). To save word/token-level embedding to TFRecord, one needs to first flatten `[max_seq_len, num_hidden]` tensor into an 1D array as follows:
 ```python
 def create_float_feature(values):
     return tf.train.Feature(float_list=tf.train.FloatList(value=values.reshape(-1)))
