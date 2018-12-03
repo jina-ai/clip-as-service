@@ -599,8 +599,30 @@ ds = (tf.data.TFRecordDataset('tmp.tfrecord').repeat().shuffle(buffer_size=100).
       .make_one_shot_iterator().get_next())
 ```
 
-The complete example can [be found example7.py](example7.py).
+The complete example can [be found example7.py](example7.py). To save word/token-level embedding to TFRecord, one needs to first flatten `[max_seq_len, num_hidden]` tensor into an 1D array as follows:
+```python
+def create_float_feature(values):
+    return tf.train.Feature(float_list=tf.train.FloatList(value=values.reshape(-1)))
+```
+And later reconstruct the shape when loading it:
+```python
+name_to_features = {
+    "feature": tf.FixedLenFeature([FLAGS.max_seq_length * num_hidden], tf.float32),
+    "label_ids": tf.FixedLenFeature([], tf.int64),
+}
+    
+def _decode_record(record, name_to_features):
+    """Decodes a record to a TensorFlow example."""
+    example = tf.parse_single_example(record, name_to_features)
 
+    for name in list(example.keys()):
+        t = example[name]
+        if name == 'feature':
+            t = tf.reshape(t, [FLAGS.max_seq_length, -1])
+        example[name] = t
+    return example
+```
+Be careful, this will generate a huge TFRecord file.
 
 ### Asynchronous encoding
 
