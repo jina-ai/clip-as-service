@@ -1,6 +1,7 @@
 # bert-as-service
 
-[![Python: 3.6](https://img.shields.io/badge/Python-3.6-brightgreen.svg)](https://opensource.org/licenses/MIT)    [![Tensorflow: 1.10](https://img.shields.io/badge/Tensorflow-1.10-brightgreen.svg)](https://opensource.org/licenses/MIT)  [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![GitHub stars](https://img.shields.io/github/stars/hanxiao/bert-as-service.svg)](https://github.com/hanxiao/bert-as-service/stargazers) [![GitHub release](https://img.shields.io/github/release/hanxiao/bert-as-service.svg)](https://github.com/hanxiao/bert-as-service/issues) [![GitHub issues](https://img.shields.io/github/issues/hanxiao/bert-as-service.svg)](https://github.com/hanxiao/bert-as-service/issues) [![Python: 3.6](https://img.shields.io/badge/Python-3.6-brightgreen.svg)](https://opensource.org/licenses/MIT)    [![Tensorflow: 1.10](https://img.shields.io/badge/Tensorflow-1.10-brightgreen.svg)](https://opensource.org/licenses/MIT)  [![GitHub license](https://img.shields.io/github/license/hanxiao/bert-as-service.svg)](https://github.com/hanxiao/bert-as-service/blob/master/LICENSE) 
+
 
 Using BERT model as a sentence encoding service, i.e. mapping a variable-length sentence to a fixed-length vector.
 
