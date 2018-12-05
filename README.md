@@ -624,8 +624,6 @@ Be careful, this will generate a huge TFRecord file.
 
 ### Asynchronous encoding
 
-> :children_crossing: Below are some cool yet unstable features, please use them with caution!
-
 `BertClient.encode()` offers a nice synchronous way to get sentence encodes. However,   sometimes we want to do it in an asynchronous manner by feeding all textual data to the server first, fetching the encoded results later. This can be easily done by:
 ```python
 # an endless data stream, generating data in an extremely fast speed

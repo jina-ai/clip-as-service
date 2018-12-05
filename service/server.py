@@ -5,8 +5,6 @@ import multiprocessing
 import os
 import sys
 import threading
-import time
-import uuid
 from collections import defaultdict
 from datetime import datetime
 from multiprocessing import Process
@@ -76,7 +74,6 @@ class BertServer(threading.Thread):
         proc_sink.start()
         self.processes.append(proc_sink)
         self.addr_sink = self.sink.recv().decode('ascii')
-        self.logger.info('frontend-sink ipc: %s' % self.addr_sink)
 
     def close(self):
         self.logger.info('shutting down...')
@@ -99,7 +96,7 @@ class BertServer(threading.Thread):
                 self.logger.warn('only %d GPU(s) is available, but ask for %d' % (len(available_gpus), self.num_worker))
         except FileNotFoundError:
             self.logger.warn('nvidia-smi is missing, often means no gpu found on this machine. '
-                             'will run service on cpu instead')
+                             'will fall back to cpu!')
             run_on_gpu = False
 
         # start the backend processes
@@ -110,8 +107,9 @@ class BertServer(threading.Thread):
 
         try:
             while True:
-                client, msg = self.frontend.recv_multipart()
+                client, msg, req_id = self.frontend.recv_multipart()
                 if msg == ServerCommand.show_config:
+                    self.logger.info('config request\treq id: %d\tclient: %s' % (int(req_id), client))
                     self.sink.send_multipart([client, msg,
                                               jsonapi.dumps({**{'client': client.decode('ascii'),
                                                                 'num_subprocess': len(self.processes),
@@ -121,28 +119,28 @@ class BertServer(threading.Thread):
                                                                 'server_current_time': str(datetime.now()),
                                                                 'run_on_gpu': run_on_gpu,
                                                                 'num_request': num_req},
-                                                             **self.args_dict})])
+                                                             **self.args_dict}), req_id])
                     continue
 
+                self.logger.info('encode request\treq id: %d\tclient: %s' % (int(req_id), client))
                 num_req += 1
-                client = client + b'#' + str(uuid.uuid4()).encode('ascii')
                 seqs = jsonapi.loads(msg)
                 num_seqs = len(seqs)
-                # tell sink to collect a new job
-                self.sink.send_multipart([client, ServerCommand.new_job, b'%d' % num_seqs])
+                # register a new job at sink
+                self.sink.send_multipart([client, ServerCommand.new_job, b'%d' % num_seqs, req_id])
 
+                job_id = client + b'#' + req_id
                 if num_seqs > self.max_batch_size:
-                    # divide the large batch into small batches
+                    # partition the large batch into small batches
                     s_idx = 0
                     while s_idx < num_seqs:
                         tmp = seqs[s_idx: (s_idx + self.max_batch_size)]
                         if tmp:
-                            # get the worker with minimum workload
-                            client_partial_id = client + b'@%d' % s_idx
-                            self.backend.send_multipart([client_partial_id, jsonapi.dumps(tmp)])
+                            partial_job_id = job_id + b'@%d' % s_idx
+                            self.backend.send_multipart([partial_job_id, jsonapi.dumps(tmp)])
                         s_idx += len(tmp)
                 else:
-                    self.backend.send_multipart([client, msg])
+                    self.backend.send_multipart([job_id, msg])
         except zmq.error.ContextTerminated:
             self.logger.error('context is closed!')
 
@@ -209,23 +207,24 @@ class BertSink(Process):
                     finished = [(k, v) for k, v in pending_result.items() if pending_checksum[k] == job_checksum[k]]
                     for job_info, tmp in finished:
                         self.logger.info(
-                            'job %s %d samples are done! sending back to client' % (
-                                job_info, job_checksum[job_info]))
+                            'job done!\tsize: %d\tjob id:%s\tsending back to client' % (
+                                job_checksum[job_info], job_info))
                         # re-sort to the original order
                         tmp = [x[0] for x in sorted(tmp, key=lambda x: x[1])]
-                        client_addr = job_info.split(b'#')[0]
-                        send_ndarray(sender, client_addr, np.concatenate(tmp, axis=0))
+                        client_addr, req_id = job_info.split(b'#')
+                        send_ndarray(sender, client_addr, np.concatenate(tmp, axis=0), req_id)
                         pending_result.pop(job_info)
                         pending_checksum.pop(job_info)
                         job_checksum.pop(job_info)
 
                 if socks.get(frontend) == zmq.POLLIN:
-                    job_info, msg_type, msg_info = frontend.recv_multipart()
+                    client_addr, msg_type, msg_info, req_id = frontend.recv_multipart()
                     if msg_type == ServerCommand.new_job:
+                        job_info = client_addr + b'#' + req_id
                         job_checksum[job_info] = int(msg_info)
-                        self.logger.info('new job %s size: %d is registered!' % (job_info, int(msg_info)))
+                        self.logger.info('new job!\tsize: %d\tjob id: %s' % (int(msg_info), job_info))
                     elif msg_type == ServerCommand.show_config:
-                        sender.send_multipart([job_info, msg_info])
+                        sender.send_multipart([client_addr, msg_info, req_id])
         except zmq.error.ContextTerminated:
             self.logger.error('context is closed!')
 
@@ -274,15 +273,10 @@ class BertWorker(Process):
 
         input_fn = self.input_fn_builder(receiver)
 
-        self.logger.info('ready and listening')
-        start_t = time.perf_counter()
         for r in self.estimator.predict(input_fn, yield_single_examples=False):
             # logger.info('new result!')
             send_ndarray(sink, r['client_id'], r['encodes'])
-            time_used = time.perf_counter() - start_t
-            start_t = time.perf_counter()
-            self.logger.info('job %s\tsamples: %4d\tdone: %.2fs' %
-                             (r['client_id'], r['encodes'].shape[0], time_used))
+            self.logger.info('job done!\tsize: %s\tclient: %s' % (r['encodes'].shape, r['client_id']))
 
         receiver.close()
         sink.close()
@@ -291,10 +285,11 @@ class BertWorker(Process):
 
     def input_fn_builder(self, worker):
         def gen():
+            self.logger.info('ready and listening!')
             while not self.exit_flag.is_set():
                 client_id, msg = worker.recv_multipart()
                 msg = jsonapi.loads(msg)
-                self.logger.info('new job %s, size: %d' % (client_id, len(msg)))
+                self.logger.info('new job!\tsize: %d\tclient: %s' % (len(msg), client_id))
                 if BertClient.is_valid_input(msg):
                     tmp_f = list(convert_lst_to_features(msg, self.max_seq_len, self.tokenizer))
                     yield {
@@ -322,7 +317,7 @@ class BertWorker(Process):
         return input_fn
 
 
-def send_ndarray(src, dest, X, flags=0, copy=True, track=False):
+def send_ndarray(src, dest, X, req_id=b'', flags=0, copy=True, track=False):
     """send a numpy array with metadata"""
     md = dict(dtype=str(X.dtype), shape=X.shape)
-    return src.send_multipart([dest, jsonapi.dumps(md), X], flags, copy=copy, track=track)
+    return src.send_multipart([dest, jsonapi.dumps(md), X, req_id], flags, copy=copy, track=track)
