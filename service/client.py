@@ -4,6 +4,7 @@
 
 import sys
 import threading
+import time
 import uuid
 from collections import namedtuple
 
@@ -123,7 +124,7 @@ class BertClient:
         else:
             raise AttributeError('"texts" must be "List[str]" and non-empty!')
 
-    def fetch(self):
+    def fetch(self, delay=.0):
         """ Fetch the encoded vectors from server, use it with `encode(blocking=False)`
 
         Use it after `encode(texts, blocking=False)`. If there is no pending requests, will return None.
@@ -134,6 +135,7 @@ class BertClient:
 
         :return: tuple(int, ndarray), a generator that yields request id and encoded vector
         """
+        time.sleep(delay)
         while self.pending_request:
             yield self._recv_ndarray()
 
@@ -158,7 +160,7 @@ class BertClient:
                     tmp = [vv for v in tmp for vv in v]
             return tmp
 
-    def encode_async(self, batch_generator, max_num_batch=None):
+    def encode_async(self, batch_generator, max_num_batch=None, delay=0.1):
         """ Async encode batches from a generator [Experimental, use with caution!]
 
         :param batch_generator: a generator that yields list[str] every time
@@ -176,7 +178,7 @@ class BertClient:
 
         t = threading.Thread(target=run)
         t.start()
-        return self.fetch
+        return self.fetch(delay)
 
     @staticmethod
     def is_valid_input(texts):
