@@ -74,7 +74,6 @@ class BertServer(threading.Thread):
         proc_sink.start()
         self.processes.append(proc_sink)
         self.addr_sink = self.sink.recv().decode('ascii')
-        self.logger.info('frontend-sink ipc: %s' % self.addr_sink)
 
     def close(self):
         self.logger.info('shutting down...')
