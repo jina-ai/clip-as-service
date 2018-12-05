@@ -105,7 +105,7 @@ class BertClient:
     @property
     def server_status(self):
         self._send(b'SHOW_CONFIG')
-        return jsonapi.loads(self._recv().content)
+        return jsonapi.loads(self._recv().content[1])
 
     def encode(self, texts, blocking=True):
         """ Encode a list of strings to a list of vectors

@@ -274,7 +274,6 @@ class BertWorker(Process):
 
         input_fn = self.input_fn_builder(receiver)
 
-        self.logger.info('ready and listening')
         for r in self.estimator.predict(input_fn, yield_single_examples=False):
             # logger.info('new result!')
             send_ndarray(sink, r['client_id'], r['encodes'])
@@ -287,7 +286,7 @@ class BertWorker(Process):
 
     def input_fn_builder(self, worker):
         def gen():
-            self.logger.info('input_fn_builder')
+            self.logger.info('ready and listening!')
             while not self.exit_flag.is_set():
                 client_id, msg = worker.recv_multipart()
                 msg = jsonapi.loads(msg)
