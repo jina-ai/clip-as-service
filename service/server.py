@@ -255,6 +255,7 @@ class BertWorker(Process):
         self.logger = set_logger('WORKER-%d' % self.worker_id)
         self.worker_address = worker_address
         self.sink_address = sink_address
+        self.prefetch_factor = 0
 
     def close(self):
         self.logger.info('shutting down...')
@@ -311,7 +312,7 @@ class BertWorker(Process):
                     'client_id': (),
                     'input_ids': (None, self.max_seq_len),
                     'input_mask': (None, self.max_seq_len),
-                    'input_type_ids': (None, self.max_seq_len)}).prefetch(5))
+                    'input_type_ids': (None, self.max_seq_len)}).prefetch(self.prefetch_factor))
 
         return input_fn
 
