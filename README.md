@@ -40,7 +40,7 @@
 </p>
 
 <h6 align="center">Made by Han Xiao
- <a href="https://hanxiao.github.io">https://hanxiao.github.io</a></h6>
+ <a href="https://hanxiao.github.io">🌐https://hanxiao.github.io</a></h6>
 
 ## What is it
 
