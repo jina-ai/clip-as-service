@@ -9,12 +9,6 @@ import sys
 from service.client import BertClient
 
 
-# an endless data stream, generating data in an extremely fast speed
-def text_gen():
-    while True:
-        yield data
-
-
 def send_without_block(bc, data, repeat=10):
     # encoding without blocking:
     print('sending all data without blocking...')
@@ -47,6 +41,13 @@ if __name__ == '__main__':
     for v in bc.fetch():
         print('received %s, shape %s' % (v.id, v.content.shape))
 
-    # get encoded vectors
+
+    # finally let's do encode-fetch at the same time but in async mode
+    # we do that by building an endless data stream, generating data in an extremely fast speed
+    def text_gen():
+        while True:
+            yield data
+
+
     for j in bc.encode_async(text_gen(), max_num_batch=20):
         print('received %d : %s' % (j.id, j.content))
