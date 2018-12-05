@@ -31,7 +31,7 @@
   <a href="#requirements">Requirements</a> •
   <a href="#usage">Usage</a> •
   <a href="#faq">FAQ</a> •
-  <a href="#benchmark">Benchmark</a>
+  <a href="#benchmark">Benchmark</a> •
   <a href="#advance-usage">Advance Usage</a>
 </p>
 
@@ -40,7 +40,7 @@
 </p>
 
 <h6 align="center">Made by Han Xiao
- <a href="https://hanxiao.github.io">🌐https://hanxiao.github.io</a></h6>
+ <a href="https://hanxiao.github.io">🌐:globe_with_meridians: https://hanxiao.github.io</a></h6>
 
 ## What is it
 
