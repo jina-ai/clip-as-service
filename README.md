@@ -2,7 +2,7 @@
   bert-as-service
 </h1>
 
-<h4 align="center">Using BERT model as a sentence encoding service, i.e. mapping a variable-length sentence to a fixed-length vector.</h4>
+<p align="center">Using BERT model as a sentence encoding service, i.e. mapping a variable-length sentence to a fixed-length vector.</p>
 
 <p align="center">
   <a href="https://github.com/hanxiao/bert-as-service/stargazers">
@@ -35,10 +35,11 @@
   <a href="#advance-usage">Advance Usage</a>
 </p>
 
-<h6 align="center">Made by Han Xiao [https://hanxiao.github.io](https://hanxiao.github.io)</h6>
 
 ![screenshot](.github/demo.gif)
 
+<h6 align="center">Made by Han Xiao
+ <a href="https://hanxiao.github.io">https://hanxiao.github.io</a></h6>
 
 ## What is it
 
