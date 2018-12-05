@@ -22,5 +22,5 @@ if __name__ == '__main__':
         data = [v for v in fp if v.strip()]
 
     # get encoded vectors
-    for j in bc.encode_async(text_gen(), max_num_batch=10):
-        print('received %d x %d' % (j.shape[0], j.shape[1]))
+    for j in bc.encode_async(text_gen(), max_num_batch=20):
+        print('received %d : %s' % (j.id, j.content))
