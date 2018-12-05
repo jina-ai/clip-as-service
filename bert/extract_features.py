@@ -128,6 +128,7 @@ def model_fn_builder(bert_config, init_checkpoint, use_one_hot_embeddings=False,
                 all_layers.append(model.all_encoder_layers[layer])
             encoder_layer = tf.concat(all_layers, -1)
 
+        input_mask = tf.cast(input_mask, tf.float32)
         if pooling_strategy == PoolingStrategy.REDUCE_MEAN:
             pooled = masked_reduce_mean(encoder_layer, input_mask)
         elif pooling_strategy == PoolingStrategy.REDUCE_MAX:
