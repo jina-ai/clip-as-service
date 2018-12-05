@@ -133,6 +133,7 @@ class BertClient:
 
         To fetch all results in the original sending order, please use `fetch_all(sort=True)`
 
+        :param delay: delay in seconds and then run fetcher
         :return: tuple(int, ndarray), a generator that yields request id and encoded vector
         """
         time.sleep(delay)
@@ -163,6 +164,7 @@ class BertClient:
     def encode_async(self, batch_generator, max_num_batch=None, delay=0.1):
         """ Async encode batches from a generator [Experimental, use with caution!]
 
+        :param delay: delay in seconds and then run fetcher
         :param batch_generator: a generator that yields list[str] every time
         :param max_num_batch: stop after encoding this number of batches
         :return: a generator that yields encoded vectors in ndarray
