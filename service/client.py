@@ -154,6 +154,7 @@ class BertClient:
             if concat:
                 if self.formatter == 'ndarray':
                     tmp = np.concatenate(tmp, axis=0)
+                    print(tmp)
                 elif self.formatter == 'list':
                     tmp = [vv for v in tmp for vv in v]
             return tmp
