@@ -152,12 +152,9 @@ class BertClient:
                 tmp = sorted(tmp, key=lambda v: v.id)
             tmp = [v.content for v in tmp]
             if concat:
-                print('here1')
-                if self.formatter == 'ndarray':
-                    print('here2')
+                if self.output_fmt == 'ndarray':
                     tmp = np.concatenate(tmp, axis=0)
-                elif self.formatter == 'list':
-                    print('here3')
+                elif self.output_fmt == 'list':
                     tmp = [vv for v in tmp for vv in v]
             return tmp
 
