@@ -22,11 +22,16 @@ if __name__ == '__main__':
         data = [v for v in fp if v.strip()]
 
     # encoding without blocking:
+    print('sending all data without blocking...')
     for _ in range(10):
         bc.encode(data, blocking=False)
+    print('done!')
+    num_expect_vecs = len(data) * 10
 
     # then fetch all
-    print(bc.fetch_all(concat=True))
+    print('now waiting until all results are available...')
+    vecs = bc.fetch_all(concat=True)
+    print('received %s, expected: %d' % (vecs.shape, num_expect_vecs))
 
     # get encoded vectors
     for j in bc.encode_async(text_gen(), max_num_batch=20):
