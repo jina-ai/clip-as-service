@@ -1,21 +1,44 @@
-# bert-as-service
+<h1 align="center">
+  bert-as-service
+</h1>
 
-[![GitHub stars](https://img.shields.io/github/stars/hanxiao/bert-as-service.svg)](https://github.com/hanxiao/bert-as-service/stargazers) [![GitHub release](https://img.shields.io/github/release/hanxiao/bert-as-service.svg)](https://github.com/hanxiao/bert-as-service/issues) [![GitHub issues](https://img.shields.io/github/issues/hanxiao/bert-as-service.svg)](https://github.com/hanxiao/bert-as-service/issues) [![Python: 3.6](https://img.shields.io/badge/Python-3.6-brightgreen.svg)](https://opensource.org/licenses/MIT)    [![Tensorflow: 1.10](https://img.shields.io/badge/Tensorflow-1.10-brightgreen.svg)](https://opensource.org/licenses/MIT)  [![GitHub license](https://img.shields.io/github/license/hanxiao/bert-as-service.svg)](https://github.com/hanxiao/bert-as-service/blob/master/LICENSE) 
+<h4 align="center">Using BERT model as a sentence encoding service, i.e. mapping a variable-length sentence to a fixed-length vector.</h4>
 
+<p align="center">
+  <a href="https://github.com/hanxiao/bert-as-service/stargazers">
+    <img src="https://img.shields.io/github/stars/hanxiao/bert-as-service.svg"
+         alt="GitHub stars">
+  </a>
+  <a href="https://github.com/hanxiao/bert-as-service/release">
+      <img src="https://img.shields.io/github/release/hanxiao/bert-as-service.svg"
+           alt="GitHub release">
+  </a>
+  <a href="https://github.com/hanxiao/bert-as-service/issues">
+        <img src="https://img.shields.io/github/issues/hanxiao/bert-as-service.svg"
+             alt="GitHub issues">
+  </a>
+  <img src="https://img.shields.io/badge/Python-3.6-brightgreen.svg" alt="Python: >=3.6">
+  <img src="https://img.shields.io/badge/Tensorflow-1.10-brightgreen.svg" alt="Tensorflow: >=1.10">
+  <a href="https://github.com/hanxiao/bert-as-service/blob/master/LICENSE">
+        <img src="https://img.shields.io/github/license/hanxiao/bert-as-service.svg"
+             alt="GitHub license">
+  </a>      
+</p>
 
-Using BERT model as a sentence encoding service, i.e. mapping a variable-length sentence to a fixed-length vector.
+<p align="center">
+  <a href="#highlights">Highlights</a> •
+  <a href="#what-is-it">What is it</a> •
+  <a href="#requirements">Requirements</a> •
+  <a href="#usage">Usage</a> •
+  <a href="#faq">FAQ</a> •
+  <a href="#benchmark">Benchmark</a>
+  <a href="#advance-usage">Advance Usage</a>
+</p>
 
-<img src=".github/demo.gif" width="700">
+<h6 align="center">Made by Han Xiao [https://hanxiao.github.io](https://hanxiao.github.io)</h6>
 
-Author: Han Xiao [https://hanxiao.github.io](https://hanxiao.github.io)
+![screenshot](.github/demo.gif)
 
-* [Highlights](#highlights)
-* [What is it](#what-is-it)
-* [Requirements](#requirements)
-* [Usage](#usage)
-* [FAQ](#faq)
-* [Benchmark](#benchmark)
-* [Advance Usage](#advance-usage)
 
 ## What is it
 
