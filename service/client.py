@@ -69,9 +69,9 @@ class BertClient:
         if show_server_config:
             self._print_dict(self.server_status, 'server config:')
 
-        print('you should NOT see this message multiple times! '
-              'if you see it appears repeatedly, '
-              'consider moving "BertClient()" out of the loop.')
+        # print('you should NOT see this message multiple times! '
+        #       'if you see it appears repeatedly, '
+        #       'consider moving "BertClient()" out of the loop.')
 
     def _send(self, msg):
         self.sender.send_multipart([self.identity, msg, b'%d' % self.request_id])
