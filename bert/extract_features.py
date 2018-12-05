@@ -42,6 +42,35 @@ class PoolingStrategy(Enum):
             raise ValueError()
 
 
+def minus_mask(x, mask, offset=1e30):
+    """
+    masking by subtract a very large number
+    :param x: sequence data in the shape of [B, L, D]
+    :param mask: 0-1 mask in the shape of [B, L]
+    :param offset: very large negative number
+    :return: masked x
+    """
+    return x - tf.expand_dims(1.0 - mask, axis=-1) * offset
+
+
+def mul_mask(x, mask):
+    """
+    masking by multiply zero
+    :param x: sequence data in the shape of [B, L, D]
+    :param mask: 0-1 mask in the shape of [B, L]
+    :return: masked x
+    """
+    return x * tf.expand_dims(mask, axis=-1)
+
+
+def masked_reduce_max(x, mask):
+    return tf.reduce_max(minus_mask(x, mask), axis=1)
+
+
+def masked_reduce_mean(x, mask, jitter=1e-10):
+    return tf.reduce_sum(mul_mask(x, mask), axis=1) / (tf.reduce_sum(mask, axis=1, keepdims=True) + jitter)
+
+
 class InputExample(object):
 
     def __init__(self, unique_id, text_a, text_b):
@@ -63,7 +92,7 @@ class InputFeatures(object):
 
 def model_fn_builder(bert_config, init_checkpoint, use_one_hot_embeddings=False,
                      pooling_strategy=PoolingStrategy.REDUCE_MEAN,
-                     pooling_layer=-2):
+                     pooling_layer=[-2]):
     """Returns `model_fn` closure for TPUEstimator."""
 
     def model_fn(features, labels, mode, params):  # pylint: disable=unused-argument
@@ -93,19 +122,20 @@ def model_fn_builder(bert_config, init_checkpoint, use_one_hot_embeddings=False,
 
         all_layers = []
         if len(pooling_layer) == 1:
-            encoder_layer = model.all_encoder_layers[pooling_layer[-1]]
+            encoder_layer = model.all_encoder_layers[pooling_layer[0]]
         else:
             for layer in pooling_layer:
                 all_layers.append(model.all_encoder_layers[layer])
             encoder_layer = tf.concat(all_layers, -1)
 
+        input_mask = tf.cast(input_mask, tf.float32)
         if pooling_strategy == PoolingStrategy.REDUCE_MEAN:
-            pooled = tf.reduce_mean(encoder_layer, axis=1)
+            pooled = masked_reduce_mean(encoder_layer, input_mask)
         elif pooling_strategy == PoolingStrategy.REDUCE_MAX:
-            pooled = tf.reduce_max(encoder_layer, axis=1)
+            pooled = masked_reduce_max(encoder_layer, input_mask)
         elif pooling_strategy == PoolingStrategy.REDUCE_MEAN_MAX:
-            pooled = tf.concat([tf.reduce_mean(encoder_layer, axis=1),
-                                tf.reduce_max(encoder_layer, axis=1)], axis=1)
+            pooled = tf.concat([masked_reduce_mean(encoder_layer, input_mask),
+                                masked_reduce_max(encoder_layer, input_mask)], axis=1)
         elif pooling_strategy == PoolingStrategy.FIRST_TOKEN or pooling_strategy == PoolingStrategy.CLS_TOKEN:
             pooled = tf.squeeze(encoder_layer[:, 0:1, :], axis=1)
         elif pooling_strategy == PoolingStrategy.LAST_TOKEN or pooling_strategy == PoolingStrategy.SEP_TOKEN:

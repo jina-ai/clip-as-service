@@ -244,10 +244,6 @@ class BertModel(object):
         """
         return self.sequence_output
 
-    def get_sentence_encoding(self):
-        # https://github.com/google-research/bert/issues/71#issuecomment-436507081
-        return tf.reduce_mean(self.all_encoder_layers[-2], axis=1)
-
     def get_all_encoder_layers(self):
         return self.all_encoder_layers
 
