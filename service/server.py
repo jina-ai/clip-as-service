@@ -110,7 +110,7 @@ class BertServer(threading.Thread):
             while True:
                 client, msg, req_id = self.frontend.recv_multipart()
                 if msg == ServerCommand.show_config:
-                    self.logger.info('config request\tclient: %s\tid: %d' % (client, req_id))
+                    self.logger.info('config request\tclient: %s\tid: %d' % (client, int(req_id)))
                     self.sink.send_multipart([client, msg,
                                               jsonapi.dumps({**{'client': client.decode('ascii'),
                                                                 'num_subprocess': len(self.processes),
@@ -123,7 +123,7 @@ class BertServer(threading.Thread):
                                                              **self.args_dict}), req_id])
                     continue
 
-                self.logger.info('encode request\tclient: %s\tid: %d' % (client, req_id))
+                self.logger.info('encode request\tclient: %s\tid: %d' % (client, int(req_id)))
                 num_req += 1
                 seqs = jsonapi.loads(msg)
                 num_seqs = len(seqs)
@@ -287,6 +287,7 @@ class BertWorker(Process):
 
     def input_fn_builder(self, worker):
         def gen():
+            self.logger.info('input_fn_builder')
             while not self.exit_flag.is_set():
                 client_id, msg = worker.recv_multipart()
                 msg = jsonapi.loads(msg)

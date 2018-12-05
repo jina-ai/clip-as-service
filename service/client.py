@@ -5,6 +5,7 @@
 import sys
 import threading
 import uuid
+from collections import namedtuple
 
 import numpy as np
 import zmq
@@ -19,6 +20,8 @@ else:
     _str = basestring
     _buffer = buffer
     _unicode = lambda x: [BertClient.force_to_unicode(y) for y in x]
+
+Response = namedtuple('Response', ['id', 'content'])
 
 
 class BertClient:
@@ -78,13 +81,13 @@ class BertClient:
         response = self.receiver.recv_multipart()
         request_id = int(response[-1])
         self.pending_request.remove(request_id)
-        return request_id, response
+        return Response(request_id, response)
 
     def _recv_ndarray(self):
-        r_id, response = self._recv()
+        request_id, response = self._recv()
         arr_info, arr_val = jsonapi.loads(response[1]), response[2]
         X = np.frombuffer(_buffer(arr_val), dtype=arr_info['dtype'])
-        return self.formatter(X.reshape(arr_info['shape']))
+        return Response(request_id, self.formatter(X.reshape(arr_info['shape'])))
 
     @property
     def status(self):
@@ -102,9 +105,7 @@ class BertClient:
     @property
     def server_status(self):
         self._send(b'SHOW_CONFIG')
-        response = self._recv()
-        print(response)
-        return jsonapi.loads(response[1])
+        return jsonapi.loads(self._recv().content)
 
     def encode(self, texts, blocking=True):
         """ Encode a list of strings to a list of vectors
@@ -118,7 +119,7 @@ class BertClient:
         if self.is_valid_input(texts):
             texts = _unicode(texts)
             self._send(jsonapi.dumps(texts))
-            return self._recv_ndarray()[1] if blocking else None
+            return self._recv_ndarray().content if blocking else None
         else:
             raise AttributeError('"texts" must be "List[str]" and non-empty!')
 
@@ -148,8 +149,8 @@ class BertClient:
         if self.pending_request:
             tmp = list(self.fetch())
             if sort:
-                tmp = sorted(tmp, key=lambda tup: tup[0])
-            tmp = [v[1] for v in tmp]
+                tmp = sorted(tmp, key=lambda v: v.id)
+            tmp = [v.content for v in tmp]
             if concat:
                 if self.formatter == 'ndarray':
                     tmp = np.concatenate(tmp, axis=0)
