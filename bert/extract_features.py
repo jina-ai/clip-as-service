@@ -67,8 +67,8 @@ def masked_reduce_max(x, mask):
     return tf.reduce_max(minus_mask(x, mask), axis=1)
 
 
-def masked_reduce_mean(x, mask):
-    return tf.reduce_sum(mul_mask(x, mask), axis=1) / tf.reduce_sum(mask, axis=1, keepdims=True)
+def masked_reduce_mean(x, mask, jitter=1e-10):
+    return tf.reduce_sum(mul_mask(x, mask), axis=1) / (tf.reduce_sum(mask, axis=1, keepdims=True) + jitter)
 
 
 class InputExample(object):
