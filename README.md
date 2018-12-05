@@ -9,7 +9,7 @@
     <img src="https://img.shields.io/github/stars/hanxiao/bert-as-service.svg"
          alt="GitHub stars">
   </a>
-  <a href="https://github.com/hanxiao/bert-as-service/release">
+  <a href="https://github.com/hanxiao/bert-as-service/releases">
       <img src="https://img.shields.io/github/release/hanxiao/bert-as-service.svg"
            alt="GitHub release">
   </a>
@@ -17,11 +17,14 @@
         <img src="https://img.shields.io/github/issues/hanxiao/bert-as-service.svg"
              alt="GitHub issues">
   </a>
-  <img src="https://img.shields.io/badge/Python-3.6-brightgreen.svg" alt="Python: >=3.6">
-  <img src="https://img.shields.io/badge/Tensorflow-1.10-brightgreen.svg" alt="Tensorflow: >=1.10">
+  <img src="https://img.shields.io/badge/Python->=3.6-brightgreen.svg" alt="Python: >=3.6">
+  <img src="https://img.shields.io/badge/Tensorflow->=1.10-brightgreen.svg" alt="Tensorflow: >=1.10">
   <a href="https://github.com/hanxiao/bert-as-service/blob/master/LICENSE">
         <img src="https://img.shields.io/github/license/hanxiao/bert-as-service.svg"
              alt="GitHub license">
+  </a>
+  <a href="https://twitter.com/intent/tweet?text=Wow:&url=https%3A%2F%2Fgithub.com%2Fhanxiao%2Fbert-as-service">
+  <img src="https://img.shields.io/twitter/url/https/github.com/hanxiao/bert-as-service.svg?style=social" alt="Twitter">
   </a>      
 </p>
 
