@@ -48,5 +48,5 @@ if __name__ == '__main__':
         print('received %s, shape %s' % (v.id, v.content.shape))
 
     # get encoded vectors
-    for j in bc.encode_async(text_gen(), max_num_batch=20):
+    for j in bc.encode_async(text_gen(), max_num_batch=20)():
         print('received %d : %s' % (j.id, j.content))

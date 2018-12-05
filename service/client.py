@@ -176,7 +176,7 @@ class BertClient:
 
         t = threading.Thread(target=run)
         t.start()
-        return self.fetch()
+        return self.fetch
 
     @staticmethod
     def is_valid_input(texts):
