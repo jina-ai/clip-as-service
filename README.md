@@ -35,8 +35,9 @@
   <a href="#advance-usage">Advance Usage</a>
 </p>
 
-
-![screenshot](.github/demo.gif)
+<p align="center">
+    <img src=".github/demo.gif" width="700">
+</p>
 
 <h6 align="center">Made by Han Xiao
  <a href="https://hanxiao.github.io">https://hanxiao.github.io</a></h6>
