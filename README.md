@@ -30,13 +30,13 @@ Author: Han Xiao [https://hanxiao.github.io](https://hanxiao.github.io)
 
 - :telescope: **State-of-the-art**: build on pretrained 12/24-layer BERT models released by Google AI, which is considered as a milestone in the NLP community.
 - :hatching_chick: **Easy-to-use**: require only two lines of code to get sentence encodes.
-- :zap: **Fast**: 780 sentences/s on a single Tesla M40 24GB when `max_seq_len=20`. See [benchmark](#Benchmark).
+- :zap: **Fast**: 900 sentences/s on a single Tesla M40 24GB with `max_seq_len=20`. See [benchmark](#Benchmark).
 - :octopus: **Scalable**: scale nicely and smoothly on multiple GPUs and multiple clients without worrying about concurrency. See [benchmark](#speed-wrt-num_client).
 
 ## Requirements
 
 - Python >= 3.5 (Python 2 is NOT supported!)
-- Tensorflow >= 1.10
+- Tensorflow >= 1.10 (one-point-ten)
 
 These two requirements MUST be satisfied. For other dependent packages, please refer to `requirements.txt`  and `requirements.client.txt`.
 
@@ -224,7 +224,7 @@ python app.py -pooling_layer -4 -3 -2 -1 -model_dir /tmp/english_L-12_H-768_A-12
 
 ##### **Q:** How about the speed? Is it fast enough for production?
 
-**A:** It highly depends on the `max_seq_len` and the size of a request. On a single Tesla M40 24GB with `max_seq_len=40`, you should get about 780 samples per second using a 12-layer BERT. In general, I'd suggest smaller `max_seq_len` (25) and larger request size (512/1024).
+**A:** It highly depends on the `max_seq_len` and the size of a request. On a single Tesla M40 24GB with `max_seq_len=40`, you should get about 470 samples per second using a 12-layer BERT. In general, I'd suggest smaller `max_seq_len` (25) and larger request size (512/1024).
 
 ##### **Q:** Did you benchmark the efficiency?
 
@@ -395,14 +395,13 @@ Performance-wise, longer sequences means slower speed and  more chance of OOM, a
 
 <img src=".github/max_seq_len.png" width="600">
 
-| max_seq_len | 1 GPU | 2 GPU | 4 GPU |
-|-------------|-------|-------|-------|
-| 20          | 787   | 1551  | 3026  |
-| 40          | 381   | 760   | 1502  |
-| 80          | 156   | 313   | 621   |
-| 160         | 112   | 224   | 448   |
-| 320         | 51    | 102   | 205   |
-
+| `max_seq_len` | 1 GPU | 2 GPU | 4 GPU |
+|---------------|-------|-------|-------|
+| 20            | 903   | 1774  | 3254  |
+| 40            | 473   | 919   | 1687  |
+| 80            | 231   | 435   | 768   |
+| 160           | 119   | 237   | 464   |
+| 320           | 54    | 108   | 212   |
 
 #### Speed wrt. `client_batch_size`
 
@@ -429,18 +428,18 @@ It's even worse if you put `BertClient()` inside the loop. Don't do that.
 
 <img src=".github/client_batch_size.png" width="600">
 
-| client_batch_size | 1 GPU | 2 GPU | 4 GPU |
-|-------------------|-------|-------|-------|
-| 1                 | 33    | 74    | 73    |
-| 4                 | 207   | 203   | 199   |
-| 8                 | 275   | 275   | 267   |
-| 16                | 334   | 333   | 330   |
-| 64                | 365   | 363   | 366   |
-| 256               | 383   | 382   | 383   |
-| 512               | 377   | 768   | 767   |
-| 1024              | 378   | 753   | 1525  |
-| 2048              | 380   | 758   | 1495  |
-| 4096              | 381   | 762   | 1511  |
+| `client_batch_size` | 1 GPU | 2 GPU | 4 GPU |
+|---------------------|-------|-------|-------|
+| 1                   | 75    | 74    | 72    |
+| 4                   | 206   | 205   | 201   |
+| 8                   | 274   | 270   | 267   |
+| 16                  | 332   | 329   | 330   |
+| 64                  | 365   | 365   | 365   |
+| 256                 | 382   | 383   | 383   |
+| 512                 | 432   | 766   | 762   |
+| 1024                | 459   | 862   | 1517  |
+| 2048                | 473   | 917   | 1681  |
+| 4096                | 481   | 943   | 1809  |
 
 
 
@@ -449,14 +448,14 @@ It's even worse if you put `BertClient()` inside the loop. Don't do that.
 
 <img src=".github/num_clients.png" width="600">
 
-| num_client | 1 GPU | 2 GPU | 4 GPU |
-|------------|-------|-------|-------|
-| 1          | 381   | 758   | 1522  |
-| 2          | 201   | 402   | 802   |
-| 4          | 103   | 207   | 413   |
-| 8          | 52    | 105   | 210   |
-| 16         | 26    | 53    | 105   |
-| 32         | 13    | 26    | 53    |
+| `num_client` | 1 GPU | 2 GPU | 4 GPU |
+|--------------|-------|-------|-------|
+| 1            | 473   | 919   | 1759  |
+| 2            | 261   | 512   | 1028  |
+| 4            | 133   | 267   | 533   |
+| 8            | 67    | 136   | 270   |
+| 16           | 34    | 68    | 136   |
+| 32           | 17    | 34    | 68    |
 
 As one can observe, 1 clients 1 GPU = 381 seqs/s, 2 clients 2 GPU 402 seqs/s, 4 clients 4 GPU 413 seqs/s. This shows the efficiency of our parallel pipeline and job scheduling, as the service can leverage the GPU time  more exhaustively as concurrent requests increase.
 
@@ -467,13 +466,13 @@ As one can observe, 1 clients 1 GPU = 381 seqs/s, 2 clients 2 GPU 402 seqs/s, 4 
 
 <img src=".github/max_batch_size.png" width="600">
 
-| max_batch_size | 1 GPU | 2 GPU | 4 GPU |
-|----------------|-------|-------|-------|
-| 32             | 357   | 717   | 1409  |
-| 64             | 364   | 733   | 1460  |
-| 128            | 378   | 759   | 1512  |
-| 256            | 381   | 758   | 1497  |
-| 512            | 381   | 762   | 1500  |
+| `max_batch_size` | 1 GPU | 2 GPU | 4 GPU |
+|------------------|-------|-------|-------|
+| 32               | 450   | 887   | 1726  |
+| 64               | 459   | 897   | 1759  |
+| 128              | 473   | 931   | 1816  |
+| 256              | 473   | 919   | 1688  |
+| 512              | 464   | 866   | 1483  |
 
 
 #### Speed wrt. `pooling_layer`
@@ -482,20 +481,20 @@ As one can observe, 1 clients 1 GPU = 381 seqs/s, 2 clients 2 GPU 402 seqs/s, 4 
 
 <img src=".github/pooling_layer.png" width="600">
 
-| pooling_layer | 1 GPU | 2 GPU | 4 GPU |
-|---------------|-------|-------|-------|
-| -1 | 317 | 710 | 1422 |
-| -2 | 382 | 760 | 1516 |
-| -3 | 411 | 812 | 1632 |
-| -4 | 444 | 879 | 1762 |
-| -5 | 483 | 959 | 1913 |
-| -6 | 529 | 1050 | 2100 |
-| -7 | 585 | 1163 | 2320 |
-| -8 | 655 | 1292 | 2583 |
-| -9 | 744 | 1470 | 2928 |
-| -10 | 858 | 1687 | 3371 |
-| -11 | 1016 | 1994 | 4018 |
-| -12 | 1227 | 2432 | 4840 |
+| `pooling_layer` | 1 GPU | 2 GPU | 4 GPU |
+|-----------------|-------|-------|-------|
+| [-1]            | 438   | 844   | 1568  |
+| [-2]            | 475   | 916   | 1686  |
+| [-3]            | 516   | 995   | 1823  |
+| [-4]            | 569   | 1076  | 1986  |
+| [-5]            | 633   | 1193  | 2184  |
+| [-6]            | 711   | 1340  | 2430  |
+| [-7]            | 820   | 1528  | 2729  |
+| [-8]            | 945   | 1772  | 3104  |
+| [-9]            | 1128  | 2047  | 3622  |
+| [-10]           | 1392  | 2542  | 4241  |
+| [-11]           | 1523  | 2737  | 4752  |
+| [-12]           | 1568  | 2985  | 5303  |
 
 
 ## Advance Usage

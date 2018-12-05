@@ -91,7 +91,7 @@ class BertServer(threading.Thread):
         num_req = 0
         try:
             import GPUtil
-            available_gpus = GPUtil.getAvailable(limit=self.num_worker)
+            available_gpus = GPUtil.getAvailable(limit=self.num_worker, maxMemory=0.01, maxLoad=0.01)
             if len(available_gpus) < self.num_worker:
                 self.logger.warn('only %d GPU(s) is available, but ask for %d' % (len(available_gpus), self.num_worker))
         except FileNotFoundError:
@@ -255,6 +255,7 @@ class BertWorker(Process):
         self.logger = set_logger('WORKER-%d' % self.worker_id)
         self.worker_address = worker_address
         self.sink_address = sink_address
+        self.prefetch_factor = 10
 
     def close(self):
         self.logger.info('shutting down...')
@@ -274,7 +275,6 @@ class BertWorker(Process):
         input_fn = self.input_fn_builder(receiver)
 
         for r in self.estimator.predict(input_fn, yield_single_examples=False):
-            # logger.info('new result!')
             send_ndarray(sink, r['client_id'], r['encodes'])
             self.logger.info('job done!\tsize: %s\tclient: %s' % (r['encodes'].shape, r['client_id']))
 
@@ -312,7 +312,7 @@ class BertWorker(Process):
                     'client_id': (),
                     'input_ids': (None, self.max_seq_len),
                     'input_mask': (None, self.max_seq_len),
-                    'input_type_ids': (None, self.max_seq_len)}))
+                    'input_type_ids': (None, self.max_seq_len)}).prefetch(self.prefetch_factor))
 
         return input_fn
 
