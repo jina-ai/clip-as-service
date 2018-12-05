@@ -274,7 +274,6 @@ class BertWorker(Process):
         input_fn = self.input_fn_builder(receiver)
 
         for r in self.estimator.predict(input_fn, yield_single_examples=False):
-            # logger.info('new result!')
             send_ndarray(sink, r['client_id'], r['encodes'])
             self.logger.info('job done!\tsize: %s\tclient: %s' % (r['encodes'].shape, r['client_id']))
 
@@ -312,7 +311,7 @@ class BertWorker(Process):
                     'client_id': (),
                     'input_ids': (None, self.max_seq_len),
                     'input_mask': (None, self.max_seq_len),
-                    'input_type_ids': (None, self.max_seq_len)}))
+                    'input_type_ids': (None, self.max_seq_len)}).prefetch(5))
 
         return input_fn
 
