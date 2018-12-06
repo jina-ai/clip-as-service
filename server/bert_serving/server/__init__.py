@@ -16,9 +16,9 @@ from tensorflow.python.estimator.estimator import Estimator
 from tensorflow.python.estimator.run_config import RunConfig
 from zmq.utils import jsonapi
 
-from helper import set_logger
 from .bert import modeling, tokenization
 from .bert.extract_features import model_fn_builder, convert_lst_to_features
+from .helper import set_logger
 
 _tf_ver = tf.__version__.split('.')
 assert int(_tf_ver[0]) >= 1 and int(_tf_ver[1]) >= 10, 'Tensorflow >=1.10 is required!'
