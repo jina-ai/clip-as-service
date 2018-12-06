@@ -66,8 +66,8 @@
 ## Install
 You can install the server and client with `pip` *separately* or even on *different* machines via:
 ```bash
-pip install -U bert-serving-server  # install server
-pip install -U bert-serving-client  # install client, does not depend on `bert-serving-server`
+pip install bert-serving-server  # install server
+pip install bert-serving-client  # install client, does not depend on `bert-serving-server`
 ```
 
 Note that the server MUST be run on Python >= 3.5 and Tensorflow >= 1.10 (*one-point-ten*). The server does not support Python 2!
@@ -144,6 +144,8 @@ from bert_serving.client import BertClient
 bc = BertClient(ip='xx.xx.xx.xx')  # ip address of the GPU machine
 bc.encode(['First do it', 'then do it right', 'then do it better'])
 ```
+
+Note that you only need `pip install -U bert-serving-client` in this case, the server side is not required.
 
 > :bulb: **Checkout some advance usages below:**
 > - [Using `BertClient` with `tf.data` API](#using-bertclient-with-tfdata-api)

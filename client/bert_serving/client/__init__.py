@@ -31,7 +31,7 @@ Response = namedtuple('Response', ['id', 'content'])
 class BertClient:
     def __init__(self, ip='localhost', port=5555, port_out=5556,
                  output_fmt='ndarray', show_server_config=False,
-                 identity=None):
+                 identity=None, check_version=True):
         """ A client object connected to a BertServer
 
         Create a BertClient that connects with a BertServer
@@ -69,8 +69,14 @@ class BertClient:
         self.port_out = port_out
         self.ip = ip
 
+        s_status = self.server_status
+        if check_version and s_status['server_version'] != self.status['client_version']:
+            raise AttributeError('version mismatch! server version is %s but client version is %s!\n'
+                                 'consider "pip install -U bert-serving-server bert-serving-client"' % (
+                                     s_status['server_version'], self.status['client_version']))
+
         if show_server_config:
-            self._print_dict(self.server_status, 'server config:')
+            self._print_dict(s_status, 'server config:')
 
         # print('you should NOT see this message multiple times! '
         #       'if you see it appears repeatedly, '
