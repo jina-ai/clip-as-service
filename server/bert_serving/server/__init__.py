@@ -14,6 +14,7 @@ import tensorflow as tf
 import zmq
 from tensorflow.python.estimator.estimator import Estimator
 from tensorflow.python.estimator.run_config import RunConfig
+from termcolor import colored
 from zmq.utils import jsonapi
 
 from .bert import modeling, tokenization
@@ -35,7 +36,7 @@ class ServerCommand:
 class BertServer(threading.Thread):
     def __init__(self, args):
         super().__init__()
-        self.logger = set_logger('VENTILATOR')
+        self.logger = set_logger(colored('VENTILATOR', 'magenta'))
 
         self.model_dir = args.model_dir
         self.max_seq_len = args.max_seq_len
@@ -155,7 +156,7 @@ class BertSink(Process):
         super().__init__()
         self.port = args.port_out
         self.exit_flag = multiprocessing.Event()
-        self.logger = set_logger('SINK')
+        self.logger = set_logger(colored('SINK', 'blue'))
         self.front_sink_addr = front_sink_addr
 
     def close(self):
@@ -204,15 +205,15 @@ class BertSink(Process):
                     partial_id = job_info[1] if len(job_info) == 2 else 0
                     pending_result[job_id].append((X, partial_id))
                     pending_checksum[job_id] += X.shape[0]
-                    self.logger.info('collected job %s (%d/%d)' % (job_id,
-                                                                   pending_checksum[job_id],
-                                                                   job_checksum[job_id]))
+                    self.logger.info('collect job %s (%d/%d)' % (job_id,
+                                                                 pending_checksum[job_id],
+                                                                 job_checksum[job_id]))
 
                     # check if there are finished jobs, send it back to workers
                     finished = [(k, v) for k, v in pending_result.items() if pending_checksum[k] == job_checksum[k]]
                     for job_info, tmp in finished:
                         self.logger.info(
-                            'job done!\tsize: %d\tjob id:%s\tsending back to client' % (
+                            'send back\tsize: %d\tjob id:%s\t' % (
                                 job_checksum[job_info], job_info))
                         # re-sort to the original order
                         tmp = [x[0] for x in sorted(tmp, key=lambda x: x[1])]
@@ -227,7 +228,7 @@ class BertSink(Process):
                     if msg_type == ServerCommand.new_job:
                         job_info = client_addr + b'#' + req_id
                         job_checksum[job_info] = int(msg_info)
-                        self.logger.info('new job!\tsize: %d\tjob id: %s' % (int(msg_info), job_info))
+                        self.logger.info('new register!\tsize: %d\tjob id: %s' % (int(msg_info), job_info))
                     elif msg_type == ServerCommand.show_config:
                         sender.send_multipart([client_addr, msg_info, req_id])
         except zmq.error.ContextTerminated:
@@ -257,7 +258,7 @@ class BertWorker(Process):
         config.gpu_options.per_process_gpu_memory_fraction = args.gpu_memory_fraction
         self.estimator = Estimator(self.model_fn, config=RunConfig(session_config=config))
         self.exit_flag = multiprocessing.Event()
-        self.logger = set_logger('WORKER-%d' % self.worker_id)
+        self.logger = set_logger(colored('WORKER-%d' % self.worker_id, 'yellow'))
         self.worker_address = worker_address
         self.sink_address = sink_address
         self.prefetch_factor = 10
@@ -281,7 +282,7 @@ class BertWorker(Process):
 
         for r in self.estimator.predict(input_fn, yield_single_examples=False):
             send_ndarray(sink, r['client_id'], r['encodes'])
-            self.logger.info('job done!\tsize: %s\tclient: %s' % (r['encodes'].shape, r['client_id']))
+            self.logger.info('job done\tsize: %s\tclient: %s' % (r['encodes'].shape, r['client_id']))
 
         receiver.close()
         sink.close()
@@ -294,7 +295,7 @@ class BertWorker(Process):
             while not self.exit_flag.is_set():
                 client_id, msg = worker.recv_multipart()
                 msg = jsonapi.loads(msg)
-                self.logger.info('new job!\tsize: %d\tclient: %s' % (len(msg), client_id))
+                self.logger.info('new job\tsize: %d\tclient: %s' % (len(msg), client_id))
                 tmp_f = list(convert_lst_to_features(msg, self.max_seq_len, self.tokenizer))
                 yield {
                     'client_id': client_id,
@@ -323,9 +324,3 @@ def send_ndarray(src, dest, X, req_id=b'', flags=0, copy=True, track=False):
     """send a numpy array with metadata"""
     md = dict(dtype=str(X.dtype), shape=X.shape)
     return src.send_multipart([dest, jsonapi.dumps(md), X, req_id], flags, copy=copy, track=track)
-
-
-# These lines will be programatically read/write by setup.py
-# Don't touch them.
-__version__ = '0.9.0.1'
-__git_version__ = __version__
