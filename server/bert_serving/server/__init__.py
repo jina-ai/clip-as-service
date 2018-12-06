@@ -27,6 +27,14 @@ assert int(_tf_ver[0]) >= 1 and int(_tf_ver[1]) >= 10, 'Tensorflow >=1.10 is req
 __version__ = '1.4.4'
 
 
+def _auto_bind(socket):
+    if os.name == 'nt':  # for Windows
+        socket.bind_to_random_port('tcp://*')
+    else:
+        socket.bind('ipc://*')
+    return socket.getsockopt(zmq.LAST_ENDPOINT).decode('ascii')
+
+
 class ServerCommand:
     terminate = b'TERMINATION'
     show_config = b'SHOW_CONFIG'
@@ -66,13 +74,11 @@ class BertServer(threading.Thread):
 
         # pair connection between frontend and sink
         self.sink = self.context.socket(zmq.PAIR)
-        self.sink.bind('ipc://*')
-        self.addr_front2sink = self.sink.getsockopt(zmq.LAST_ENDPOINT).decode('ascii')
+        self.addr_front2sink = _auto_bind(self.sink)
 
         # backend facing workers
         self.backend = self.context.socket(zmq.PUSH)
-        self.backend.bind('ipc://*')
-        self.addr_backend = self.backend.getsockopt(zmq.LAST_ENDPOINT).decode('ascii')
+        self.addr_backend = _auto_bind(self.backend)
 
         # start the sink thread
         proc_sink = BertSink(self.args, self.addr_front2sink)
@@ -170,7 +176,7 @@ class BertSink(Process):
         context = zmq.Context()
         # receive from workers
         receiver = context.socket(zmq.PULL)
-        receiver.bind('ipc://*')
+        receiver_addr = _auto_bind(receiver)
 
         frontend = context.socket(zmq.PAIR)
         frontend.connect(self.front_sink_addr)
@@ -188,7 +194,7 @@ class BertSink(Process):
         poller.register(receiver, zmq.POLLIN)
 
         # send worker receiver address back to frontend
-        frontend.send(receiver.getsockopt(zmq.LAST_ENDPOINT))
+        frontend.send(receiver_addr.encode('ascii'))
 
         try:
             while not self.exit_flag.is_set():
