@@ -21,8 +21,6 @@ from tensorflow.python.estimator.canned.dnn import DNNClassifier
 from tensorflow.python.estimator.run_config import RunConfig
 from tensorflow.python.estimator.training import TrainSpec, EvalSpec, train_and_evaluate
 
-from gpu_env import MODEL_ID
-
 os.environ['CUDA_VISIBLE_DEVICES'] = str(GPUtil.getFirstAvailable()[0])
 tf.logging.set_verbosity(tf.logging.INFO)
 
@@ -65,7 +63,7 @@ def get_encodes(x):
 
 config = tf.ConfigProto()
 config.gpu_options.allow_growth = True
-run_config = RunConfig(model_dir='/data/cips/save/%s' % MODEL_ID,
+run_config = RunConfig(model_dir='/data/cips/save/law-model',
                        session_config=config,
                        save_checkpoints_steps=1000)
 

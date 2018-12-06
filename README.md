@@ -253,7 +253,7 @@ bert_serving_start -pooling_layer -4 -3 -2 -1 -model_dir /tmp/english_L-12_H-768
 
 ##### **Q:** So one request means one sentence?
 
-**A:** No. One request means a list of sentences sent from a client. Think the size of a request as the batch size. A request may contain 256, 512 or 1024 sentences. The optimal size of a request is often determined empirically. One large request can certainly improve the GPU utilization, yet it also increases the overhead of transmission. You may run `python example1.py` for a simple benchmark.
+**A:** No. One request means a list of sentences sent from a client. Think the size of a request as the batch size. A request may contain 256, 512 or 1024 sentences. The optimal size of a request is often determined empirically. One large request can certainly improve the GPU utilization, yet it also increases the overhead of transmission. You may run `python example/example1.py` for a simple benchmark.
 
 ##### **Q:** How about the speed? Is it fast enough for production?
 
@@ -566,7 +566,7 @@ ds = (tf.data.TextLineDataset(train_fp).batch(batch_size)
 
 The trick here is to start a pool of `BertClient` and reuse them one by one. In this way, we can fully harness the power of `num_parallel_calls` of `Dataset.map()` API.  
 
-The complete example can [be found example4.py](example4.py). There is also [an example in Keras](https://github.com/hanxiao/bert-as-service/issues/29#issuecomment-442362241). 
+The complete example can [be found example4.py](example/example4.py). There is also [an example in Keras](https://github.com/hanxiao/bert-as-service/issues/29#issuecomment-442362241). 
 
 ### Building a text classifier using BERT features and `tf.estimator` API
 
@@ -593,7 +593,7 @@ eval_spec = EvalSpec(input_fn=lambda: input_fn(eval_fp), throttle_secs=0)
 train_and_evaluate(estimator, train_spec, eval_spec)
 ```
 
-The complete example can [be found example5.py](example5.py), in which a simple MLP is built on BERT features for predicting the relevant articles according to the fact description in the law documents. The problem is a part of the [Chinese AI and Law Challenge Competition](https://github.com/thunlp/CAIL/blob/master/README_en.md).
+The complete example can [be found example5.py](example/example5.py), in which a simple MLP is built on BERT features for predicting the relevant articles according to the fact description in the law documents. The problem is a part of the [Chinese AI and Law Challenge Competition](https://github.com/thunlp/CAIL/blob/master/README_en.md).
 
 
 ### Save to and load from TFRecord data
@@ -632,7 +632,7 @@ ds = (tf.data.TFRecordDataset('tmp.tfrecord').repeat().shuffle(buffer_size=100).
       .make_one_shot_iterator().get_next())
 ```
 
-The complete example can [be found example6.py](example6.py). 
+The complete example can [be found example6.py](example/example6.py). 
 
 To save word/token-level embedding to TFRecord, one needs to first flatten `[max_seq_len, num_hidden]` tensor into an 1D array as follows:
 ```python
@@ -670,7 +670,7 @@ for j in bc.encode_async(text_gen(), max_num_batch=10):
     print('received %d x %d' % (j.shape[0], j.shape[1]))
 ```
 
-The complete example can [be found example2.py](example2.py).
+The complete example can [be found example2.py](example/example2.py).
 
 ### Broadcasting to multiple clients
 
@@ -691,4 +691,4 @@ for j in range(2):
 for _ in range(3):
     bc.encode(lst_str)
 ```
-The complete example can [be found in example3.py](example3.py).
+The complete example can [be found in example3.py](example/example3.py).
