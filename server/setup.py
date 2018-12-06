@@ -27,7 +27,8 @@ setup(
         'numpy',
         'six',
         'pyzmq>=17.1.0',
-        'GPUtil>=1.3.0'
+        'GPUtil>=1.3.0',
+        'termcolor>=1.1'
     ],
     extras_require={
         'tensorflow': ['tensorflow>=1.10.0'],
