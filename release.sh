@@ -21,7 +21,7 @@ SERVER_CODE=$SERVER_DIR'bert_serving/server/__init__.py'
 VER_TAG='__version__ = '
 
 #$(grep "$VER_TAG" $CLIENT_CODE | sed -n 's/^.*'\''\([^'\'']*\)'\''.*$/\1/p')
-VER=$(git describe --tags)
+VER=$(git describe --tags --abbrev=0)
 echo 'current version: '$VER
 
 VER=$(echo $VER | awk -F. -v OFS=. 'NF==1{print ++$NF}; NF>1{if(length($NF+1)>length($NF))$(NF-1)++; $NF=sprintf("%0*d", length($NF), ($NF+1)%(10^length($NF))); print}')
@@ -39,8 +39,8 @@ change_line "$VER_TAG" "$VER_VAL" $SERVER_CODE
 # publish to pypi
 cd $CLIENT_DIR
 python setup.py sdist bdist_wheel
-twine upload dist/*
+twine update dist/*
 cd -
 cd $SERVER_DIR
 python setup.py sdist bdist_wheel
-twine upload dist/*
+twine update dist/*
