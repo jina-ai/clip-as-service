@@ -2,7 +2,11 @@ from os import path
 
 from setuptools import setup, find_packages
 
-__version__ = '1.4.0'
+# setup metainfo
+libinfo_py = path.join('bert_serving', 'client', '__init__.py')
+libinfo_content = open(libinfo_py, 'r').readlines()
+version_line = [l.strip() for l in libinfo_content if l.startswith('__version__')][0]
+exec(version_line)  # produce __version__
 
 with open('requirements.txt') as f:
     require_packages = [line[:-1] if line[-1] == '\n' else line for line in f]
@@ -13,6 +17,7 @@ with open(path.join('README.md'), 'rb') as f:
 
 # with open('README.md', 'r', encoding='utf-8') as f:
 #     long_description = f.read()
+
 
 setup(
     name='bert_serving_client',
