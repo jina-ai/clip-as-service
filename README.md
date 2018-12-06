@@ -6,7 +6,7 @@
 
 <p align="center">
   <a href="https://github.com/hanxiao/bert-as-service/stargazers">
-    <img src="https://img.shields.io/github/stars/hanxiao/bert-as-service.svg"
+    <img src="https://img.shields.io/github/stars/hanxiao/bert-as-service.svg?label=⭐%20stars&colorA=orange&colorB=yellow"
          alt="GitHub stars">
   </a>
   <a href="https://pypi.org/search/?q=bert-serving">
@@ -14,7 +14,7 @@
            alt="Pypi package">
     </a>
   <a href="https://github.com/hanxiao/bert-as-service/releases">
-      <img src="https://img.shields.io/github/release/hanxiao/bert-as-service.svg?logo=github"
+      <img src="https://img.shields.io/github/release/hanxiao/bert-as-service.svg"
            alt="GitHub release">
   </a>
   <a href="https://github.com/hanxiao/bert-as-service/issues">
