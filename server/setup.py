@@ -8,15 +8,12 @@ libinfo_content = open(libinfo_py, 'r').readlines()
 version_line = [l.strip() for l in libinfo_content if l.startswith('__version__')][0]
 exec(version_line)  # produce __version__
 
-with open('README.md', 'r', encoding='utf-8') as f:
-    long_description = f.read()
-
 setup(
     name='bert_serving_server',
     version=__version__,
     description='Mapping a variable-length sentence to a fixed-length vector using BERT model (Server)',
     url='https://github.com/hanxiao/bert-as-service',
-    long_description=long_description,
+    long_description=open('README.md', 'r').read(),
     long_description_content_type='text/markdown',
     author='Han Xiao',
     author_email='artex.xh@gmail.com',
