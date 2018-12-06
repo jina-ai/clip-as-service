@@ -7,7 +7,7 @@
 import sys
 import threading
 
-from service.client import BertClient
+from bert_serving.client import BertClient
 
 
 def client_clone(id, idx):

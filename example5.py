@@ -10,12 +10,12 @@ import random
 
 import GPUtil
 import tensorflow as tf
+from bert_serving.client import BertClient
 from tensorflow.python.estimator.canned.dnn import DNNClassifier
 from tensorflow.python.estimator.run_config import RunConfig
 from tensorflow.python.estimator.training import TrainSpec, EvalSpec, train_and_evaluate
 
 from gpu_env import MODEL_ID
-from service.client import BertClient
 
 os.environ['CUDA_VISIBLE_DEVICES'] = str(GPUtil.getFirstAvailable()[0])
 tf.logging.set_verbosity(tf.logging.INFO)

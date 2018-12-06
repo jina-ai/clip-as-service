@@ -10,8 +10,7 @@ import time
 
 import GPUtil
 import tensorflow as tf
-
-from service.client import BertClient
+from bert_serving.client import BertClient
 
 os.environ['CUDA_VISIBLE_DEVICES'] = str(GPUtil.getFirstAvailable())
 

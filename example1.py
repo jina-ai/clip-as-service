@@ -7,7 +7,7 @@
 import sys
 import time
 
-from service.client import BertClient
+from bert_serving.client import BertClient
 
 if __name__ == '__main__':
     bc = BertClient(port=int(sys.argv[1]), port_out=int(sys.argv[2]))

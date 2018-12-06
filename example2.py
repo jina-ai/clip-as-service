@@ -6,7 +6,7 @@
 
 import sys
 
-from service.client import BertClient
+from bert_serving.client import BertClient
 
 
 def send_without_block(bc, data, repeat=10):
