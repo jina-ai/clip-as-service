@@ -21,7 +21,7 @@ import tempfile
 
 import tensorflow as tf
 
-from bert import tokenization
+from server.bert_serving.server.bert import tokenization
 
 
 class TokenizationTest(tf.test.TestCase):

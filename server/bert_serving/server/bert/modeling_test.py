@@ -24,7 +24,7 @@ import re
 import six
 import tensorflow as tf
 
-from bert import modeling
+from server.bert_serving.server.bert import modeling
 
 
 class BertModelTest(tf.test.TestCase):

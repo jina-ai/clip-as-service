@@ -188,7 +188,7 @@ Client-side configs are summarized below, which can be found in [`client.py`](se
 
 ##### **Q:** Where is the BERT code come from?
 
-**A:** [BERT code of this repo](server/bert_serving/server/bert/) is forked from the [original BERT repo](https://github.com/google-research/bert) with necessary modification, [especially in extract_features.py](server/bert_serving/server/bert/extract_features.py).
+**A:** [BERT code of this repo](bert/) is forked from the [original BERT repo](https://github.com/google-research/bert) with necessary modification, [especially in extract_features.py](bert/extract_features.py).
 
 ##### **Q:** How large is a sentence vector?
 In general, each sentence is translated to a 768-dimensional vector. Depending on the pretrained BERT you are using, `pooling_strategy` and `pooling_layer` the dimensions of the output vector could be different. 
@@ -236,7 +236,7 @@ python app.py -pooling_layer -4 -3 -2 -1 -model_dir /tmp/english_L-12_H-768_A-12
 
 ##### **Q:** Could I use other pooling techniques?
 
-**A:** For sure. Just follows [`get_sentence_encoding()` I added to the modeling.py](server/bert_serving/server/bert/extract_features.py#L96). Note that, if you introduce new `tf.variables` to the graph, then you need to train those variables before using the model. You may also want to check [some pooling techniques I mentioned in my blog post](https://hanxiao.github.io/2018/06/24/4-Encoding-Blocks-You-Need-to-Know-Besides-LSTM-RNN-in-Tensorflow/#pooling-block).
+**A:** For sure. Just follows [`get_sentence_encoding()` I added to the modeling.py](bert/extract_features.py#L96). Note that, if you introduce new `tf.variables` to the graph, then you need to train those variables before using the model. You may also want to check [some pooling techniques I mentioned in my blog post](https://hanxiao.github.io/2018/06/24/4-Encoding-Blocks-You-Need-to-Know-Besides-LSTM-RNN-in-Tensorflow/#pooling-block).
 
 ##### **Q:** Can I start multiple clients and send requests to one server simultaneously?
 

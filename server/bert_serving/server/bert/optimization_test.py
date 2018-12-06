@@ -18,7 +18,7 @@ from __future__ import print_function
 
 import tensorflow as tf
 
-from bert import optimization
+from server.bert_serving.server.bert import optimization
 
 
 class OptimizationTest(tf.test.TestCase):

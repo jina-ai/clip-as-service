@@ -16,10 +16,12 @@ from tensorflow.python.estimator.estimator import Estimator
 from tensorflow.python.estimator.run_config import RunConfig
 from zmq.utils import jsonapi
 
-from bert import tokenization, modeling
-from bert.extract_features import model_fn_builder, convert_lst_to_features
 from helper import set_logger
-from service.client import BertClient
+from .bert import modeling, tokenization
+from .bert.extract_features import model_fn_builder, convert_lst_to_features
+
+_version = tf.__version__.split('.')
+assert int(_version[0]) >= 1 and int(_version[1]) >= 10, 'Tensorflow >=1.10 is required!'
 
 
 class ServerCommand:
@@ -290,16 +292,13 @@ class BertWorker(Process):
                 client_id, msg = worker.recv_multipart()
                 msg = jsonapi.loads(msg)
                 self.logger.info('new job!\tsize: %d\tclient: %s' % (len(msg), client_id))
-                if BertClient.is_valid_input(msg):
-                    tmp_f = list(convert_lst_to_features(msg, self.max_seq_len, self.tokenizer))
-                    yield {
-                        'client_id': client_id,
-                        'input_ids': [f.input_ids for f in tmp_f],
-                        'input_mask': [f.input_mask for f in tmp_f],
-                        'input_type_ids': [f.input_type_ids for f in tmp_f]
-                    }
-                else:
-                    self.logger.error('unsupported type of job %s! sending back None' % client_id)
+                tmp_f = list(convert_lst_to_features(msg, self.max_seq_len, self.tokenizer))
+                yield {
+                    'client_id': client_id,
+                    'input_ids': [f.input_ids for f in tmp_f],
+                    'input_mask': [f.input_mask for f in tmp_f],
+                    'input_type_ids': [f.input_type_ids for f in tmp_f]
+                }
 
         def input_fn():
             return (tf.data.Dataset.from_generator(
@@ -321,3 +320,9 @@ def send_ndarray(src, dest, X, req_id=b'', flags=0, copy=True, track=False):
     """send a numpy array with metadata"""
     md = dict(dtype=str(X.dtype), shape=X.shape)
     return src.send_multipart([dest, jsonapi.dumps(md), X, req_id], flags, copy=copy, track=track)
+
+
+# These lines will be programatically read/write by setup.py
+# Don't touch them.
+__version__ = '0.9.0.1'
+__git_version__ = __version__

@@ -6,10 +6,10 @@ import time
 from collections import namedtuple
 
 from numpy import mean
-
-from bert.extract_features import PoolingStrategy
 from service.client import BertClient
 from service.server import BertServer
+
+from server.bert_serving.server.bert import PoolingStrategy
 
 PORT = 6666
 PORT_OUT = 6667

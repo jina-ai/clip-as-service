@@ -1,0 +1,3 @@
+# client-side requirements, pretty light-weight right?
+numpy
+pyzmq >= 17.1.0  # python zmq
