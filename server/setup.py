@@ -25,6 +25,7 @@ setup(
     zip_safe=False,
     install_requires=[
         'numpy',
+        'six',
         'pyzmq>=17.1.0',
         'GPUtil>=1.3.0'
     ],
