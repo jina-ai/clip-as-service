@@ -114,7 +114,7 @@ class BertServer(threading.Thread):
             while True:
                 client, msg, req_id = self.frontend.recv_multipart()
                 if msg == ServerCommand.show_config:
-                    self.logger.info('config request\treq id: %d\tclient: %s' % (int(req_id), client))
+                    self.logger.info('new config request\treq id: %d\tclient: %s' % (int(req_id), client))
                     self.sink.send_multipart([client, msg,
                                               jsonapi.dumps({**{'client': client.decode('ascii'),
                                                                 'num_subprocess': len(self.processes),
@@ -128,7 +128,7 @@ class BertServer(threading.Thread):
                                                              **self.args_dict}), req_id])
                     continue
 
-                self.logger.info('encode request\treq id: %d\tclient: %s' % (int(req_id), client))
+                self.logger.info('new encode request\treq id: %d\tclient: %s' % (int(req_id), client))
                 num_req += 1
                 seqs = jsonapi.loads(msg)
                 num_seqs = len(seqs)
@@ -156,7 +156,7 @@ class BertSink(Process):
         super().__init__()
         self.port = args.port_out
         self.exit_flag = multiprocessing.Event()
-        self.logger = set_logger(colored('SINK', 'blue'))
+        self.logger = set_logger(colored('SINK', 'green'))
         self.front_sink_addr = front_sink_addr
 
     def close(self):
@@ -228,7 +228,7 @@ class BertSink(Process):
                     if msg_type == ServerCommand.new_job:
                         job_info = client_addr + b'#' + req_id
                         job_checksum[job_info] = int(msg_info)
-                        self.logger.info('new register!\tsize: %d\tjob id: %s' % (int(msg_info), job_info))
+                        self.logger.info('job register\tsize: %d\tjob id: %s' % (int(msg_info), job_info))
                     elif msg_type == ServerCommand.show_config:
                         sender.send_multipart([client_addr, msg_info, req_id])
         except zmq.error.ContextTerminated:
