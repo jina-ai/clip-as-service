@@ -6,7 +6,7 @@
 
 <p align="center">
   <a href="https://github.com/hanxiao/bert-as-service/stargazers">
-    <img src="https://img.shields.io/github/stars/hanxiao/bert-as-service.svg?label=:star:%20stars&colorA=orange&colorB=yellow"
+    <img src="https://img.shields.io/github/stars/hanxiao/bert-as-service.svg?colorA=orange&colorB=yellow"
          alt="GitHub stars">
   </a>
   <a href="https://pypi.org/search/?q=bert-serving">
@@ -33,7 +33,7 @@
 <p align="center">
   <a href="#highlights">Highlights</a> •
   <a href="#what-is-it">What is it</a> •
-  <a href="#installation">Installation</a> •
+  <a href="#install">Install</a> •
   <a href="#usage">Usage</a> •
   <a href="#faq">FAQ</a> •
   <a href="#benchmark">Benchmark</a> •
@@ -63,11 +63,11 @@
 - :zap: **Fast**: 900 sentences/s on a single Tesla M40 24GB with `max_seq_len=20`. See [benchmark](#Benchmark).
 - :octopus: **Scalable**: scale nicely and smoothly on multiple GPUs and multiple clients without worrying about concurrency. See [benchmark](#speed-wrt-num_client).
 
-## Installation
-You can install the server and client *separately* or even on *different* machines via:
+## Install
+You can install the server and client with `pip` *separately* or even on *different* machines via:
 ```bash
 pip install -U bert-serving-server  # install server
-pip install -U bert-serving-client  # install client
+pip install -U bert-serving-client  # install client, does not depend on `bert-serving-server`
 ```
 
 Note that the server MUST be run on Python >= 3.5 and Tensorflow >= 1.10 (*one-point-ten*). The server does not support Python 2!
