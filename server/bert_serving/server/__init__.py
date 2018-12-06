@@ -20,8 +20,10 @@ from helper import set_logger
 from .bert import modeling, tokenization
 from .bert.extract_features import model_fn_builder, convert_lst_to_features
 
-_version = tf.__version__.split('.')
-assert int(_version[0]) >= 1 and int(_version[1]) >= 10, 'Tensorflow >=1.10 is required!'
+_tf_ver = tf.__version__.split('.')
+assert int(_tf_ver[0]) >= 1 and int(_tf_ver[1]) >= 10, 'Tensorflow >=1.10 is required!'
+
+__version__ = '1.4.0'
 
 
 class ServerCommand:
@@ -120,7 +122,8 @@ class BertServer(threading.Thread):
                                                                 'frontend <-> sink': self.addr_front2sink,
                                                                 'server_current_time': str(datetime.now()),
                                                                 'run_on_gpu': run_on_gpu,
-                                                                'num_request': num_req},
+                                                                'num_request': num_req,
+                                                                'server_version': __version__},
                                                              **self.args_dict}), req_id])
                     continue
 

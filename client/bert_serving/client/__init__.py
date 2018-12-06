@@ -12,6 +12,9 @@ import numpy as np
 import zmq
 from zmq.utils import jsonapi
 
+# in the future client version must match with server version
+__version__ = '1.4.0'
+
 if sys.version_info >= (3, 0):
     _str = str
     _buffer = memoryview
@@ -100,7 +103,8 @@ class BertClient:
             'output_fmt': self.output_fmt,
             'port': self.port,
             'port_out': self.port_out,
-            'server_ip': self.ip
+            'server_ip': self.ip,
+            'client_version': __version__
         }
 
     @property
