@@ -2,11 +2,17 @@
 # -*- coding: utf-8 -*-
 # Han Xiao <artex.xh@gmail.com> <https://hanxiao.github.io>
 
+# NOTE: First install bert-as-service via
+# $
+# $ pip install bert-serving-server
+# $ pip install bert-serving-client
+# $
+
 # using BertClient in async way
 
 import sys
 
-from service.client import BertClient
+from bert_serving.client import BertClient
 
 
 def send_without_block(bc, data, repeat=10):

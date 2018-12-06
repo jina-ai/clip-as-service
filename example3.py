@@ -2,12 +2,18 @@
 # -*- coding: utf-8 -*-
 # Han Xiao <artex.xh@gmail.com> <https://hanxiao.github.io>
 
+# NOTE: First install bert-as-service via
+# $
+# $ pip install bert-serving-server
+# $ pip install bert-serving-client
+# $
+
 # using BertClient in multicast way
 
 import sys
 import threading
 
-from service.client import BertClient
+from bert_serving.client import BertClient
 
 
 def client_clone(id, idx):

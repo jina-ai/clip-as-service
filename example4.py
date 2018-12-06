@@ -2,6 +2,12 @@
 # -*- coding: utf-8 -*-
 # Han Xiao <artex.xh@gmail.com> <https://hanxiao.github.io>
 
+# NOTE: First install bert-as-service via
+# $
+# $ pip install bert-serving-server
+# $ pip install bert-serving-client
+# $
+
 # using BertClient inside tf.data API
 
 import json
@@ -10,8 +16,7 @@ import time
 
 import GPUtil
 import tensorflow as tf
-
-from service.client import BertClient
+from bert_serving.client import BertClient
 
 os.environ['CUDA_VISIBLE_DEVICES'] = str(GPUtil.getFirstAvailable())
 

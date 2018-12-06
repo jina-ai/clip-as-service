@@ -18,7 +18,7 @@ from enum import Enum
 import tensorflow as tf
 from tensorflow.python.estimator.model_fn import EstimatorSpec
 
-from bert import tokenization, modeling
+from . import modeling, tokenization
 
 
 class PoolingStrategy(Enum):

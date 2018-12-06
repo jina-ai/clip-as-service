@@ -14,12 +14,25 @@ import tensorflow as tf
 import zmq
 from tensorflow.python.estimator.estimator import Estimator
 from tensorflow.python.estimator.run_config import RunConfig
+from termcolor import colored
 from zmq.utils import jsonapi
 
-from bert import tokenization, modeling
-from bert.extract_features import model_fn_builder, convert_lst_to_features
-from helper import set_logger
-from service.client import BertClient
+from .bert import modeling, tokenization
+from .bert.extract_features import model_fn_builder, convert_lst_to_features
+from .helper import set_logger
+
+_tf_ver = tf.__version__.split('.')
+assert int(_tf_ver[0]) >= 1 and int(_tf_ver[1]) >= 10, 'Tensorflow >=1.10 is required!'
+
+__version__ = '1.4.5'
+
+
+def _auto_bind(socket):
+    if os.name == 'nt':  # for Windows
+        socket.bind_to_random_port('tcp://*')
+    else:
+        socket.bind('ipc://*')
+    return socket.getsockopt(zmq.LAST_ENDPOINT).decode('ascii')
 
 
 class ServerCommand:
@@ -31,7 +44,7 @@ class ServerCommand:
 class BertServer(threading.Thread):
     def __init__(self, args):
         super().__init__()
-        self.logger = set_logger('VENTILATOR')
+        self.logger = set_logger(colored('VENTILATOR', 'magenta'))
 
         self.model_dir = args.model_dir
         self.max_seq_len = args.max_seq_len
@@ -61,13 +74,11 @@ class BertServer(threading.Thread):
 
         # pair connection between frontend and sink
         self.sink = self.context.socket(zmq.PAIR)
-        self.sink.bind('ipc://*')
-        self.addr_front2sink = self.sink.getsockopt(zmq.LAST_ENDPOINT).decode('ascii')
+        self.addr_front2sink = _auto_bind(self.sink)
 
         # backend facing workers
         self.backend = self.context.socket(zmq.PUSH)
-        self.backend.bind('ipc://*')
-        self.addr_backend = self.backend.getsockopt(zmq.LAST_ENDPOINT).decode('ascii')
+        self.addr_backend = _auto_bind(self.backend)
 
         # start the sink thread
         proc_sink = BertSink(self.args, self.addr_front2sink)
@@ -109,20 +120,21 @@ class BertServer(threading.Thread):
             while True:
                 client, msg, req_id = self.frontend.recv_multipart()
                 if msg == ServerCommand.show_config:
-                    self.logger.info('config request\treq id: %d\tclient: %s' % (int(req_id), client))
+                    self.logger.info('new config request\treq id: %d\tclient: %s' % (int(req_id), client))
                     self.sink.send_multipart([client, msg,
                                               jsonapi.dumps({**{'client': client.decode('ascii'),
                                                                 'num_subprocess': len(self.processes),
-                                                                'frontend -> backend': self.addr_backend,
-                                                                'backend -> sink': self.addr_sink,
-                                                                'frontend <-> sink': self.addr_front2sink,
+                                                                'ventilator -> worker': self.addr_backend,
+                                                                'worker -> sink': self.addr_sink,
+                                                                'ventilator <-> sink': self.addr_front2sink,
                                                                 'server_current_time': str(datetime.now()),
                                                                 'run_on_gpu': run_on_gpu,
-                                                                'num_request': num_req},
+                                                                'num_request': num_req,
+                                                                'server_version': __version__},
                                                              **self.args_dict}), req_id])
                     continue
 
-                self.logger.info('encode request\treq id: %d\tclient: %s' % (int(req_id), client))
+                self.logger.info('new encode request\treq id: %d\tclient: %s' % (int(req_id), client))
                 num_req += 1
                 seqs = jsonapi.loads(msg)
                 num_seqs = len(seqs)
@@ -150,7 +162,7 @@ class BertSink(Process):
         super().__init__()
         self.port = args.port_out
         self.exit_flag = multiprocessing.Event()
-        self.logger = set_logger('SINK')
+        self.logger = set_logger(colored('SINK', 'green'))
         self.front_sink_addr = front_sink_addr
 
     def close(self):
@@ -164,7 +176,7 @@ class BertSink(Process):
         context = zmq.Context()
         # receive from workers
         receiver = context.socket(zmq.PULL)
-        receiver.bind('ipc://*')
+        receiver_addr = _auto_bind(receiver)
 
         frontend = context.socket(zmq.PAIR)
         frontend.connect(self.front_sink_addr)
@@ -182,7 +194,7 @@ class BertSink(Process):
         poller.register(receiver, zmq.POLLIN)
 
         # send worker receiver address back to frontend
-        frontend.send(receiver.getsockopt(zmq.LAST_ENDPOINT))
+        frontend.send(receiver_addr.encode('ascii'))
 
         try:
             while not self.exit_flag.is_set():
@@ -199,15 +211,15 @@ class BertSink(Process):
                     partial_id = job_info[1] if len(job_info) == 2 else 0
                     pending_result[job_id].append((X, partial_id))
                     pending_checksum[job_id] += X.shape[0]
-                    self.logger.info('collected job %s (%d/%d)' % (job_id,
-                                                                   pending_checksum[job_id],
-                                                                   job_checksum[job_id]))
+                    self.logger.info('collect job %s (%d/%d)' % (job_id,
+                                                                 pending_checksum[job_id],
+                                                                 job_checksum[job_id]))
 
                     # check if there are finished jobs, send it back to workers
                     finished = [(k, v) for k, v in pending_result.items() if pending_checksum[k] == job_checksum[k]]
                     for job_info, tmp in finished:
                         self.logger.info(
-                            'job done!\tsize: %d\tjob id:%s\tsending back to client' % (
+                            'send back\tsize: %d\tjob id:%s\t' % (
                                 job_checksum[job_info], job_info))
                         # re-sort to the original order
                         tmp = [x[0] for x in sorted(tmp, key=lambda x: x[1])]
@@ -222,7 +234,7 @@ class BertSink(Process):
                     if msg_type == ServerCommand.new_job:
                         job_info = client_addr + b'#' + req_id
                         job_checksum[job_info] = int(msg_info)
-                        self.logger.info('new job!\tsize: %d\tjob id: %s' % (int(msg_info), job_info))
+                        self.logger.info('job register\tsize: %d\tjob id: %s' % (int(msg_info), job_info))
                     elif msg_type == ServerCommand.show_config:
                         sender.send_multipart([client_addr, msg_info, req_id])
         except zmq.error.ContextTerminated:
@@ -252,7 +264,7 @@ class BertWorker(Process):
         config.gpu_options.per_process_gpu_memory_fraction = args.gpu_memory_fraction
         self.estimator = Estimator(self.model_fn, config=RunConfig(session_config=config))
         self.exit_flag = multiprocessing.Event()
-        self.logger = set_logger('WORKER-%d' % self.worker_id)
+        self.logger = set_logger(colored('WORKER-%d' % self.worker_id, 'yellow'))
         self.worker_address = worker_address
         self.sink_address = sink_address
         self.prefetch_factor = 10
@@ -276,7 +288,7 @@ class BertWorker(Process):
 
         for r in self.estimator.predict(input_fn, yield_single_examples=False):
             send_ndarray(sink, r['client_id'], r['encodes'])
-            self.logger.info('job done!\tsize: %s\tclient: %s' % (r['encodes'].shape, r['client_id']))
+            self.logger.info('job done\tsize: %s\tclient: %s' % (r['encodes'].shape, r['client_id']))
 
         receiver.close()
         sink.close()
@@ -289,17 +301,14 @@ class BertWorker(Process):
             while not self.exit_flag.is_set():
                 client_id, msg = worker.recv_multipart()
                 msg = jsonapi.loads(msg)
-                self.logger.info('new job!\tsize: %d\tclient: %s' % (len(msg), client_id))
-                if BertClient.is_valid_input(msg):
-                    tmp_f = list(convert_lst_to_features(msg, self.max_seq_len, self.tokenizer))
-                    yield {
-                        'client_id': client_id,
-                        'input_ids': [f.input_ids for f in tmp_f],
-                        'input_mask': [f.input_mask for f in tmp_f],
-                        'input_type_ids': [f.input_type_ids for f in tmp_f]
-                    }
-                else:
-                    self.logger.error('unsupported type of job %s! sending back None' % client_id)
+                self.logger.info('new job\tsize: %d\tclient: %s' % (len(msg), client_id))
+                tmp_f = list(convert_lst_to_features(msg, self.max_seq_len, self.tokenizer))
+                yield {
+                    'client_id': client_id,
+                    'input_ids': [f.input_ids for f in tmp_f],
+                    'input_mask': [f.input_mask for f in tmp_f],
+                    'input_type_ids': [f.input_type_ids for f in tmp_f]
+                }
 
         def input_fn():
             return (tf.data.Dataset.from_generator(

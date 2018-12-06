@@ -6,13 +6,9 @@
 
 <p align="center">
   <a href="https://github.com/hanxiao/bert-as-service/stargazers">
-    <img src="https://img.shields.io/github/stars/hanxiao/bert-as-service.svg?colorA=orange&colorB=yellow"
+    <img src="https://img.shields.io/github/stars/hanxiao/bert-as-service.svg"
          alt="GitHub stars">
   </a>
-  <a href="https://pypi.org/search/?q=bert-serving">
-      <img src="https://img.shields.io/pypi/v/bert-serving-server.svg?colorB=brightgreen"
-           alt="Pypi package">
-    </a>
   <a href="https://github.com/hanxiao/bert-as-service/releases">
       <img src="https://img.shields.io/github/release/hanxiao/bert-as-service.svg"
            alt="GitHub release">
@@ -21,6 +17,8 @@
         <img src="https://img.shields.io/github/issues/hanxiao/bert-as-service.svg"
              alt="GitHub issues">
   </a>
+  <img src="https://img.shields.io/badge/Python->=3.6-brightgreen.svg" alt="Python: >=3.6">
+  <img src="https://img.shields.io/badge/Tensorflow->=1.10-brightgreen.svg" alt="Tensorflow: >=1.10">
   <a href="https://github.com/hanxiao/bert-as-service/blob/master/LICENSE">
         <img src="https://img.shields.io/github/license/hanxiao/bert-as-service.svg"
              alt="GitHub license">
@@ -33,7 +31,7 @@
 <p align="center">
   <a href="#highlights">Highlights</a> •
   <a href="#what-is-it">What is it</a> •
-  <a href="#install">Install</a> •
+  <a href="#requirements">Requirements</a> •
   <a href="#usage">Usage</a> •
   <a href="#faq">FAQ</a> •
   <a href="#benchmark">Benchmark</a> •
@@ -63,21 +61,19 @@
 - :zap: **Fast**: 900 sentences/s on a single Tesla M40 24GB with `max_seq_len=20`. See [benchmark](#Benchmark).
 - :octopus: **Scalable**: scale nicely and smoothly on multiple GPUs and multiple clients without worrying about concurrency. See [benchmark](#speed-wrt-num_client).
 
-## Install
-You can install the server and client with `pip` *separately* or even on *different* machines via:
-```bash
-pip install bert-serving-server  # install server
-pip install bert-serving-client  # install client, does not depend on `bert-serving-server`
-```
+## Requirements
 
-Note that the server MUST be run on Python >= 3.5 and Tensorflow >= 1.10 (*one-point-ten*). The server does not support Python 2!
+- Python >= 3.5 (Python 2 is NOT supported!)
+- Tensorflow >= 1.10 (one-point-ten)
 
-:point_up: The client can be run on both Python 2 and 3 [for the following consideration](#q-can-i-run-it-in-python-2).
+These two requirements MUST be satisfied. For other dependent packages, please refer to `requirements.txt`  and `requirements.client.txt`.
+
+:point_up: Python 2 is supported on the client side [for the following consideration](#q-can-i-run-it-in-python-2).
 
 ## Usage
 
 #### 1. Download a Pre-trained BERT Model
-Download a model listed below, then uncompress the zip file into some folder, say `/tmp/english_L-12_H-768_A-12/`
+Download a model from [here](https://github.com/google-research/bert#pre-trained-models), then uncompress the zip file into some folder, say `/tmp/english_L-12_H-768_A-12/`
 
 <details>
  <summary>List of released pretrained BERT models (click to expand)</summary>
@@ -99,9 +95,8 @@ Download a model listed below, then uncompress the zip file into some folder, sa
 > **Optional:** fine-tuning the model on your downstream task. [Why is it optional?](#q-are-you-suggesting-using-bert-without-fine-tuning)
 
 #### 2. Start a BERT service
-After installing the server, you should be able to use `bert-serving-start` CLI as follows:
 ```bash
-bert-serving-start -model_dir /tmp/english_L-12_H-768_A-12/ -num_worker=4 
+python app.py -model_dir /tmp/english_L-12_H-768_A-12/ -num_worker=4 
 ```
 This will start a service with four workers, meaning that it can handle up to four **concurrent** requests. More concurrent requests will be queued in a load balancer. Details can be found in our [FAQ](#q-what-is-the-parallel-processing-model-behind-the-scene) and [the benchmark on number of clients](#speed-wrt-num_client)
 
@@ -120,9 +115,11 @@ docker run --runtime nvidia -dit -p 5555:5555 -p 5556:5556 -v $PATH_MODEL:/model
 
 
 #### 3. Use Client to Get Sentence Encodes
+> :children_crossing: NOTE: please make sure your project includes [`client.py`](service/client.py), as we need to import `BertClient` class from this file. Again, this is the **only file** that you need as a client. You don't even need Tensorflow. Please refer to [`requirements.client.txt`](requirements.client.txt) for the dependency on the client side.
+
 Now you can use BERT to encode sentences simply as follows:
 ```python
-from bert_serving.client import BertClient
+from service.client import BertClient
 bc = BertClient()
 bc.encode(['First do it', 'then do it right', 'then do it better'])
 ```
@@ -140,12 +137,10 @@ One may also start the service on one (GPU) machine and call it from another (CP
 
 ```python
 # on another CPU machine
-from bert_serving.client import BertClient
+from service.client import BertClient
 bc = BertClient(ip='xx.xx.xx.xx')  # ip address of the GPU machine
 bc.encode(['First do it', 'then do it right', 'then do it better'])
 ```
-
-Note that you only need `pip install -U bert-serving-client` in this case, the server side is not required.
 
 > :bulb: **Checkout some advance usages below:**
 > - [Using `BertClient` with `tf.data` API](#using-bertclient-with-tfdata-api)
@@ -159,9 +154,9 @@ Note that you only need `pip install -U bert-serving-client` in this case, the s
 
 ### Server-side configs
 
-The server-side is a CLI called `bert-serving-start`, you can specify its arguments via:
+Server-side configs are summarized below, they can be also found in [`app.py`](app.py). You can specify those arguments via:
 ```bash
-bert-serving-start -model_dir [-max_seq_len] [-num_worker] [-max_batch_size] [-port] [-port_out] [-pooling_strategy] [-pooling_layer]
+python app.py -model_dir [-max_seq_len] [-num_worker] [-max_batch_size] [-port] [-port_out] [-pooling_strategy] [-pooling_layer]
 ```
 
 | Argument | Type | Default | Description |
@@ -193,7 +188,7 @@ Client-side configs are summarized below, which can be found in [`client.py`](se
 
 ##### **Q:** Where is the BERT code come from?
 
-**A:** [BERT code of this repo](server/bert_serving/server/bert/) is forked from the [original BERT repo](https://github.com/google-research/bert) with necessary modification, [especially in extract_features.py](server/bert_serving/server/bert/extract_features.py).
+**A:** [BERT code of this repo](bert/) is forked from the [original BERT repo](https://github.com/google-research/bert) with necessary modification, [especially in extract_features.py](bert/extract_features.py).
 
 ##### **Q:** How large is a sentence vector?
 In general, each sentence is translated to a 768-dimensional vector. Depending on the pretrained BERT you are using, `pooling_strategy` and `pooling_layer` the dimensions of the output vector could be different. 
@@ -211,12 +206,12 @@ In general, each sentence is translated to a 768-dimensional vector. Depending o
 **A:** Sure! Just use a list of the layer you want to concatenate when calling the server. Example:
 
 ```bash
-bert_serving_start -pooling_layer -4 -3 -2 -1 -model_dir /tmp/english_L-12_H-768_A-12/
+python app.py -pooling_layer -4 -3 -2 -1 -model_dir /tmp/english_L-12_H-768_A-12/
 ```
 
 ##### **Q:** What are the available pooling strategies?
 
-**A:** Here is a table summarizes all pooling strategies I implemented. Choose your favorite one by specifying `bert_serving_start -pooling_strategy`.
+**A:** Here is a table summarizes all pooling strategies I implemented. Choose your favorite one by specifying `python app.py -pooling_strategy`.
 
 |Strategy|Description|
 |---|---|
@@ -241,7 +236,7 @@ bert_serving_start -pooling_layer -4 -3 -2 -1 -model_dir /tmp/english_L-12_H-768
 
 ##### **Q:** Could I use other pooling techniques?
 
-**A:** For sure. Just follows [`get_sentence_encoding()` I added to the modeling.py](server/bert_serving/server/bert/extract_features.py#L96). Note that, if you introduce new `tf.variables` to the graph, then you need to train those variables before using the model. You may also want to check [some pooling techniques I mentioned in my blog post](https://hanxiao.github.io/2018/06/24/4-Encoding-Blocks-You-Need-to-Know-Besides-LSTM-RNN-in-Tensorflow/#pooling-block).
+**A:** For sure. Just follows [`get_sentence_encoding()` I added to the modeling.py](bert/extract_features.py#L96). Note that, if you introduce new `tf.variables` to the graph, then you need to train those variables before using the model. You may also want to check [some pooling techniques I mentioned in my blog post](https://hanxiao.github.io/2018/06/24/4-Encoding-Blocks-You-Need-to-Know-Besides-LSTM-RNN-in-Tensorflow/#pooling-block).
 
 ##### **Q:** Can I start multiple clients and send requests to one server simultaneously?
 
@@ -249,7 +244,7 @@ bert_serving_start -pooling_layer -4 -3 -2 -1 -model_dir /tmp/english_L-12_H-768
 
 ##### **Q:** How many requests can one service handle concurrently?
 
-**A:** The maximum number of concurrent requests is determined by `num_worker` in `bert_serving_start`. If you a sending more than `num_worker` requests concurrently, the new requests will be temporally stored in a queue until a free worker becomes available.
+**A:** The maximum number of concurrent requests is determined by `num_worker` in `app.py`. If you a sending more than `num_worker` requests concurrently, the new requests will be temporally stored in a queue until a free worker becomes available.
 
 ##### **Q:** So one request means one sentence?
 

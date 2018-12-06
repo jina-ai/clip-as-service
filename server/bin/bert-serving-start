@@ -5,8 +5,8 @@
 import argparse
 import sys
 
-from bert.extract_features import PoolingStrategy
-from service.server import BertServer
+from bert_serving.server import BertServer
+from bert_serving.server.bert.extract_features import PoolingStrategy
 
 
 def get_args():
