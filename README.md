@@ -9,16 +9,18 @@
     <img src="https://img.shields.io/github/stars/hanxiao/bert-as-service.svg"
          alt="GitHub stars">
   </a>
+  <a href="https://pypi.org/search/?q=bert-serving">
+      <img src="https://img.shields.io/pypi/v/bert-serving-server.svg?colorB=brightgreen"
+           alt="Pypi package">
+    </a>
   <a href="https://github.com/hanxiao/bert-as-service/releases">
-      <img src="https://img.shields.io/github/release/hanxiao/bert-as-service.svg"
+      <img src="https://img.shields.io/github/release/hanxiao/bert-as-service.svg?logo=github"
            alt="GitHub release">
   </a>
   <a href="https://github.com/hanxiao/bert-as-service/issues">
         <img src="https://img.shields.io/github/issues/hanxiao/bert-as-service.svg"
              alt="GitHub issues">
   </a>
-  <img src="https://img.shields.io/badge/Python->=3.6-brightgreen.svg" alt="Python: >=3.6">
-  <img src="https://img.shields.io/badge/Tensorflow->=1.10-brightgreen.svg" alt="Tensorflow: >=1.10">
   <a href="https://github.com/hanxiao/bert-as-service/blob/master/LICENSE">
         <img src="https://img.shields.io/github/license/hanxiao/bert-as-service.svg"
              alt="GitHub license">
@@ -31,7 +33,7 @@
 <p align="center">
   <a href="#highlights">Highlights</a> •
   <a href="#what-is-it">What is it</a> •
-  <a href="#requirements">Requirements</a> •
+  <a href="#installation">Installation</a> •
   <a href="#usage">Usage</a> •
   <a href="#faq">FAQ</a> •
   <a href="#benchmark">Benchmark</a> •
@@ -61,14 +63,14 @@
 - :zap: **Fast**: 900 sentences/s on a single Tesla M40 24GB with `max_seq_len=20`. See [benchmark](#Benchmark).
 - :octopus: **Scalable**: scale nicely and smoothly on multiple GPUs and multiple clients without worrying about concurrency. See [benchmark](#speed-wrt-num_client).
 
-## Install
+## Installation
 You can install the server and client *separately* or even on *different* machines via:
 ```bash
 pip install -U bert-serving-server  # install server
 pip install -U bert-serving-client  # install client
 ```
 
-Note that the server MUST be run on Python >= 3.5 and Tensorflow >= 1.10 (*one-point-ten*). The server does not support Python 2.
+Note that the server MUST be run on Python >= 3.5 and Tensorflow >= 1.10 (*one-point-ten*). The server does not support Python 2!
 
 :point_up: The client can be run on both Python 2 and 3 [for the following consideration](#q-can-i-run-it-in-python-2).
 

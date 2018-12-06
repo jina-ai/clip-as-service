@@ -2,6 +2,12 @@
 # -*- coding: utf-8 -*-
 # Han Xiao <artex.xh@gmail.com> <https://hanxiao.github.io>
 
+# NOTE: First install bert-as-service via
+# $
+# $ pip install bert-serving-server
+# $ pip install bert-serving-client
+# $
+
 # using BertClient in sync way
 
 import sys
