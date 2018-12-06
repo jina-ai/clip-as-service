@@ -24,6 +24,7 @@ function clean_build {
 
 function pub_pypi {
     # publish to pypi
+    cp README.md $1
     cd $1
     clean_build
     python setup.py sdist bdist_wheel

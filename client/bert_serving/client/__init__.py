@@ -13,7 +13,7 @@ import zmq
 from zmq.utils import jsonapi
 
 # in the future client version must match with server version
-__version__ = '1.4.4'
+__version__ = '1.4.5'
 
 if sys.version_info >= (3, 0):
     _str = str
