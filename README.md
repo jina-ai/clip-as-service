@@ -6,7 +6,7 @@
 
 <p align="center">
   <a href="https://github.com/hanxiao/bert-as-service/stargazers">
-    <img src="https://img.shields.io/github/stars/hanxiao/bert-as-service.svg?colorA=orange&colorB=yellow"
+    <img src="https://img.shields.io/github/stars/hanxiao/bert-as-service.svg?colorA=orange&colorB=orange&logo=github"
          alt="GitHub stars">
   </a>
   <a href="https://pypi.org/search/?q=bert-serving">
@@ -44,8 +44,7 @@
     <img src=".github/demo.gif" width="700">
 </p>
 
-<h6 align="center">Made by Han Xiao • 
- <a href="https://hanxiao.github.io">:globe_with_meridians: https://hanxiao.github.io</a></h6>
+<h6 align="center">Made by Han Xiao • :globe_with_meridians: <a href="https://hanxiao.github.io">https://hanxiao.github.io</a></h6>
 
 ## What is it
 
