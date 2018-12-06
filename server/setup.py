@@ -3,7 +3,7 @@ from os import path
 from setuptools import setup, find_packages
 
 # setup metainfo
-libinfo_py = path.join('bert_serving', 'client', '__init__.py')
+libinfo_py = path.join('bert_serving', 'server', '__init__.py')
 libinfo_content = open(libinfo_py, 'r').readlines()
 version_line = [l.strip() for l in libinfo_content if l.startswith('__version__')][0]
 exec(version_line)  # produce __version__
