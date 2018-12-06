@@ -6,7 +6,7 @@
 
 <p align="center">
   <a href="https://github.com/hanxiao/bert-as-service/stargazers">
-    <img src="https://img.shields.io/github/stars/hanxiao/bert-as-service.svg?label=⭐%20stars&colorA=orange&colorB=yellow"
+    <img src="https://img.shields.io/github/stars/hanxiao/bert-as-service.svg?label=:star:%20stars&colorA=orange&colorB=yellow"
          alt="GitHub stars">
   </a>
   <a href="https://pypi.org/search/?q=bert-serving">
