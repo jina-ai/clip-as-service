@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -e
+
 function escape_slashes {
     sed 's/\//\\\//g'
 }
@@ -14,6 +16,22 @@ function change_line {
     mv "${FILE}.bak" /tmp/
 }
 
+function clean_build {
+    rm -rf dist
+    rm -rf *.egg-info
+    rm -rf build
+}
+
+function pub_pypi {
+    # publish to pypi
+    cd $1
+    clean_build
+    python setup.py sdist bdist_wheel
+    twine upload dist/*
+    clean_build
+    cd -
+}
+
 CLIENT_DIR='client/'
 SERVER_DIR='server/'
 CLIENT_CODE=$CLIENT_DIR'bert_serving/client/__init__.py'
@@ -21,7 +39,7 @@ SERVER_CODE=$SERVER_DIR'bert_serving/server/__init__.py'
 VER_TAG='__version__ = '
 
 #$(grep "$VER_TAG" $CLIENT_CODE | sed -n 's/^.*'\''\([^'\'']*\)'\''.*$/\1/p')
-VER=$(git describe --tags --abbrev=0)
+VER=$(git tag -l |tail -n1)
 echo 'current version: '$VER
 
 VER=$(echo $VER | awk -F. -v OFS=. 'NF==1{print ++$NF}; NF>1{if(length($NF+1)>length($NF))$(NF-1)++; $NF=sprintf("%0*d", length($NF), ($NF+1)%(10^length($NF))); print}')
@@ -36,11 +54,5 @@ VER_VAL=$VER_TAG"'"${VER#"v"}"'"
 change_line "$VER_TAG" "$VER_VAL" $CLIENT_CODE
 change_line "$VER_TAG" "$VER_VAL" $SERVER_CODE
 
-# publish to pypi
-cd $CLIENT_DIR
-python setup.py sdist bdist_wheel
-twine upload dist/*
-cd -
-cd $SERVER_DIR
-python setup.py sdist bdist_wheel
-twine upload dist/*
+pub_pypi $SERVER_DIR
+pub_pypi $CLIENT_DIR
