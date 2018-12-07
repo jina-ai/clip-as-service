@@ -13,7 +13,7 @@ import zmq
 from zmq.utils import jsonapi
 
 # in the future client version must match with server version
-__version__ = '1.4.7'
+__version__ = '1.4.8'
 
 if sys.version_info >= (3, 0):
     _str = str
@@ -23,7 +23,7 @@ else:
     # make it compatible for py2
     _str = basestring
     _buffer = buffer
-    _unicode = lambda x: [BertClient.force_to_unicode(y) for y in x]
+    _unicode = lambda x: [BertClient._force_to_unicode(y) for y in x]
 
 Response = namedtuple('Response', ['id', 'content'])
 
@@ -133,7 +133,7 @@ class BertClient:
         :param blocking: wait until the encoded result is returned from the server. If false, will immediately return.
         :return: ndarray or a list[list[float]]
         """
-        if self.is_valid_input(texts):
+        if self._is_valid_input(texts):
             texts = _unicode(texts)
             self._send(jsonapi.dumps(texts))
             return self._recv_ndarray().content if blocking else None
@@ -178,7 +178,7 @@ class BertClient:
             return tmp
 
     def encode_async(self, batch_generator, max_num_batch=None, delay=0.1):
-        """ Async encode batches from a generator [Experimental, use with caution!]
+        """ Async encode batches from a generator
 
         :param delay: delay in seconds and then run fetcher
         :param batch_generator: a generator that yields list[str] every time
@@ -199,11 +199,11 @@ class BertClient:
         return self.fetch(delay)
 
     @staticmethod
-    def is_valid_input(texts):
+    def _is_valid_input(texts):
         return isinstance(texts, list) and all(isinstance(s, _str) and s.strip() for s in texts)
 
     @staticmethod
-    def force_to_unicode(text):
+    def _force_to_unicode(text):
         return text if isinstance(text, unicode) else text.decode('utf-8')
 
     @staticmethod

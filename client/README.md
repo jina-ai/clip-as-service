@@ -112,7 +112,7 @@ One may also run BERT Service in a container:
 ```bash
 docker build -t bert-as-service -f ./docker/Dockerfile .
 NUM_WORKER=1
-PATH_MODEL=<path of your model>
+PATH_MODEL=/PATH_TO/_YOUR_MODEL/
 docker run --runtime nvidia -dit -p 5555:5555 -p 5556:5556 -v $PATH_MODEL:/model -t bert-as-service $NUM_WORKER
 ```
 </details>

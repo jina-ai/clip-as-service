@@ -159,7 +159,7 @@ Note that you only need `pip install -U bert-serving-client` in this case, the s
 
 ### Server-side configs
 
-The server-side is a CLI called `bert-serving-start`, you can specify its arguments via:
+Server-side is a CLI `bert-serving-start`, you can specify its arguments via:
 ```bash
 bert-serving-start -model_dir [-max_seq_len] [-num_worker] [-max_batch_size] [-port] [-port_out] [-pooling_strategy] [-pooling_layer]
 ```
@@ -178,16 +178,28 @@ bert-serving-start -model_dir [-max_seq_len] [-num_worker] [-max_batch_size] [-p
 
 ### Client-side configs
 
-Client-side configs are summarized below, which can be found in [`client.py`](service/client.py) as well.
- 
+Client-side is Python class `BertClient`, which accepts arguments as follows:
+
 | Argument | Type | Default | Description |
 |----------------------|------|-----------|-------------------------------------------------------------------------------|
 | `ip` | str | `localhost` | IP address of the server |
 | `port` | int | `5555` | port for pushing data from client to server, *must be consistent with the server side config* |
 | `port_out` | int | `5556`| port for publishing results from server to client, *must be consistent with the server side config* |
 | `output_fmt` | str | `ndarray` | the output format of the sentence encodes, either in numpy array or python List[List[float]] (`ndarray`/`list`) |
-| `show_server_config` | bool | `True` | whether to show server configs when first connected |
+| `show_server_config` | bool | `False` | whether to show server configs when first connected |
+| `check_version` | bool | `True` | whether to force client and server to have the same version |
+| `identity` | str | `None` | a UUID that identifies the client, useful in multi-casting |
 
+A `BertClient` implements the following methods and properties:
+| Method |  Description |
+|--------|------|
+|`.encode()`|Encode a list of strings to a list of vectors|
+|`.encode_async()`|Asynchronous encode batches from a generator|
+|`.fetch()`|Fetch all encoded vectors from server and return them in a generator, use it with `.encode_async()` or `.encode(blocking=False)`. Sending order is NOT preserved.|
+|`.fetch_all()`|Fetch all encoded vectors from server and return them in a list, use it with `.encode_async()` or `.encode(blocking=False)`. Sending order is preserved.|
+|`.close()`|Gracefully close all connections from the client|
+|`.status`|Get the client status in JSON format|
+|`.server_status`|Get the server status in JSON format|
 
 ## FAQ
 
