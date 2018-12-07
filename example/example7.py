@@ -1,17 +1,15 @@
-import random
+import time
+from collections import namedtuple
 
-import matplotlib
-
-matplotlib.use('Agg')
-import pandas as pd
-from matplotlib import pyplot as plt
-from matplotlib.pyplot import savefig
 import numpy as np
-from sklearn.decomposition import PCA
-
+import pandas as pd
+from MulticoreTSNE import MulticoreTSNE as TSNE
 from bert_serving.client import BertClient
-
-num_sample = 10000
+from bert_serving.server import BertServer
+from bert_serving.server.bert.extract_features import PoolingStrategy
+from matplotlib import pyplot as plt
+from matplotlib.colors import ListedColormap
+from sklearn.decomposition import PCA
 
 data = pd.read_csv('/data/cips/data/lab/data/dataset/uci-news-aggregator.csv', usecols=['TITLE', 'CATEGORY'])
 
@@ -39,13 +37,67 @@ print('min_seq_len: %d' % min(len(v.split()) for v in subset_text))
 print('max_seq_len: %d' % max(len(v.split()) for v in subset_text))
 print('unique label: %d' % num_label)
 
-bc = BertClient(port=6000, port_out=6001)
-subset_vec = bc.encode(subset_text)
-# embeddings = TSNE(n_jobs=8).fit_transform(subset_vec)
-pca = PCA(n_components=2)
-embeddings = pca.fit_transform(subset_vec)
-vis_x = embeddings[:, 0]
-vis_y = embeddings[:, 1]
-plt.scatter(vis_x, vis_y, c=subset_label, cmap=plt.cm.get_cmap("jet", num_label), marker='.')
-plt.colorbar(ticks=range(num_label))
-savefig('layer-%d.png' % random.randint(0, 100), bbox_inches='tight')
+pool_layer = 1
+subset_vec_all_layers = []
+
+common = {
+    'model_dir': '//data/cips/data/lab/data/model/uncased_L-12_H-768_A-12',
+    'num_worker': 2,
+    'num_repeat': 5,
+    'port': 6006,
+    'port_out': 6007,
+    'max_seq_len': 20,
+    'client_batch_size': 2048,
+    'max_batch_size': 256,
+    'num_client': 1,
+    'pooling_strategy': PoolingStrategy.REDUCE_MEAN,
+    'pooling_layer': [-2],
+    'gpu_memory_fraction': 0.5
+}
+args = namedtuple('args_namedtuple', ','.join(common.keys()))
+for k, v in common.items():
+    setattr(args, k, v)
+
+for pool_layer in range(1, 13):
+    setattr(args, 'pooling_layer', [-pool_layer])
+    server = BertServer(args)
+    server.start()
+    print('wait until server is ready...')
+    time.sleep(15)
+    print('encoding...')
+    bc = BertClient(port=common['port'], port_out=common['port_out'], show_server_config=True)
+    subset_vec_all_layers.append(bc.encode(subset_text))
+    bc.close()
+    server.close()
+    print('done at layer -%d' % pool_layer)
+
+
+def vis(embed, vis_alg='PCA', pool_alg='REDUCE_MEAN'):
+    plt.close()
+    fig = plt.figure()
+    plt.rcParams['figure.figsize'] = [21, 7]
+    for idx, ebd in enumerate(embed):
+        ax = plt.subplot(2, 6, idx + 1)
+        vis_x = ebd[:, 0]
+        vis_y = ebd[:, 1]
+        plt.scatter(vis_x, vis_y, c=subset_label, cmap=ListedColormap(["blue", "green", "yellow", "red"]), marker='.',
+                    alpha=0.7, s=2)
+        ax.set_title('pool_layer=-%d' % (idx + 1))
+    fig.suptitle('%s visualization of BERT layers using "bert-as-service" (-pool_strategy=%s)' % (vis_alg, pool_alg),
+                 fontsize=14)
+    plt.tight_layout()
+    plt.subplots_adjust(bottom=0.1, right=0.8, top=0.9)
+    cax = plt.axes([0.82, 0.1, 0.01, 0.3])
+    cbar = plt.colorbar(cax=cax, ticks=range(num_label))
+    cbar.ax.get_yaxis().set_ticks([])
+    for j, lab in enumerate(['ent.', 'bus.', 'sci.', 'heal.']):
+        cbar.ax.text(.5, (2 * j + 1) / 8.0, lab, ha='center', va='center', rotation=270)
+    plt.show()
+
+
+pca_embed = [PCA(n_components=2).fit_transform(v) for v in subset_vec_all_layers]
+vis(pca_embed)
+
+if False:
+    tsne_embed = [TSNE(n_jobs=8).fit_transform(v) for v in subset_vec_all_layers]
+    vis(tsne_embed, 't-SNE')
