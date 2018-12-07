@@ -191,6 +191,7 @@ Client-side is Python class `BertClient`, which accepts arguments as follows:
 | `identity` | str | `None` | a UUID that identifies the client, useful in multi-casting |
 
 A `BertClient` implements the following methods and properties:
+
 | Method |  Description |
 |--------|------|
 |`.encode()`|Encode a list of strings to a list of vectors|
