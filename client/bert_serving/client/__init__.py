@@ -13,7 +13,7 @@ import zmq
 from zmq.utils import jsonapi
 
 # in the future client version must match with server version
-__version__ = '1.4.6'
+__version__ = '1.4.7'
 
 if sys.version_info >= (3, 0):
     _str = str
@@ -81,6 +81,12 @@ class BertClient:
         # print('you should NOT see this message multiple times! '
         #       'if you see it appears repeatedly, '
         #       'consider moving "BertClient()" out of the loop.')
+
+    def close(self):
+        """ Gently close all connections of the client """
+        self.sender.close()
+        self.receiver.close()
+        self.context.term()
 
     def _send(self, msg):
         self.sender.send_multipart([self.identity, msg, b'%d' % self.request_id])
