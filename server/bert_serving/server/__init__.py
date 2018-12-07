@@ -222,7 +222,7 @@ class BertSink(Process):
                             'send back\tsize: %d\tjob id:%s\t' % (
                                 job_checksum[job_info], job_info))
                         # re-sort to the original order
-                        tmp = [x[0] for x in sorted(tmp, key=lambda x: x[1])]
+                        tmp = [x[0] for x in sorted(tmp, key=lambda x: int(x[1]))]
                         client_addr, req_id = job_info.split(b'#')
                         send_ndarray(sender, client_addr, np.concatenate(tmp, axis=0), req_id)
                         pending_result.pop(job_info)
