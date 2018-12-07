@@ -147,10 +147,10 @@ bc.encode(['First do it', 'then do it right', 'then do it better'])
 Note that you only need `pip install -U bert-serving-client` in this case, the server side is not required.
 
 > :bulb: **Checkout some advance usages below:**
+> - [Getting ELMo-like contextual word embedding](#getting-elmo-like-contextual-word-embedding)
 > - [Using `BertClient` with `tf.data` API](#using-bertclient-with-tfdata-api)
-> - [Using `BertClient` with `tf.data` API](#using-bertclient-with-tfdata-api)
-> - [Building a text classifier using BERT features and `tf.estimator` API](#building-a-text-classifier-using-bert-features-and-tfestimator-api)
-> - [Save to and load from TFRecord data](#save-to-and-load-from-tfrecord-data)
+> - [Training a text classifier using BERT features and tf.estimator API](#training-a-text-classifier-using-bert-features-and-tfestimator-api)
+> - [Saving and loading with TFRecord data](#saving-and-loading-with-tfrecord-data)
 > - [Asynchronous encoding](#asynchronous-encoding)
 > - [Broadcasting to multiple clients](#broadcasting-to-multiple-clients)
 
