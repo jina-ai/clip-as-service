@@ -24,7 +24,7 @@ from .helper import set_logger
 _tf_ver = tf.__version__.split('.')
 assert int(_tf_ver[0]) >= 1 and int(_tf_ver[1]) >= 10, 'Tensorflow >=1.10 is required!'
 
-__version__ = '1.4.5'
+__version__ = '1.4.6'
 
 
 def _auto_bind(socket):
