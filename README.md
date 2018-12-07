@@ -117,7 +117,7 @@ docker run --runtime nvidia -dit -p 5555:5555 -p 5556:5556 -v $PATH_MODEL:/model
 ```
 </details>
 
-Below is how the server looks like when starting correctly:
+Below shows what the server looks like when starting correctly:
 <p align="center"><img src=".github/server-demo.gif?raw=true"/></p>
 
 
@@ -135,7 +135,8 @@ As a feature of BERT, you may get encodes of a pair of sentences by concatenatin
 bc.encode(['First do it ||| then do it right'])
 ```
 
-Getting the token-based embedding [is also possible](#q-how-can-i-get-word-embedding-instead-of-sentence-embedding).
+Below shows what the server looks like while encoding:
+<p align="center"><img src=".github/server-run-demo.gif?raw=true"/></p>
 
 #### Use BERT Service Remotely
 One may also start the service on one (GPU) machine and call it from another (CPU) machine as follows:
