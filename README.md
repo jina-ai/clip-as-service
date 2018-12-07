@@ -79,7 +79,7 @@ Note that the server MUST be run on Python >= 3.5 and Tensorflow >= 1.10 (*one-p
 Download a model listed below, then uncompress the zip file into some folder, say `/tmp/english_L-12_H-768_A-12/`
 
 <details>
- <summary>List of released pretrained BERT models (click to expand)</summary>
+ <summary>List of released pretrained BERT models (click to expand...)</summary>
 
 
 <table>
@@ -105,9 +105,7 @@ bert-serving-start -model_dir /tmp/english_L-12_H-768_A-12/ -num_worker=4
 This will start a service with four workers, meaning that it can handle up to four **concurrent** requests. More concurrent requests will be queued in a load balancer. Details can be found in our [FAQ](#q-what-is-the-parallel-processing-model-behind-the-scene) and [the benchmark on number of clients](#speed-wrt-num_client).
 
 <details>
- <summary>Start a BERT Service in a Docker Container (click to expand)</summary>
-
-One may also run BERT Service in a container:
+ <summary>Alternatively, one can start the BERT Service in a Docker Container (click to expand...)</summary>
 
 ```bash
 docker build -t bert-as-service -f ./docker/Dockerfile .
