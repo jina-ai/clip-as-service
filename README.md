@@ -48,28 +48,28 @@
 
 ## What is it
 
-**BERT**: [Developed by Google](https://github.com/google-research/bert), BERT is a method of pre-training language representations. It leverages an enormous amount of plain text data publicly available on the web and is trained in an unsupervised manner. Pre-training a BERT model is a fairly expensive yet one-time procedure for each language. Fortunately, Google released several pre-trained models where [you can download from here](https://github.com/google-research/bert#pre-trained-models).
+**BERT** is a NLP model [developed by Google](https://github.com/google-research/bert) for pre-training language representations. It leverages an enormous amount of plain text data publicly available on the web and is trained in an unsupervised manner. Pre-training a BERT model is a fairly expensive yet one-time procedure for each language. Fortunately, Google released several pre-trained models where [you can download from here](https://github.com/google-research/bert#pre-trained-models).
 
 
-**Sentence Encoding/Embedding**: sentence encoding is a upstream task required in many NLP applications, e.g. sentiment analysis, text classification. The goal is to represent a variable length sentence into a fixed length vector, e.g. `hello world` to `[0.1, 0.3, 0.9]`. Each element of the vector should "encode" some semantics of the original sentence.
+**Sentence Encoding/Embedding** is a upstream task required in many NLP applications, e.g. sentiment analysis, text classification. The goal is to represent a variable length sentence into a fixed length vector, e.g. `hello world` to `[0.1, 0.3, 0.9]`. Each element of the vector should "encode" some semantics of the original sentence.
 
-**Finally, this repo**: This repo uses BERT as the sentence encoder and hosts it as a service via ZeroMQ, allowing you to map sentences into fixed-length representations in just two lines of code. 
+**Finally, `bert-as-service`** uses BERT as a sentence encoder and hosts it as a service via ZeroMQ, allowing you to map sentences into fixed-length representations in just two lines of code. 
 
 ## Highlights
 
 - :telescope: **State-of-the-art**: build on pretrained 12/24-layer BERT models released by Google AI, which is considered as a milestone in the NLP community.
 - :hatching_chick: **Easy-to-use**: require only two lines of code to get sentence encodes.
-- :zap: **Fast**: 900 sentences/s on a single Tesla M40 24GB with `max_seq_len=20`. See [benchmark](#Benchmark).
+- :zap: **Fast**: 900 sentences/s on a single Tesla M40 24GB with. See [benchmark](#Benchmark).
 - :octopus: **Scalable**: scale nicely and smoothly on multiple GPUs and multiple clients without worrying about concurrency. See [benchmark](#speed-wrt-num_client).
 
 ## Install
-You can install the server and client with `pip` *separately* or even on *different* machines via:
+You can install the server and client via `pip` either *separately* or even on *different* machines:
 ```bash
-pip install bert-serving-server  # install server
-pip install bert-serving-client  # install client, does not depend on `bert-serving-server`
+pip install bert-serving-server  # server
+pip install bert-serving-client  # client, independent of `bert-serving-server`
 ```
 
-Note that the server MUST be run on Python >= 3.5 and Tensorflow >= 1.10 (*one-point-ten*). The server does not support Python 2!
+Note that the server MUST be run on Python >= 3.5 and Tensorflow >= 1.10 (*one-point-ten*). Again, the server does not support Python 2!
 
 :point_up: The client can be run on both Python 2 and 3 [for the following consideration](#q-can-i-run-it-in-python-2).
 
@@ -97,7 +97,7 @@ Download a model listed below, then uncompress the zip file into some folder, sa
 
 > **Optional:** fine-tuning the model on your downstream task. [Why is it optional?](#q-are-you-suggesting-using-bert-without-fine-tuning)
 
-#### 2. Start a BERT service
+#### 2. Start the BERT service
 After installing the server, you should be able to use `bert-serving-start` CLI as follows:
 ```bash
 bert-serving-start -model_dir /tmp/english_L-12_H-768_A-12/ -num_worker=4 
@@ -119,7 +119,7 @@ docker run --runtime nvidia -dit -p 5555:5555 -p 5556:5556 -v $PATH_MODEL:/model
 
 
 #### 3. Use Client to Get Sentence Encodes
-Now you can use BERT to encode sentences simply as follows:
+Now you can encode sentences simply as follows:
 ```python
 from bert_serving.client import BertClient
 bc = BertClient()
@@ -147,6 +147,7 @@ bc.encode(['First do it', 'then do it right', 'then do it better'])
 Note that you only need `pip install -U bert-serving-client` in this case, the server side is not required.
 
 > :bulb: **Checkout some advance usages below:**
+> - [Using `BertClient` with `tf.data` API](#using-bertclient-with-tfdata-api)
 > - [Using `BertClient` with `tf.data` API](#using-bertclient-with-tfdata-api)
 > - [Building a text classifier using BERT features and `tf.estimator` API](#building-a-text-classifier-using-bert-features-and-tfestimator-api)
 > - [Save to and load from TFRecord data](#save-to-and-load-from-tfrecord-data)
@@ -294,30 +295,6 @@ One port is for pushing text data into the server, the other port is for publish
 ##### **Q:** Can I run it in python 2?
 
 **A:** Server side no, client side yes. This is based on the consideration that python 2.x might still be a major piece in some tech stack. Migrating the whole downstream stack to python 3 for supporting `bert-as-service` can take quite some effort. On the other hand, setting up `BertServer` is just a one-time thing, which can be even [run in a docker container](#run-bert-service-on-nvidia-docker). To ease the integration, we support python 2 on the client side so that you can directly use `BertClient` as a part of your python 2 project, whereas the server side should always be hosted with python 3.
-
-##### **Q:** How can I get word embedding instead of sentence embedding?
-
-**A:** To get word embedding please set `pooling_strategy = NONE`. This will omit the pooling operation on the encoding layer, resulting in a `[max_seq_len, 768]` matrix for every sequence. To get the word embedding corresponds to every token, you can simply use slice index.
-
-> :children_crossing: NOTE: no matter how long your original sequence is, the service will always return a `[max_seq_len, 768]` matrix for every sequence. Beware of the special tokens padded to the sequence, e.g. `[CLS]`, `[SEP]`, `0_PAD`, when getting the word embedding.
-
-Example:
-```python
-# max_seq_len = 25
-# pooling_strategy = NONE
-
-bc = BertClient()
-x = ['hey you', 'whats up?']
-
-bc.encode(x)  # [2, 25, 768]
-bc.encode(x)[0]  # [1, 25, 768], sentence embeddings for `hey you`
-bc.encode(x)[0][0]  # [1, 1, 768], word embedding for `[CLS]`
-bc.encode(x)[0][1]  # [1, 1, 768], word embedding for `hey`
-bc.encode(x)[0][2]  # [1, 1, 768], word embedding for `you`
-bc.encode(x)[0][3]  # [1, 1, 768], word embedding for `[SEP]`
-bc.encode(x)[0][4]  # [1, 1, 768], word embedding for padding symbol
-bc.encode(x)[0][25]  # error, out of index!
-```
 
 ##### **Q:** Do I need to do segmentation for Chinese?
 
@@ -531,6 +508,33 @@ As one can observe, 1 clients 1 GPU = 381 seqs/s, 2 clients 2 GPU 402 seqs/s, 4 
 
 ## Advance Usage
 
+### Getting ELMo-like contextual word embedding
+
+Start the server with `pooling_strategy` set to NONE.
+```bash
+bert-serving-start -pooling_strategy NONE -model_dir /tmp/english_L-12_H-768_A-12/
+```
+
+To get the word embedding corresponds to every token, you can simply use slice index as follows:
+```python
+# max_seq_len = 25
+# pooling_strategy = NONE
+
+bc = BertClient()
+vec = bc.encode(['hey you', 'whats up?'])
+
+vec  # [2, 25, 768]
+vec[0]  # [1, 25, 768], sentence embeddings for `hey you`
+vec[0][0]  # [1, 1, 768], word embedding for `[CLS]`
+vec[0][1]  # [1, 1, 768], word embedding for `hey`
+vec[0][2]  # [1, 1, 768], word embedding for `you`
+vec[0][3]  # [1, 1, 768], word embedding for `[SEP]`
+vec[0][4]  # [1, 1, 768], word embedding for padding symbol
+vec[0][25]  # error, out of index!
+```
+
+Note that no matter how long your original sequence is, the service will always return a `[max_seq_len, 768]` matrix for every sequence. When using slice index to get the word embedding, beware of the special tokens padded to the sequence, i.e. `[CLS]`, `[SEP]`, `0_PAD`. 
+
 ### Using `BertClient` with `tf.data` API
 
 The [`tf.data`](https://www.tensorflow.org/guide/datasets) API enables you to build complex input pipelines from simple, reusable pieces. One can also use `BertClient` to encode sentences on-the-fly and use the vectors in a downstream model. Here is an example:
@@ -567,7 +571,7 @@ The trick here is to start a pool of `BertClient` and reuse them one by one. In 
 
 The complete example can [be found example4.py](example/example4.py). There is also [an example in Keras](https://github.com/hanxiao/bert-as-service/issues/29#issuecomment-442362241). 
 
-### Building a text classifier using BERT features and `tf.estimator` API
+### Training a text classifier using BERT features and `tf.estimator` API
 
 Following the last example, we can easily extend it to a full classifier using `tf.estimator` API. One only need minor change on the input function as follows:
 
@@ -595,7 +599,7 @@ train_and_evaluate(estimator, train_spec, eval_spec)
 The complete example can [be found example5.py](example/example5.py), in which a simple MLP is built on BERT features for predicting the relevant articles according to the fact description in the law documents. The problem is a part of the [Chinese AI and Law Challenge Competition](https://github.com/thunlp/CAIL/blob/master/README_en.md).
 
 
-### Save to and load from TFRecord data
+### Saving and loading with TFRecord data
 The TFRecord file format is a simple record-oriented binary format that many TensorFlow applications use for training data. You can also pre-encode all your sequences and store their encodings to a TFRecord file, then later load it to build a `tf.Dataset`. For example, to write encoding into a TFRecord file:
 
 ```python
