@@ -13,7 +13,7 @@ from sklearn.decomposition import PCA
 
 data = pd.read_csv('/data/cips/data/lab/data/dataset/uci-news-aggregator.csv', usecols=['TITLE', 'CATEGORY'])
 
-# I do aspire here to have balanced classes
+# just copy paste from some Kaggle kernel ->
 num_of_categories = 5000
 shuffled = data.reindex(np.random.permutation(data.index))
 e = shuffled[shuffled['CATEGORY'] == 'e'][:num_of_categories]
@@ -33,6 +33,9 @@ concated.loc[concated['CATEGORY'] == 'm', 'LABEL'] = 3
 subset_text = list(concated['TITLE'].values)
 subset_label = list(concated['LABEL'].values)
 num_label = len(set(subset_label))
+
+# <- just copy paste from some Kaggle kernel
+
 print('min_seq_len: %d' % min(len(v.split()) for v in subset_text))
 print('max_seq_len: %d' % max(len(v.split()) for v in subset_text))
 print('unique label: %d' % num_label)
@@ -83,15 +86,15 @@ def vis(embed, vis_alg='PCA', pool_alg='REDUCE_MEAN'):
         plt.scatter(vis_x, vis_y, c=subset_label, cmap=ListedColormap(["blue", "green", "yellow", "red"]), marker='.',
                     alpha=0.7, s=2)
         ax.set_title('pool_layer=-%d' % (idx + 1))
-    fig.suptitle('%s visualization of BERT layers using "bert-as-service" (-pool_strategy=%s)' % (vis_alg, pool_alg),
-                 fontsize=14)
     plt.tight_layout()
-    plt.subplots_adjust(bottom=0.1, right=0.8, top=0.9)
-    cax = plt.axes([0.82, 0.1, 0.01, 0.3])
+    plt.subplots_adjust(bottom=0.1, right=0.95, top=0.9)
+    cax = plt.axes([0.96, 0.1, 0.01, 0.3])
     cbar = plt.colorbar(cax=cax, ticks=range(num_label))
     cbar.ax.get_yaxis().set_ticks([])
     for j, lab in enumerate(['ent.', 'bus.', 'sci.', 'heal.']):
         cbar.ax.text(.5, (2 * j + 1) / 8.0, lab, ha='center', va='center', rotation=270)
+    fig.suptitle('%s visualization of BERT layers using "bert-as-service" (-pool_strategy=%s)' % (vis_alg, pool_alg),
+                 fontsize=14)
     plt.show()
 
 
