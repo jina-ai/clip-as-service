@@ -41,7 +41,7 @@
 </p>
 
 <p align="center">
-    <img src=".github/demo.gif" width="700">
+    <img src=".github/demo.gif?raw=true" width="700">
 </p>
 
 <h6 align="center">Made by Han Xiao • :globe_with_meridians: <a href="https://hanxiao.github.io">https://hanxiao.github.io</a></h6>
@@ -116,6 +116,9 @@ PATH_MODEL=/PATH_TO/_YOUR_MODEL/
 docker run --runtime nvidia -dit -p 5555:5555 -p 5556:5556 -v $PATH_MODEL:/model -t bert-as-service $NUM_WORKER
 ```
 </details>
+
+Below is how the server looks like when starting correctly:
+<p align="center"><img src=".github/server-demo.gif?raw=true"/></p>
 
 
 #### 3. Use Client to Get Sentence Encodes
@@ -198,7 +201,7 @@ A `BertClient` implements the following methods and properties:
 |`.encode_async()`|Asynchronous encode batches from a generator|
 |`.fetch()`|Fetch all encoded vectors from server and return them in a generator, use it with `.encode_async()` or `.encode(blocking=False)`. Sending order is NOT preserved.|
 |`.fetch_all()`|Fetch all encoded vectors from server and return them in a list, use it with `.encode_async()` or `.encode(blocking=False)`. Sending order is preserved.|
-|`.close()`|Gracefully close all connections from the client|
+|`.close()`|Gracefully close the connection between the client and the server|
 |`.status`|Get the client status in JSON format|
 |`.server_status`|Get the server status in JSON format|
 
@@ -284,7 +287,7 @@ To reproduce the results, please run [`python benchmark.py`](benchmark.py).
 
 ##### **Q:** What is the parallel processing model behind the scene?
 
-<img src=".github/bert-parallel-pipeline.png" width="600">
+<img src=".github/bert-parallel-pipeline.png?raw=true" width="600">
 
 ##### **Q:** Why does the server need two ports?
 One port is for pushing text data into the server, the other port is for publishing the encoded result to the client(s). In this way, we get rid of back-chatter, meaning that at every level recipients never talk back to senders. The overall message flow is strictly one-way, as depicted in the above figure. Killing back-chatter is essential to real scalability, allowing us to use `BertClient` in an asynchronous way. 
@@ -415,7 +418,7 @@ Common arguments across all experiments are:
 
 Performance-wise, longer sequences means slower speed and  more chance of OOM, as the multi-head self-attention (the core unit of BERT) needs to do dot products and matrix multiplications between every two symbols in the sequence.
 
-<img src=".github/max_seq_len.png" width="600">
+<img src=".github/max_seq_len.png?raw=true" width="600">
 
 | `max_seq_len` | 1 GPU | 2 GPU | 4 GPU |
 |---------------|-------|-------|-------|
@@ -448,7 +451,7 @@ for s in my_corpus.iter():
 
 It's even worse if you put `BertClient()` inside the loop. Don't do that.
 
-<img src=".github/client_batch_size.png" width="600">
+<img src=".github/client_batch_size.png?raw=true" width="600">
 
 | `client_batch_size` | 1 GPU | 2 GPU | 4 GPU |
 |---------------------|-------|-------|-------|
@@ -468,7 +471,7 @@ It's even worse if you put `BertClient()` inside the loop. Don't do that.
 #### Speed wrt. `num_client`
 `num_client` represents the number of concurrent clients connected to the server at the same time.
 
-<img src=".github/num_clients.png" width="600">
+<img src=".github/num_clients.png?raw=true" width="600">
 
 | `num_client` | 1 GPU | 2 GPU | 4 GPU |
 |--------------|-------|-------|-------|
@@ -486,7 +489,7 @@ As one can observe, 1 clients 1 GPU = 381 seqs/s, 2 clients 2 GPU 402 seqs/s, 4 
 
 `max_batch_size` is a parameter on the server side, which controls the maximum number of samples per batch per worker. If a incoming batch from client is larger than `max_batch_size`, the server will split it into small batches so that each of them is less or equal than `max_batch_size` before sending it to workers.
 
-<img src=".github/max_batch_size.png" width="600">
+<img src=".github/max_batch_size.png?raw=true" width="600">
 
 | `max_batch_size` | 1 GPU | 2 GPU | 4 GPU |
 |------------------|-------|-------|-------|
@@ -501,7 +504,7 @@ As one can observe, 1 clients 1 GPU = 381 seqs/s, 2 clients 2 GPU 402 seqs/s, 4 
 
 `pooling_layer` determines the encoding layer that pooling operates on. For example, in a 12-layer BERT model, `-1` represents the layer closed to the output, `-12` represents the layer closed to the embedding layer. As one can observe below, the depth of the pooling layer affects the speed.
 
-<img src=".github/pooling_layer.png" width="600">
+<img src=".github/pooling_layer.png?raw=true" width="600">
 
 | `pooling_layer` | 1 GPU | 2 GPU | 4 GPU |
 |-----------------|-------|-------|-------|
