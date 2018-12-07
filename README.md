@@ -104,6 +104,9 @@ bert-serving-start -model_dir /tmp/english_L-12_H-768_A-12/ -num_worker=4
 ```
 This will start a service with four workers, meaning that it can handle up to four **concurrent** requests. More concurrent requests will be queued in a load balancer. Details can be found in our [FAQ](#q-what-is-the-parallel-processing-model-behind-the-scene) and [the benchmark on number of clients](#speed-wrt-num_client).
 
+Below shows what the server looks like when starting correctly:
+<p align="center"><img src=".github/server-demo.gif?raw=true"/></p>
+
 <details>
  <summary>Alternatively, one can start the BERT Service in a Docker Container (click to expand...)</summary>
 
@@ -114,9 +117,6 @@ PATH_MODEL=/PATH_TO/_YOUR_MODEL/
 docker run --runtime nvidia -dit -p 5555:5555 -p 5556:5556 -v $PATH_MODEL:/model -t bert-as-service $NUM_WORKER
 ```
 </details>
-
-Below shows what the server looks like when starting correctly:
-<p align="center"><img src=".github/server-demo.gif?raw=true"/></p>
 
 
 #### 3. Use Client to Get Sentence Encodes
