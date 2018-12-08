@@ -69,18 +69,17 @@ class BertClient:
         self.port_out = port_out
         self.ip = ip
 
-        s_status = self.server_status
-        if check_version and s_status['server_version'] != self.status['client_version']:
-            raise AttributeError('version mismatch! server version is %s but client version is %s!\n'
-                                 'consider "pip install -U bert-serving-server bert-serving-client"' % (
-                                     s_status['server_version'], self.status['client_version']))
+        if check_version or show_server_config:
+            s_status = self.server_status
 
-        if show_server_config:
-            self._print_dict(s_status, 'server config:')
+            if check_version and s_status['server_version'] != self.status['client_version']:
+                raise AttributeError('version mismatch! server version is %s but client version is %s!\n'
+                                     'consider "pip install -U bert-serving-server bert-serving-client"\n'
+                                     'or disable version-check by "BertClient(check_version=False)"' % (
+                                         s_status['server_version'], self.status['client_version']))
 
-        # print('you should NOT see this message multiple times! '
-        #       'if you see it appears repeatedly, '
-        #       'consider moving "BertClient()" out of the loop.')
+            if show_server_config:
+                self._print_dict(s_status, 'server config:')
 
     def close(self):
         """ Gently close all connections of the client """

@@ -5,6 +5,7 @@ import multiprocessing
 import os
 import sys
 import threading
+import time
 from collections import defaultdict
 from datetime import datetime
 from multiprocessing import Process
@@ -236,6 +237,8 @@ class BertSink(Process):
                         job_checksum[job_info] = int(msg_info)
                         self.logger.info('job register\tsize: %d\tjob id: %s' % (int(msg_info), job_info))
                     elif msg_type == ServerCommand.show_config:
+                        time.sleep(0.1)  # dirty fix of slow-joiner: sleep so that client receiver can connect.
+                        self.logger.info('send config\tclient %s' % client_addr)
                         sender.send_multipart([client_addr, msg_info, req_id])
         except zmq.error.ContextTerminated:
             self.logger.error('context is closed!')
