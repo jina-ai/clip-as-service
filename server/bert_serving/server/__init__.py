@@ -25,7 +25,7 @@ from .helper import set_logger
 _tf_ver = tf.__version__.split('.')
 assert int(_tf_ver[0]) >= 1 and int(_tf_ver[1]) >= 10, 'Tensorflow >=1.10 is required!'
 
-__version__ = '1.4.8'
+__version__ = '1.4.9'
 
 
 def _auto_bind(socket):
@@ -64,7 +64,7 @@ class BertServer(threading.Thread):
             'pooling_strategy': args.pooling_strategy.value,
             'tensorflow_version': tf.__version__,
             'python_version': sys.version,
-            'server_start_time': str(datetime.now())
+            'server_start_time': str(datetime.now()),
         }
         self.processes = []
         self.context = zmq.Context()
@@ -98,22 +98,31 @@ class BertServer(threading.Thread):
         self.logger.info('terminated!')
 
     def run(self):
-        available_gpus = range(self.num_worker)
-        run_on_gpu = True
         num_req = 0
-        try:
-            import GPUtil
-            available_gpus = GPUtil.getAvailable(limit=self.num_worker)
-            if len(available_gpus) < self.num_worker:
-                self.logger.warn('only %d GPU(s) is available, but ask for %d' % (len(available_gpus), self.num_worker))
-        except FileNotFoundError:
-            self.logger.warn('nvidia-smi is missing, often means no gpu found on this machine. '
-                             'will fall back to cpu!')
+        run_on_gpu = True
+        if self.args.cpu:
             run_on_gpu = False
+            device_map = [-1 for _ in self.num_worker]
+        else:
+            try:
+                import GPUtil
+                num_all_gpu = len(GPUtil.getGPUs())
+                avail_gpu = GPUtil.getAvailable(order='memory', limit=min(num_all_gpu, self.num_worker))
+                num_avail_gpu = len(avail_gpu)
+                if num_avail_gpu < self.num_worker:
+                    self.logger.warn('%d out of %d GPU(s) is available/free, but "-num_worker=%d"' %
+                                     (num_avail_gpu, num_all_gpu, self.num_worker))
+                    self.logger.warn('multiple workers will share one GPU, may raise OOM')
+                device_map = [avail_gpu[j % num_avail_gpu] for j in range(self.num_worker)]
+            except FileNotFoundError:
+                self.logger.warn('nvidia-smi is missing, often means no gpu on this machine. '
+                                 'fall back to cpu!')
+                run_on_gpu = False
+                device_map = [-1 for _ in self.num_worker]
 
         # start the backend processes
-        for i in available_gpus:
-            process = BertWorker(i, self.args, self.addr_backend, self.addr_sink)
+        for idx, device_alloc in enumerate(device_map):
+            process = BertWorker(idx, self.args, self.addr_backend, self.addr_sink, device_alloc)
             self.processes.append(process)
             process.start()
 
@@ -129,8 +138,8 @@ class BertServer(threading.Thread):
                                                                 'worker -> sink': self.addr_sink,
                                                                 'ventilator <-> sink': self.addr_front2sink,
                                                                 'server_current_time': str(datetime.now()),
-                                                                'run_on_gpu': run_on_gpu,
                                                                 'num_request': num_req,
+                                                                'run_on_gpu': run_on_gpu,
                                                                 'server_version': __version__},
                                                              **self.args_dict}), req_id])
                     continue
@@ -245,7 +254,7 @@ class BertSink(Process):
 
 
 class BertWorker(Process):
-    def __init__(self, id, args, worker_address, sink_address):
+    def __init__(self, id, args, worker_address, sink_address, device_id):
         super().__init__()
         self.model_dir = args.model_dir
         self.config_fp = os.path.join(self.model_dir, 'bert_config.json')
@@ -261,7 +270,7 @@ class BertWorker(Process):
             pooling_strategy=args.pooling_strategy,
             pooling_layer=args.pooling_layer
         )
-        os.environ['CUDA_VISIBLE_DEVICES'] = str(self.worker_id)
+        os.environ['CUDA_VISIBLE_DEVICES'] = str(device_id)
         config = tf.ConfigProto()
         config.gpu_options.allow_growth = True
         config.gpu_options.per_process_gpu_memory_fraction = args.gpu_memory_fraction
