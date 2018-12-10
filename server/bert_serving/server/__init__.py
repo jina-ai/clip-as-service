@@ -117,7 +117,8 @@ class BertServer(threading.Thread):
                 self.logger.warn('nvidia-smi is missing, often means no gpu on this machine. '
                                  'fall back to cpu!')
 
-        self.logger.info('device_map: %s' % device_map)
+        self.logger.info('device_map: %s' % '\n'.join(
+            'worker %2d -> gpu %2d' % (w_id, g_id) for w_id, g_id in enumerate(device_map)))
         # start the backend processes
         for idx, device_id in enumerate(device_map):
             process = BertWorker(idx, self.args, self.addr_backend, self.addr_sink, device_id)
