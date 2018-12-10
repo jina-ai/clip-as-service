@@ -99,11 +99,9 @@ class BertServer(threading.Thread):
 
     def run(self):
         num_req = 0
-        run_on_gpu = True
-        if self.args.cpu:
-            run_on_gpu = False
-            device_map = [-1 for _ in self.num_worker]
-        else:
+        run_on_gpu = False
+        device_map = [-1] * self.num_worker
+        if not self.args.cpu:
             try:
                 import GPUtil
                 num_all_gpu = len(GPUtil.getGPUs())
@@ -113,12 +111,11 @@ class BertServer(threading.Thread):
                     self.logger.warn('only %d out of %d GPU(s) is available/free, but "-num_worker=%d"' %
                                      (num_avail_gpu, num_all_gpu, self.num_worker))
                     self.logger.warn('multiple workers will share one GPU, may raise OOM')
-                device_map = [avail_gpu[j % num_avail_gpu] for j in range(self.num_worker)]
+                device_map = (avail_gpu * self.num_worker)[: self.num_worker]
+                run_on_gpu = True
             except FileNotFoundError:
                 self.logger.warn('nvidia-smi is missing, often means no gpu on this machine. '
                                  'fall back to cpu!')
-                run_on_gpu = False
-                device_map = [-1 for _ in self.num_worker]
 
         # start the backend processes
         for idx, device_id in enumerate(device_map):
