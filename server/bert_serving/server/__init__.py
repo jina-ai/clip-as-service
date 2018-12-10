@@ -110,7 +110,7 @@ class BertServer(threading.Thread):
                 avail_gpu = GPUtil.getAvailable(order='memory', limit=min(num_all_gpu, self.num_worker))
                 num_avail_gpu = len(avail_gpu)
                 if num_avail_gpu < self.num_worker:
-                    self.logger.warn('%d out of %d GPU(s) is available/free, but "-num_worker=%d"' %
+                    self.logger.warn('only %d out of %d GPU(s) is available/free, but "-num_worker=%d"' %
                                      (num_avail_gpu, num_all_gpu, self.num_worker))
                     self.logger.warn('multiple workers will share one GPU, may raise OOM')
                 device_map = [avail_gpu[j % num_avail_gpu] for j in range(self.num_worker)]
@@ -121,8 +121,8 @@ class BertServer(threading.Thread):
                 device_map = [-1 for _ in self.num_worker]
 
         # start the backend processes
-        for idx, device_alloc in enumerate(device_map):
-            process = BertWorker(idx, self.args, self.addr_backend, self.addr_sink, device_alloc)
+        for idx, device_id in enumerate(device_map):
+            process = BertWorker(idx, self.args, self.addr_backend, self.addr_sink, device_id)
             self.processes.append(process)
             process.start()
 
@@ -140,6 +140,7 @@ class BertServer(threading.Thread):
                                                                 'server_current_time': str(datetime.now()),
                                                                 'num_request': num_req,
                                                                 'run_on_gpu': run_on_gpu,
+                                                                'gpu_device_map': device_map,
                                                                 'server_version': __version__},
                                                              **self.args_dict}), req_id])
                     continue
