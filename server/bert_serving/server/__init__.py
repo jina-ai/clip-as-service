@@ -110,7 +110,8 @@ class BertServer(threading.Thread):
                 if num_avail_gpu < self.num_worker:
                     self.logger.warn('only %d out of %d GPU(s) is available/free, but "-num_worker=%d"' %
                                      (num_avail_gpu, num_all_gpu, self.num_worker))
-                    self.logger.warn('multiple workers will be allocated to one GPU, may raise out-of-memory')
+                    self.logger.warn('multiple workers will be allocated to one GPU, '
+                                     'may not scale well and may raise out-of-memory')
                 device_map = (avail_gpu * self.num_worker)[: self.num_worker]
                 run_on_gpu = True
             except FileNotFoundError:
