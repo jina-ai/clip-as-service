@@ -54,6 +54,9 @@ VER_VAL=$VER_TAG"'"${VER#"v"}"'"
 
 change_line "$VER_TAG" "$VER_VAL" $CLIENT_CODE
 change_line "$VER_TAG" "$VER_VAL" $SERVER_CODE
+git add $CLIENT_CODE $SERVER_CODE
+git commit -m 'increase version number'
+git push origin master
 
 pub_pypi $SERVER_DIR
 pub_pypi $CLIENT_DIR
