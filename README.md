@@ -177,6 +177,7 @@ bert-serving-start -model_dir [-max_seq_len] [-num_worker] [-max_batch_size] [-p
 | `pooling_strategy` | str | `REDUCE_MEAN` | the pooling strategy for generating encoding vectors, valid values are `NONE`, `REDUCE_MEAN`, `REDUCE_MAX`, `REDUCE_MEAN_MAX`, `CLS_TOKEN`, `FIRST_TOKEN`, `SEP_TOKEN`, `LAST_TOKEN`. Explanation of these strategies [can be found here](#q-what-are-the-available-pooling-strategies). To get encoding for each token in the sequence, please set this to `NONE`.|
 | `pooling_layer` | int | `-2` | the encoding layer that pooling operates on, where `-1` means the last layer, `-2` means the second-to-last, etc.|
 | `gpu_memory_fraction` | float | `0.5` | the fraction of the overall amount of memory that each GPU should be allocated per worker |
+| `cpu` | bool | False | run on CPU instead of GPU |
 
 ### Client-side configs
 
@@ -401,6 +402,16 @@ if cosine(A, B) > cosine(A, C), then A is more similar to B than C.
 ##### **Q:** I'm getting bad performance, what should I do?
 
 **A:** This often suggests that the pretrained BERT could not generate a descent representation of your downstream task. Thus, you can fine-tune the model on the downstream task and then use `bert-as-service` to serve the fine-tuned BERT. Note that, `bert-as-service` is just a feature extraction service based on BERT. Nothing stops you from using a fine-tuned BERT.
+
+##### **Q:** Can I run the server side on CPU-only machine?
+
+**A:** Yes, please run `bert-serving-start -cpu -max_batch_size 16`. Note that, CPU does not scale as good as GPU on large batches, therefore the `max_batch_size` on the server side needs to be smaller, e.g. 16 or 32.
+
+##### **Q:** How can I choose `num_worker`?
+
+**A:** Generally, the number of workers should be less than or equal to the number of GPU/CPU you have. Otherwise, multiple workers will be allocated to one GPU/CPU, which may not scale well (and may cause out-of-memory on GPU). 
+
+
 
 ## Benchmark
 

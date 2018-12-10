@@ -41,7 +41,7 @@
 </p>
 
 <p align="center">
-    <img src=".github/demo.gif" width="700">
+    <img src=".github/demo.gif?raw=true" width="700">
 </p>
 
 <h6 align="center">Made by Han Xiao • :globe_with_meridians: <a href="https://hanxiao.github.io">https://hanxiao.github.io</a></h6>
@@ -79,7 +79,7 @@ Note that the server MUST be run on Python >= 3.5 and Tensorflow >= 1.10 (*one-p
 Download a model listed below, then uncompress the zip file into some folder, say `/tmp/english_L-12_H-768_A-12/`
 
 <details>
- <summary>List of released pretrained BERT models (click to expand)</summary>
+ <summary>List of released pretrained BERT models (click to expand...)</summary>
 
 
 <table>
@@ -104,10 +104,11 @@ bert-serving-start -model_dir /tmp/english_L-12_H-768_A-12/ -num_worker=4
 ```
 This will start a service with four workers, meaning that it can handle up to four **concurrent** requests. More concurrent requests will be queued in a load balancer. Details can be found in our [FAQ](#q-what-is-the-parallel-processing-model-behind-the-scene) and [the benchmark on number of clients](#speed-wrt-num_client).
 
-<details>
- <summary>Start a BERT Service in a Docker Container (click to expand)</summary>
+Below shows what the server looks like when starting correctly:
+<p align="center"><img src=".github/server-demo.gif?raw=true"/></p>
 
-One may also run BERT Service in a container:
+<details>
+ <summary>Alternatively, one can start the BERT Service in a Docker Container (click to expand...)</summary>
 
 ```bash
 docker build -t bert-as-service -f ./docker/Dockerfile .
@@ -132,7 +133,8 @@ As a feature of BERT, you may get encodes of a pair of sentences by concatenatin
 bc.encode(['First do it ||| then do it right'])
 ```
 
-Getting the token-based embedding [is also possible](#q-how-can-i-get-word-embedding-instead-of-sentence-embedding).
+Below shows what the server looks like while encoding:
+<p align="center"><img src=".github/server-run-demo.gif?raw=true"/></p>
 
 #### Use BERT Service Remotely
 One may also start the service on one (GPU) machine and call it from another (CPU) machine as follows:
@@ -159,7 +161,7 @@ Note that you only need `pip install -U bert-serving-client` in this case, the s
 
 ### Server-side configs
 
-The server-side is a CLI called `bert-serving-start`, you can specify its arguments via:
+Server-side is a CLI `bert-serving-start`, you can specify its arguments via:
 ```bash
 bert-serving-start -model_dir [-max_seq_len] [-num_worker] [-max_batch_size] [-port] [-port_out] [-pooling_strategy] [-pooling_layer]
 ```
@@ -178,16 +180,29 @@ bert-serving-start -model_dir [-max_seq_len] [-num_worker] [-max_batch_size] [-p
 
 ### Client-side configs
 
-Client-side configs are summarized below, which can be found in [`client.py`](service/client.py) as well.
- 
+Client-side is Python class `BertClient`, which accepts arguments as follows:
+
 | Argument | Type | Default | Description |
 |----------------------|------|-----------|-------------------------------------------------------------------------------|
 | `ip` | str | `localhost` | IP address of the server |
 | `port` | int | `5555` | port for pushing data from client to server, *must be consistent with the server side config* |
 | `port_out` | int | `5556`| port for publishing results from server to client, *must be consistent with the server side config* |
 | `output_fmt` | str | `ndarray` | the output format of the sentence encodes, either in numpy array or python List[List[float]] (`ndarray`/`list`) |
-| `show_server_config` | bool | `True` | whether to show server configs when first connected |
+| `show_server_config` | bool | `False` | whether to show server configs when first connected |
+| `check_version` | bool | `True` | whether to force client and server to have the same version |
+| `identity` | str | `None` | a UUID that identifies the client, useful in multi-casting |
 
+A `BertClient` implements the following methods and properties:
+
+| Method |  Description |
+|--------|------|
+|`.encode()`|Encode a list of strings to a list of vectors|
+|`.encode_async()`|Asynchronous encode batches from a generator|
+|`.fetch()`|Fetch all encoded vectors from server and return them in a generator, use it with `.encode_async()` or `.encode(blocking=False)`. Sending order is NOT preserved.|
+|`.fetch_all()`|Fetch all encoded vectors from server and return them in a list, use it with `.encode_async()` or `.encode(blocking=False)`. Sending order is preserved.|
+|`.close()`|Gracefully close the connection between the client and the server|
+|`.status`|Get the client status in JSON format|
+|`.server_status`|Get the server status in JSON format|
 
 ## FAQ
 
@@ -239,9 +254,19 @@ bert_serving_start -pooling_layer -4 -3 -2 -1 -model_dir /tmp/english_L-12_H-768
 
 **A:** The last layer is too closed to the target functions (i.e. masked language model and next sentence prediction) during pre-training, therefore may be biased to those targets. If you question about this argument and want to use the last hidden layer anyway, please feel free to set `pooling_layer=-1`.
 
+##### **Q:** So which layer and which pooling strategy is the best?
+
+**A:** It depends. Keep in mind that different BERT layers capture different information. To see that more clearly, here is a visualization on [UCI-News Aggregator Dataset](https://www.kaggle.com/uciml/news-aggregator-dataset), where I randomly sample 20K news titles; get sentence encodes from different layers and with different pooling strategies, finally reduce it to 2D via PCA (one can of course do t-SNE as well, but that's not my point). There are only four classes of the data, illustrated in red, blue, yellow and green. To reproduce the result, please run [example7.py](example/example7.py).
+
+<p align="center"><img src=".github/pool_mean.png?raw=true"></p>
+
+<p align="center"><img src=".github/pool_max.png?raw=true"></p>
+
+Intuitively, `pooling_layer=-1` is close to the training output, so it may be biased to the training targets. If you don't fine tune the model, then this could lead to a bad representation. `pooling_layer=-12` is close to the word embedding, may preserve the very original word information (with no fancy self-attention etc.). On the other hand, you may achieve the very same performance by simply using a word-embedding only. That said, anything in-between [-1, -12] is then a trade-off. 
+
 ##### **Q:** Could I use other pooling techniques?
 
-**A:** For sure. Just follows [`get_sentence_encoding()` I added to the modeling.py](server/bert_serving/server/bert/extract_features.py#L96). Note that, if you introduce new `tf.variables` to the graph, then you need to train those variables before using the model. You may also want to check [some pooling techniques I mentioned in my blog post](https://hanxiao.github.io/2018/06/24/4-Encoding-Blocks-You-Need-to-Know-Besides-LSTM-RNN-in-Tensorflow/#pooling-block).
+**A:** For sure. But if you introduce new `tf.variables` to the graph, then you need to train those variables before using the model. You may also want to check [some pooling techniques I mentioned in my blog post](https://hanxiao.github.io/2018/06/24/4-Encoding-Blocks-You-Need-to-Know-Besides-LSTM-RNN-in-Tensorflow/#pooling-block).
 
 ##### **Q:** Can I start multiple clients and send requests to one server simultaneously?
 
@@ -271,7 +296,7 @@ To reproduce the results, please run [`python benchmark.py`](benchmark.py).
 
 ##### **Q:** What is the parallel processing model behind the scene?
 
-<img src=".github/bert-parallel-pipeline.png" width="600">
+<img src=".github/bert-parallel-pipeline.png?raw=true" width="600">
 
 ##### **Q:** Why does the server need two ports?
 One port is for pushing text data into the server, the other port is for publishing the encoded result to the client(s). In this way, we get rid of back-chatter, meaning that at every level recipients never talk back to senders. The overall message flow is strictly one-way, as depicted in the above figure. Killing back-chatter is essential to real scalability, allowing us to use `BertClient` in an asynchronous way. 
@@ -402,7 +427,7 @@ Common arguments across all experiments are:
 
 Performance-wise, longer sequences means slower speed and  more chance of OOM, as the multi-head self-attention (the core unit of BERT) needs to do dot products and matrix multiplications between every two symbols in the sequence.
 
-<img src=".github/max_seq_len.png" width="600">
+<img src=".github/max_seq_len.png?raw=true" width="600">
 
 | `max_seq_len` | 1 GPU | 2 GPU | 4 GPU |
 |---------------|-------|-------|-------|
@@ -435,7 +460,7 @@ for s in my_corpus.iter():
 
 It's even worse if you put `BertClient()` inside the loop. Don't do that.
 
-<img src=".github/client_batch_size.png" width="600">
+<img src=".github/client_batch_size.png?raw=true" width="600">
 
 | `client_batch_size` | 1 GPU | 2 GPU | 4 GPU |
 |---------------------|-------|-------|-------|
@@ -455,7 +480,7 @@ It's even worse if you put `BertClient()` inside the loop. Don't do that.
 #### Speed wrt. `num_client`
 `num_client` represents the number of concurrent clients connected to the server at the same time.
 
-<img src=".github/num_clients.png" width="600">
+<img src=".github/num_clients.png?raw=true" width="600">
 
 | `num_client` | 1 GPU | 2 GPU | 4 GPU |
 |--------------|-------|-------|-------|
@@ -473,7 +498,7 @@ As one can observe, 1 clients 1 GPU = 381 seqs/s, 2 clients 2 GPU 402 seqs/s, 4 
 
 `max_batch_size` is a parameter on the server side, which controls the maximum number of samples per batch per worker. If a incoming batch from client is larger than `max_batch_size`, the server will split it into small batches so that each of them is less or equal than `max_batch_size` before sending it to workers.
 
-<img src=".github/max_batch_size.png" width="600">
+<img src=".github/max_batch_size.png?raw=true" width="600">
 
 | `max_batch_size` | 1 GPU | 2 GPU | 4 GPU |
 |------------------|-------|-------|-------|
@@ -488,7 +513,7 @@ As one can observe, 1 clients 1 GPU = 381 seqs/s, 2 clients 2 GPU 402 seqs/s, 4 
 
 `pooling_layer` determines the encoding layer that pooling operates on. For example, in a 12-layer BERT model, `-1` represents the layer closed to the output, `-12` represents the layer closed to the embedding layer. As one can observe below, the depth of the pooling layer affects the speed.
 
-<img src=".github/pooling_layer.png" width="600">
+<img src=".github/pooling_layer.png?raw=true" width="600">
 
 | `pooling_layer` | 1 GPU | 2 GPU | 4 GPU |
 |-----------------|-------|-------|-------|

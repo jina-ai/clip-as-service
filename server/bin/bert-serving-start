@@ -29,6 +29,8 @@ def get_args():
     parser.add_argument('-pooling_strategy', type=PoolingStrategy.from_string,
                         default=PoolingStrategy.REDUCE_MEAN, choices=list(PoolingStrategy),
                         help='the pooling strategy for generating encoding vectors')
+    parser.add_argument('-cpu', action='store_true', default=False,
+                            help='running on CPU (default is on GPU)')
     parser.add_argument('-gpu_memory_fraction', type=float, default=0.5,
                         help='determines the fraction of the overall amount of memory '
                              'that each visible GPU should be allocated per worker. '

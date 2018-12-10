@@ -1,3 +1,15 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# Han Xiao <artex.xh@gmail.com> <https://hanxiao.github.io>
+
+# NOTE: First install bert-as-service via
+# $
+# $ pip install bert-serving-server
+# $ pip install bert-serving-client
+# $
+
+# visualizing a 12-layer BERT
+
 import time
 from collections import namedtuple
 
