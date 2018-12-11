@@ -278,7 +278,8 @@ class BertWorker(Process):
             use_xla=args.xla
         )
         os.environ['CUDA_VISIBLE_DEVICES'] = str(device_id)
-        config = tf.ConfigProto(device_count={'GPU': 0 if device_id < 0 else 1})
+        config = tf.ConfigProto(device_count={'GPU': 0 if device_id < 0 else 1},
+                                log_device_placement=True)
         # session-wise XLA doesn't seem to work on tf 1.10
         # if args.xla:
         #     config.graph_options.optimizer_options.global_jit_level = tf.OptimizerOptions.ON_1
