@@ -92,7 +92,7 @@ class InputFeatures(object):
 
 def model_fn_builder(bert_config, init_checkpoint, use_one_hot_embeddings=False,
                      pooling_strategy=PoolingStrategy.REDUCE_MEAN,
-                     pooling_layer=[-2]):
+                     pooling_layer=[-2], use_xla=False):
     """Returns `model_fn` closure for TPUEstimator."""
 
     def model_fn(features, labels, mode, params):  # pylint: disable=unused-argument
@@ -103,7 +103,7 @@ def model_fn_builder(bert_config, init_checkpoint, use_one_hot_embeddings=False,
         input_mask = features["input_mask"]
         input_type_ids = features["input_type_ids"]
 
-        jit_scope = tf.contrib.compiler.jit.experimental_jit_scope
+        jit_scope = tf.contrib.compiler.jit.experimental_jit_scope if use_xla else (lambda: None)
 
         with jit_scope():
 
@@ -155,22 +155,22 @@ def model_fn_builder(bert_config, init_checkpoint, use_one_hot_embeddings=False,
                 pooled = encoder_layer
             else:
                 raise NotImplementedError()
-        print('\n__XLA enabled__\n')
-        print('\n'.join([n.name for n in tf.get_default_graph().as_graph_def().node
-                         if '_XlaCompile' in n.attr.keys() and bool(n.attr.get('_XlaCompile'))]))
-        print('\n__XLA disabled__\n', flush=True)
-        print('\n'.join([n.name for n in tf.get_default_graph().as_graph_def().node
-                         if '_XlaCompile' in n.attr.keys() and not bool(n.attr.get('_XlaCompile'))]))
-        print('\n__XLA not exist__\n', flush=True)
-        print('\n'.join([n.name for n in tf.get_default_graph().as_graph_def().node
-                         if '_XlaCompile' not in n.attr.keys()]))
+            # print('\n__XLA enabled__\n')
+            # print('\n'.join([n.name for n in tf.get_default_graph().as_graph_def().node
+            #                  if '_XlaCompile' in n.attr.keys() and bool(n.attr.get('_XlaCompile'))]))
+            # print('\n__XLA disabled__\n', flush=True)
+            # print('\n'.join([n.name for n in tf.get_default_graph().as_graph_def().node
+            #                  if '_XlaCompile' in n.attr.keys() and not bool(n.attr.get('_XlaCompile'))]))
+            # print('\n__XLA not exist__\n', flush=True)
+            # print('\n'.join([n.name for n in tf.get_default_graph().as_graph_def().node
+            #                  if '_XlaCompile' not in n.attr.keys()]))
 
-        predictions = {
-            'client_id': client_id,
-            'encodes': pooled
-        }
+            predictions = {
+                'client_id': client_id,
+                'encodes': pooled
+            }
 
-        return EstimatorSpec(mode=mode, predictions=predictions)
+            return EstimatorSpec(mode=mode, predictions=predictions)
 
     return model_fn
 

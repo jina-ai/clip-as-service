@@ -273,12 +273,14 @@ class BertWorker(Process):
             bert_config=modeling.BertConfig.from_json_file(self.config_fp),
             init_checkpoint=self.checkpoint_fp,
             pooling_strategy=args.pooling_strategy,
-            pooling_layer=args.pooling_layer
+            pooling_layer=args.pooling_layer,
+            use_xla=args.xla
         )
         os.environ['CUDA_VISIBLE_DEVICES'] = str(device_id)
         config = tf.ConfigProto()
-        if args.xla:
-            config.graph_options.optimizer_options.global_jit_level = tf.OptimizerOptions.ON_1
+        # session-wise XLA doesn't seem to work on tf 1.10
+        # if args.xla:
+        #     config.graph_options.optimizer_options.global_jit_level = tf.OptimizerOptions.ON_1
         config.gpu_options.allow_growth = True
         config.gpu_options.per_process_gpu_memory_fraction = args.gpu_memory_fraction
         self.estimator = Estimator(self.model_fn, config=RunConfig(session_config=config))
