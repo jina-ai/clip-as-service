@@ -29,7 +29,7 @@ if __name__ == '__main__':
         t = threading.Thread(target=client_clone, args=(bc.identity, j))
         t.start()
 
-    with open('../README.md') as fp:
+    with open('README.md') as fp:
         data = [v for v in fp if v.strip()]
 
     for _ in range(3):

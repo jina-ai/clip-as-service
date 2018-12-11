@@ -19,7 +19,7 @@ from bert_serving.client import BertClient
 os.environ['CUDA_VISIBLE_DEVICES'] = str(GPUtil.getFirstAvailable()[0])
 tf.logging.set_verbosity(tf.logging.INFO)
 
-with open('../README.md') as fp:
+with open('README.md') as fp:
     data = [v for v in fp if v.strip()]
     bc = BertClient()
     list_vec = bc.encode(data)
