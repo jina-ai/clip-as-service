@@ -166,6 +166,7 @@ def model_fn_builder(bert_config, init_checkpoint, use_one_hot_embeddings=False,
             #                  if '_XlaCompile' not in n.attr.keys()]))
 
             tmp_g = tf.get_default_graph().as_graph_def()
+            print('__removed__', flush=True)
             print(tf.graph_util.remove_training_nodes(tmp_g))
 
             return EstimatorSpec(mode=mode, predictions={
