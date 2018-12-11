@@ -155,7 +155,9 @@ def model_fn_builder(bert_config, init_checkpoint, use_one_hot_embeddings=False,
                 pooled = encoder_layer
             else:
                 raise NotImplementedError()
-
+        print('___')
+        print([n.name for n in tf.get_default_graph().as_graph_def().node])
+        print('___')
         print([n for n in tf.get_default_graph().as_graph_def().node])
 
         predictions = {
