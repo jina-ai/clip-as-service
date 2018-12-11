@@ -165,7 +165,8 @@ def model_fn_builder(bert_config, init_checkpoint, use_one_hot_embeddings=False,
             # print('\n'.join([n.name for n in tf.get_default_graph().as_graph_def().node
             #                  if '_XlaCompile' not in n.attr.keys()]))
 
-            print(tf.get_default_graph().as_graph_def())
+            tmp_g = tf.get_default_graph().as_graph_def()
+            print(tf.graph_util.remove_training_nodes(tmp_g))
 
             return EstimatorSpec(mode=mode, predictions={
                 'client_id': client_id,
