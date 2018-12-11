@@ -156,14 +156,14 @@ def model_fn_builder(bert_config, init_checkpoint, use_one_hot_embeddings=False,
             else:
                 raise NotImplementedError()
         print('__XLA disabled__')
-        print('\n--\n'.join(['%s' % n for n in tf.get_default_graph().as_graph_def().node
-                             if '_XlaCompile' in n.attr.keys() and bool(n.attr.get('_XlaCompile'))]))
+        print('\n'.join([n.name for n in tf.get_default_graph().as_graph_def().node
+                         if '_XlaCompile' in n.attr.keys() and bool(n.attr.get('_XlaCompile'))]))
         print('__XLA enabled__')
-        print('\n--\n'.join(['%s' % n for n in tf.get_default_graph().as_graph_def().node
-                             if '_XlaCompile' in n.attr.keys() and not bool(n.attr.get('_XlaCompile'))]))
+        print('\n'.join([n.name for n in tf.get_default_graph().as_graph_def().node
+                         if '_XlaCompile' in n.attr.keys() and not bool(n.attr.get('_XlaCompile'))]))
         print('__XLA not exist__')
-        print('\n--\n'.join(['%s' % n for n in tf.get_default_graph().as_graph_def().node
-                             if '_XlaCompile' not in n.attr.keys()]))
+        print('\n'.join([n.name for n in tf.get_default_graph().as_graph_def().node
+                         if '_XlaCompile' not in n.attr.keys()]))
 
         predictions = {
             'client_id': client_id,
