@@ -65,6 +65,7 @@ class BertServer(threading.Thread):
             'tensorflow_version': tf.__version__,
             'python_version': sys.version,
             'server_start_time': str(datetime.now()),
+            'use_xla_compiler': args.xla
         }
         self.processes = []
         self.context = zmq.Context()
@@ -272,6 +273,8 @@ class BertWorker(Process):
         )
         os.environ['CUDA_VISIBLE_DEVICES'] = str(device_id)
         config = tf.ConfigProto()
+        if args.xla:
+            config.graph_options.optimizer_options.global_jit_level = tf.OptimizerOptions.ON_1
         config.gpu_options.allow_growth = True
         config.gpu_options.per_process_gpu_memory_fraction = args.gpu_memory_fraction
         self.estimator = Estimator(self.model_fn, config=RunConfig(session_config=config))
