@@ -169,13 +169,14 @@ def model_fn_builder(bert_config, init_checkpoint, use_one_hot_embeddings=False,
             print('train vars: %d' % len(tvars))
             tmp_g = tf.get_default_graph().as_graph_def()
             print('before : %d' % len(tmp_g.node), flush=True)
+
+            tmp_g = tf.graph_util.convert_variables_to_constants(tf.get_default_session(), tmp_g,
+                                                                 [pooled])
+            print('after constant: %d' % len(tmp_g.node), flush=True)
+            print('after constant: %s' % tmp_g, flush=True)
             print('__removed__', flush=True)
             tmp_g = tf.graph_util.remove_training_nodes(tmp_g)
             print('after : %d' % len(tmp_g.node), flush=True)
-            tmp_g = tf.graph_util.convert_variables_to_constants(tf.get_default_session(), tmp_g,
-                                                                 [model.all_encoder_layers, pooled])
-            print('after constant: %d' % len(tmp_g.node), flush=True)
-            print('after constant: %s' % tmp_g, flush=True)
 
             return EstimatorSpec(mode=mode, predictions={
                 'client_id': client_id,
