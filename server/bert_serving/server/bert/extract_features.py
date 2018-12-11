@@ -103,55 +103,60 @@ def model_fn_builder(bert_config, init_checkpoint, use_one_hot_embeddings=False,
         input_mask = features["input_mask"]
         input_type_ids = features["input_type_ids"]
 
-        model = modeling.BertModel(
-            config=bert_config,
-            is_training=False,
-            input_ids=input_ids,
-            input_mask=input_mask,
-            token_type_ids=input_type_ids,
-            use_one_hot_embeddings=use_one_hot_embeddings)
+        jit_scope = tf.contrib.compiler.jit.experimental_jit_scope
 
-        if mode != tf.estimator.ModeKeys.PREDICT:
-            raise ValueError("Only PREDICT modes are supported: %s" % (mode))
+        with jit_scope():
 
-        tvars = tf.trainable_variables()
-        (assignment_map, initialized_variable_names
-         ) = modeling.get_assignment_map_from_checkpoint(tvars, init_checkpoint)
+            model = modeling.BertModel(
+                config=bert_config,
+                is_training=False,
+                input_ids=input_ids,
+                input_mask=input_mask,
+                token_type_ids=input_type_ids,
+                use_one_hot_embeddings=use_one_hot_embeddings)
 
-        print(assignment_map)
-        print('___')
-        print(initialized_variable_names)
-        print('___')
-        tf.train.init_from_checkpoint(init_checkpoint, assignment_map)
+            if mode != tf.estimator.ModeKeys.PREDICT:
+                raise ValueError("Only PREDICT modes are supported: %s" % (mode))
+
+            tvars = tf.trainable_variables()
+            (assignment_map, initialized_variable_names
+             ) = modeling.get_assignment_map_from_checkpoint(tvars, init_checkpoint)
+
+            print(assignment_map)
+            print('___')
+            print(initialized_variable_names)
+            print('___')
+            tf.train.init_from_checkpoint(init_checkpoint, assignment_map)
+
+            all_layers = []
+            if len(pooling_layer) == 1:
+                encoder_layer = model.all_encoder_layers[pooling_layer[0]]
+            else:
+                for layer in pooling_layer:
+                    all_layers.append(model.all_encoder_layers[layer])
+                encoder_layer = tf.concat(all_layers, -1)
+
+            input_mask = tf.cast(input_mask, tf.float32)
+            if pooling_strategy == PoolingStrategy.REDUCE_MEAN:
+                pooled = masked_reduce_mean(encoder_layer, input_mask)
+            elif pooling_strategy == PoolingStrategy.REDUCE_MAX:
+                pooled = masked_reduce_max(encoder_layer, input_mask)
+            elif pooling_strategy == PoolingStrategy.REDUCE_MEAN_MAX:
+                pooled = tf.concat([masked_reduce_mean(encoder_layer, input_mask),
+                                    masked_reduce_max(encoder_layer, input_mask)], axis=1)
+            elif pooling_strategy == PoolingStrategy.FIRST_TOKEN or pooling_strategy == PoolingStrategy.CLS_TOKEN:
+                pooled = tf.squeeze(encoder_layer[:, 0:1, :], axis=1)
+            elif pooling_strategy == PoolingStrategy.LAST_TOKEN or pooling_strategy == PoolingStrategy.SEP_TOKEN:
+                seq_len = tf.cast(tf.reduce_sum(input_mask, axis=1), tf.int32)
+                rng = tf.range(0, tf.shape(seq_len)[0])
+                indexes = tf.stack([rng, seq_len - 1], 1)
+                pooled = tf.gather_nd(encoder_layer, indexes)
+            elif pooling_strategy == PoolingStrategy.NONE:
+                pooled = encoder_layer
+            else:
+                raise NotImplementedError()
+
         print([n for n in tf.get_default_graph().as_graph_def().node])
-
-        all_layers = []
-        if len(pooling_layer) == 1:
-            encoder_layer = model.all_encoder_layers[pooling_layer[0]]
-        else:
-            for layer in pooling_layer:
-                all_layers.append(model.all_encoder_layers[layer])
-            encoder_layer = tf.concat(all_layers, -1)
-
-        input_mask = tf.cast(input_mask, tf.float32)
-        if pooling_strategy == PoolingStrategy.REDUCE_MEAN:
-            pooled = masked_reduce_mean(encoder_layer, input_mask)
-        elif pooling_strategy == PoolingStrategy.REDUCE_MAX:
-            pooled = masked_reduce_max(encoder_layer, input_mask)
-        elif pooling_strategy == PoolingStrategy.REDUCE_MEAN_MAX:
-            pooled = tf.concat([masked_reduce_mean(encoder_layer, input_mask),
-                                masked_reduce_max(encoder_layer, input_mask)], axis=1)
-        elif pooling_strategy == PoolingStrategy.FIRST_TOKEN or pooling_strategy == PoolingStrategy.CLS_TOKEN:
-            pooled = tf.squeeze(encoder_layer[:, 0:1, :], axis=1)
-        elif pooling_strategy == PoolingStrategy.LAST_TOKEN or pooling_strategy == PoolingStrategy.SEP_TOKEN:
-            seq_len = tf.cast(tf.reduce_sum(input_mask, axis=1), tf.int32)
-            rng = tf.range(0, tf.shape(seq_len)[0])
-            indexes = tf.stack([rng, seq_len - 1], 1)
-            pooled = tf.gather_nd(encoder_layer, indexes)
-        elif pooling_strategy == PoolingStrategy.NONE:
-            pooled = encoder_layer
-        else:
-            raise NotImplementedError()
 
         predictions = {
             'client_id': client_id,
