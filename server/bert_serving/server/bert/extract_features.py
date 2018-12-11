@@ -12,6 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import contextlib
 import re
 from enum import Enum
 
@@ -103,7 +104,7 @@ def model_fn_builder(bert_config, init_checkpoint, use_one_hot_embeddings=False,
         input_mask = features["input_mask"]
         input_type_ids = features["input_type_ids"]
 
-        jit_scope = tf.contrib.compiler.jit.experimental_jit_scope if use_xla else (lambda: None)
+        jit_scope = tf.contrib.compiler.jit.experimental_jit_scope if use_xla else contextlib.suppress
 
         with jit_scope():
 
