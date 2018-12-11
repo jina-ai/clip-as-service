@@ -171,7 +171,7 @@ def model_fn_builder(bert_config, init_checkpoint, use_one_hot_embeddings=False,
             print('before : %d' % len(tmp_g.node), flush=True)
 
             tmp_g = tf.graph_util.convert_variables_to_constants(tf.get_default_session(), tmp_g,
-                                                                 [pooled])
+                                                                 [pooled], variable_names_blacklist='pooling/truediv:0')
             print('after constant: %d' % len(tmp_g.node), flush=True)
             print('after constant: %s' % tmp_g, flush=True)
             print('__removed__', flush=True)
