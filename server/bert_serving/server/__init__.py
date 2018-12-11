@@ -120,7 +120,8 @@ class BertServer(threading.Thread):
                                  'fall back to cpu!')
 
         self.logger.info('device_map: \n\t\t%s' % '\n\t\t'.join(
-            'worker %2d -> gpu %2d' % (w_id, g_id) for w_id, g_id in enumerate(device_map)))
+            'worker %2d -> %s' % (w_id, ('gpu %2d' % g_id) if g_id >= 0 else 'cpu') for w_id, g_id in
+            enumerate(device_map)))
         # start the backend processes
         for idx, device_id in enumerate(device_map):
             process = BertWorker(idx, self.args, self.addr_backend, self.addr_sink, device_id)
