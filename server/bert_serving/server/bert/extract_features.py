@@ -106,29 +106,23 @@ def model_fn_builder(bert_config, init_checkpoint, use_one_hot_embeddings=False,
 
         jit_scope = tf.contrib.compiler.jit.experimental_jit_scope if use_xla else contextlib.suppress
 
+        model = modeling.BertModel(
+            config=bert_config,
+            is_training=False,
+            input_ids=input_ids,
+            input_mask=input_mask,
+            token_type_ids=input_type_ids,
+            use_one_hot_embeddings=use_one_hot_embeddings)
+
+        if mode != tf.estimator.ModeKeys.PREDICT:
+            raise ValueError("Only PREDICT modes are supported: %s" % (mode))
+
+        tvars = tf.trainable_variables()
+        (assignment_map, initialized_variable_names
+         ) = modeling.get_assignment_map_from_checkpoint(tvars, init_checkpoint)
+
+        tf.train.init_from_checkpoint(init_checkpoint, assignment_map)
         with jit_scope():
-
-            model = modeling.BertModel(
-                config=bert_config,
-                is_training=False,
-                input_ids=input_ids,
-                input_mask=input_mask,
-                token_type_ids=input_type_ids,
-                use_one_hot_embeddings=use_one_hot_embeddings)
-
-            if mode != tf.estimator.ModeKeys.PREDICT:
-                raise ValueError("Only PREDICT modes are supported: %s" % (mode))
-
-            tvars = tf.trainable_variables()
-            (assignment_map, initialized_variable_names
-             ) = modeling.get_assignment_map_from_checkpoint(tvars, init_checkpoint)
-
-            # print('\n'.join('%s: %s' % (k, v) for (k, v) in assignment_map.items()))
-            # print('___')
-            # print('\n'.join('%s: %d' % (k, v) for (k, v) in initialized_variable_names.items()))
-            # print('___')
-            tf.train.init_from_checkpoint(init_checkpoint, assignment_map)
-
             all_layers = []
             if len(pooling_layer) == 1:
                 encoder_layer = model.all_encoder_layers[pooling_layer[0]]
