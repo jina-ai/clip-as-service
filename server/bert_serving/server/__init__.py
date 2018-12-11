@@ -65,6 +65,7 @@ class BertServer(threading.Thread):
             'tensorflow_version': tf.__version__,
             'python_version': sys.version,
             'server_start_time': str(datetime.now()),
+            'use_xla_compiler': args.xla
         }
         self.processes = []
         self.context = zmq.Context()
@@ -119,16 +120,18 @@ class BertServer(threading.Thread):
                                  'fall back to cpu!')
 
         self.logger.info('device_map: \n\t\t%s' % '\n\t\t'.join(
-            'worker %2d -> gpu %2d' % (w_id, g_id) for w_id, g_id in enumerate(device_map)))
+            'worker %2d -> %s' % (w_id, ('gpu %2d' % g_id) if g_id >= 0 else 'cpu') for w_id, g_id in
+            enumerate(device_map)))
         # start the backend processes
         for idx, device_id in enumerate(device_map):
             process = BertWorker(idx, self.args, self.addr_backend, self.addr_sink, device_id)
             self.processes.append(process)
             process.start()
 
-        try:
-            while True:
-                client, msg, req_id = self.frontend.recv_multipart()
+        while True:
+            try:
+                request = self.frontend.recv_multipart()
+                client, msg, req_id = request
                 if msg == ServerCommand.show_config:
                     self.logger.info('new config request\treq id: %d\tclient: %s' % (int(req_id), client))
                     self.sink.send_multipart([client, msg,
@@ -163,8 +166,11 @@ class BertServer(threading.Thread):
                         s_idx += len(tmp)
                 else:
                     self.backend.send_multipart([job_id, msg])
-        except zmq.error.ContextTerminated:
-            self.logger.error('context is closed!')
+            except zmq.error.ContextTerminated:
+                self.logger.error('context is closed!')
+            except ValueError:
+                self.logger.error('received a wrongly-formatted request (expected 3 frames, got %d)' % len(request))
+                self.logger.error('\n'.join('field %d: %s' % (idx, k) for idx, k in enumerate(request)))
 
 
 class BertSink(Process):
@@ -268,10 +274,14 @@ class BertWorker(Process):
             bert_config=modeling.BertConfig.from_json_file(self.config_fp),
             init_checkpoint=self.checkpoint_fp,
             pooling_strategy=args.pooling_strategy,
-            pooling_layer=args.pooling_layer
+            pooling_layer=args.pooling_layer,
+            use_xla=args.xla
         )
         os.environ['CUDA_VISIBLE_DEVICES'] = str(device_id)
-        config = tf.ConfigProto()
+        config = tf.ConfigProto(device_count={'GPU': 0 if device_id < 0 else 1})
+        # session-wise XLA doesn't seem to work on tf 1.10
+        # if args.xla:
+        #     config.graph_options.optimizer_options.global_jit_level = tf.OptimizerOptions.ON_1
         config.gpu_options.allow_growth = True
         config.gpu_options.per_process_gpu_memory_fraction = args.gpu_memory_fraction
         self.estimator = Estimator(self.model_fn, config=RunConfig(session_config=config))
