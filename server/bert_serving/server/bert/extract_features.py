@@ -158,10 +158,10 @@ def model_fn_builder(bert_config, init_checkpoint, use_one_hot_embeddings=False,
         print('\n__XLA enabled__\n')
         print('\n'.join([n.name for n in tf.get_default_graph().as_graph_def().node
                          if '_XlaCompile' in n.attr.keys() and bool(n.attr.get('_XlaCompile'))]))
-        print('\n__XLA disabled__\n')
+        print('\n__XLA disabled__\n', flush=True)
         print('\n'.join([n.name for n in tf.get_default_graph().as_graph_def().node
                          if '_XlaCompile' in n.attr.keys() and not bool(n.attr.get('_XlaCompile'))]))
-        print('\n__XLA not exist__\n')
+        print('\n__XLA not exist__\n', flush=True)
         print('\n'.join([n.name for n in tf.get_default_graph().as_graph_def().node
                          if '_XlaCompile' not in n.attr.keys()]))
 
