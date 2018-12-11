@@ -120,6 +120,13 @@ def model_fn_builder(bert_config, init_checkpoint, use_one_hot_embeddings=False,
                 raise ValueError("Only PREDICT modes are supported: %s" % (mode))
 
             tvars = tf.trainable_variables()
+            print('train vars: %d' % len(tvars))
+            tmp_g = tf.get_default_graph().as_graph_def()
+            print('before : %d' % len(tmp_g.node), flush=True)
+            print('__removed__', flush=True)
+            tmp_g = tf.graph_util.remove_training_nodes(tmp_g)
+            print('after : %d' % len(tmp_g.node), flush=True)
+
             (assignment_map, initialized_variable_names
              ) = modeling.get_assignment_map_from_checkpoint(tvars, init_checkpoint)
 
@@ -164,12 +171,6 @@ def model_fn_builder(bert_config, init_checkpoint, use_one_hot_embeddings=False,
             # print('\n__XLA not exist__\n', flush=True)
             # print('\n'.join([n.name for n in tf.get_default_graph().as_graph_def().node
             #                  if '_XlaCompile' not in n.attr.keys()]))
-
-            tmp_g = tf.get_default_graph().as_graph_def()
-            print('before : %d' % len(tmp_g.node), flush=True)
-            print('__removed__', flush=True)
-            tmp_g = tf.graph_util.remove_training_nodes(tmp_g)
-            print('after : %d' % len(tmp_g.node), flush=True)
 
             return EstimatorSpec(mode=mode, predictions={
                 'client_id': client_id,
