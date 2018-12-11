@@ -122,10 +122,10 @@ def model_fn_builder(bert_config, init_checkpoint, use_one_hot_embeddings=False,
             (assignment_map, initialized_variable_names
              ) = modeling.get_assignment_map_from_checkpoint(tvars, init_checkpoint)
 
-            print('\n'.join('%s: %s' % (k, v) for (k, v) in assignment_map.items()))
-            print('___')
-            print('\n'.join('%s: %d' % (k, v) for (k, v) in initialized_variable_names.items()))
-            print('___')
+            # print('\n'.join('%s: %s' % (k, v) for (k, v) in assignment_map.items()))
+            # print('___')
+            # print('\n'.join('%s: %d' % (k, v) for (k, v) in initialized_variable_names.items()))
+            # print('___')
             tf.train.init_from_checkpoint(init_checkpoint, assignment_map)
 
             all_layers = []
@@ -155,13 +155,13 @@ def model_fn_builder(bert_config, init_checkpoint, use_one_hot_embeddings=False,
                 pooled = encoder_layer
             else:
                 raise NotImplementedError()
-        print('__XLA disabled__')
+        print('\n__XLA enabled__\n')
         print('\n'.join([n.name for n in tf.get_default_graph().as_graph_def().node
                          if '_XlaCompile' in n.attr.keys() and bool(n.attr.get('_XlaCompile'))]))
-        print('__XLA enabled__')
+        print('\n__XLA disabled__\n')
         print('\n'.join([n.name for n in tf.get_default_graph().as_graph_def().node
                          if '_XlaCompile' in n.attr.keys() and not bool(n.attr.get('_XlaCompile'))]))
-        print('__XLA not exist__')
+        print('\n__XLA not exist__\n')
         print('\n'.join([n.name for n in tf.get_default_graph().as_graph_def().node
                          if '_XlaCompile' not in n.attr.keys()]))
 
