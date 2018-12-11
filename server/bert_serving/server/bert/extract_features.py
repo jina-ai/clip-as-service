@@ -156,9 +156,11 @@ def model_fn_builder(bert_config, init_checkpoint, use_one_hot_embeddings=False,
             else:
                 raise NotImplementedError()
         print('___')
-        print([n.name for n in tf.get_default_graph().as_graph_def().node])
+        print('\n--\n'.join(['%s' % n for n in tf.get_default_graph().as_graph_def().node
+                             if '_XlaCompile' in n.attr.keys()]))
         print('___')
-        print([n for n in tf.get_default_graph().as_graph_def().node])
+        print('\n--\n'.join(['%s' % n for n in tf.get_default_graph().as_graph_def().node
+                             if '_XlaCompile' not in n.attr.keys()]))
 
         predictions = {
             'client_id': client_id,
