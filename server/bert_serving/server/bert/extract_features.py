@@ -119,9 +119,9 @@ def model_fn_builder(bert_config, init_checkpoint, use_one_hot_embeddings=False,
          ) = modeling.get_assignment_map_from_checkpoint(tvars, init_checkpoint)
 
         print(assignment_map)
-        input()
+        print('___')
         print(initialized_variable_names)
-        input()
+        print('___')
         tf.train.init_from_checkpoint(init_checkpoint, assignment_map)
         print([n for n in tf.get_default_graph().as_graph_def().node])
 
