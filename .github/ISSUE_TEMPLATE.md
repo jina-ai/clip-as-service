@@ -2,7 +2,7 @@
 
 > Please fill in by replacing `[ ]` with `[x]`.
 
-* [ ] Are you running the latest `bert-as-service`? If not please do `pip install -U bert-serving-server bert-serving-client`.
+* [ ] Are you running the latest `bert-as-service`?
 * [ ] Did you follow [the installation](https://github.com/hanxiao/bert-as-service#install) and [the usage](https://github.com/hanxiao/bert-as-service#usage) instructions in `README.md`?
 * [ ] Did you check the [FAQ list in `README.md`](https://github.com/hanxiao/bert-as-service#faq)?
 * [ ] Did you perform [a cursory search on existing issues](https://github.com/hanxiao/bert-as-service/issues)?
