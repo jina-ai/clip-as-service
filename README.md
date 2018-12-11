@@ -544,6 +544,8 @@ As one can observe, 1 clients 1 GPU = 381 seqs/s, 2 clients 2 GPU 402 seqs/s, 4 
 
 ## Advance Usage
 
+> The full list of examples can be found in [`example/`](example). You can run each via `python example/example-k.py`. Note that they are only tested on Python 3.
+
 ### Getting ELMo-like contextual word embedding
 
 Start the server with `pooling_strategy` set to NONE.
