@@ -23,10 +23,20 @@
 
 ### Description
 
-[Description of the bug or feature]
+> Please replace `YOUR_SERVER_ARGS` and `YOUR_CLIENT_ARGS` accordingly. You can also write your own description for reproducing the issue.
 
-### Steps to Reproduce
+I'm using this command to start the server:
 
-1. [First Step]
-2. [Second Step]
-3. [and so on...]
+```bash
+bert-serving-start YOUR_SERVER_ARGS
+```
+
+and calling the server via:
+```python
+bc = BertClient(YOUR_CLIENT_ARGS)
+bc.encode()
+```
+
+Then this issue shows up:
+
+...
