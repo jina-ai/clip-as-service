@@ -9,6 +9,7 @@ import time
 from collections import defaultdict
 from datetime import datetime
 from multiprocessing import Process
+import uuid
 
 import numpy as np
 import tensorflow as tf
@@ -32,7 +33,9 @@ def _auto_bind(socket):
     if os.name == 'nt':  # for Windows
         socket.bind_to_random_port('tcp://*')
     else:
-        socket.bind('ipc://*')
+        if not os.path.exists('tmp'):
+            os.mkdir('tmp')
+        socket.bind('ipc://tmp/%s'%str(uuid.uuid1())[:8])
     return socket.getsockopt(zmq.LAST_ENDPOINT).decode('ascii')
 
 
