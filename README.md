@@ -364,19 +364,7 @@ tokenizer_output = ["un", "##aff", "##able"]
 
 ##### **Q:** Can I use my own tokenizer?
 
-Yes. If you already tokenize the sentence on your own, simply send use `encode` with `List[List[Str]]` as input and turn on `is_tokenized`. For example,
-
-```python
-texts = ['hello world!', 'good day']
-
-# a naive whitespace tokenizer
-texts2 = [s.split() for s in texts]
-
-bc.encode(texts2, is_tokenized=True)  # that's your own tokenizer
-bc.encode(texts)  # will use default tokenizer on the server side
-```
-
-As one can see, there is no need to start two separate servers for handling tokenized/untokenized sentences. You just need to specify it in `encode(is_tokenized=True)` on the client slide.
+Yes. If you already tokenize the sentence on your own, simply send use `encode` with `List[List[Str]]` as input and turn on `is_tokenized`, i.e. `bc.encode(texts, is_tokenized=True)`.
 
 
 ##### **Q:** I encounter `zmq.error.ZMQError: Operation cannot be accomplished in current state` when using `BertClient`, what should I do?
@@ -595,6 +583,22 @@ vec[0][25]  # error, out of index!
 ```
 
 Note that no matter how long your original sequence is, the service will always return a `[max_seq_len, 768]` matrix for every sequence. When using slice index to get the word embedding, beware of the special tokens padded to the sequence, i.e. `[CLS]`, `[SEP]`, `0_PAD`. 
+
+### Use your own tokenizer
+
+If you want to use your own tokenizer instead of BERT default one, simply do `encode(is_tokenized=True)` on the client slide as follows:
+
+```python
+texts = ['hello world!', 'good day']
+
+# a naive whitespace tokenizer
+texts2 = [s.split() for s in texts]
+
+bc.encode(texts2, is_tokenized=True)  # that's your own tokenizer
+bc.encode(texts)  # will use default tokenizer on the server side
+```
+
+There is no need to start a separate server for handling tokenized/untokenized sentences. The server can tell and handle both cases automatically.
 
 ### Using `BertClient` with `tf.data` API
 
