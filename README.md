@@ -150,7 +150,7 @@ Note that you only need `pip install -U bert-serving-client` in this case, the s
 
 > :bulb: **Want to learn more? Checkout the tutorial!**
 > - [Getting ELMo-like contextual word embedding](#getting-elmo-like-contextual-word-embedding)
-> - [Use your own tokenizer](#use-your-own-tokenizer)
+> - [Using your own tokenizer](#using-your-own-tokenizer)
 > - [Using `BertClient` with `tf.data` API](#using-bertclient-with-tfdata-api)
 > - [Training a text classifier using BERT features and tf.estimator API](#training-a-text-classifier-using-bert-features-and-tfestimator-api)
 > - [Saving and loading with TFRecord data](#saving-and-loading-with-tfrecord-data)
@@ -585,7 +585,7 @@ vec[0][25]  # error, out of index!
 
 Note that no matter how long your original sequence is, the service will always return a `[max_seq_len, 768]` matrix for every sequence. When using slice index to get the word embedding, beware of the special tokens padded to the sequence, i.e. `[CLS]`, `[SEP]`, `0_PAD`. 
 
-### Use your own tokenizer
+### Using your own tokenizer
 
 Often you want to use your own tokenizer to segment the sentence instead of using BERT default one. Simply call `encode(is_tokenized=True)` on the client slide as follows:
 
