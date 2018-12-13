@@ -13,6 +13,7 @@ from multiprocessing import Process
 import numpy as np
 import tensorflow as tf
 import zmq
+import uuid
 from tensorflow.python.estimator.estimator import Estimator
 from tensorflow.python.estimator.run_config import RunConfig
 from termcolor import colored
@@ -32,7 +33,16 @@ def _auto_bind(socket):
     if os.name == 'nt':  # for Windows
         socket.bind_to_random_port('tcp://*')
     else:
-        socket.bind('ipc://*')
+        # Get the location for tmp file for sockets
+        try:
+            tmp_dir = os.environ['ZEROMQ_SOCK_TMP_DIR']
+            if not os.path.exists(tmp_dir):
+                raise ValueError("This directory for sockets ({}) does not seems to exist.".format(tmp_dir))
+            tmp_dir = os.path.join(tmp_dir, str(uuid.uuid1())[:8])
+        except KeyError:
+            tmp_dir = '*'
+        
+        socket.bind('ipc://{}'.format(tmp_dir))
     return socket.getsockopt(zmq.LAST_ENDPOINT).decode('ascii')
 
 
