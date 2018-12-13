@@ -586,7 +586,7 @@ Note that no matter how long your original sequence is, the service will always 
 
 ### Use your own tokenizer
 
-If you want to use your own tokenizer instead of BERT default one, simply do `encode(is_tokenized=True)` on the client slide as follows:
+Often you want to use your own tokenizer to segment the sentence instead of using BERT default one. Simply call `encode(is_tokenized=True)` on the client slide as follows:
 
 ```python
 texts = ['hello world!', 'good day']
@@ -594,11 +594,11 @@ texts = ['hello world!', 'good day']
 # a naive whitespace tokenizer
 texts2 = [s.split() for s in texts]
 
-bc.encode(texts2, is_tokenized=True)  # that's your own tokenizer
-bc.encode(texts)  # will use default tokenizer on the server side
+vecs = bc.encode(texts2, is_tokenized=True)
 ```
+This gives `[2, 25, 768]` tensor where the first [1, 25, 768] corresponds to the token-level encoding of 'hello world!'. If you look into its values, you will find that only the first four elements, i.e. [1, 0:3, 768] have values, all the others are zeros. This is due to the fact that BERT considers 'hello world!' as four tokens: `[CLS]` `hello` `world!` `[SEP]`, the rest are padding symbols and masked out before the output.
 
-There is no need to start a separate server for handling tokenized/untokenized sentences. The server can tell and handle both cases automatically.
+Note that there is no need to start a separate server for handling tokenized/untokenized sentences. The server can tell and handle both cases automatically.
 
 ### Using `BertClient` with `tf.data` API
 
