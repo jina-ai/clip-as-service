@@ -46,9 +46,6 @@ echo 'current version: '$VER
 VER=$(echo $VER | awk -F. -v OFS=. 'NF==1{print ++$NF}; NF>1{if(length($NF+1)>length($NF))$(NF-1)++; $NF=sprintf("%0*d", length($NF), ($NF+1)%(10^length($NF))); print}')
 echo 'increased to version: '$VER
 
-git tag $VER
-git push -u origin --tags
-
 # write back tag to client and server code
 VER_VAL=$VER_TAG"'"${VER#"v"}"'"
 
@@ -57,6 +54,8 @@ change_line "$VER_TAG" "$VER_VAL" $SERVER_CODE
 git add $CLIENT_CODE $SERVER_CODE
 git commit -m 'increase version number'
 git push origin master
+git tag $VER
+git push -u origin --tags
 
 pub_pypi $SERVER_DIR
 pub_pypi $CLIENT_DIR
