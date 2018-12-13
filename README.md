@@ -37,7 +37,7 @@
   <a href="#usage">Usage</a> •
   <a href="#faq">FAQ</a> •
   <a href="#benchmark">Benchmark</a> •
-  <a href="#advance-usage">Advance Usage</a>
+  <a href="#tutorial">Tutorial</a>
 </p>
 
 <p align="center">
@@ -148,8 +148,9 @@ bc.encode(['First do it', 'then do it right', 'then do it better'])
 
 Note that you only need `pip install -U bert-serving-client` in this case, the server side is not required.
 
-> :bulb: **Checkout some advance usages below:**
+> :bulb: **Want to learn more? Checkout the tutorial!**
 > - [Getting ELMo-like contextual word embedding](#getting-elmo-like-contextual-word-embedding)
+> - [Use your own tokenizer](#use-your-own-tokenizer)
 > - [Using `BertClient` with `tf.data` API](#using-bertclient-with-tfdata-api)
 > - [Training a text classifier using BERT features and tf.estimator API](#training-a-text-classifier-using-bert-features-and-tfestimator-api)
 > - [Saving and loading with TFRecord data](#saving-and-loading-with-tfrecord-data)
@@ -553,7 +554,7 @@ As one can observe, 1 clients 1 GPU = 381 seqs/s, 2 clients 2 GPU 402 seqs/s, 4 
 | [-12]           | 1568  | 2985  | 5303  |
 
 
-## Advance Usage
+## Tutorial
 
 > The full list of examples can be found in [`example/`](example). You can run each via `python example/example-k.py`. Note that they are only tested on Python 3.
 
