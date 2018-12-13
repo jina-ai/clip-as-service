@@ -362,6 +362,23 @@ input = "unaffable"
 tokenizer_output = ["un", "##aff", "##able"]
 ```
 
+##### **Q:** Can I use my own tokenizer?
+
+Yes. If you already tokenize the sentence on your own, simply send use `encode` with `List[List[Str]]` as input and turn on `is_tokenized`. For example,
+
+```python
+texts = ['hello world!', 'good day']
+
+# a naive whitespace tokenizer
+texts2 = [s.split() for s in texts]
+
+bc.encode(texts2, is_tokenized=True)  # that's your own tokenizer
+bc.encode(texts)  # will use default tokenizer on the server side
+```
+
+As one can see, there is no need to start two separate servers for handling tokenized/untokenized sentences. You just need to specify it in `encode(is_tokenized=True)` on the client slide.
+
+
 ##### **Q:** I encounter `zmq.error.ZMQError: Operation cannot be accomplished in current state` when using `BertClient`, what should I do?
 
 **A:** This is often due to the misuse of `BertClient` in multi-thread/process environment. Note that you can’t reuse one `BertClient` among multiple threads/processes, you have to make a separate instance for each thread/process. For example, the following won't work at all:

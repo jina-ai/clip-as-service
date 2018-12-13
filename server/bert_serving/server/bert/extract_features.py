@@ -161,15 +161,19 @@ def model_fn_builder(bert_config, init_checkpoint, use_one_hot_embeddings=False,
     return model_fn
 
 
-def convert_lst_to_features(lst_str, seq_length, tokenizer):
+def convert_lst_to_features(lst_str, seq_length, tokenizer, is_tokenized=False):
     """Loads a data file into a list of `InputBatch`s."""
 
-    for (ex_index, example) in enumerate(read_examples(lst_str)):
-        tokens_a = tokenizer.tokenize(example.text_a)
+    examples = read_tokenized_examples(lst_str) if is_tokenized else read_examples(lst_str)
+
+    _tokenize = lambda x: x if is_tokenized else tokenizer.tokenize(x)
+
+    for (ex_index, example) in enumerate(examples):
+        tokens_a = _tokenize(example.text_a)
 
         tokens_b = None
         if example.text_b:
-            tokens_b = tokenizer.tokenize(example.text_b)
+            tokens_b = _tokenize(example.text_b)
 
         if tokens_b:
             # Modifies `tokens_a` and `tokens_b` in place so that the total
@@ -222,11 +226,11 @@ def convert_lst_to_features(lst_str, seq_length, tokenizer):
         # tokens are attended to.
         input_mask = [1] * len(input_ids)
 
-        # Zero-pad up to the sequence length.
-        while len(input_ids) < seq_length:
-            input_ids.append(0)
-            input_mask.append(0)
-            input_type_ids.append(0)
+        # Zero-pad up to the sequence length. more pythonic
+        pad_len = seq_length - len(input_ids)
+        input_ids += [0] * pad_len
+        input_mask += [0] * pad_len
+        input_type_ids += [0] * pad_len
 
         assert len(input_ids) == seq_length
         assert len(input_mask) == seq_length
@@ -283,5 +287,21 @@ def read_examples(lst_strs):
         else:
             text_a = m.group(1)
             text_b = m.group(2)
+        yield InputExample(unique_id=unique_id, text_a=text_a, text_b=text_b)
+        unique_id += 1
+
+
+def read_tokenized_examples(lst_strs):
+    unique_id = 0
+    lst_strs = [[tokenization.convert_to_unicode(w) for w in s] for s in lst_strs]
+    for ss in lst_strs:
+        text_a = ss
+        text_b = None
+        try:
+            j = ss.index('|||')
+            text_a = ss[:j]
+            text_b = ss[(j + 1):]
+        except ValueError:
+            pass
         yield InputExample(unique_id=unique_id, text_a=text_a, text_b=text_b)
         unique_id += 1

@@ -123,16 +123,24 @@ class BertClient:
         self._send(b'SHOW_CONFIG')
         return jsonapi.loads(self._recv().content[1])
 
-    def encode(self, texts, blocking=True):
+    def encode(self, texts, blocking=True, is_tokenized=False):
         """ Encode a list of strings to a list of vectors
 
+        `texts` should be a list of strings, each of which represents a sentence.
+        If `is_tokenized` is set to True, then `texts` should be list[list[str]],
+        outer list represents sentence and inner list represent tokens in the sentence.
         Note that if `blocking` is set to False, then you need to fetch the result manually afterwards.
 
+        :param is_tokenized: whether the input texts is already tokenized
         :param texts: list of sentence to be encoded. Larger list for better efficiency.
         :param blocking: wait until the encoded result is returned from the server. If false, will immediately return.
         :return: ndarray or a list[list[float]]
         """
-        self._check_input(texts)
+        if is_tokenized:
+            self._check_input_lst_lst_str(texts)
+        else:
+            self._check_input_lst_str(texts)
+
         texts = _unicode(texts)
         self._send(jsonapi.dumps(texts))
         return self._recv_ndarray().content if blocking else None
@@ -174,9 +182,10 @@ class BertClient:
                     tmp = [vv for v in tmp for vv in v]
             return tmp
 
-    def encode_async(self, batch_generator, max_num_batch=None, delay=0.1):
+    def encode_async(self, batch_generator, max_num_batch=None, delay=0.1, is_tokenized=False):
         """ Async encode batches from a generator
 
+        :param is_tokenized: whether batch_generator generates tokenized sentences
         :param delay: delay in seconds and then run fetcher
         :param batch_generator: a generator that yields list[str] every time
         :param max_num_batch: stop after encoding this number of batches
@@ -186,7 +195,7 @@ class BertClient:
         def run():
             cnt = 0
             for texts in batch_generator:
-                self.encode(texts, blocking=False)
+                self.encode(texts, blocking=False, is_tokenized=is_tokenized)
                 cnt += 1
                 if max_num_batch and cnt == max_num_batch:
                     break
@@ -196,18 +205,28 @@ class BertClient:
         return self.fetch(delay)
 
     @staticmethod
-    def _check_input(texts):
+    def _check_input_lst_str(texts):
         if not isinstance(texts, list):
-            raise TypeError('"texts" must be a type List, but received %s' % type(texts))
+            raise TypeError('"%s" must be %s, but received %s' % (texts, type([]), type(texts)))
         if not len(texts):
             raise ValueError(
-                '"texts" must be a non-empty list, but received %s with %d elements' % (type(texts), len(texts)))
+                '"%s" must be a non-empty list, but received %s with %d elements' % (texts, type(texts), len(texts)))
         for idx, s in enumerate(texts):
             if not isinstance(s, _str):
-                raise TypeError('all elements in the list must be type String, but element %d is %s' % (idx, type(s)))
+                raise TypeError('all elements in the list must be %s, but element %d is %s' % (type(''), idx, type(s)))
             if not s.strip():
                 raise ValueError(
                     'all elements in the list must be non-empty string, but element %d is %s' % (idx, repr(s)))
+
+    @staticmethod
+    def _check_input_lst_lst_str(texts):
+        if not isinstance(texts, list):
+            raise TypeError('"texts" must be %s, but received %s' % (type([]), type(texts)))
+        if not len(texts):
+            raise ValueError(
+                '"texts" must be a non-empty list, but received %s with %d elements' % (type(texts), len(texts)))
+        for s in texts:
+            BertClient._check_input_lst_str(s)
 
     @staticmethod
     def _force_to_unicode(text):
