@@ -37,6 +37,8 @@ CLIENT_DIR='client/'
 SERVER_DIR='server/'
 CLIENT_CODE=$CLIENT_DIR'bert_serving/client/__init__.py'
 SERVER_CODE=$SERVER_DIR'bert_serving/server/__init__.py'
+CLIENT_MD=$CLIENT_DIR'README.md'
+SERVER_MD=$SERVER_DIR'README.md'
 VER_TAG='__version__ = '
 
 #$(grep "$VER_TAG" $CLIENT_CODE | sed -n 's/^.*'\''\([^'\'']*\)'\''.*$/\1/p')
@@ -51,7 +53,7 @@ VER_VAL=$VER_TAG"'"${VER#"v"}"'"
 
 change_line "$VER_TAG" "$VER_VAL" $CLIENT_CODE
 change_line "$VER_TAG" "$VER_VAL" $SERVER_CODE
-git add $CLIENT_CODE $SERVER_CODE
+git add $CLIENT_CODE $SERVER_CODE $CLIENT_MD $SERVER_MD
 git commit -m 'increase version number'
 git push origin master
 git tag $VER
