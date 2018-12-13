@@ -148,7 +148,7 @@ bc.encode(['First do it', 'then do it right', 'then do it better'])
 
 Note that you only need `pip install -U bert-serving-client` in this case, the server side is not required.
 
-> :bulb: **Want to learn more? Checkout the tutorial!**
+> :bulb: **Want to learn more? Checkout our tutorial:**
 > - [Getting ELMo-like contextual word embedding](#getting-elmo-like-contextual-word-embedding)
 > - [Using your own tokenizer](#using-your-own-tokenizer)
 > - [Using `BertClient` with `tf.data` API](#using-bertclient-with-tfdata-api)
