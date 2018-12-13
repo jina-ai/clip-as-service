@@ -149,7 +149,7 @@ def model_fn_builder(bert_config, init_checkpoint, use_one_hot_embeddings=False,
                     indexes = tf.stack([rng, seq_len - 1], 1)
                     pooled = tf.gather_nd(encoder_layer, indexes)
                 elif pooling_strategy == PoolingStrategy.NONE:
-                    pooled = encoder_layer
+                    pooled = mul_mask(encoder_layer, input_mask)
                 else:
                     raise NotImplementedError()
 
