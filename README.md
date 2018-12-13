@@ -389,6 +389,11 @@ bc2 = BertClient()
 bc2.encode(lst_str)
 ```
 
+##### **Q:** After running the server, I have several garbage `tmpXXXX` folders. How can I change this behavior ?
+
+**A:** These folders are used by ZeroMQ to store sockets. You can choose a different location by setting the environment variable `ZEROMQ_SOCK_TMP_DIR` :
+`export ZEROMQ_SOCK_TMP_DIR=/tmp/`
+
 ##### **Q:** The cosine similarity of two sentence vectors is unreasonably high (e.g. always > 0.8), what's wrong?
 
 **A:** A decent representation for a downstream task doesn't mean that it will be meaningful in terms of cosine distance. Since cosine distance is a linear space where all dimensions are weighted equally. if you want to use cosine distance anyway, then please focus on the rank not the absolute value. Namely, do not use:
