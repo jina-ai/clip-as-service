@@ -37,7 +37,7 @@
   <a href="#usage">Usage</a> •
   <a href="#faq">FAQ</a> •
   <a href="#benchmark">Benchmark</a> •
-  <a href="#advance-usage">Advance Usage</a>
+  <a href="#tutorial">Tutorial</a>
 </p>
 
 <p align="center">
@@ -148,8 +148,9 @@ bc.encode(['First do it', 'then do it right', 'then do it better'])
 
 Note that you only need `pip install -U bert-serving-client` in this case, the server side is not required.
 
-> :bulb: **Checkout some advance usages below:**
+> :bulb: **Want to learn more? Checkout our tutorial:**
 > - [Getting ELMo-like contextual word embedding](#getting-elmo-like-contextual-word-embedding)
+> - [Using your own tokenizer](#using-your-own-tokenizer)
 > - [Using `BertClient` with `tf.data` API](#using-bertclient-with-tfdata-api)
 > - [Training a text classifier using BERT features and tf.estimator API](#training-a-text-classifier-using-bert-features-and-tfestimator-api)
 > - [Saving and loading with TFRecord data](#saving-and-loading-with-tfrecord-data)
@@ -362,6 +363,11 @@ input = "unaffable"
 tokenizer_output = ["un", "##aff", "##able"]
 ```
 
+##### **Q:** Can I use my own tokenizer?
+
+Yes. If you already tokenize the sentence on your own, simply send use `encode` with `List[List[Str]]` as input and turn on `is_tokenized`, i.e. `bc.encode(texts, is_tokenized=True)`.
+
+
 ##### **Q:** I encounter `zmq.error.ZMQError: Operation cannot be accomplished in current state` when using `BertClient`, what should I do?
 
 **A:** This is often due to the misuse of `BertClient` in multi-thread/process environment. Note that you can’t reuse one `BertClient` among multiple threads/processes, you have to make a separate instance for each thread/process. For example, the following won't work at all:
@@ -548,7 +554,7 @@ As one can observe, 1 clients 1 GPU = 381 seqs/s, 2 clients 2 GPU 402 seqs/s, 4 
 | [-12]           | 1568  | 2985  | 5303  |
 
 
-## Advance Usage
+## Tutorial
 
 > The full list of examples can be found in [`example/`](example). You can run each via `python example/example-k.py`. Note that they are only tested on Python 3.
 
@@ -578,6 +584,25 @@ vec[0][25]  # error, out of index!
 ```
 
 Note that no matter how long your original sequence is, the service will always return a `[max_seq_len, 768]` matrix for every sequence. When using slice index to get the word embedding, beware of the special tokens padded to the sequence, i.e. `[CLS]`, `[SEP]`, `0_PAD`. 
+
+### Using your own tokenizer
+
+Often you want to use your own tokenizer to segment the sentence instead of using the default one from BERT. Simply call `encode(is_tokenized=True)` on the client slide as follows:
+
+```python
+texts = ['hello world!', 'good day']
+
+# a naive whitespace tokenizer
+texts2 = [s.split() for s in texts]
+
+vecs = bc.encode(texts2, is_tokenized=True)
+```
+This gives `[2, 25, 768]` tensor where the first [1, 25, 768] corresponds to the token-level encoding of 'hello world!'. If you look into its values, you will find that only the first four elements, i.e. [1, 0:3, 768] have values, all the others are zeros. This is due to the fact that BERT considers 'hello world!' as four tokens: `[CLS]` `hello` `world!` `[SEP]`, the rest are padding symbols and masked out before the output.
+
+Note that there is no need to start a separate server for handling tokenized/untokenized sentences. The server can tell and handle both cases automatically.
+
+Beware that the pretrained BERT Chinese from Google is character-based, i.e. its vocabulary is made of single Chinese characters. Therefore it makes no sense if you use word-level segmentation algorithm to pre-process the data and feed to such model.
+
 
 ### Using `BertClient` with `tf.data` API
 

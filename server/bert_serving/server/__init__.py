@@ -6,6 +6,7 @@ import os
 import sys
 import threading
 import time
+import uuid
 from collections import defaultdict
 from datetime import datetime
 from multiprocessing import Process
@@ -13,7 +14,6 @@ from multiprocessing import Process
 import numpy as np
 import tensorflow as tf
 import zmq
-import uuid
 from tensorflow.python.estimator.estimator import Estimator
 from tensorflow.python.estimator.run_config import RunConfig
 from termcolor import colored
@@ -334,7 +334,9 @@ class BertWorker(Process):
                 client_id, msg = worker.recv_multipart()
                 msg = jsonapi.loads(msg)
                 self.logger.info('new job\tsize: %d\tclient: %s' % (len(msg), client_id))
-                tmp_f = list(convert_lst_to_features(msg, self.max_seq_len, self.tokenizer))
+                # check if msg is a list of list, if yes consider the input is already tokenized
+                is_tokenized = all(isinstance(el, list) for el in msg)
+                tmp_f = list(convert_lst_to_features(msg, self.max_seq_len, self.tokenizer, is_tokenized))
                 yield {
                     'client_id': client_id,
                     'input_ids': [f.input_ids for f in tmp_f],

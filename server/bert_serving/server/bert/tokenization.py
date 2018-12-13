@@ -131,6 +131,9 @@ class FullTokenizer(object):
     def convert_ids_to_tokens(self, ids):
         return convert_by_vocab(self.inv_vocab, ids)
 
+    def mark_unk_tokens(self, tokens, unk_token='[UNK]'):
+        return [t if t in self.vocab else unk_token for t in tokens]
+
 
 class BasicTokenizer(object):
     """Runs basic tokenization (punctuation splitting, lower casing, etc.)."""
