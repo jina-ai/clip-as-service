@@ -15,6 +15,7 @@ from multiprocessing import Process
 import numpy as np
 import tensorflow as tf
 import zmq
+from tensorflow.python.client import device_lib
 from tensorflow.python.estimator.estimator import Estimator
 from tensorflow.python.estimator.run_config import RunConfig
 from termcolor import colored
@@ -295,6 +296,7 @@ class BertWorker(Process):
         self.prefetch_factor = 10
         self.gpu_memory_fraction = args.gpu_memory_fraction
         self.estimator = self.get_estimator()
+        print(device_lib.list_local_devices())
 
     def close(self):
         self.logger.info('shutting down...')
@@ -319,7 +321,6 @@ class BertWorker(Process):
         receiver = context.socket(zmq.PULL)
         receiver.connect(self.worker_address)
 
-        from tensorflow.python.client import device_lib
         print(device_lib.list_local_devices())
 
         sink = context.socket(zmq.PUSH)
@@ -336,6 +337,7 @@ class BertWorker(Process):
     @staticmethod
     def input_fn_builder():
         max_seq_len = 25
+
         def gen():
             while True:
                 time.sleep(1)
