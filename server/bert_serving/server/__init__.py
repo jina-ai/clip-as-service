@@ -250,6 +250,7 @@ class BertServer(threading.Thread):
         # start the backend processes
         for idx, device_id in enumerate(device_map):
             process = BertWorker(idx, self.args, self.addr_backend, self.addr_sink, device_id)
+            print(device_id)
             self.processes.append(process)
             process.start()
 
@@ -389,6 +390,7 @@ class BertWorker(Process):
         super().__init__()
         self.worker_id = id
         self.device_id = device_id
+        print(self.device_id)
         self.logger = set_logger(colored('WORKER-%d' % self.worker_id, 'yellow'))
         self.tokenizer = tokenization.FullTokenizer(vocab_file=os.path.join(args.model_dir, 'vocab.txt'))
         self.max_seq_len = args.max_seq_len
@@ -426,7 +428,7 @@ class BertWorker(Process):
 
         sink = context.socket(zmq.PUSH)
         sink.connect(self.sink_address)
-
+        self.logger.info('here1')
         for r in estimator.predict(self.input_fn_builder(receiver), yield_single_examples=False):
             send_ndarray(sink, r['client_id'], r['encodes'])
             self.logger.info('job done\tsize: %s\tclient: %s' % (r['encodes'].shape, r['client_id']))
@@ -439,6 +441,7 @@ class BertWorker(Process):
     def input_fn_builder(self, worker):
         def gen():
             while True:
+                self.logger.info('here2')
                 time.sleep(1)
                 yield {
                     'client_id': 'test',
