@@ -104,7 +104,7 @@ class BertServer(threading.Thread):
         self.processes.append(proc_sink)
         self.addr_sink = self.sink.recv().decode('ascii')
 
-        self.logger.info('freezing, optimizing and exporting graph...' % self.graph_path)
+        self.logger.info('freezing, optimizing and exporting graph...')
         with Pool(processes=1) as pool:
             # optimize the graph, must be done in another process
             self.graph_path = pool.apply(optimize_graph, (self.args,))
