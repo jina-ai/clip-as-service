@@ -319,7 +319,7 @@ class BertWorker(Process):
         #     config.graph_options.optimizer_options.global_jit_level = tf.OptimizerOptions.ON_1
         config.gpu_options.allow_growth = True
         config.gpu_options.per_process_gpu_memory_fraction = self.gpu_memory_fraction
-        config.log_device_placement = True
+        config.log_device_placement = False
         self.logger.info('use device %s' % ('cpu' if self.device_id < 0 else ('gpu: %d' % self.device_id)))
 
         return Estimator(build_model_fn(_graph_tmp_file_), config=RunConfig(session_config=config))
