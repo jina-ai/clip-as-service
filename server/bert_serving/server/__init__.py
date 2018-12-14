@@ -294,6 +294,7 @@ class BertWorker(Process):
         self.sink_address = sink_address
         self.prefetch_factor = 10
         self.gpu_memory_fraction = args.gpu_memory_fraction
+        self.estimator = self.get_estimator()
 
     def close(self):
         self.logger.info('shutting down...')
@@ -314,7 +315,6 @@ class BertWorker(Process):
         return Estimator(build_model_fn(_graph_tmp_file_), config=RunConfig(session_config=config))
 
     def run(self):
-        estimator = self.get_estimator()
         context = zmq.Context()
         receiver = context.socket(zmq.PULL)
         receiver.connect(self.worker_address)
@@ -324,7 +324,7 @@ class BertWorker(Process):
 
         sink = context.socket(zmq.PUSH)
         sink.connect(self.sink_address)
-        for r in estimator.predict(self.input_fn_builder(), yield_single_examples=False):
+        for r in self.estimator.predict(self.input_fn_builder(), yield_single_examples=False):
             send_ndarray(sink, r['client_id'], r['encodes'])
             self.logger.info('job done\tsize: %s\tclient: %s' % (r['encodes'].shape, r['client_id']))
 
