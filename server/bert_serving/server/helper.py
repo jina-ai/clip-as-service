@@ -118,6 +118,7 @@ def optimize_graph(args):
 
     with tf.gfile.GFile(_graph_tmp_file_, 'wb') as f:
         f.write(tmp_g.SerializeToString())
+    return _graph_tmp_file_
 
 
 def model_fn(features, labels, mode, params):
