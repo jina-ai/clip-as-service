@@ -19,7 +19,7 @@ from zmq.utils import jsonapi
 from .bert import modeling, tokenization
 from .bert.extract_features import convert_lst_to_features, masked_reduce_mean, PoolingStrategy, \
     masked_reduce_max, mul_mask
-from .helper import set_logger, send_ndarray, optimize_graph
+from .helper import set_logger, send_ndarray, optimize_graph, model_fn
 
 
 def _check_tf_version():
@@ -341,10 +341,10 @@ class BertWorker(Process):
         config.log_device_placement = False
         print('_run_:%s' % device_lib.list_local_devices())
         estimator = Estimator(model_fn, config=RunConfig(session_config=config))
-        for r in estimator.predict(input_fn_builder(), yield_single_examples=False):
+        for r in estimator.predict(self.input_fn_builder(), yield_single_examples=False):
             print(r)
 
-    def run(self):
+    def run1(self):
         estimator = self.get_estimator()
 
         context = zmq.Context()
