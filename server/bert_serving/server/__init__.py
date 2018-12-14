@@ -19,7 +19,7 @@ from zmq.utils import jsonapi
 from .bert import modeling, tokenization
 from .bert.extract_features import convert_lst_to_features, masked_reduce_mean, PoolingStrategy, \
     masked_reduce_max, mul_mask
-from .helper import set_logger, send_ndarray
+from .helper import set_logger, send_ndarray, optimize_graph
 
 
 def _check_tf_version():
@@ -104,7 +104,8 @@ class BertServer(threading.Thread):
         self.addr_sink = self.sink.recv().decode('ascii')
 
         # optimize the graph
-        # optimize_graph(args)
+        graph_path = optimize_graph(args)
+        self.logger.info('graph is optimized and stored at: %s' % graph_path)
 
     def close(self):
         self.logger.info('shutting down...')
