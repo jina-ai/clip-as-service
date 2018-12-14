@@ -307,6 +307,7 @@ class BertWorker(Process):
         self.logger.info('terminated!')
 
     def get_estimator(self):
+        print('est- os env: %s' % os.environ['CUDA_VISIBLE_DEVICES'])
         config = tf.ConfigProto(device_count={'GPU': 0 if self.device_id < 0 else 1})
         # session-wise XLA doesn't seem to work on tf 1.10
         # if args.xla:
@@ -318,6 +319,7 @@ class BertWorker(Process):
         return Estimator(build_model_fn(_graph_tmp_file_), config=RunConfig(session_config=config))
 
     def run(self):
+        print('run-: %s' % os.environ['CUDA_VISIBLE_DEVICES'])
         context = zmq.Context()
         receiver = context.socket(zmq.PULL)
         receiver.connect(self.worker_address)
