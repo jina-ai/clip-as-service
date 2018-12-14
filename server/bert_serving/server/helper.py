@@ -10,8 +10,6 @@ from .bert import modeling
 from .bert.extract_features import masked_reduce_mean, PoolingStrategy, \
     masked_reduce_max, mul_mask
 
-_graph_tmp_file_ = tempfile.NamedTemporaryFile('w', delete=False).name
-
 
 def set_logger(context):
     logger = logging.getLogger(context)
@@ -34,11 +32,12 @@ def send_ndarray(src, dest, X, req_id=b'', flags=0, copy=True, track=False):
 
 
 def optimize_graph(args):
+    # we don't need GPU for optimizing the graph
+    os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+
     import tensorflow as tf
     from tensorflow.python.tools.optimize_for_inference_lib import optimize_for_inference
 
-    # we don't need GPU for optimizing the graph
-    os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
     config = tf.ConfigProto(device_count={'GPU': 0}, allow_soft_placement=True)
 
     config_fp = os.path.join(args.model_dir, 'bert_config.json')
@@ -116,6 +115,7 @@ def optimize_graph(args):
             [dtype.as_datatype_enum for dtype in dtypes],
             False)
 
-    with tf.gfile.GFile(_graph_tmp_file_, 'wb') as f:
+    tmp_file = tempfile.NamedTemporaryFile('w', delete=False).name
+    with tf.gfile.GFile(tmp_file, 'wb') as f:
         f.write(tmp_g.SerializeToString())
-    return _graph_tmp_file_
+    return tmp_file

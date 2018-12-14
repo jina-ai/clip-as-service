@@ -10,6 +10,7 @@ import uuid
 from collections import defaultdict
 from datetime import datetime
 from multiprocessing import Process
+from multiprocessing.pool import Pool
 
 import numpy as np
 import zmq
@@ -103,6 +104,11 @@ class BertServer(threading.Thread):
         self.processes.append(proc_sink)
         self.addr_sink = self.sink.recv().decode('ascii')
 
+        with Pool(processes=1) as pool:
+            # optimize the graph, must be done in another process
+            self.graph_path = pool.apply(optimize_graph, (self.args,))
+        self.logger.info('graph is optimized and stored at: %s' % self.graph_path)
+
     def close(self):
         self.logger.info('shutting down...')
         for p in self.processes:
@@ -138,13 +144,9 @@ class BertServer(threading.Thread):
             'worker %2d -> %s' % (w_id, ('gpu %2d' % g_id) if g_id >= 0 else 'cpu') for w_id, g_id in
             enumerate(device_map)))
 
-        # optimize the graph
-        graph_path = '/data/cips/tmp/tmp3d13ve_t'  # optimize_graph(self.args)
-        self.logger.info('graph is optimized and stored at: %s' % graph_path)
-
         # start the backend processes
         for idx, device_id in enumerate(device_map):
-            process = BertWorker(idx, self.args, self.addr_backend, self.addr_sink, device_id, graph_path)
+            process = BertWorker(idx, self.args, self.addr_backend, self.addr_sink, device_id, self.graph_path)
             self.processes.append(process)
             process.start()
 
@@ -303,9 +305,11 @@ class BertWorker(Process):
         self.logger.info('terminated!')
 
     def get_estimator(self, tf):
-        def model_fn(features, labels, mode, params):
-            from tensorflow.python.estimator.model_fn import EstimatorSpec
+        from tensorflow.python.estimator.estimator import Estimator
+        from tensorflow.python.estimator.run_config import RunConfig
+        from tensorflow.python.estimator.model_fn import EstimatorSpec
 
+        def model_fn(features, labels, mode, params):
             with tf.gfile.GFile(self.graph_path, 'rb') as f:
                 graph_def = tf.GraphDef()
                 graph_def.ParseFromString(f.read())
@@ -321,22 +325,14 @@ class BertWorker(Process):
                 'encodes': output[0]
             })
 
-        from tensorflow.python.estimator.estimator import Estimator
-        from tensorflow.python.estimator.run_config import RunConfig
-        # from tensorflow.python.client import device_lib
-        #
-        # print(device_lib.list_local_devices())
-
         config = tf.ConfigProto(device_count={'GPU': 0 if self.device_id < 0 else 1})
-
-        # session-wise XLA doesn't seem to work on tf 1.10
-        # if args.xla:
-        #     config.graph_options.optimizer_options.global_jit_level = tf.OptimizerOptions.ON_1
         config.gpu_options.allow_growth = True
         config.gpu_options.per_process_gpu_memory_fraction = self.gpu_memory_fraction
         config.log_device_placement = False
+        # session-wise XLA doesn't seem to work on tf 1.10
+        # if args.xla:
+        #     config.graph_options.optimizer_options.global_jit_level = tf.OptimizerOptions.ON_1
 
-        print('load estimator')
         return Estimator(model_fn=model_fn, config=RunConfig(session_config=config))
 
     def run(self):
@@ -364,10 +360,10 @@ class BertWorker(Process):
         self.logger.info('terminated!')
 
     def input_fn_builder(self, worker, tf):
-        tokenizer = tokenization.FullTokenizer(vocab_file=os.path.join(self.model_dir, 'vocab.txt'))
-
         def gen():
+            tokenizer = tokenization.FullTokenizer(vocab_file=os.path.join(self.model_dir, 'vocab.txt'))
             self.logger.info('ready and listening!')
+
             while not self.exit_flag.is_set():
                 client_id, msg = worker.recv_multipart()
                 msg = jsonapi.loads(msg)
