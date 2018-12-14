@@ -103,10 +103,6 @@ class BertServer(threading.Thread):
         self.processes.append(proc_sink)
         self.addr_sink = self.sink.recv().decode('ascii')
 
-        # optimize the graph
-        # graph_path = optimize_graph(args)
-        # self.logger.info('graph is optimized and stored at: %s' % graph_path)
-
     def close(self):
         self.logger.info('shutting down...')
         for p in self.processes:
@@ -141,9 +137,14 @@ class BertServer(threading.Thread):
         self.logger.info('device_map: \n\t\t%s' % '\n\t\t'.join(
             'worker %2d -> %s' % (w_id, ('gpu %2d' % g_id) if g_id >= 0 else 'cpu') for w_id, g_id in
             enumerate(device_map)))
+
+        # optimize the graph
+        graph_path = optimize_graph(self.args)
+        self.logger.info('graph is optimized and stored at: %s' % graph_path)
+
         # start the backend processes
         for idx, device_id in enumerate(device_map):
-            process = BertWorker(idx, self.args, self.addr_backend, self.addr_sink, device_id)
+            process = BertWorker(idx, self.args, self.addr_backend, self.addr_sink, device_id, graph_path)
             self.processes.append(process)
             process.start()
 
@@ -279,7 +280,7 @@ class BertSink(Process):
 
 
 class BertWorker(Process):
-    def __init__(self, id, args, worker_address, sink_address, device_id):
+    def __init__(self, id, args, worker_address, sink_address, device_id, graph_path):
         super().__init__()
         self.worker_id = id
         self.device_id = device_id
@@ -292,6 +293,7 @@ class BertWorker(Process):
         self.prefetch_factor = 10
         self.gpu_memory_fraction = args.gpu_memory_fraction
         self.model_dir = args.model_dir
+        self.graph_path = graph_path
 
     def close(self):
         self.logger.info('shutting down...')
@@ -304,7 +306,7 @@ class BertWorker(Process):
         def model_fn(features, labels, mode, params):
             from tensorflow.python.estimator.model_fn import EstimatorSpec
 
-            with tf.gfile.GFile('/data/cips/tmp/tmp0jbar6_5', 'rb') as f:
+            with tf.gfile.GFile(self.graph_path, 'rb') as f:
                 graph_def = tf.GraphDef()
                 graph_def.ParseFromString(f.read())
 
