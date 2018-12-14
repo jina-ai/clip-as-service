@@ -47,12 +47,13 @@ def optimize_graph(graph_file, args):
 
     bert_config = modeling.BertConfig.from_dict(json.loads(text))
 
+    input_ids = tf.placeholder(tf.int32, (None, args.max_seq_len), 'input_ids')
+    input_mask = tf.placeholder(tf.int32, (None, args.max_seq_len), 'input_mask')
+    input_type_ids = tf.placeholder(tf.int32, (None, args.max_seq_len), 'input_type_ids')
+
     jit_scope = tf.contrib.compiler.jit.experimental_jit_scope if args.xla else contextlib.suppress
 
     with jit_scope():
-        input_ids = tf.placeholder(tf.int32, (None, args.max_seq_len), 'input_ids')
-        input_mask = tf.placeholder(tf.int32, (None, args.max_seq_len), 'input_mask')
-        input_type_ids = tf.placeholder(tf.int32, (None, args.max_seq_len), 'input_type_ids')
 
         input_tensors = [input_ids, input_mask, input_type_ids]
 
@@ -111,7 +112,7 @@ def optimize_graph(graph_file, args):
         # print('original: %d' % len(tmp_g.node), flush=True)
         # print('\n'.join([n.name for n in tf.get_default_graph().as_graph_def().node]))
 
-        sess = tf.Session(config=config)
+    with tf.Session(config=config) as sess:
         sess.run(tf.global_variables_initializer())
         tmp_g = tf.graph_util.convert_variables_to_constants(sess, tmp_g, [n.name[:-2] for n in output_tensors])
         # print('after freeze: %d' % len(tmp_g.node))
@@ -131,8 +132,6 @@ def optimize_graph(graph_file, args):
 
         with tf.gfile.GFile(graph_file, 'wb') as f:
             f.write(tmp_g.SerializeToString())
-
-        sess.close()
 
 
 def build_model_fn(graph_file):
