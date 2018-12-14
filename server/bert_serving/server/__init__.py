@@ -104,8 +104,8 @@ class BertServer(threading.Thread):
         self.addr_sink = self.sink.recv().decode('ascii')
 
         # optimize the graph
-        graph_path = optimize_graph(args)
-        self.logger.info('graph is optimized and stored at: %s' % graph_path)
+        # graph_path = optimize_graph(args)
+        # self.logger.info('graph is optimized and stored at: %s' % graph_path)
 
     def close(self):
         self.logger.info('shutting down...')
