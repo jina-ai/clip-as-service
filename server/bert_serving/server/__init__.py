@@ -424,6 +424,9 @@ class BertWorker(Process):
         receiver = context.socket(zmq.PULL)
         receiver.connect(self.worker_address)
 
+        from tensorflow.python.client import device_lib
+        print(device_lib.list_local_devices())
+
         sink = context.socket(zmq.PUSH)
         sink.connect(self.sink_address)
         for r in estimator.predict(self.input_fn_builder(receiver), yield_single_examples=False):
@@ -483,7 +486,7 @@ class BertWorker(Process):
 
     def model_fn(self, features, labels, mode, params):
         self.logger.info('loading graph...')
-        with open(_graph_tmp_file_, 'rb') as f:
+        with tf.gfile.GFile(_graph_tmp_file_, 'rb') as f:
             graph_def = tf.GraphDef()
             graph_def.ParseFromString(f.read())
 
