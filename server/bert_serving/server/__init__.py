@@ -328,7 +328,6 @@ class BertWorker(Process):
 
     def run(self):
         print('________')
-        print(os.environ['CUDA_VISIBLE_DEVICES'])
         os.environ['CUDA_VISIBLE_DEVICES'] = '6'
 
         import tensorflow as tf
