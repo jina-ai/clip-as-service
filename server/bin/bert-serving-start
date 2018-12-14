@@ -30,13 +30,15 @@ def get_args():
                         default=PoolingStrategy.REDUCE_MEAN, choices=list(PoolingStrategy),
                         help='the pooling strategy for generating encoding vectors')
     parser.add_argument('-cpu', action='store_true', default=False,
-                            help='running on CPU (default is on GPU)')
+                        help='running on CPU (default is on GPU)')
     parser.add_argument('-xla', action='store_true', default=False,
-                            help='enable XLA compiler')
+                        help='enable XLA compiler')
     parser.add_argument('-gpu_memory_fraction', type=float, default=0.5,
                         help='determines the fraction of the overall amount of memory '
                              'that each visible GPU should be allocated per worker. '
                              'Should be in range [0.0, 1.0]')
+    parser.add_argument('-v', action='store_true', default=False,
+                        help='show version and exit')
     args = parser.parse_args()
     param_str = '\n'.join(['%20s = %s' % (k, v) for k, v in sorted(vars(args).items())])
     print('usage: %s\n%20s   %s\n%s\n%s\n' % (' '.join(sys.argv), 'ARG', 'VALUE', '_' * 50, param_str))
@@ -45,6 +47,9 @@ def get_args():
 
 if __name__ == '__main__':
     args = get_args()
-    server = BertServer(args)
-    server.start()
-    server.join()
+    if args.v:
+        print('version: %s' % BertServer.__version__)
+    else:
+        server = BertServer(args)
+        server.start()
+        server.join()

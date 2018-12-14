@@ -10,23 +10,29 @@ import uuid
 from collections import defaultdict
 from datetime import datetime
 from multiprocessing import Process
+from multiprocessing.pool import Pool
 
 import numpy as np
-import tensorflow as tf
 import zmq
-from tensorflow.python.estimator.estimator import Estimator
-from tensorflow.python.estimator.run_config import RunConfig
 from termcolor import colored
 from zmq.utils import jsonapi
 
 from .bert import modeling, tokenization
-from .bert.extract_features import model_fn_builder, convert_lst_to_features
-from .helper import set_logger
+from .bert.extract_features import convert_lst_to_features, masked_reduce_mean, PoolingStrategy, \
+    masked_reduce_max, mul_mask
+from .helper import set_logger, send_ndarray, optimize_graph
 
-_tf_ver = tf.__version__.split('.')
-assert int(_tf_ver[0]) >= 1 and int(_tf_ver[1]) >= 10, 'Tensorflow >=1.10 is required!'
+
+def _check_tf_version():
+    import tensorflow as tf
+    tf_ver = tf.__version__.split('.')
+    assert int(tf_ver[0]) >= 1 and int(tf_ver[1]) >= 10, 'Tensorflow >=1.10 is required!'
+    return tf_ver
+
 
 __version__ = '1.5.4'
+
+_tf_ver_ = _check_tf_version()
 
 
 def _auto_bind(socket):
@@ -37,11 +43,11 @@ def _auto_bind(socket):
         try:
             tmp_dir = os.environ['ZEROMQ_SOCK_TMP_DIR']
             if not os.path.exists(tmp_dir):
-                raise ValueError("This directory for sockets ({}) does not seems to exist.".format(tmp_dir))
+                raise ValueError('This directory for sockets ({}) does not seems to exist.'.format(tmp_dir))
             tmp_dir = os.path.join(tmp_dir, str(uuid.uuid1())[:8])
         except KeyError:
             tmp_dir = '*'
-        
+
         socket.bind('ipc://{}'.format(tmp_dir))
     return socket.getsockopt(zmq.LAST_ENDPOINT).decode('ascii')
 
@@ -72,10 +78,10 @@ class BertServer(threading.Thread):
             'port_out': args.port_out,
             'pooling_layer': args.pooling_layer,
             'pooling_strategy': args.pooling_strategy.value,
-            'tensorflow_version': tf.__version__,
+            'tensorflow_version': _tf_ver_,
             'python_version': sys.version,
             'server_start_time': str(datetime.now()),
-            'use_xla_compiler': args.xla
+            'use_xla_compiler': args.xla,
         }
         self.processes = []
         self.context = zmq.Context()
@@ -97,6 +103,12 @@ class BertServer(threading.Thread):
         proc_sink.start()
         self.processes.append(proc_sink)
         self.addr_sink = self.sink.recv().decode('ascii')
+
+        self.logger.info('freezing, optimizing and exporting graph, could take a while...')
+        with Pool(processes=1) as pool:
+            # optimize the graph, must be done in another process
+            self.graph_path = pool.apply(optimize_graph, (self.args,))
+        self.logger.info('optimized graph is stored at: %s' % self.graph_path)
 
     def close(self):
         self.logger.info('shutting down...')
@@ -132,9 +144,10 @@ class BertServer(threading.Thread):
         self.logger.info('device_map: \n\t\t%s' % '\n\t\t'.join(
             'worker %2d -> %s' % (w_id, ('gpu %2d' % g_id) if g_id >= 0 else 'cpu') for w_id, g_id in
             enumerate(device_map)))
+
         # start the backend processes
         for idx, device_id in enumerate(device_map):
-            process = BertWorker(idx, self.args, self.addr_backend, self.addr_sink, device_id)
+            process = BertWorker(idx, self.args, self.addr_backend, self.addr_sink, device_id, self.graph_path)
             self.processes.append(process)
             process.start()
 
@@ -270,36 +283,20 @@ class BertSink(Process):
 
 
 class BertWorker(Process):
-    def __init__(self, id, args, worker_address, sink_address, device_id):
+    def __init__(self, id, args, worker_address, sink_address, device_id, graph_path):
         super().__init__()
-        self.model_dir = args.model_dir
-        self.config_fp = os.path.join(self.model_dir, 'bert_config.json')
-        self.checkpoint_fp = os.path.join(self.model_dir, 'bert_model.ckpt')
-        self.vocab_fp = os.path.join(args.model_dir, 'vocab.txt')
-        self.tokenizer = tokenization.FullTokenizer(vocab_file=self.vocab_fp)
-        self.max_seq_len = args.max_seq_len
         self.worker_id = id
-        self.daemon = True
-        self.model_fn = model_fn_builder(
-            bert_config=modeling.BertConfig.from_json_file(self.config_fp),
-            init_checkpoint=self.checkpoint_fp,
-            pooling_strategy=args.pooling_strategy,
-            pooling_layer=args.pooling_layer,
-            use_xla=args.xla
-        )
-        os.environ['CUDA_VISIBLE_DEVICES'] = str(device_id)
-        config = tf.ConfigProto(device_count={'GPU': 0 if device_id < 0 else 1})
-        # session-wise XLA doesn't seem to work on tf 1.10
-        # if args.xla:
-        #     config.graph_options.optimizer_options.global_jit_level = tf.OptimizerOptions.ON_1
-        config.gpu_options.allow_growth = True
-        config.gpu_options.per_process_gpu_memory_fraction = args.gpu_memory_fraction
-        self.estimator = Estimator(self.model_fn, config=RunConfig(session_config=config))
-        self.exit_flag = multiprocessing.Event()
+        self.device_id = device_id
         self.logger = set_logger(colored('WORKER-%d' % self.worker_id, 'yellow'))
+        self.max_seq_len = args.max_seq_len
+        self.daemon = True
+        self.exit_flag = multiprocessing.Event()
         self.worker_address = worker_address
         self.sink_address = sink_address
         self.prefetch_factor = 10
+        self.gpu_memory_fraction = args.gpu_memory_fraction
+        self.model_dir = args.model_dir
+        self.graph_path = graph_path
 
     def close(self):
         self.logger.info('shutting down...')
@@ -308,17 +305,54 @@ class BertWorker(Process):
         self.join()
         self.logger.info('terminated!')
 
+    def get_estimator(self, tf):
+        from tensorflow.python.estimator.estimator import Estimator
+        from tensorflow.python.estimator.run_config import RunConfig
+        from tensorflow.python.estimator.model_fn import EstimatorSpec
+
+        def model_fn(features, labels, mode, params):
+            with tf.gfile.GFile(self.graph_path, 'rb') as f:
+                graph_def = tf.GraphDef()
+                graph_def.ParseFromString(f.read())
+
+            input_names = ['input_ids', 'input_mask', 'input_type_ids']
+
+            output = tf.import_graph_def(graph_def,
+                                         input_map={k + ':0': features[k] for k in input_names},
+                                         return_elements=['final_encodes:0'])
+
+            return EstimatorSpec(mode=mode, predictions={
+                'client_id': features['client_id'],
+                'encodes': output[0]
+            })
+
+        config = tf.ConfigProto(device_count={'GPU': 0 if self.device_id < 0 else 1})
+        config.gpu_options.allow_growth = True
+        config.gpu_options.per_process_gpu_memory_fraction = self.gpu_memory_fraction
+        config.log_device_placement = False
+        # session-wise XLA doesn't seem to work on tf 1.10
+        # if args.xla:
+        #     config.graph_options.optimizer_options.global_jit_level = tf.OptimizerOptions.ON_1
+
+        return Estimator(model_fn=model_fn, config=RunConfig(session_config=config))
+
     def run(self):
+        self.logger.info('use device %s, load graph from %s' %
+                         ('cpu' if self.device_id < 0 else ('gpu: %d' % self.device_id), self.graph_path))
+        os.environ['CUDA_VISIBLE_DEVICES'] = str(self.device_id)
+        os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+        self.logger.info('please ignore "WARNING: Using temporary folder as model directory"')
+
+        import tensorflow as tf
+        estimator = self.get_estimator(tf)
+
         context = zmq.Context()
         receiver = context.socket(zmq.PULL)
         receiver.connect(self.worker_address)
-
         sink = context.socket(zmq.PUSH)
         sink.connect(self.sink_address)
 
-        input_fn = self.input_fn_builder(receiver)
-
-        for r in self.estimator.predict(input_fn, yield_single_examples=False):
+        for r in estimator.predict(self.input_fn_builder(receiver, tf), yield_single_examples=False):
             send_ndarray(sink, r['client_id'], r['encodes'])
             self.logger.info('job done\tsize: %s\tclient: %s' % (r['encodes'].shape, r['client_id']))
 
@@ -327,16 +361,18 @@ class BertWorker(Process):
         context.term()
         self.logger.info('terminated!')
 
-    def input_fn_builder(self, worker):
+    def input_fn_builder(self, worker, tf):
         def gen():
+            tokenizer = tokenization.FullTokenizer(vocab_file=os.path.join(self.model_dir, 'vocab.txt'))
             self.logger.info('ready and listening!')
+
             while not self.exit_flag.is_set():
                 client_id, msg = worker.recv_multipart()
                 msg = jsonapi.loads(msg)
                 self.logger.info('new job\tsize: %d\tclient: %s' % (len(msg), client_id))
                 # check if msg is a list of list, if yes consider the input is already tokenized
                 is_tokenized = all(isinstance(el, list) for el in msg)
-                tmp_f = list(convert_lst_to_features(msg, self.max_seq_len, self.tokenizer, is_tokenized))
+                tmp_f = list(convert_lst_to_features(msg, self.max_seq_len, tokenizer, is_tokenized))
                 yield {
                     'client_id': client_id,
                     'input_ids': [f.input_ids for f in tmp_f],
@@ -358,9 +394,3 @@ class BertWorker(Process):
                     'input_type_ids': (None, self.max_seq_len)}).prefetch(self.prefetch_factor))
 
         return input_fn
-
-
-def send_ndarray(src, dest, X, req_id=b'', flags=0, copy=True, track=False):
-    """send a numpy array with metadata"""
-    md = dict(dtype=str(X.dtype), shape=X.shape)
-    return src.send_multipart([dest, jsonapi.dumps(md), X, req_id], flags, copy=copy, track=track)
