@@ -2,12 +2,15 @@ import contextlib
 import json
 import logging
 import os
+import tempfile
 
 from zmq.utils import jsonapi
 
 from .bert import modeling
 from .bert.extract_features import masked_reduce_mean, PoolingStrategy, \
     masked_reduce_max, mul_mask
+
+_graph_tmp_file_ = tempfile.NamedTemporaryFile('w', delete=False).name
 
 
 def set_logger(context):
@@ -30,7 +33,7 @@ def send_ndarray(src, dest, X, req_id=b'', flags=0, copy=True, track=False):
     return src.send_multipart([dest, jsonapi.dumps(md), X, req_id], flags, copy=copy, track=track)
 
 
-def optimize_graph(graph_file, args):
+def optimize_graph(args):
     import tensorflow as tf
     from tensorflow.python.tools.optimize_for_inference_lib import optimize_for_inference
 
@@ -113,28 +116,25 @@ def optimize_graph(graph_file, args):
             [dtype.as_datatype_enum for dtype in dtypes],
             False)
 
-    with tf.gfile.GFile(graph_file, 'wb') as f:
+    with tf.gfile.GFile(_graph_tmp_file_, 'wb') as f:
         f.write(tmp_g.SerializeToString())
 
 
-def build_model_fn(graph_file):
+def model_fn(features, labels, mode, params):
     import tensorflow as tf
     from tensorflow.python.estimator.model_fn import EstimatorSpec
 
-    def model_fn(features, labels, mode, params):
-        with tf.gfile.GFile(graph_file, 'rb') as f:
-            graph_def = tf.GraphDef()
-            graph_def.ParseFromString(f.read())
+    with tf.gfile.GFile(_graph_tmp_file_, 'rb') as f:
+        graph_def = tf.GraphDef()
+        graph_def.ParseFromString(f.read())
 
-        input_names = ['input_ids', 'input_mask', 'input_type_ids']
+    input_names = ['input_ids', 'input_mask', 'input_type_ids']
 
-        output = tf.import_graph_def(graph_def,
-                                     input_map={k + ':0': features[k] for k in input_names},
-                                     return_elements=['final_encodes:0'])
+    output = tf.import_graph_def(graph_def,
+                                 input_map={k + ':0': features[k] for k in input_names},
+                                 return_elements=['final_encodes:0'])
 
-        return EstimatorSpec(mode=mode, predictions={
-            'client_id': features['client_id'],
-            'encodes': output[0]
-        })
-
-    return model_fn
+    return EstimatorSpec(mode=mode, predictions={
+        'client_id': features['client_id'],
+        'encodes': output[0]
+    })

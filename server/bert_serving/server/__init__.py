@@ -4,7 +4,6 @@
 import multiprocessing
 import os
 import sys
-import tempfile
 import threading
 import time
 import uuid
@@ -32,7 +31,6 @@ def _check_tf_version():
 
 __version__ = '1.5.4'
 
-_graph_tmp_file_ = tempfile.NamedTemporaryFile('w', delete=False).name
 _tf_ver_ = _check_tf_version()
 
 
@@ -107,7 +105,7 @@ class BertServer(threading.Thread):
         self.addr_sink = self.sink.recv().decode('ascii')
 
         # optimize the graph
-        optimize_graph(_graph_tmp_file_, args)
+        optimize_graph(args)
 
     def close(self):
         self.logger.info('shutting down...')
@@ -328,6 +326,23 @@ class BertWorker(Process):
         self.logger.info('use device %s' % ('cpu' if self.device_id < 0 else ('gpu: %d' % self.device_id)))
 
         return Estimator(build_model_fn(_graph_tmp_file_), config=RunConfig(session_config=config))
+
+    def run(self):
+        print('________')
+        print(os.environ['CUDA_VISIBLE_DEVICES'])
+        import tensorflow as tf
+        from tensorflow.python.client import device_lib
+        from tensorflow.python.estimator.estimator import Estimator
+        from tensorflow.python.estimator.run_config import RunConfig
+        os.environ['CUDA_VISIBLE_DEVICES'] = '6'
+        config = tf.ConfigProto(device_count={'GPU': 1})
+        config.gpu_options.allow_growth = True
+        config.gpu_options.per_process_gpu_memory_fraction = 0.5
+        config.log_device_placement = False
+        print('_run_:%s' % device_lib.list_local_devices())
+        estimator = Estimator(model_fn, config=RunConfig(session_config=config))
+        for r in estimator.predict(input_fn_builder(), yield_single_examples=False):
+            print(r)
 
     def run(self):
         estimator = self.get_estimator()
