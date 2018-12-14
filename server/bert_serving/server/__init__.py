@@ -437,12 +437,14 @@ class BertWorker(Process):
 
     def input_fn_builder(self, worker):
         print('input_fn_builder')
+
         def gen():
             print('gen')
             while True:
                 self.logger.info('here2')
-                time.sleep(1)
+
                 yield {
+                    'da': 'ds',
                     'client_id': 'test',
                     'input_ids': [[0] * self.max_seq_len],
                     'input_mask': [[1] * self.max_seq_len],
