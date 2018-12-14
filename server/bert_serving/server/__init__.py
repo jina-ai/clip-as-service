@@ -142,9 +142,9 @@ class BertServer(threading.Thread):
             (assignment_map, initialized_variable_names
              ) = modeling.get_assignment_map_from_checkpoint(tvars, init_checkpoint)
 
-            print('train vars: %d' % len(tvars))
-            print('vars from checkpoint: %d' % len(initialized_variable_names))
-            print('assignment map: %d' % len(assignment_map))
+            # print('train vars: %d' % len(tvars))
+            # print('vars from checkpoint: %d' % len(initialized_variable_names))
+            # print('assignment map: %d' % len(assignment_map))
 
             tf.train.init_from_checkpoint(init_checkpoint, assignment_map)
 
@@ -181,7 +181,7 @@ class BertServer(threading.Thread):
 
             output_tensors = [pooled]
             tmp_g = tf.get_default_graph().as_graph_def()
-            print('original: %d' % len(tmp_g.node), flush=True)
+            # print('original: %d' % len(tmp_g.node), flush=True)
             # print('\n'.join([n.name for n in tf.get_default_graph().as_graph_def().node]))
 
             os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
@@ -192,8 +192,8 @@ class BertServer(threading.Thread):
             sess = tf.Session(config=config)
             sess.run(tf.global_variables_initializer())
             tmp_g = tf.graph_util.convert_variables_to_constants(sess, tmp_g, [n.name[:-2] for n in output_tensors])
-            print('after freeze: %d' % len(tmp_g.node))
-            before_opt = set(n.name for n in tmp_g.node)
+            # print('after freeze: %d' % len(tmp_g.node))
+            # before_opt = set(n.name for n in tmp_g.node)
             # prune unused nodes from graph
             dtypes = [n.dtype for n in input_tensors]
             tmp_g = optimize_for_inference(
@@ -202,10 +202,10 @@ class BertServer(threading.Thread):
                 [n.name[:-2] for n in output_tensors],
                 [dtype.as_datatype_enum for dtype in dtypes],
                 False)
-            print('after optimize: %d' % len(tmp_g.node))
-            after_opt = set(n.name for n in tmp_g.node)
-            removed = [n for n in before_opt if n not in after_opt]
-            print('\n'.join(removed))
+            # print('after optimize: %d' % len(tmp_g.node))
+            # after_opt = set(n.name for n in tmp_g.node)
+            # removed = [n for n in before_opt if n not in after_opt]
+            # print('\n'.join(removed))
 
             with tf.gfile.GFile(_graph_tmp_file_, 'wb') as f:
                 f.write(tmp_g.SerializeToString())
@@ -414,7 +414,7 @@ class BertWorker(Process):
         #     config.graph_options.optimizer_options.global_jit_level = tf.OptimizerOptions.ON_1
         config.gpu_options.allow_growth = True
         config.gpu_options.per_process_gpu_memory_fraction = self.gpu_memory_fraction
-        config.log_device_placement = True
+        config.log_device_placement = False
         self.logger.info('use device %s' % (('gpu: %d' % self.device_id) if self.device_id < 0 else 'cpu'))
         return Estimator(self.model_fn, config=RunConfig(session_config=config))
 
