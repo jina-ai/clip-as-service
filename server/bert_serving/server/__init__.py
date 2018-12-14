@@ -30,7 +30,7 @@ def _check_tf_version():
     return tf_ver
 
 
-__version__ = '1.5.4'
+__version__ = '1.5.5'
 
 _tf_ver_ = _check_tf_version()
 
