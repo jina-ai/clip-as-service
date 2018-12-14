@@ -420,9 +420,7 @@ class BertWorker(Process):
         sink = context.socket(zmq.PUSH)
         sink.connect(self.sink_address)
 
-        input_fn = self.input_fn_builder(receiver)
-
-        for r in self.estimator.predict(input_fn, yield_single_examples=False):
+        for r in self.estimator.predict(self.input_fn_builder(receiver), yield_single_examples=False):
             send_ndarray(sink, r['client_id'], r['encodes'])
             self.logger.info('job done\tsize: %s\tclient: %s' % (r['encodes'].shape, r['client_id']))
 
@@ -433,20 +431,28 @@ class BertWorker(Process):
 
     def input_fn_builder(self, worker):
         def gen():
-            self.logger.info('ready and listening!')
-            while not self.exit_flag.is_set():
-                client_id, msg = worker.recv_multipart()
-                msg = jsonapi.loads(msg)
-                self.logger.info('new job\tsize: %d\tclient: %s' % (len(msg), client_id))
-                # check if msg is a list of list, if yes consider the input is already tokenized
-                is_tokenized = all(isinstance(el, list) for el in msg)
-                tmp_f = list(convert_lst_to_features(msg, self.max_seq_len, self.tokenizer, is_tokenized))
+            while True:
+                time.sleep(1)
                 yield {
-                    'client_id': client_id,
-                    'input_ids': [f.input_ids for f in tmp_f],
-                    'input_mask': [f.input_mask for f in tmp_f],
-                    'input_type_ids': [f.input_type_ids for f in tmp_f]
+                    'client_id': 'test',
+                    'input_ids': [[0] * self.max_seq_len],
+                    'input_mask': [[1] * self.max_seq_len],
+                    'input_type_ids': [[0] * self.max_seq_len]
                 }
+            # self.logger.info('ready and listening!')
+            # while not self.exit_flag.is_set():
+            #     client_id, msg = worker.recv_multipart()
+            #     msg = jsonapi.loads(msg)
+            #     self.logger.info('new job\tsize: %d\tclient: %s' % (len(msg), client_id))
+            #     # check if msg is a list of list, if yes consider the input is already tokenized
+            #     is_tokenized = all(isinstance(el, list) for el in msg)
+            #     tmp_f = list(convert_lst_to_features(msg, self.max_seq_len, self.tokenizer, is_tokenized))
+            #     yield {
+            #         'client_id': client_id,
+            #         'input_ids': [f.input_ids for f in tmp_f],
+            #         'input_mask': [f.input_mask for f in tmp_f],
+            #         'input_type_ids': [f.input_type_ids for f in tmp_f]
+            #     }
 
         def input_fn():
             return (tf.data.Dataset.from_generator(
