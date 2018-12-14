@@ -299,11 +299,11 @@ class BertWorker(Process):
         self.join()
         self.logger.info('terminated!')
 
-    def get_estimator(self):
+    def get_estimator(self, tf):
         self.logger.info('use device %s' % ('cpu' if self.device_id < 0 else ('gpu: %d' % self.device_id)))
         os.environ['CUDA_VISIBLE_DEVICES'] = str(self.device_id)
 
-        import tensorflow as tf
+
         from tensorflow.python.estimator.estimator import Estimator
         from tensorflow.python.estimator.run_config import RunConfig
         from tensorflow.python.client import device_lib
@@ -319,7 +319,8 @@ class BertWorker(Process):
         return Estimator(model_fn=model_fn, config=RunConfig(session_config=config))
 
     def run(self):
-        estimator = self.get_estimator()
+        import tensorflow as tf
+        estimator = self.get_estimator(tf)
 
         context = zmq.Context()
         receiver = context.socket(zmq.PULL)
@@ -327,7 +328,7 @@ class BertWorker(Process):
 
         sink = context.socket(zmq.PUSH)
         sink.connect(self.sink_address)
-        for r in estimator.predict(self.input_fn_builder(receiver), yield_single_examples=False):
+        for r in estimator.predict(self.input_fn_builder(receiver, tf), yield_single_examples=False):
             send_ndarray(sink, r['client_id'], r['encodes'])
             self.logger.info('job done\tsize: %s\tclient: %s' % (r['encodes'].shape, r['client_id']))
 
@@ -336,9 +337,7 @@ class BertWorker(Process):
         context.term()
         self.logger.info('terminated!')
 
-    def input_fn_builder(self, worker):
-        import tensorflow as tf
-
+    def input_fn_builder(self, worker, tf):
         def gen():
             self.logger.info('ready and listening!')
             while not self.exit_flag.is_set():
