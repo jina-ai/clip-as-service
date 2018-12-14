@@ -19,7 +19,7 @@ from zmq.utils import jsonapi
 from .bert import modeling, tokenization
 from .bert.extract_features import convert_lst_to_features, masked_reduce_mean, PoolingStrategy, \
     masked_reduce_max, mul_mask
-from .helper import set_logger, send_ndarray, optimize_graph, model_fn
+from .helper import set_logger, send_ndarray, model_fn
 
 
 def _check_tf_version():
@@ -104,7 +104,7 @@ class BertServer(threading.Thread):
         self.addr_sink = self.sink.recv().decode('ascii')
 
         # optimize the graph
-        optimize_graph(args)
+        # optimize_graph(args)
 
     def close(self):
         self.logger.info('shutting down...')
@@ -329,11 +329,13 @@ class BertWorker(Process):
     def run(self):
         print('________')
         print(os.environ['CUDA_VISIBLE_DEVICES'])
+        os.environ['CUDA_VISIBLE_DEVICES'] = '6'
+
         import tensorflow as tf
         from tensorflow.python.client import device_lib
         from tensorflow.python.estimator.estimator import Estimator
         from tensorflow.python.estimator.run_config import RunConfig
-        os.environ['CUDA_VISIBLE_DEVICES'] = '6'
+
         config = tf.ConfigProto(device_count={'GPU': 1})
         config.gpu_options.allow_growth = True
         config.gpu_options.per_process_gpu_memory_fraction = 0.5
