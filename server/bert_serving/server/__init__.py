@@ -13,11 +13,7 @@ from datetime import datetime
 from multiprocessing import Process
 
 import numpy as np
-import tensorflow as tf
 import zmq
-from tensorflow.python.client import device_lib
-from tensorflow.python.estimator.estimator import Estimator
-from tensorflow.python.estimator.run_config import RunConfig
 from termcolor import colored
 from zmq.utils import jsonapi
 
@@ -26,12 +22,18 @@ from .bert.extract_features import convert_lst_to_features, masked_reduce_mean, 
     masked_reduce_max, mul_mask
 from .helper import set_logger, send_ndarray, optimize_graph, build_model_fn
 
-_tf_ver = tf.__version__.split('.')
-assert int(_tf_ver[0]) >= 1 and int(_tf_ver[1]) >= 10, 'Tensorflow >=1.10 is required!'
+
+def _check_tf_version():
+    import tensorflow as tf
+    tf_ver = tf.__version__.split('.')
+    assert int(tf_ver[0]) >= 1 and int(tf_ver[1]) >= 10, 'Tensorflow >=1.10 is required!'
+    return tf_ver
+
 
 __version__ = '1.5.4'
 
 _graph_tmp_file_ = tempfile.NamedTemporaryFile('w', delete=False).name
+_tf_ver_ = _check_tf_version()
 
 
 def _auto_bind(socket):
@@ -77,7 +79,7 @@ class BertServer(threading.Thread):
             'port_out': args.port_out,
             'pooling_layer': args.pooling_layer,
             'pooling_strategy': args.pooling_strategy.value,
-            'tensorflow_version': tf.__version__,
+            'tensorflow_version': _tf_ver_,
             'python_version': sys.version,
             'server_start_time': str(datetime.now()),
             'use_xla_compiler': args.xla,
@@ -283,10 +285,6 @@ class BertWorker(Process):
         super().__init__()
         self.worker_id = id
         self.device_id = device_id
-        # os.environ['CUDA_VISIBLE_DEVICES'] = str(self.device_id)
-        tf.logging.set_verbosity(tf.logging.DEBUG)
-        print('os env: %s' % os.environ['CUDA_VISIBLE_DEVICES'])
-        os.environ['CUDA_VISIBLE_DEVICES'] = '7'
         self.logger = set_logger(colored('WORKER-%d' % self.worker_id, 'yellow'))
         self.tokenizer = tokenization.FullTokenizer(vocab_file=os.path.join(args.model_dir, 'vocab.txt'))
         self.max_seq_len = args.max_seq_len
@@ -296,8 +294,6 @@ class BertWorker(Process):
         self.sink_address = sink_address
         self.prefetch_factor = 10
         self.gpu_memory_fraction = args.gpu_memory_fraction
-        self.estimator = self.get_estimator()
-        print(device_lib.list_local_devices())
 
     def close(self):
         self.logger.info('shutting down...')
@@ -307,8 +303,16 @@ class BertWorker(Process):
         self.logger.info('terminated!')
 
     def get_estimator(self):
+        import tensorflow as tf
+        from tensorflow.python.estimator.estimator import Estimator
+        from tensorflow.python.estimator.run_config import RunConfig
+        from tensorflow.python.client import device_lib
+
+        os.environ['CUDA_VISIBLE_DEVICES'] = str(self.device_id)
         tf.logging.set_verbosity(tf.logging.DEBUG)
         print('est- os env: %s' % os.environ['CUDA_VISIBLE_DEVICES'])
+        print(device_lib.list_local_devices())
+
         config = tf.ConfigProto(device_count={'GPU': 0 if self.device_id < 0 else 1})
         # session-wise XLA doesn't seem to work on tf 1.10
         # if args.xla:
@@ -317,19 +321,19 @@ class BertWorker(Process):
         config.gpu_options.per_process_gpu_memory_fraction = self.gpu_memory_fraction
         config.log_device_placement = True
         self.logger.info('use device %s' % ('cpu' if self.device_id < 0 else ('gpu: %d' % self.device_id)))
+
         return Estimator(build_model_fn(_graph_tmp_file_), config=RunConfig(session_config=config))
 
     def run(self):
-        print('run-: %s' % os.environ['CUDA_VISIBLE_DEVICES'])
+        estimator = self.get_estimator()
+
         context = zmq.Context()
         receiver = context.socket(zmq.PULL)
         receiver.connect(self.worker_address)
 
-        print(device_lib.list_local_devices())
-
         sink = context.socket(zmq.PUSH)
         sink.connect(self.sink_address)
-        for r in self.estimator.predict(self.input_fn_builder(), yield_single_examples=False):
+        for r in estimator.predict(self.input_fn_builder(), yield_single_examples=False):
             send_ndarray(sink, r['client_id'], r['encodes'])
             self.logger.info('job done\tsize: %s\tclient: %s' % (r['encodes'].shape, r['client_id']))
 
@@ -340,6 +344,7 @@ class BertWorker(Process):
 
     @staticmethod
     def input_fn_builder():
+        import tensorflow as tf
         max_seq_len = 25
 
         def gen():
@@ -366,3 +371,35 @@ class BertWorker(Process):
                     'input_type_ids': (None, max_seq_len)}))
 
         return input_fn
+
+    # def input_fn_builder(self, worker):
+    #     def gen():
+    #         self.logger.info('ready and listening!')
+    #         while not self.exit_flag.is_set():
+    #             client_id, msg = worker.recv_multipart()
+    #             msg = jsonapi.loads(msg)
+    #             self.logger.info('new job\tsize: %d\tclient: %s' % (len(msg), client_id))
+    #             # check if msg is a list of list, if yes consider the input is already tokenized
+    #             is_tokenized = all(isinstance(el, list) for el in msg)
+    #             tmp_f = list(convert_lst_to_features(msg, self.max_seq_len, self.tokenizer, is_tokenized))
+    #             yield {
+    #                 'client_id': client_id,
+    #                 'input_ids': [f.input_ids for f in tmp_f],
+    #                 'input_mask': [f.input_mask for f in tmp_f],
+    #                 'input_type_ids': [f.input_type_ids for f in tmp_f]
+    #             }
+    #
+    #     def input_fn():
+    #         return (tf.data.Dataset.from_generator(
+    #             gen,
+    #             output_types={'input_ids': tf.int32,
+    #                           'input_mask': tf.int32,
+    #                           'input_type_ids': tf.int32,
+    #                           'client_id': tf.string},
+    #             output_shapes={
+    #                 'client_id': (),
+    #                 'input_ids': (None, self.max_seq_len),
+    #                 'input_mask': (None, self.max_seq_len),
+    #                 'input_type_ids': (None, self.max_seq_len)}).prefetch(self.prefetch_factor))
+    #
+    #     return input_fn

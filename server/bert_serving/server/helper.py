@@ -3,9 +3,6 @@ import json
 import logging
 import os
 
-import tensorflow as tf
-from tensorflow.python.estimator.model_fn import EstimatorSpec
-from tensorflow.python.tools.optimize_for_inference_lib import optimize_for_inference
 from zmq.utils import jsonapi
 
 from .bert import modeling
@@ -34,16 +31,19 @@ def send_ndarray(src, dest, X, req_id=b'', flags=0, copy=True, track=False):
 
 
 def optimize_graph(graph_file, args):
+    import tensorflow as tf
+    from tensorflow.python.tools.optimize_for_inference_lib import optimize_for_inference
+
+    # we don't need GPU for optimizing the graph
     os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
     config = tf.ConfigProto(device_count={'GPU': 0}, allow_soft_placement=True)
-    config.gpu_options.allow_growth = True
-    config.gpu_options.per_process_gpu_memory_fraction = 0.5
 
     config_fp = os.path.join(args.model_dir, 'bert_config.json')
     init_checkpoint = os.path.join(args.model_dir, 'bert_model.ckpt')
     with tf.gfile.GFile(config_fp, 'r') as f:
         bert_config = modeling.BertConfig.from_dict(json.load(f))
 
+    # input placeholders, not sure if they are friendly to XLA
     input_ids = tf.placeholder(tf.int32, (None, args.max_seq_len), 'input_ids')
     input_mask = tf.placeholder(tf.int32, (None, args.max_seq_len), 'input_mask')
     input_type_ids = tf.placeholder(tf.int32, (None, args.max_seq_len), 'input_type_ids')
@@ -118,6 +118,9 @@ def optimize_graph(graph_file, args):
 
 
 def build_model_fn(graph_file):
+    import tensorflow as tf
+    from tensorflow.python.estimator.model_fn import EstimatorSpec
+
     def model_fn(features, labels, mode, params):
         with tf.gfile.GFile(graph_file, 'rb') as f:
             graph_def = tf.GraphDef()
