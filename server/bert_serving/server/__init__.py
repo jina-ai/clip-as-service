@@ -388,22 +388,16 @@ class BertWorker(Process):
     def __init__(self, id, args, worker_address, sink_address, device_id):
         super().__init__()
         self.worker_id = id
+        self.device_id = device_id
         self.logger = set_logger(colored('WORKER-%d' % self.worker_id, 'yellow'))
         self.tokenizer = tokenization.FullTokenizer(vocab_file=os.path.join(args.model_dir, 'vocab.txt'))
         self.max_seq_len = args.max_seq_len
         self.daemon = True
-        os.environ['CUDA_VISIBLE_DEVICES'] = str(device_id)
-        config = tf.ConfigProto(device_count={'GPU': 0 if device_id < 0 else 1})
-        # session-wise XLA doesn't seem to work on tf 1.10
-        # if args.xla:
-        #     config.graph_options.optimizer_options.global_jit_level = tf.OptimizerOptions.ON_1
-        config.gpu_options.allow_growth = True
-        config.gpu_options.per_process_gpu_memory_fraction = args.gpu_memory_fraction
-        self.estimator = Estimator(self.model_fn, config=RunConfig(session_config=config))
         self.exit_flag = multiprocessing.Event()
         self.worker_address = worker_address
         self.sink_address = sink_address
         self.prefetch_factor = 10
+        self.gpu_memory_fraction = args.gpu_memory_fraction
 
     def close(self):
         self.logger.info('shutting down...')
@@ -412,7 +406,18 @@ class BertWorker(Process):
         self.join()
         self.logger.info('terminated!')
 
+    def get_estimator(self):
+        os.environ['CUDA_VISIBLE_DEVICES'] = str(self.device_id)
+        config = tf.ConfigProto(device_count={'GPU': 0 if self.device_id < 0 else 1})
+        # session-wise XLA doesn't seem to work on tf 1.10
+        # if args.xla:
+        #     config.graph_options.optimizer_options.global_jit_level = tf.OptimizerOptions.ON_1
+        config.gpu_options.allow_growth = True
+        config.gpu_options.per_process_gpu_memory_fraction = self.gpu_memory_fraction
+        return Estimator(self.model_fn, config=RunConfig(session_config=config))
+
     def run(self):
+        estimator = self.get_estimator()
         context = zmq.Context()
         receiver = context.socket(zmq.PULL)
         receiver.connect(self.worker_address)
@@ -420,7 +425,7 @@ class BertWorker(Process):
         sink = context.socket(zmq.PUSH)
         sink.connect(self.sink_address)
 
-        for r in self.estimator.predict(self.input_fn_builder(receiver), yield_single_examples=False):
+        for r in estimator.predict(self.input_fn_builder(receiver), yield_single_examples=False):
             send_ndarray(sink, r['client_id'], r['encodes'])
             self.logger.info('job done\tsize: %s\tclient: %s' % (r['encodes'].shape, r['client_id']))
 
