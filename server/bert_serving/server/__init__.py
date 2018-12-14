@@ -318,9 +318,9 @@ class BertWorker(Process):
                 'encodes': output[0]
             })
 
-        from tensorflow.python.estimator.estimator import Estimator
-        from tensorflow.python.estimator.run_config import RunConfig
-        from tensorflow.python.client import device_lib
+        # from tensorflow.python.estimator.estimator import Estimator
+        # from tensorflow.python.estimator.run_config import RunConfig
+        # from tensorflow.python.client import device_lib
 
         print(device_lib.list_local_devices())
 
