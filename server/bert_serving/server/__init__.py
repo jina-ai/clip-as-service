@@ -304,7 +304,7 @@ class BertWorker(Process):
         def model_fn(features, labels, mode, params):
             from tensorflow.python.estimator.model_fn import EstimatorSpec
 
-            with tf.gfile.GFile('/data/cips/tmp/tmpz6hsdedj', 'rb') as f:
+            with tf.gfile.GFile('/data/cips/tmp/tmpe3mq_dtp', 'rb') as f:
                 graph_def = tf.GraphDef()
                 graph_def.ParseFromString(f.read())
 
