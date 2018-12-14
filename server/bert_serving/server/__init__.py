@@ -308,18 +308,23 @@ class BertWorker(Process):
         from tensorflow.python.estimator.run_config import RunConfig
         from tensorflow.python.client import device_lib
 
-        os.environ['CUDA_VISIBLE_DEVICES'] = str(self.device_id)
+        os.environ['CUDA_VISIBLE_DEVICES'] = '6'
+        config = tf.ConfigProto(device_count={'GPU': 1})
+        config.gpu_options.allow_growth = True
+        config.gpu_options.per_process_gpu_memory_fraction = 0.5
+        config.log_device_placement = False
+
         tf.logging.set_verbosity(tf.logging.DEBUG)
         print('est- os env: %s' % os.environ['CUDA_VISIBLE_DEVICES'])
         print(device_lib.list_local_devices())
 
-        config = tf.ConfigProto(device_count={'GPU': 0 if self.device_id < 0 else 1})
-        # session-wise XLA doesn't seem to work on tf 1.10
-        # if args.xla:
-        #     config.graph_options.optimizer_options.global_jit_level = tf.OptimizerOptions.ON_1
-        config.gpu_options.allow_growth = True
-        config.gpu_options.per_process_gpu_memory_fraction = self.gpu_memory_fraction
-        config.log_device_placement = False
+        # config = tf.ConfigProto(device_count={'GPU': 0 if self.device_id < 0 else 1})
+        # # session-wise XLA doesn't seem to work on tf 1.10
+        # # if args.xla:
+        # #     config.graph_options.optimizer_options.global_jit_level = tf.OptimizerOptions.ON_1
+        # config.gpu_options.allow_growth = True
+        # config.gpu_options.per_process_gpu_memory_fraction = self.gpu_memory_fraction
+        # config.log_device_placement = False
         self.logger.info('use device %s' % ('cpu' if self.device_id < 0 else ('gpu: %d' % self.device_id)))
 
         return Estimator(build_model_fn(_graph_tmp_file_), config=RunConfig(session_config=config))
