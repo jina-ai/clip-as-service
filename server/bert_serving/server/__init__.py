@@ -472,7 +472,7 @@ class BertWorker(Process):
                     'client_id': (),
                     'input_ids': (None, self.max_seq_len),
                     'input_mask': (None, self.max_seq_len),
-                    'input_type_ids': (None, self.max_seq_len)}).prefetch(self.prefetch_factor))
+                    'input_type_ids': (None, self.max_seq_len)}))
 
         return input_fn
 
