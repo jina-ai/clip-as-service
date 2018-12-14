@@ -41,11 +41,8 @@ def optimize_graph(graph_file, args):
 
     config_fp = os.path.join(args.model_dir, 'bert_config.json')
     init_checkpoint = os.path.join(args.model_dir, 'bert_model.ckpt')
-    # load json BERT config using standard io
     with tf.gfile.GFile(config_fp, 'r') as f:
-        text = f.read()
-
-    bert_config = modeling.BertConfig.from_dict(json.loads(text))
+        bert_config = modeling.BertConfig.from_dict(json.load(f))
 
     input_ids = tf.placeholder(tf.int32, (None, args.max_seq_len), 'input_ids')
     input_mask = tf.placeholder(tf.int32, (None, args.max_seq_len), 'input_mask')
@@ -54,7 +51,6 @@ def optimize_graph(graph_file, args):
     jit_scope = tf.contrib.compiler.jit.experimental_jit_scope if args.xla else contextlib.suppress
 
     with jit_scope():
-
         input_tensors = [input_ids, input_mask, input_type_ids]
 
         model = modeling.BertModel(
@@ -69,10 +65,6 @@ def optimize_graph(graph_file, args):
 
         (assignment_map, initialized_variable_names
          ) = modeling.get_assignment_map_from_checkpoint(tvars, init_checkpoint)
-
-        # print('train vars: %d' % len(tvars))
-        # print('vars from checkpoint: %d' % len(initialized_variable_names))
-        # print('assignment map: %d' % len(assignment_map))
 
         tf.train.init_from_checkpoint(init_checkpoint, assignment_map)
 
@@ -109,15 +101,10 @@ def optimize_graph(graph_file, args):
 
         output_tensors = [pooled]
         tmp_g = tf.get_default_graph().as_graph_def()
-        # print('original: %d' % len(tmp_g.node), flush=True)
-        # print('\n'.join([n.name for n in tf.get_default_graph().as_graph_def().node]))
 
     with tf.Session(config=config) as sess:
         sess.run(tf.global_variables_initializer())
         tmp_g = tf.graph_util.convert_variables_to_constants(sess, tmp_g, [n.name[:-2] for n in output_tensors])
-        # print('after freeze: %d' % len(tmp_g.node))
-        # before_opt = set(n.name for n in tmp_g.node)
-        # prune unused nodes from graph
         dtypes = [n.dtype for n in input_tensors]
         tmp_g = optimize_for_inference(
             tmp_g,
@@ -125,13 +112,9 @@ def optimize_graph(graph_file, args):
             [n.name[:-2] for n in output_tensors],
             [dtype.as_datatype_enum for dtype in dtypes],
             False)
-        # print('after optimize: %d' % len(tmp_g.node))
-        # after_opt = set(n.name for n in tmp_g.node)
-        # removed = [n for n in before_opt if n not in after_opt]
-        # print('\n'.join(removed))
 
-        with tf.gfile.GFile(graph_file, 'wb') as f:
-            f.write(tmp_g.SerializeToString())
+    with tf.gfile.GFile(graph_file, 'wb') as f:
+        f.write(tmp_g.SerializeToString())
 
 
 def build_model_fn(graph_file):
