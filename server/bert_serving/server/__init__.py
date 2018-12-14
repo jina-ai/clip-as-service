@@ -307,16 +307,7 @@ class BertWorker(Process):
         from tensorflow.python.estimator.estimator import Estimator
         from tensorflow.python.estimator.run_config import RunConfig
         from tensorflow.python.client import device_lib
-
-        # config = tf.ConfigProto(device_count={'GPU': 1})
-        # config.gpu_options.allow_growth = True
-        # config.gpu_options.per_process_gpu_memory_fraction = 0.5
-        # config.log_device_placement = False
-
-        tf.logging.set_verbosity(tf.logging.DEBUG)
-        print('est- os env: %s' % os.environ['CUDA_VISIBLE_DEVICES'])
         print(device_lib.list_local_devices())
-
         config = tf.ConfigProto(device_count={'GPU': 0 if self.device_id < 0 else 1})
         # session-wise XLA doesn't seem to work on tf 1.10
         # if args.xla:
@@ -326,24 +317,6 @@ class BertWorker(Process):
         config.log_device_placement = False
 
         return Estimator(model_fn=model_fn, config=RunConfig(session_config=config))
-
-    def run1(self):
-        print('________')
-        os.environ['CUDA_VISIBLE_DEVICES'] = '6'
-
-        import tensorflow as tf
-        from tensorflow.python.client import device_lib
-        from tensorflow.python.estimator.estimator import Estimator
-        from tensorflow.python.estimator.run_config import RunConfig
-
-        config = tf.ConfigProto(device_count={'GPU': 1})
-        config.gpu_options.allow_growth = True
-        config.gpu_options.per_process_gpu_memory_fraction = 0.5
-        config.log_device_placement = False
-        print('_run_:%s' % device_lib.list_local_devices())
-        estimator = Estimator(model_fn, config=RunConfig(session_config=config))
-        for r in estimator.predict(self.input_fn_builder(), yield_single_examples=False):
-            print(r)
 
     def run(self):
         estimator = self.get_estimator()
@@ -365,6 +338,7 @@ class BertWorker(Process):
 
     def input_fn_builder(self, worker):
         import tensorflow as tf
+
         def gen():
             self.logger.info('ready and listening!')
             while not self.exit_flag.is_set():
