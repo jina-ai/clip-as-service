@@ -34,6 +34,7 @@ def send_ndarray(src, dest, X, req_id=b'', flags=0, copy=True, track=False):
 def optimize_graph(args):
     # we don't need GPU for optimizing the graph
     os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+    os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
     import tensorflow as tf
     tf.logging.set_verbosity(tf.logging.ERROR)

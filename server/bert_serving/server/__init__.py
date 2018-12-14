@@ -339,6 +339,7 @@ class BertWorker(Process):
     def run(self):
         self.logger.info('use device %s' % ('cpu' if self.device_id < 0 else ('gpu: %d' % self.device_id)))
         os.environ['CUDA_VISIBLE_DEVICES'] = str(self.device_id)
+        os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
         import tensorflow as tf
 
         estimator = self.get_estimator(tf)
