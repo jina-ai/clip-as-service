@@ -425,6 +425,7 @@ class BertWorker(Process):
 
         sink = context.socket(zmq.PUSH)
         sink.connect(self.sink_address)
+        self.logger.info('estimator is built')
 
         for r in estimator.predict(self.input_fn_builder(receiver), yield_single_examples=False):
             send_ndarray(sink, r['client_id'], r['encodes'])
