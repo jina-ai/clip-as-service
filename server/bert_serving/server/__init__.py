@@ -282,7 +282,9 @@ class BertWorker(Process):
         super().__init__()
         self.worker_id = id
         self.device_id = device_id
-        os.environ['CUDA_VISIBLE_DEVICES'] = str(self.device_id)
+        # os.environ['CUDA_VISIBLE_DEVICES'] = str(self.device_id)
+        tf.logging.set_verbosity(tf.logging.DEBUG)
+        os.environ['CUDA_VISIBLE_DEVICES'] = '7'
         self.logger = set_logger(colored('WORKER-%d' % self.worker_id, 'yellow'))
         self.tokenizer = tokenization.FullTokenizer(vocab_file=os.path.join(args.model_dir, 'vocab.txt'))
         self.max_seq_len = args.max_seq_len
