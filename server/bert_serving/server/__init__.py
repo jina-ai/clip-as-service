@@ -307,6 +307,7 @@ class BertWorker(Process):
         self.logger.info('terminated!')
 
     def get_estimator(self):
+        tf.logging.set_verbosity(tf.logging.DEBUG)
         print('est- os env: %s' % os.environ['CUDA_VISIBLE_DEVICES'])
         config = tf.ConfigProto(device_count={'GPU': 0 if self.device_id < 0 else 1})
         # session-wise XLA doesn't seem to work on tf 1.10
@@ -314,7 +315,7 @@ class BertWorker(Process):
         #     config.graph_options.optimizer_options.global_jit_level = tf.OptimizerOptions.ON_1
         config.gpu_options.allow_growth = True
         config.gpu_options.per_process_gpu_memory_fraction = self.gpu_memory_fraction
-        config.log_device_placement = False
+        config.log_device_placement = True
         self.logger.info('use device %s' % ('cpu' if self.device_id < 0 else ('gpu: %d' % self.device_id)))
         return Estimator(build_model_fn(_graph_tmp_file_), config=RunConfig(session_config=config))
 

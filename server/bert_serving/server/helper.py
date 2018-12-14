@@ -34,8 +34,8 @@ def send_ndarray(src, dest, X, req_id=b'', flags=0, copy=True, track=False):
 
 
 def optimize_graph(graph_file, args):
-    os.environ['CUDA_VISIBLE_DEVICES'] = '7'
-    config = tf.ConfigProto(device_count={'GPU': 1}, allow_soft_placement=True)
+    os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+    config = tf.ConfigProto(device_count={'GPU': 0}, allow_soft_placement=True)
     config.gpu_options.allow_growth = True
     config.gpu_options.per_process_gpu_memory_fraction = 0.5
 
