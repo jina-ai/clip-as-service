@@ -104,7 +104,7 @@ class BertServer(threading.Thread):
         self.processes.append(proc_sink)
         self.addr_sink = self.sink.recv().decode('ascii')
 
-        self.logger.info('freezing, optimizing and exporting graph...')
+        self.logger.info('freezing, optimizing and exporting graph, could take a while...')
         with Pool(processes=1) as pool:
             # optimize the graph, must be done in another process
             self.graph_path = pool.apply(optimize_graph, (self.args,))
@@ -337,11 +337,13 @@ class BertWorker(Process):
         return Estimator(model_fn=model_fn, config=RunConfig(session_config=config))
 
     def run(self):
-        self.logger.info('use device %s' % ('cpu' if self.device_id < 0 else ('gpu: %d' % self.device_id)))
+        self.logger.info('use device %s, load graph from %s' %
+                         ('cpu' if self.device_id < 0 else ('gpu: %d' % self.device_id), self.graph_path))
         os.environ['CUDA_VISIBLE_DEVICES'] = str(self.device_id)
         os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
-        import tensorflow as tf
+        self.logger.info('please ignore "WARNING: Using temporary folder as model directory"')
 
+        import tensorflow as tf
         estimator = self.get_estimator(tf)
 
         context = zmq.Context()
