@@ -318,13 +318,14 @@ class BertWorker(Process):
                 'encodes': output[0]
             })
 
-        # from tensorflow.python.estimator.estimator import Estimator
-        # from tensorflow.python.estimator.run_config import RunConfig
+        from tensorflow.python.estimator.estimator import Estimator
+        from tensorflow.python.estimator.run_config import RunConfig
         # from tensorflow.python.client import device_lib
-
-        print(device_lib.list_local_devices())
+        #
+        # print(device_lib.list_local_devices())
 
         config = tf.ConfigProto(device_count={'GPU': 0 if self.device_id < 0 else 1})
+
         # session-wise XLA doesn't seem to work on tf 1.10
         # if args.xla:
         #     config.graph_options.optimizer_options.global_jit_level = tf.OptimizerOptions.ON_1
