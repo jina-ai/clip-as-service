@@ -27,7 +27,7 @@ function pub_pypi {
     cp README.md $1
     cd $1
     clean_build
-    python setup.py sdist bdist_wheel
+    python setup.py sdist bdist_wheel $2
     twine upload dist/*
     clean_build
     cd -
@@ -60,4 +60,4 @@ git tag $VER
 git push -u origin --tags
 
 pub_pypi $SERVER_DIR
-pub_pypi $CLIENT_DIR
+pub_pypi $CLIENT_DIR  '--universal'
