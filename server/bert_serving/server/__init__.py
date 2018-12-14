@@ -414,6 +414,7 @@ class BertWorker(Process):
         #     config.graph_options.optimizer_options.global_jit_level = tf.OptimizerOptions.ON_1
         config.gpu_options.allow_growth = True
         config.gpu_options.per_process_gpu_memory_fraction = self.gpu_memory_fraction
+        config.log_device_placement = True
         return Estimator(self.model_fn, config=RunConfig(session_config=config))
 
     def run(self):
