@@ -282,6 +282,7 @@ class BertWorker(Process):
         super().__init__()
         self.worker_id = id
         self.device_id = device_id
+        os.environ['CUDA_VISIBLE_DEVICES'] = str(self.device_id)
         self.logger = set_logger(colored('WORKER-%d' % self.worker_id, 'yellow'))
         self.tokenizer = tokenization.FullTokenizer(vocab_file=os.path.join(args.model_dir, 'vocab.txt'))
         self.max_seq_len = args.max_seq_len
@@ -300,7 +301,6 @@ class BertWorker(Process):
         self.logger.info('terminated!')
 
     def get_estimator(self):
-        os.environ['CUDA_VISIBLE_DEVICES'] = str(self.device_id)
         config = tf.ConfigProto(device_count={'GPU': 0 if self.device_id < 0 else 1})
         # session-wise XLA doesn't seem to work on tf 1.10
         # if args.xla:
