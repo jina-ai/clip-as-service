@@ -139,7 +139,7 @@ class BertServer(threading.Thread):
             enumerate(device_map)))
 
         # optimize the graph
-        graph_path = optimize_graph(self.args)
+        graph_path = '/data/cips/tmp/tmp3d13ve_t'  # optimize_graph(self.args)
         self.logger.info('graph is optimized and stored at: %s' % graph_path)
 
         # start the backend processes
