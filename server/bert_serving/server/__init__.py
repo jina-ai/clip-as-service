@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # Han Xiao <artex.xh@gmail.com> <https://hanxiao.github.io>
-import contextlib
-import json
 import multiprocessing
 import os
 import sys
@@ -18,16 +16,14 @@ import numpy as np
 import tensorflow as tf
 import zmq
 from tensorflow.python.estimator.estimator import Estimator
-from tensorflow.python.estimator.model_fn import EstimatorSpec
 from tensorflow.python.estimator.run_config import RunConfig
-from tensorflow.python.tools.optimize_for_inference_lib import optimize_for_inference
 from termcolor import colored
 from zmq.utils import jsonapi
 
 from .bert import modeling, tokenization
 from .bert.extract_features import convert_lst_to_features, masked_reduce_mean, PoolingStrategy, \
     masked_reduce_max, mul_mask
-from .helper import set_logger
+from .helper import set_logger, send_ndarray, optimize_graph, build_model_fn
 
 _tf_ver = tf.__version__.split('.')
 assert int(_tf_ver[0]) >= 1 and int(_tf_ver[1]) >= 10, 'Tensorflow >=1.10 is required!'
@@ -108,110 +104,7 @@ class BertServer(threading.Thread):
         self.addr_sink = self.sink.recv().decode('ascii')
 
         # optimize the graph
-        self.optimize_graph(args)
-
-    def optimize_graph(self, args):
-        config_fp = os.path.join(args.model_dir, 'bert_config.json')
-        init_checkpoint = os.path.join(args.model_dir, 'bert_model.ckpt')
-        # load json BERT config using standard io
-        with tf.gfile.GFile(config_fp, 'r') as f:
-            text = f.read()
-
-        bert_config = modeling.BertConfig.from_dict(json.loads(text))
-        self.logger.info('BERT config is loaded.')
-
-        jit_scope = tf.contrib.compiler.jit.experimental_jit_scope if args.xla else contextlib.suppress
-
-        with jit_scope():
-            input_ids = tf.placeholder(tf.int32, (None, args.max_seq_len), 'input_ids')
-            input_mask = tf.placeholder(tf.int32, (None, args.max_seq_len), 'input_mask')
-            input_type_ids = tf.placeholder(tf.int32, (None, args.max_seq_len), 'input_type_ids')
-
-            input_tensors = [input_ids, input_mask, input_type_ids]
-
-            model = modeling.BertModel(
-                config=bert_config,
-                is_training=False,
-                input_ids=input_ids,
-                input_mask=input_mask,
-                token_type_ids=input_type_ids,
-                use_one_hot_embeddings=False)
-
-            tvars = tf.trainable_variables()
-
-            (assignment_map, initialized_variable_names
-             ) = modeling.get_assignment_map_from_checkpoint(tvars, init_checkpoint)
-
-            # print('train vars: %d' % len(tvars))
-            # print('vars from checkpoint: %d' % len(initialized_variable_names))
-            # print('assignment map: %d' % len(assignment_map))
-
-            tf.train.init_from_checkpoint(init_checkpoint, assignment_map)
-
-            with tf.variable_scope("pooling"):
-                if len(args.pooling_layer) == 1:
-                    encoder_layer = model.all_encoder_layers[args.pooling_layer[0]]
-                else:
-                    all_layers = [model.all_encoder_layers[l] for l in args.pooling_layer]
-                    encoder_layer = tf.concat(all_layers, -1)
-
-                input_mask = tf.cast(input_mask, tf.float32)
-                if args.pooling_strategy == PoolingStrategy.REDUCE_MEAN:
-                    pooled = masked_reduce_mean(encoder_layer, input_mask)
-                elif args.pooling_strategy == PoolingStrategy.REDUCE_MAX:
-                    pooled = masked_reduce_max(encoder_layer, input_mask)
-                elif args.pooling_strategy == PoolingStrategy.REDUCE_MEAN_MAX:
-                    pooled = tf.concat([masked_reduce_mean(encoder_layer, input_mask),
-                                        masked_reduce_max(encoder_layer, input_mask)], axis=1)
-                elif args.pooling_strategy == PoolingStrategy.FIRST_TOKEN or \
-                        args.pooling_strategy == PoolingStrategy.CLS_TOKEN:
-                    pooled = tf.squeeze(encoder_layer[:, 0:1, :], axis=1)
-                elif args.pooling_strategy == PoolingStrategy.LAST_TOKEN or \
-                        args.pooling_strategy == PoolingStrategy.SEP_TOKEN:
-                    seq_len = tf.cast(tf.reduce_sum(input_mask, axis=1), tf.int32)
-                    rng = tf.range(0, tf.shape(seq_len)[0])
-                    indexes = tf.stack([rng, seq_len - 1], 1)
-                    pooled = tf.gather_nd(encoder_layer, indexes)
-                elif args.pooling_strategy == PoolingStrategy.NONE:
-                    pooled = mul_mask(encoder_layer, input_mask)
-                else:
-                    raise NotImplementedError()
-
-            pooled = tf.identity(pooled, 'final_encodes')
-
-            output_tensors = [pooled]
-            tmp_g = tf.get_default_graph().as_graph_def()
-            # print('original: %d' % len(tmp_g.node), flush=True)
-            # print('\n'.join([n.name for n in tf.get_default_graph().as_graph_def().node]))
-
-            os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
-            config = tf.ConfigProto(device_count={'GPU': 0}, allow_soft_placement=True)
-            config.gpu_options.allow_growth = True
-            config.gpu_options.per_process_gpu_memory_fraction = 0.5
-
-            sess = tf.Session(config=config)
-            sess.run(tf.global_variables_initializer())
-            tmp_g = tf.graph_util.convert_variables_to_constants(sess, tmp_g, [n.name[:-2] for n in output_tensors])
-            # print('after freeze: %d' % len(tmp_g.node))
-            # before_opt = set(n.name for n in tmp_g.node)
-            # prune unused nodes from graph
-            dtypes = [n.dtype for n in input_tensors]
-            tmp_g = optimize_for_inference(
-                tmp_g,
-                [n.name[:-2] for n in input_tensors],
-                [n.name[:-2] for n in output_tensors],
-                [dtype.as_datatype_enum for dtype in dtypes],
-                False)
-            # print('after optimize: %d' % len(tmp_g.node))
-            # after_opt = set(n.name for n in tmp_g.node)
-            # removed = [n for n in before_opt if n not in after_opt]
-            # print('\n'.join(removed))
-
-            with tf.gfile.GFile(_graph_tmp_file_, 'wb') as f:
-                f.write(tmp_g.SerializeToString())
-
-            sess.close()
-            self.logger.info('graph is optimized and stored at %s' % _graph_tmp_file_)
+        optimize_graph(_graph_tmp_file_, args)
 
     def close(self):
         self.logger.info('shutting down...')
@@ -416,7 +309,7 @@ class BertWorker(Process):
         config.gpu_options.per_process_gpu_memory_fraction = self.gpu_memory_fraction
         config.log_device_placement = False
         self.logger.info('use device %s' % ('cpu' if self.device_id < 0 else ('gpu: %d' % self.device_id)))
-        return Estimator(self.model_fn, config=RunConfig(session_config=config))
+        return Estimator(build_model_fn(_graph_tmp_file_), config=RunConfig(session_config=config))
 
     def run(self):
         estimator = self.get_estimator()
@@ -445,14 +338,12 @@ class BertWorker(Process):
             print('gen')
             while True:
                 self.logger.info('here2')
-
-                # yield {
-                #     'da': 'ds',
-                #     'client_id': 'test',
-                #     'input_ids': [[0] * self.max_seq_len],
-                #     'input_mask': [[1] * self.max_seq_len],
-                #     'input_type_ids': [[0] * self.max_seq_len]
-                # }
+                yield {
+                    'client_id': 'test',
+                    'input_ids': [[0] * self.max_seq_len],
+                    'input_mask': [[1] * self.max_seq_len],
+                    'input_type_ids': [[0] * self.max_seq_len]
+                }
             # self.logger.info('ready and listening!')
             # while not self.exit_flag.is_set():
             #     client_id, msg = worker.recv_multipart()
@@ -483,28 +374,3 @@ class BertWorker(Process):
                     'input_type_ids': (None, self.max_seq_len)}))
 
         return input_fn
-
-    def model_fn(self, features, labels, mode, params):
-        self.logger.info('loading graph...')
-        with tf.gfile.GFile(_graph_tmp_file_, 'rb') as f:
-            graph_def = tf.GraphDef()
-            graph_def.ParseFromString(f.read())
-
-        input_names = ['input_ids', 'input_mask', 'input_type_ids']
-
-        output = tf.import_graph_def(graph_def,
-                                     input_map={k + ':0': features[k] for k in input_names},
-                                     return_elements=['final_encodes:0'])
-
-        self.logger.info('graph is loaded')
-
-        return EstimatorSpec(mode=mode, predictions={
-            'client_id': features['client_id'],
-            'encodes': output[0]
-        })
-
-
-def send_ndarray(src, dest, X, req_id=b'', flags=0, copy=True, track=False):
-    """send a numpy array with metadata"""
-    md = dict(dtype=str(X.dtype), shape=X.shape)
-    return src.send_multipart([dest, jsonapi.dumps(md), X, req_id], flags, copy=copy, track=track)
