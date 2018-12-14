@@ -446,13 +446,13 @@ class BertWorker(Process):
             while True:
                 self.logger.info('here2')
 
-                yield {
-                    'da': 'ds',
-                    'client_id': 'test',
-                    'input_ids': [[0] * self.max_seq_len],
-                    'input_mask': [[1] * self.max_seq_len],
-                    'input_type_ids': [[0] * self.max_seq_len]
-                }
+                # yield {
+                #     'da': 'ds',
+                #     'client_id': 'test',
+                #     'input_ids': [[0] * self.max_seq_len],
+                #     'input_mask': [[1] * self.max_seq_len],
+                #     'input_type_ids': [[0] * self.max_seq_len]
+                # }
             # self.logger.info('ready and listening!')
             # while not self.exit_flag.is_set():
             #     client_id, msg = worker.recv_multipart()
