@@ -36,6 +36,7 @@ def optimize_graph(args):
     os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 
     import tensorflow as tf
+    tf.logging.set_verbosity(tf.logging.ERROR)
     from tensorflow.python.tools.optimize_for_inference_lib import optimize_for_inference
 
     config = tf.ConfigProto(device_count={'GPU': 0}, allow_soft_placement=True)

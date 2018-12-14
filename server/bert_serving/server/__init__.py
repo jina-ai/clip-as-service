@@ -104,10 +104,11 @@ class BertServer(threading.Thread):
         self.processes.append(proc_sink)
         self.addr_sink = self.sink.recv().decode('ascii')
 
+        self.logger.info('freezing, optimizing and exporting graph...' % self.graph_path)
         with Pool(processes=1) as pool:
             # optimize the graph, must be done in another process
             self.graph_path = pool.apply(optimize_graph, (self.args,))
-        self.logger.info('graph is optimized and stored at: %s' % self.graph_path)
+        self.logger.info('optimized graph is stored at: %s' % self.graph_path)
 
     def close(self):
         self.logger.info('shutting down...')
@@ -338,18 +339,16 @@ class BertWorker(Process):
     def run(self):
         self.logger.info('use device %s' % ('cpu' if self.device_id < 0 else ('gpu: %d' % self.device_id)))
         os.environ['CUDA_VISIBLE_DEVICES'] = str(self.device_id)
-
         import tensorflow as tf
-        tf.logging.set_verbosity(tf.logging.DEBUG)
 
         estimator = self.get_estimator(tf)
 
         context = zmq.Context()
         receiver = context.socket(zmq.PULL)
         receiver.connect(self.worker_address)
-
         sink = context.socket(zmq.PUSH)
         sink.connect(self.sink_address)
+
         for r in estimator.predict(self.input_fn_builder(receiver, tf), yield_single_examples=False):
             send_ndarray(sink, r['client_id'], r['encodes'])
             self.logger.info('job done\tsize: %s\tclient: %s' % (r['encodes'].shape, r['client_id']))
