@@ -83,7 +83,8 @@ class BertServer(threading.Thread):
             'tensorflow_version': tf.__version__,
             'python_version': sys.version,
             'server_start_time': str(datetime.now()),
-            'use_xla_compiler': args.xla
+            'use_xla_compiler': args.xla,
+            'optimized_graph': _graph_tmp_file_
         }
         self.processes = []
         self.context = zmq.Context()
@@ -462,22 +463,24 @@ class BertWorker(Process):
 
         return input_fn
 
-    @staticmethod
-    def model_fn(features, labels, mode, params):
+    def model_fn(self, features, labels, mode, params):
+        self.logger.info('loading graph...')
         with tf.gfile.GFile(_graph_tmp_file_, 'rb') as f:
             graph_def = tf.GraphDef()
             graph_def.ParseFromString(f.read())
 
-            input_names = ['input_ids', 'input_mask', 'input_type_ids']
+        input_names = ['input_ids', 'input_mask', 'input_type_ids']
 
-            output = tf.import_graph_def(graph_def,
-                                         input_map={k + ':0': features[k] for k in input_names},
-                                         return_elements=['final_encodes:0'])
+        output = tf.import_graph_def(graph_def,
+                                     input_map={k + ':0': features[k] for k in input_names},
+                                     return_elements=['final_encodes:0'])
 
-            return EstimatorSpec(mode=mode, predictions={
-                'client_id': features['client_id'],
-                'encodes': output[0]
-            })
+        self.logger.info('graph is loaded')
+
+        return EstimatorSpec(mode=mode, predictions={
+            'client_id': features['client_id'],
+            'encodes': output[0]
+        })
 
 
 def send_ndarray(src, dest, X, req_id=b'', flags=0, copy=True, track=False):
