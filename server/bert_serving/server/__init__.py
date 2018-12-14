@@ -436,7 +436,9 @@ class BertWorker(Process):
         self.logger.info('terminated!')
 
     def input_fn_builder(self, worker):
+        print('input_fn_builder')
         def gen():
+            print('gen')
             while True:
                 self.logger.info('here2')
                 time.sleep(1)
@@ -462,6 +464,7 @@ class BertWorker(Process):
             #     }
 
         def input_fn():
+            print('input_fn')
             return (tf.data.Dataset.from_generator(
                 gen,
                 output_types={'input_ids': tf.int32,
