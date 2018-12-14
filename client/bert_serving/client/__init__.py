@@ -101,7 +101,7 @@ class BertClient:
     def _recv_ndarray(self):
         request_id, response = self._recv()
         arr_info, arr_val = jsonapi.loads(response[1]), response[2]
-        X = np.frombuffer(_buffer(arr_val), dtype=arr_info['dtype'])
+        X = np.frombuffer(_buffer(arr_val), dtype=str(arr_info['dtype']))
         return Response(request_id, self.formatter(X.reshape(arr_info['shape'])))
 
     @property
