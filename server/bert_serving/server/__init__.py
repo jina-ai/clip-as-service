@@ -409,6 +409,7 @@ class BertWorker(Process):
         self.logger.info('terminated!')
 
     def get_estimator(self):
+        print('here: %d' % self.device_id)
         os.environ['CUDA_VISIBLE_DEVICES'] = str(self.device_id)
         config = tf.ConfigProto(device_count={'GPU': 0 if self.device_id < 0 else 1})
         # session-wise XLA doesn't seem to work on tf 1.10
