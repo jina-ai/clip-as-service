@@ -81,7 +81,6 @@ class BertServer(threading.Thread):
             'python_version': sys.version,
             'server_start_time': str(datetime.now()),
             'use_xla_compiler': args.xla,
-            'optimized_graph': _graph_tmp_file_
         }
         self.processes = []
         self.context = zmq.Context()
