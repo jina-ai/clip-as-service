@@ -415,6 +415,7 @@ class BertWorker(Process):
         config.gpu_options.allow_growth = True
         config.gpu_options.per_process_gpu_memory_fraction = self.gpu_memory_fraction
         config.log_device_placement = True
+        self.logger.info('use device %s' % (('gpu: %d' % self.device_id) if self.device_id < 0 else 'cpu'))
         return Estimator(self.model_fn, config=RunConfig(session_config=config))
 
     def run(self):
@@ -425,7 +426,6 @@ class BertWorker(Process):
 
         sink = context.socket(zmq.PUSH)
         sink.connect(self.sink_address)
-        self.logger.info('estimator is built')
 
         for r in estimator.predict(self.input_fn_builder(receiver), yield_single_examples=False):
             send_ndarray(sink, r['client_id'], r['encodes'])
