@@ -331,6 +331,7 @@ class BertWorker(Process):
         context.term()
         self.logger.info('terminated!')
 
+    @staticmethod
     def input_fn_builder():
         max_seq_len = 25
         def gen():
