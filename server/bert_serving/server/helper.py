@@ -119,23 +119,3 @@ def optimize_graph(args):
     with tf.gfile.GFile(_graph_tmp_file_, 'wb') as f:
         f.write(tmp_g.SerializeToString())
     return _graph_tmp_file_
-
-
-def model_fn(features, labels, mode, params):
-    import tensorflow as tf
-    from tensorflow.python.estimator.model_fn import EstimatorSpec
-
-    with tf.gfile.GFile('/data/cips/tmp/tmpz6hsdedj', 'rb') as f:
-        graph_def = tf.GraphDef()
-        graph_def.ParseFromString(f.read())
-
-    input_names = ['input_ids', 'input_mask', 'input_type_ids']
-
-    output = tf.import_graph_def(graph_def,
-                                 input_map={k + ':0': features[k] for k in input_names},
-                                 return_elements=['final_encodes:0'])
-
-    return EstimatorSpec(mode=mode, predictions={
-        'client_id': features['client_id'],
-        'encodes': output[0]
-    })

@@ -19,7 +19,7 @@ from zmq.utils import jsonapi
 from .bert import modeling, tokenization
 from .bert.extract_features import convert_lst_to_features, masked_reduce_mean, PoolingStrategy, \
     masked_reduce_max, mul_mask
-from .helper import set_logger, send_ndarray, model_fn
+from .helper import set_logger, send_ndarray
 
 
 def _check_tf_version():
@@ -300,10 +300,30 @@ class BertWorker(Process):
         self.logger.info('terminated!')
 
     def get_estimator(self, tf):
+        def model_fn(features, labels, mode, params):
+            from tensorflow.python.estimator.model_fn import EstimatorSpec
+
+            with tf.gfile.GFile('/data/cips/tmp/tmpz6hsdedj', 'rb') as f:
+                graph_def = tf.GraphDef()
+                graph_def.ParseFromString(f.read())
+
+            input_names = ['input_ids', 'input_mask', 'input_type_ids']
+
+            output = tf.import_graph_def(graph_def,
+                                         input_map={k + ':0': features[k] for k in input_names},
+                                         return_elements=['final_encodes:0'])
+
+            return EstimatorSpec(mode=mode, predictions={
+                'client_id': features['client_id'],
+                'encodes': output[0]
+            })
+
         from tensorflow.python.estimator.estimator import Estimator
         from tensorflow.python.estimator.run_config import RunConfig
         from tensorflow.python.client import device_lib
+
         print(device_lib.list_local_devices())
+
         config = tf.ConfigProto(device_count={'GPU': 0 if self.device_id < 0 else 1})
         # session-wise XLA doesn't seem to work on tf 1.10
         # if args.xla:
