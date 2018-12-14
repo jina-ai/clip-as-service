@@ -340,6 +340,8 @@ class BertWorker(Process):
         os.environ['CUDA_VISIBLE_DEVICES'] = str(self.device_id)
 
         import tensorflow as tf
+        tf.logging.set_verbosity(tf.logging.DEBUG)
+
         estimator = self.get_estimator(tf)
 
         context = zmq.Context()
