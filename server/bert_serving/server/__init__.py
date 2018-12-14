@@ -300,10 +300,6 @@ class BertWorker(Process):
         self.logger.info('terminated!')
 
     def get_estimator(self, tf):
-        self.logger.info('use device %s' % ('cpu' if self.device_id < 0 else ('gpu: %d' % self.device_id)))
-        os.environ['CUDA_VISIBLE_DEVICES'] = str(self.device_id)
-
-
         from tensorflow.python.estimator.estimator import Estimator
         from tensorflow.python.estimator.run_config import RunConfig
         from tensorflow.python.client import device_lib
@@ -319,6 +315,9 @@ class BertWorker(Process):
         return Estimator(model_fn=model_fn, config=RunConfig(session_config=config))
 
     def run(self):
+        self.logger.info('use device %s' % ('cpu' if self.device_id < 0 else ('gpu: %d' % self.device_id)))
+        os.environ['CUDA_VISIBLE_DEVICES'] = str(self.device_id)
+
         import tensorflow as tf
         estimator = self.get_estimator(tf)
 
