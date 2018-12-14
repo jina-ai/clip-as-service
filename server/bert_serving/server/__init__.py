@@ -283,7 +283,6 @@ class BertWorker(Process):
         self.worker_id = id
         self.device_id = device_id
         self.logger = set_logger(colored('WORKER-%d' % self.worker_id, 'yellow'))
-        self.tokenizer = tokenization.FullTokenizer(vocab_file=os.path.join(args.model_dir, 'vocab.txt'))
         self.max_seq_len = args.max_seq_len
         self.daemon = True
         self.exit_flag = multiprocessing.Event()
@@ -291,6 +290,7 @@ class BertWorker(Process):
         self.sink_address = sink_address
         self.prefetch_factor = 10
         self.gpu_memory_fraction = args.gpu_memory_fraction
+        self.model_dir = args.model_dir
 
     def close(self):
         self.logger.info('shutting down...')
@@ -332,6 +332,7 @@ class BertWorker(Process):
         config.gpu_options.per_process_gpu_memory_fraction = self.gpu_memory_fraction
         config.log_device_placement = False
 
+        print('load estimator')
         return Estimator(model_fn=model_fn, config=RunConfig(session_config=config))
 
     def run(self):
@@ -357,6 +358,8 @@ class BertWorker(Process):
         self.logger.info('terminated!')
 
     def input_fn_builder(self, worker, tf):
+        tokenizer = tokenization.FullTokenizer(vocab_file=os.path.join(self.model_dir, 'vocab.txt'))
+
         def gen():
             self.logger.info('ready and listening!')
             while not self.exit_flag.is_set():
@@ -365,7 +368,7 @@ class BertWorker(Process):
                 self.logger.info('new job\tsize: %d\tclient: %s' % (len(msg), client_id))
                 # check if msg is a list of list, if yes consider the input is already tokenized
                 is_tokenized = all(isinstance(el, list) for el in msg)
-                tmp_f = list(convert_lst_to_features(msg, self.max_seq_len, self.tokenizer, is_tokenized))
+                tmp_f = list(convert_lst_to_features(msg, self.max_seq_len, tokenizer, is_tokenized))
                 yield {
                     'client_id': client_id,
                     'input_ids': [f.input_ids for f in tmp_f],
