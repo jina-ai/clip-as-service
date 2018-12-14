@@ -250,7 +250,6 @@ class BertServer(threading.Thread):
         # start the backend processes
         for idx, device_id in enumerate(device_map):
             process = BertWorker(idx, self.args, self.addr_backend, self.addr_sink, device_id)
-            print(device_id)
             self.processes.append(process)
             process.start()
 
@@ -390,7 +389,6 @@ class BertWorker(Process):
         super().__init__()
         self.worker_id = id
         self.device_id = device_id
-        print(self.device_id)
         self.logger = set_logger(colored('WORKER-%d' % self.worker_id, 'yellow'))
         self.tokenizer = tokenization.FullTokenizer(vocab_file=os.path.join(args.model_dir, 'vocab.txt'))
         self.max_seq_len = args.max_seq_len
@@ -409,7 +407,6 @@ class BertWorker(Process):
         self.logger.info('terminated!')
 
     def get_estimator(self):
-        print('here: %d' % self.device_id)
         os.environ['CUDA_VISIBLE_DEVICES'] = str(self.device_id)
         config = tf.ConfigProto(device_count={'GPU': 0 if self.device_id < 0 else 1})
         # session-wise XLA doesn't seem to work on tf 1.10
@@ -418,7 +415,7 @@ class BertWorker(Process):
         config.gpu_options.allow_growth = True
         config.gpu_options.per_process_gpu_memory_fraction = self.gpu_memory_fraction
         config.log_device_placement = False
-        self.logger.info('use device %s' % (('gpu: %d' % self.device_id) if self.device_id < 0 else 'cpu'))
+        self.logger.info('use device %s' % ('cpu' if self.device_id < 0 else ('gpu: %d' % self.device_id)))
         return Estimator(self.model_fn, config=RunConfig(session_config=config))
 
     def run(self):
@@ -429,7 +426,6 @@ class BertWorker(Process):
 
         sink = context.socket(zmq.PUSH)
         sink.connect(self.sink_address)
-        self.logger.info('here1')
         for r in estimator.predict(self.input_fn_builder(receiver), yield_single_examples=False):
             send_ndarray(sink, r['client_id'], r['encodes'])
             self.logger.info('job done\tsize: %s\tclient: %s' % (r['encodes'].shape, r['client_id']))
@@ -482,7 +478,7 @@ class BertWorker(Process):
 
     def model_fn(self, features, labels, mode, params):
         self.logger.info('loading graph...')
-        with tf.gfile.GFile(_graph_tmp_file_, 'rb') as f:
+        with open(_graph_tmp_file_, 'rb') as f:
             graph_def = tf.GraphDef()
             graph_def.ParseFromString(f.read())
 
