@@ -337,9 +337,12 @@ class BertWorker(Process):
 
         return Estimator(model_fn=model_fn, config=RunConfig(session_config=config))
 
+    def run(self):
+        self._run()
+
     @zmqd.socket(zmq.PULL)
     @zmqd.socket(zmq.PUSH)
-    def run(self, receiver, sink):
+    def _run(self, receiver, sink):
         self.logger.info('use device %s, load graph from %s' %
                          ('cpu' if self.device_id < 0 else ('gpu: %d' % self.device_id), self.graph_path))
         os.environ['CUDA_VISIBLE_DEVICES'] = str(self.device_id)
