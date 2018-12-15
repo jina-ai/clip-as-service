@@ -29,7 +29,7 @@ common = {
     'xla': False,
 }
 
-args_nt = namedtuple('args_nt', ','.join(common.keys()))
+args = namedtuple('args_nt', ','.join(common.keys()))
 
 
 def tprint(msg):
@@ -39,7 +39,7 @@ def tprint(msg):
 
 
 class BenchmarkClient(threading.Thread):
-    def __init__(self, args):
+    def __init__(self):
         super().__init__()
         self.batch = [''.join(random.choices(string.ascii_uppercase + string.digits,
                                              k=args.max_seq_len)) for _ in range(args.client_batch_size)]
@@ -71,7 +71,6 @@ if __name__ == '__main__':
     fp = open('benchmark-%d.result' % common['num_worker'], 'w')
     for var_name, var_lst in experiments.items():
         # set common args
-        args = args_nt()
         for k, v in common.items():
             setattr(args, k, v)
 
@@ -84,7 +83,7 @@ if __name__ == '__main__':
 
             # sleep until server is ready
             time.sleep(15)
-            all_clients = [BenchmarkClient(args) for _ in range(args.num_client)]
+            all_clients = [BenchmarkClient() for _ in range(args.num_client)]
 
             tprint('num_client: %d' % len(all_clients))
             for bc in all_clients:
