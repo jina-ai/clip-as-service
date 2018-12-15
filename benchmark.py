@@ -3,15 +3,15 @@ import string
 import sys
 import threading
 import time
+from collections import namedtuple
 
 from bert_serving.client import BertClient
 from bert_serving.server import BertServer
 from bert_serving.server.bert.extract_features import PoolingStrategy
-from bert_serving.server.helper import get_args_parser
 from numpy import mean
 
-PORT = 7777
-PORT_OUT = 7778
+PORT = 7779
+PORT_OUT = 7780
 
 
 def tprint(msg):
@@ -52,29 +52,30 @@ if __name__ == '__main__':
         'max_batch_size': 256,
         'num_client': 1,
         'pooling_strategy': PoolingStrategy.REDUCE_MEAN,
-        'pooling_layer': -2,
+        'pooling_layer': [-2],
         'gpu_memory_fraction': 0.5,
+        'xla': False,
     }
     experiments = {
         'client_batch_size': [1, 4, 8, 16, 64, 256, 512, 1024, 2048, 4096],
         'max_batch_size': [32, 64, 128, 256, 512],
         'max_seq_len': [20, 40, 80, 160, 320],
         'num_client': [2, 4, 8, 16, 32],
-        'pooling_layer': [-j for j in range(1, 13)]
+        'pooling_layer': [[-j] for j in range(1, 13)]
     }
 
     fp = open('benchmark-%d.result' % common['num_worker'], 'w')
     for var_name, var_lst in experiments.items():
         # set common args
-        arg_p = get_args_parser()
+        args = namedtuple('args_namedtuple', ','.join(common.keys()))
+        for k, v in common.items():
+            setattr(args, k, v)
 
         avg_speed = []
         for var in var_lst:
-            args = {k: v for k, v in common.items()}
-            args[var_name] = var
-            args_cmd = ['-%s=%s' % (k, v) for k, v in args.items()]
             # override exp args
-            server = BertServer(arg_p.parse_args(args_cmd))
+            setattr(args, var_name, var)
+            server = BertServer(args)
             server.start()
 
             # sleep until server is ready
