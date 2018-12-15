@@ -70,7 +70,7 @@ class BertServer(threading.Thread):
         self.max_batch_size = args.max_batch_size
         self.port = args.port
         self.args = args
-        self.status_args = {k: v for k, v in sorted(vars(args).items())}
+        self.status_args = {k: (v if k != 'pooling_strategy' else v.value) for k, v in sorted(vars(args).items())}
         self.status_static = {
             'tensorflow_version': _tf_ver_,
             'python_version': sys.version,
