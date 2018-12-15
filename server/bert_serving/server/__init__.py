@@ -70,22 +70,16 @@ class BertServer(threading.Thread):
         self.max_batch_size = args.max_batch_size
         self.port = args.port
         self.args = args
-        self.args_dict = {
-            'model_dir': args.model_dir,
-            'max_seq_len': args.max_seq_len,
-            'num_worker': args.num_worker,
-            'max_batch_size': args.max_batch_size,
-            'port': args.port,
-            'port_out': args.port_out,
-            'pooling_layer': args.pooling_layer,
-            'pooling_strategy': args.pooling_strategy.value,
+        self.args_dict = {**sorted(vars(args).items()), **{
             'tensorflow_version': _tf_ver_,
             'python_version': sys.version,
+            'server_version': __version__,
+            'pyzmq_version': zmq.pyzmq_version(),
+            'zmq_version': zmq.zmq_version(),
             'server_start_time': str(datetime.now()),
-            'use_xla_compiler': args.xla,
-        }
+        }}
         self.processes = []
-        self.logger.info('freezing, optimizing and exporting graph, could take a while...')
+        self.logger.info('freeze, optimize and export graph, could take a while...')
         with Pool(processes=1) as pool:
             # optimize the graph, must be done in another process
             self.graph_path = pool.apply(optimize_graph, (self.args,))
