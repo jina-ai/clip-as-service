@@ -7,7 +7,7 @@ from collections import namedtuple
 
 from bert_serving.client import BertClient
 from bert_serving.server import BertServer
-from bert_serving.server.bert.extract_features import PoolingStrategy
+from bert_serving.server.graph import PoolingStrategy
 from numpy import mean
 
 PORT = 7779
