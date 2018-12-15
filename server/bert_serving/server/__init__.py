@@ -162,7 +162,7 @@ class BertServer(threading.Thread):
 
                     sink.send_multipart([client, msg, jsonapi.dumps({**status_runtime,
                                                                      **self.status_args,
-                                                                     **self.status_static}, sort_key=True), req_id])
+                                                                     **self.status_static}), req_id])
                     continue
 
                 self.logger.info('new encode request\treq id: %d\tclient: %s' % (int(req_id), client))
