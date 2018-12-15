@@ -3,7 +3,6 @@
 # Han Xiao <artex.xh@gmail.com> <https://hanxiao.github.io>
 import multiprocessing
 import os
-import sys
 import threading
 import time
 import uuid
@@ -70,14 +69,7 @@ class BertServer(threading.Thread):
         self.max_batch_size = args.max_batch_size
         self.port = args.port
         self.args = args
-        self.args_dict = {**sorted(vars(args).items()), **{
-            'tensorflow_version': _tf_ver_,
-            'python_version': sys.version,
-            'server_version': __version__,
-            'pyzmq_version': zmq.pyzmq_version(),
-            'zmq_version': zmq.zmq_version(),
-            'server_start_time': str(datetime.now()),
-        }}
+        self.args_dict = {**sorted(vars(args).items())}
         self.processes = []
         self.logger.info('freeze, optimize and export graph, could take a while...')
         with Pool(processes=1) as pool:
