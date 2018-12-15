@@ -3,11 +3,11 @@ import string
 import sys
 import threading
 import time
-from collections import namedtuple
 
 from bert_serving.client import BertClient
 from bert_serving.server import BertServer
 from bert_serving.server.bert.extract_features import PoolingStrategy
+from bert_serving.server.helper import get_args_parser
 from numpy import mean
 
 PORT = 7777
@@ -67,15 +67,15 @@ if __name__ == '__main__':
     fp = open('benchmark-%d.result' % common['num_worker'], 'w')
     for var_name, var_lst in experiments.items():
         # set common args
-        args = namedtuple('args_namedtuple', ','.join(common.keys()))
-        for k, v in common.items():
-            setattr(args, k, v)
+        arg_p = get_args_parser()
 
         avg_speed = []
         for var in var_lst:
+            args = {k: v for k, v in common.items()}
+            args[var_name] = var
+            args_cmd = ['-%s=%s' % (k, v) for k, v in args.items()]
             # override exp args
-            setattr(args, var_name, var)
-            server = BertServer(args)
+            server = BertServer(arg_p.parse_args(args_cmd))
             server.start()
 
             # sleep until server is ready

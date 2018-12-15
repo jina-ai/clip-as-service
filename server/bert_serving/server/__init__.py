@@ -6,7 +6,6 @@ import os
 import sys
 import threading
 import time
-import uuid
 from collections import defaultdict
 from datetime import datetime
 from multiprocessing import Process
@@ -21,36 +20,11 @@ from zmq.utils import jsonapi
 from .bert import modeling, tokenization
 from .bert.extract_features import convert_lst_to_features, masked_reduce_mean, PoolingStrategy, \
     masked_reduce_max, mul_mask
-from .helper import set_logger, send_ndarray, optimize_graph
-
-
-def _check_tf_version():
-    import tensorflow as tf
-    tf_ver = tf.__version__.split('.')
-    assert int(tf_ver[0]) >= 1 and int(tf_ver[1]) >= 10, 'Tensorflow >=1.10 is required!'
-    return tf_ver
-
+from .helper import *
 
 __version__ = '1.5.5'
 
-_tf_ver_ = _check_tf_version()
-
-
-def _auto_bind(socket):
-    if os.name == 'nt':  # for Windows
-        socket.bind_to_random_port('tcp://*')
-    else:
-        # Get the location for tmp file for sockets
-        try:
-            tmp_dir = os.environ['ZEROMQ_SOCK_TMP_DIR']
-            if not os.path.exists(tmp_dir):
-                raise ValueError('This directory for sockets ({}) does not seems to exist.'.format(tmp_dir))
-            tmp_dir = os.path.join(tmp_dir, str(uuid.uuid1())[:8])
-        except KeyError:
-            tmp_dir = '*'
-
-        socket.bind('ipc://{}'.format(tmp_dir))
-    return socket.getsockopt(zmq.LAST_ENDPOINT).decode('ascii')
+_tf_ver_ = check_tf_version()
 
 
 class ServerCommand:
@@ -103,8 +77,8 @@ class BertServer(threading.Thread):
         # bind all sockets
         self.logger.info('bind all sockets')
         frontend.bind('tcp://*:%d' % self.port)
-        addr_front2sink = _auto_bind(sink)
-        addr_backend = _auto_bind(backend)
+        addr_front2sink = auto_bind(sink)
+        addr_backend = auto_bind(backend)
 
         # start the sink process
         self.logger.info('start the sink')
@@ -211,7 +185,7 @@ class BertSink(Process):
     @zmqd.socket(zmq.PAIR)
     @zmqd.socket(zmq.PUB)
     def _run(self, receiver, frontend, sender):
-        receiver_addr = _auto_bind(receiver)
+        receiver_addr = auto_bind(receiver)
         frontend.connect(self.front_sink_addr)
         sender.bind('tcp://*:%d' % self.port)
 
