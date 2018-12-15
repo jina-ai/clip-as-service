@@ -213,7 +213,7 @@ class BertSink(Process):
         self.logger.info('terminated!')
 
     def run(self):
-        self.run()
+        self._run()
 
     @zmqd.socket(zmq.PULL)
     @zmqd.socket(zmq.PAIR)
