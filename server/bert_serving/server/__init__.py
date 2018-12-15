@@ -14,6 +14,7 @@ from multiprocessing.pool import Pool
 
 import numpy as np
 import zmq
+import zmq.decorators as zmqd
 from termcolor import colored
 from zmq.utils import jsonapi
 
@@ -336,30 +337,23 @@ class BertWorker(Process):
 
         return Estimator(model_fn=model_fn, config=RunConfig(session_config=config))
 
-    def run(self):
+    @zmqd.socket(zmq.PULL)
+    @zmqd.socket(zmq.PUSH)
+    def run(self, receiver, sink):
         self.logger.info('use device %s, load graph from %s' %
                          ('cpu' if self.device_id < 0 else ('gpu: %d' % self.device_id), self.graph_path))
         os.environ['CUDA_VISIBLE_DEVICES'] = str(self.device_id)
         os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
-        self.logger.info('please ignore "WARNING: Using temporary folder as model directory"')
+        self.logger.info('please ignore "WARNING: Using temporary folder as model directory"...')
 
         import tensorflow as tf
         estimator = self.get_estimator(tf)
 
-        context = zmq.Context()
-        receiver = context.socket(zmq.PULL)
         receiver.connect(self.worker_address)
-        sink = context.socket(zmq.PUSH)
         sink.connect(self.sink_address)
-
         for r in estimator.predict(self.input_fn_builder(receiver, tf), yield_single_examples=False):
             send_ndarray(sink, r['client_id'], r['encodes'])
             self.logger.info('job done\tsize: %s\tclient: %s' % (r['encodes'].shape, r['client_id']))
-
-        receiver.close()
-        sink.close()
-        context.term()
-        self.logger.info('terminated!')
 
     def input_fn_builder(self, worker, tf):
         def gen():
