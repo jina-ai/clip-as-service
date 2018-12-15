@@ -53,7 +53,8 @@ if __name__ == '__main__':
         'num_client': 1,
         'pooling_strategy': PoolingStrategy.REDUCE_MEAN,
         'pooling_layer': [-2],
-        'gpu_memory_fraction': 0.5
+        'gpu_memory_fraction': 0.5,
+        'xla': False,
     }
     experiments = {
         'client_batch_size': [1, 4, 8, 16, 64, 256, 512, 1024, 2048, 4096],
