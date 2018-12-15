@@ -3,6 +3,7 @@
 # Han Xiao <artex.xh@gmail.com> <https://hanxiao.github.io>
 import multiprocessing
 import os
+import sys
 import threading
 import time
 import uuid
@@ -69,7 +70,15 @@ class BertServer(threading.Thread):
         self.max_batch_size = args.max_batch_size
         self.port = args.port
         self.args = args
-        self.args_dict = {**sorted(vars(args).items())}
+        self.status_args = {k: v for k, v in sorted(vars(args).items())}
+        self.status_static = {
+            'tensorflow_version': _tf_ver_,
+            'python_version': sys.version,
+            'server_version': __version__,
+            'pyzmq_version': zmq.pyzmq_version(),
+            'zmq_version': zmq.zmq_version(),
+            'server_start_time': str(datetime.now()),
+        }
         self.processes = []
         self.logger.info('freeze, optimize and export graph, could take a while...')
         with Pool(processes=1) as pool:
@@ -142,17 +151,18 @@ class BertServer(threading.Thread):
                 client, msg, req_id = request
                 if msg == ServerCommand.show_config:
                     self.logger.info('new config request\treq id: %d\tclient: %s' % (int(req_id), client))
-                    sink.send_multipart([client, msg,
-                                         jsonapi.dumps({**{'client': client.decode('ascii'),
-                                                           'num_subprocess': len(self.processes),
-                                                           'ventilator -> worker': addr_backend,
-                                                           'worker -> sink': addr_sink,
-                                                           'ventilator <-> sink': addr_front2sink,
-                                                           'server_current_time': str(datetime.now()),
-                                                           'num_request': num_req,
-                                                           'run_on_gpu': run_on_gpu,
-                                                           'server_version': __version__},
-                                                        **self.args_dict}), req_id])
+                    status_runtime = {'client': client.decode('ascii'),
+                                      'num_process': len(self.processes),
+                                      'ventilator -> worker': addr_backend,
+                                      'worker -> sink': addr_sink,
+                                      'ventilator <-> sink': addr_front2sink,
+                                      'server_current_time': str(datetime.now()),
+                                      'num_request': num_req,
+                                      'run_on_gpu': run_on_gpu}
+
+                    sink.send_multipart([client, msg, jsonapi.dumps({**status_runtime,
+                                                                     **self.status_args,
+                                                                     **self.status_static}, sort_key=True), req_id])
                     continue
 
                 self.logger.info('new encode request\treq id: %d\tclient: %s' % (int(req_id), client))
