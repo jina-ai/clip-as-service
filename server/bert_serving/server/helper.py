@@ -6,6 +6,8 @@ import uuid
 import zmq
 from zmq.utils import jsonapi
 
+from .graph import PoolingStrategy
+
 __all__ = ['set_logger', 'send_ndarray', 'get_args_parser', 'check_tf_version', 'auto_bind']
 
 
