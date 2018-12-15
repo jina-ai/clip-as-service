@@ -30,6 +30,7 @@ common = {
 }
 
 args = namedtuple('args_nt', ','.join(common.keys()))
+globals()[args.__name__] = args
 
 
 def tprint(msg):
