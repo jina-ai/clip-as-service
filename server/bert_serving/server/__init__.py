@@ -213,16 +213,14 @@ class BertSink(Process):
         self.logger.info('terminated!')
 
     def run(self):
-        context = zmq.Context()
-        # receive from workers
-        receiver = context.socket(zmq.PULL)
+        self.run()
+
+    @zmqd.socket(zmq.PULL)
+    @zmqd.socket(zmq.PAIR)
+    @zmqd.socket(zmq.PUB)
+    def _run(self, receiver, frontend, sender):
         receiver_addr = _auto_bind(receiver)
-
-        frontend = context.socket(zmq.PAIR)
         frontend.connect(self.front_sink_addr)
-
-        # publish to client
-        sender = context.socket(zmq.PUB)
         sender.bind('tcp://*:%d' % self.port)
 
         pending_checksum = defaultdict(int)
@@ -236,51 +234,50 @@ class BertSink(Process):
         # send worker receiver address back to frontend
         frontend.send(receiver_addr.encode('ascii'))
 
-        try:
-            while not self.exit_flag.is_set():
-                socks = dict(poller.poll())
-                if socks.get(receiver) == zmq.POLLIN:
-                    msg = receiver.recv_multipart()
-                    job_id = msg[0]
-                    # parsing the ndarray
-                    arr_info, arr_val = jsonapi.loads(msg[1]), msg[2]
-                    X = np.frombuffer(memoryview(arr_val), dtype=arr_info['dtype'])
-                    X = X.reshape(arr_info['shape'])
-                    job_info = job_id.split(b'@')
-                    job_id = job_info[0]
-                    partial_id = job_info[1] if len(job_info) == 2 else 0
-                    pending_result[job_id].append((X, partial_id))
-                    pending_checksum[job_id] += X.shape[0]
-                    self.logger.info('collect job %s (%d/%d)' % (job_id,
-                                                                 pending_checksum[job_id],
-                                                                 job_checksum[job_id]))
+        self.logger.info('ready')
 
-                    # check if there are finished jobs, send it back to workers
-                    finished = [(k, v) for k, v in pending_result.items() if pending_checksum[k] == job_checksum[k]]
-                    for job_info, tmp in finished:
-                        self.logger.info(
-                            'send back\tsize: %d\tjob id:%s\t' % (
-                                job_checksum[job_info], job_info))
-                        # re-sort to the original order
-                        tmp = [x[0] for x in sorted(tmp, key=lambda x: int(x[1]))]
-                        client_addr, req_id = job_info.split(b'#')
-                        send_ndarray(sender, client_addr, np.concatenate(tmp, axis=0), req_id)
-                        pending_result.pop(job_info)
-                        pending_checksum.pop(job_info)
-                        job_checksum.pop(job_info)
+        while not self.exit_flag.is_set():
+            socks = dict(poller.poll())
+            if socks.get(receiver) == zmq.POLLIN:
+                msg = receiver.recv_multipart()
+                job_id = msg[0]
+                # parsing the ndarray
+                arr_info, arr_val = jsonapi.loads(msg[1]), msg[2]
+                X = np.frombuffer(memoryview(arr_val), dtype=arr_info['dtype'])
+                X = X.reshape(arr_info['shape'])
+                job_info = job_id.split(b'@')
+                job_id = job_info[0]
+                partial_id = job_info[1] if len(job_info) == 2 else 0
+                pending_result[job_id].append((X, partial_id))
+                pending_checksum[job_id] += X.shape[0]
+                self.logger.info('collect job %s (%d/%d)' % (job_id,
+                                                             pending_checksum[job_id],
+                                                             job_checksum[job_id]))
 
-                if socks.get(frontend) == zmq.POLLIN:
-                    client_addr, msg_type, msg_info, req_id = frontend.recv_multipart()
-                    if msg_type == ServerCommand.new_job:
-                        job_info = client_addr + b'#' + req_id
-                        job_checksum[job_info] = int(msg_info)
-                        self.logger.info('job register\tsize: %d\tjob id: %s' % (int(msg_info), job_info))
-                    elif msg_type == ServerCommand.show_config:
-                        time.sleep(0.1)  # dirty fix of slow-joiner: sleep so that client receiver can connect.
-                        self.logger.info('send config\tclient %s' % client_addr)
-                        sender.send_multipart([client_addr, msg_info, req_id])
-        except zmq.error.ContextTerminated:
-            self.logger.error('context is closed!')
+                # check if there are finished jobs, send it back to workers
+                finished = [(k, v) for k, v in pending_result.items() if pending_checksum[k] == job_checksum[k]]
+                for job_info, tmp in finished:
+                    self.logger.info(
+                        'send back\tsize: %d\tjob id:%s\t' % (
+                            job_checksum[job_info], job_info))
+                    # re-sort to the original order
+                    tmp = [x[0] for x in sorted(tmp, key=lambda x: int(x[1]))]
+                    client_addr, req_id = job_info.split(b'#')
+                    send_ndarray(sender, client_addr, np.concatenate(tmp, axis=0), req_id)
+                    pending_result.pop(job_info)
+                    pending_checksum.pop(job_info)
+                    job_checksum.pop(job_info)
+
+            if socks.get(frontend) == zmq.POLLIN:
+                client_addr, msg_type, msg_info, req_id = frontend.recv_multipart()
+                if msg_type == ServerCommand.new_job:
+                    job_info = client_addr + b'#' + req_id
+                    job_checksum[job_info] = int(msg_info)
+                    self.logger.info('job register\tsize: %d\tjob id: %s' % (int(msg_info), job_info))
+                elif msg_type == ServerCommand.show_config:
+                    time.sleep(0.1)  # dirty fix of slow-joiner: sleep so that client receiver can connect.
+                    self.logger.info('send config\tclient %s' % client_addr)
+                    sender.send_multipart([client_addr, msg_info, req_id])
 
 
 class BertWorker(Process):
