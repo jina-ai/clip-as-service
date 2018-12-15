@@ -67,13 +67,17 @@ class BertServer(threading.Thread):
             p.close()
         self.join()
 
-    @zmqd.context()
-    @zmqd.socket(zmq.PAIR)
-    def _send_close_signal(self, _, frontend):
-        self.logger.info('send terminate signal...')
-        frontend.connect('tcp://localhost:%d' % self.port)
-        frontend.send_multipart([b'', ServerCommand.terminate, b''])
-        self.logger.info('terminate signal sent')
+    def _send_close_signal(self):
+        @zmqd.socket(zmq.PAIR)
+        def _close(frontend):
+            print('send terminate signal...')
+            frontend.connect('tcp://localhost:%d' % self.port)
+            frontend.send_multipart([b'', ServerCommand.terminate, b''])
+            print('terminate signal sent')
+
+        with Pool(processes=1) as pool:
+            # optimize the graph, must be done in another process
+            self.graph_path = pool.apply(_close)
 
     def run(self):
         self._run()
@@ -148,7 +152,6 @@ class BertServer(threading.Thread):
                                                                      **self.status_args,
                                                                      **self.status_static}), req_id])
                 elif msg == ServerCommand.terminate:
-                    self.logger.info('stop listening')
                     break
                 else:
                     num_req['data'] += 1
