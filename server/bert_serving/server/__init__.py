@@ -64,7 +64,12 @@ class BertServer(threading.Thread):
         self.logger.info('shutting down...')
         for p in self.processes:
             p.close()
-        self.logger.info('terminated!')
+        self._send_close_signal()
+
+    @zmqd.socket(zmq.PAIR)
+    def _send_close_signal(self, frontend):
+        frontend.connect('tcp://localhost:%d' % self.port)
+        frontend.send_multipart([b'', ServerCommand.terminate, b''])
 
     def run(self):
         self._run()
@@ -138,6 +143,9 @@ class BertServer(threading.Thread):
                     sink.send_multipart([client, msg, jsonapi.dumps({**status_runtime,
                                                                      **self.status_args,
                                                                      **self.status_static}), req_id])
+                elif msg == ServerCommand.terminate:
+                    self.logger.info('stop listening')
+                    break
                 else:
                     num_req['data'] += 1
                     self.logger.info('new encode request\treq id: %d\tclient: %s' % (int(req_id), client))
@@ -161,6 +169,8 @@ class BertServer(threading.Thread):
             except ValueError:
                 self.logger.error('received a wrongly-formatted request (expected 3 frames, got %d)' % len(request))
                 self.logger.error('\n'.join('field %d: %s' % (idx, k) for idx, k in enumerate(request)))
+
+        self.logger.info('terminated!')
 
 
 class BertSink(Process):
