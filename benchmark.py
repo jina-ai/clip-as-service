@@ -27,6 +27,7 @@ common = {
     'pooling_layer': [-2],
     'gpu_memory_fraction': 0.5,
     'xla': False,
+    'cpu': False
 }
 
 args = namedtuple('args_nt', ','.join(common.keys()))

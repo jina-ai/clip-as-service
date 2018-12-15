@@ -13,61 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import re
-from enum import Enum
-
-import tensorflow as tf
 
 from . import tokenization
 
-
-class PoolingStrategy(Enum):
-    NONE = 0
-    REDUCE_MAX = 1
-    REDUCE_MEAN = 2
-    REDUCE_MEAN_MAX = 3
-    FIRST_TOKEN = 4  # corresponds to [CLS] for single sequences
-    LAST_TOKEN = 5  # corresponds to [SEP] for single sequences
-    CLS_TOKEN = 4  # corresponds to the first token for single seq.
-    SEP_TOKEN = 5  # corresponds to the last token for single seq.
-
-    def __str__(self):
-        return self.name
-
-    @staticmethod
-    def from_string(s):
-        try:
-            return PoolingStrategy[s]
-        except KeyError:
-            raise ValueError()
-
-
-def minus_mask(x, mask, offset=1e30):
-    """
-    masking by subtract a very large number
-    :param x: sequence data in the shape of [B, L, D]
-    :param mask: 0-1 mask in the shape of [B, L]
-    :param offset: very large negative number
-    :return: masked x
-    """
-    return x - tf.expand_dims(1.0 - mask, axis=-1) * offset
-
-
-def mul_mask(x, mask):
-    """
-    masking by multiply zero
-    :param x: sequence data in the shape of [B, L, D]
-    :param mask: 0-1 mask in the shape of [B, L]
-    :return: masked x
-    """
-    return x * tf.expand_dims(mask, axis=-1)
-
-
-def masked_reduce_max(x, mask):
-    return tf.reduce_max(minus_mask(x, mask), axis=1)
-
-
-def masked_reduce_mean(x, mask, jitter=1e-10):
-    return tf.reduce_sum(mul_mask(x, mask), axis=1) / (tf.reduce_sum(mask, axis=1, keepdims=True) + jitter)
+__all__ = ['convert_lst_to_features']
 
 
 class InputExample(object):

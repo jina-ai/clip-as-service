@@ -17,9 +17,9 @@ import zmq.decorators as zmqd
 from termcolor import colored
 from zmq.utils import jsonapi
 
-from .bert import modeling, tokenization
-from .bert.extract_features import convert_lst_to_features, masked_reduce_mean, PoolingStrategy, \
-    masked_reduce_max, mul_mask
+from .bert.extract_features import convert_lst_to_features
+from .bert.tokenization import FullTokenizer
+from .graph import optimize_graph
 from .helper import *
 
 __version__ = '1.5.5'
@@ -323,7 +323,7 @@ class BertWorker(Process):
 
     def input_fn_builder(self, worker, tf):
         def gen():
-            tokenizer = tokenization.FullTokenizer(vocab_file=os.path.join(self.model_dir, 'vocab.txt'))
+            tokenizer = FullTokenizer(vocab_file=os.path.join(self.model_dir, 'vocab.txt'))
             self.logger.info('ready and listening!')
 
             while not self.exit_flag.is_set():
