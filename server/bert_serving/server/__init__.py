@@ -66,7 +66,6 @@ class BertServer(threading.Thread):
         for p in self.processes:
             p.close()
         self.join()
-        zmq.Context.instance()
 
     @zmqd.context(io_threads=5)
     @zmqd.socket(zmq.PAIR)
