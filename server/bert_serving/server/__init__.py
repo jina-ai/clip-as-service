@@ -85,7 +85,7 @@ class BertServer(threading.Thread):
             'use_xla_compiler': args.xla,
         }
         self.processes = []
-        self.context = zmq.Context.instance()
+        self.context = zmq.Context()
 
         # frontend facing client
         self.frontend = self.context.socket(zmq.PULL)
