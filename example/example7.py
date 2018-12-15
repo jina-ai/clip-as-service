@@ -18,7 +18,7 @@ import pandas as pd
 from MulticoreTSNE import MulticoreTSNE as TSNE
 from bert_serving.client import BertClient
 from bert_serving.server import BertServer
-from bert_serving.server.bert.extract_features import PoolingStrategy
+from bert_serving.server.graph import PoolingStrategy
 from matplotlib import pyplot as plt
 from matplotlib.colors import ListedColormap
 from sklearn.decomposition import PCA

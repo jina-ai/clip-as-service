@@ -7,11 +7,31 @@ from collections import namedtuple
 
 from bert_serving.client import BertClient
 from bert_serving.server import BertServer
-from bert_serving.server.bert.extract_features import PoolingStrategy
+from bert_serving.server.graph import PoolingStrategy
 from numpy import mean
 
-PORT = 6666
-PORT_OUT = 6667
+PORT = 7779
+PORT_OUT = 7780
+
+common = {
+    'model_dir': '/data/cips/data/lab/data/model/chinese_L-12_H-768_A-12',
+    'num_worker': 2,
+    'num_repeat': 5,
+    'port': PORT,
+    'port_out': PORT_OUT,
+    'max_seq_len': 40,
+    'client_batch_size': 2048,
+    'max_batch_size': 256,
+    'num_client': 1,
+    'pooling_strategy': PoolingStrategy.REDUCE_MEAN,
+    'pooling_layer': [-2],
+    'gpu_memory_fraction': 0.5,
+    'xla': False,
+    'cpu': False
+}
+
+args = namedtuple('args_nt', ','.join(common.keys()))
+globals()[args.__name__] = args
 
 
 def tprint(msg):
@@ -21,7 +41,7 @@ def tprint(msg):
 
 
 class BenchmarkClient(threading.Thread):
-    def __init__(self, args):
+    def __init__(self):
         super().__init__()
         self.batch = [''.join(random.choices(string.ascii_uppercase + string.digits,
                                              k=args.max_seq_len)) for _ in range(args.client_batch_size)]
@@ -31,7 +51,7 @@ class BenchmarkClient(threading.Thread):
 
     def run(self):
         time_all = []
-        bc = BertClient(port=PORT, port_out=PORT_OUT, show_server_config=False)
+        bc = BertClient(port=PORT, port_out=PORT_OUT, show_server_config=False, check_version=False)
         for _ in range(self.num_repeat):
             start_t = time.perf_counter()
             bc.encode(self.batch)
@@ -41,20 +61,7 @@ class BenchmarkClient(threading.Thread):
 
 
 if __name__ == '__main__':
-    common = {
-        'model_dir': '/data/cips/data/lab/data/model/chinese_L-12_H-768_A-12',
-        'num_worker': 2,
-        'num_repeat': 5,
-        'port': PORT,
-        'port_out': PORT_OUT,
-        'max_seq_len': 40,
-        'client_batch_size': 2048,
-        'max_batch_size': 256,
-        'num_client': 1,
-        'pooling_strategy': PoolingStrategy.REDUCE_MEAN,
-        'pooling_layer': [-2],
-        'gpu_memory_fraction': 0.5
-    }
+
     experiments = {
         'client_batch_size': [1, 4, 8, 16, 64, 256, 512, 1024, 2048, 4096],
         'max_batch_size': [32, 64, 128, 256, 512],
@@ -66,7 +73,6 @@ if __name__ == '__main__':
     fp = open('benchmark-%d.result' % common['num_worker'], 'w')
     for var_name, var_lst in experiments.items():
         # set common args
-        args = namedtuple('args_namedtuple', ','.join(common.keys()))
         for k, v in common.items():
             setattr(args, k, v)
 
@@ -79,7 +85,7 @@ if __name__ == '__main__':
 
             # sleep until server is ready
             time.sleep(15)
-            all_clients = [BenchmarkClient(args) for _ in range(args.num_client)]
+            all_clients = [BenchmarkClient() for _ in range(args.num_client)]
 
             tprint('num_client: %d' % len(all_clients))
             for bc in all_clients:
