@@ -7,7 +7,7 @@ import sys
 import threading
 import time
 import uuid
-from collections import defaultdict, namedtuple
+from collections import defaultdict
 from datetime import datetime
 from multiprocessing import Process
 from multiprocessing.pool import Pool
@@ -57,9 +57,6 @@ class ServerCommand:
     terminate = b'TERMINATION'
     show_config = b'SHOW_CONFIG'
     new_job = b'REGISTER'
-
-
-RequestCounter = namedtuple('RequestCounter', ['config', 'data'])
 
 
 class BertServer(threading.Thread):
@@ -146,13 +143,13 @@ class BertServer(threading.Thread):
             self.processes.append(process)
             process.start()
 
-        num_req = RequestCounter(0, 0)
+        num_req = defaultdict(int)
         while True:
             try:
                 request = frontend.recv_multipart()
                 client, msg, req_id = request
                 if msg == ServerCommand.show_config:
-                    num_req.config += 1
+                    num_req['config'] += 1
                     self.logger.info('new config request\treq id: %d\tclient: %s' % (int(req_id), client))
                     status_runtime = {'client': client.decode('ascii'),
                                       'num_process': len(self.processes),
@@ -160,15 +157,15 @@ class BertServer(threading.Thread):
                                       'worker -> sink': addr_sink,
                                       'ventilator <-> sink': addr_front2sink,
                                       'server_current_time': str(datetime.now()),
-                                      'num_config_request': num_req.config,
-                                      'num_data_request': num_req.data,
+                                      'num_config_request': num_req['config'],
+                                      'num_data_request': num_req['data'],
                                       'run_on_gpu': run_on_gpu}
 
                     sink.send_multipart([client, msg, jsonapi.dumps({**status_runtime,
                                                                      **self.status_args,
                                                                      **self.status_static}), req_id])
                 else:
-                    num_req.data += 1
+                    num_req['data'] += 1
                     self.logger.info('new encode request\treq id: %d\tclient: %s' % (int(req_id), client))
                     seqs = jsonapi.loads(msg)
                     num_seqs = len(seqs)
