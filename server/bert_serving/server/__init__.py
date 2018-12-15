@@ -62,15 +62,18 @@ class BertServer(threading.Thread):
 
     def close(self):
         self.logger.info('shutting down...')
+        self._send_close_signal()
         for p in self.processes:
             p.close()
-        self._send_close_signal()
         self.join()
 
+    @zmqd.context()
     @zmqd.socket(zmq.PAIR)
-    def _send_close_signal(self, frontend):
+    def _send_close_signal(self, _, frontend):
+        self.logger.info('send terminate signal...')
         frontend.connect('tcp://localhost:%d' % self.port)
         frontend.send_multipart([b'', ServerCommand.terminate, b''])
+        self.logger.info('terminate signal sent')
 
     def run(self):
         self._run()
