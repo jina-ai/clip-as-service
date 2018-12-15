@@ -52,7 +52,7 @@ if __name__ == '__main__':
         'max_batch_size': 256,
         'num_client': 1,
         'pooling_strategy': PoolingStrategy.REDUCE_MEAN,
-        'pooling_layer': [-2],
+        'pooling_layer': -2,
         'gpu_memory_fraction': 0.5,
         'xla': False,
     }
@@ -61,7 +61,7 @@ if __name__ == '__main__':
         'max_batch_size': [32, 64, 128, 256, 512],
         'max_seq_len': [20, 40, 80, 160, 320],
         'num_client': [2, 4, 8, 16, 32],
-        'pooling_layer': [[-j] for j in range(1, 13)]
+        'pooling_layer': [-j for j in range(1, 13)]
     }
 
     fp = open('benchmark-%d.result' % common['num_worker'], 'w')
