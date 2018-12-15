@@ -67,16 +67,15 @@ class BertServer(threading.Thread):
             p.close()
         self.join()
 
-    @zmqd.context(io_threads=5)
     @zmqd.socket(zmq.PAIR)
-    def _send_close_signal(self, _, frontend):
+    def _send_close_signal(self, frontend):
         frontend.connect('tcp://localhost:%d' % self.port)
         frontend.send_multipart([b'', ServerCommand.terminate, b''])
 
     def run(self):
         self._run()
 
-    @zmqd.context(io_threads=5)
+    @zmqd.context()
     @zmqd.socket(zmq.PULL)
     @zmqd.socket(zmq.PAIR)
     @zmqd.socket(zmq.PUSH)
