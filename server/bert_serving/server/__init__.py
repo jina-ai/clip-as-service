@@ -65,6 +65,7 @@ class BertServer(threading.Thread):
         for p in self.processes:
             p.close()
         self._send_close_signal()
+        self.join()
 
     @zmqd.socket(zmq.PAIR)
     def _send_close_signal(self, frontend):
