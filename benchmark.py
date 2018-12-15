@@ -13,6 +13,24 @@ from numpy import mean
 PORT = 7779
 PORT_OUT = 7780
 
+common = {
+    'model_dir': '/data/cips/data/lab/data/model/chinese_L-12_H-768_A-12',
+    'num_worker': 2,
+    'num_repeat': 5,
+    'port': PORT,
+    'port_out': PORT_OUT,
+    'max_seq_len': 40,
+    'client_batch_size': 2048,
+    'max_batch_size': 256,
+    'num_client': 1,
+    'pooling_strategy': PoolingStrategy.REDUCE_MEAN,
+    'pooling_layer': [-2],
+    'gpu_memory_fraction': 0.5,
+    'xla': False,
+}
+
+args_nt = namedtuple('args_nt', ','.join(common.keys()))
+
 
 def tprint(msg):
     """like print, but won't get newlines confused with multiple threads"""
@@ -41,21 +59,7 @@ class BenchmarkClient(threading.Thread):
 
 
 if __name__ == '__main__':
-    common = {
-        'model_dir': '/data/cips/data/lab/data/model/chinese_L-12_H-768_A-12',
-        'num_worker': 2,
-        'num_repeat': 5,
-        'port': PORT,
-        'port_out': PORT_OUT,
-        'max_seq_len': 40,
-        'client_batch_size': 2048,
-        'max_batch_size': 256,
-        'num_client': 1,
-        'pooling_strategy': PoolingStrategy.REDUCE_MEAN,
-        'pooling_layer': [-2],
-        'gpu_memory_fraction': 0.5,
-        'xla': False,
-    }
+
     experiments = {
         'client_batch_size': [1, 4, 8, 16, 64, 256, 512, 1024, 2048, 4096],
         'max_batch_size': [32, 64, 128, 256, 512],
@@ -67,7 +71,7 @@ if __name__ == '__main__':
     fp = open('benchmark-%d.result' % common['num_worker'], 'w')
     for var_name, var_lst in experiments.items():
         # set common args
-        args = namedtuple('args_namedtuple', ','.join(common.keys()))
+        args = args_nt()
         for k, v in common.items():
             setattr(args, k, v)
 
