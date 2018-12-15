@@ -85,26 +85,6 @@ class BertServer(threading.Thread):
             'use_xla_compiler': args.xla,
         }
         self.processes = []
-        self.context = zmq.Context()
-
-        # frontend facing client
-        self.frontend = self.context.socket(zmq.PULL)
-        self.frontend.bind('tcp://*:%d' % self.port)
-
-        # pair connection between frontend and sink
-        self.sink = self.context.socket(zmq.PAIR)
-        self.addr_front2sink = _auto_bind(self.sink)
-
-        # backend facing workers
-        self.backend = self.context.socket(zmq.PUSH)
-        self.addr_backend = _auto_bind(self.backend)
-
-        # start the sink thread
-        proc_sink = BertSink(self.args, self.addr_front2sink)
-        proc_sink.start()
-        self.processes.append(proc_sink)
-        self.addr_sink = self.sink.recv().decode('ascii')
-
         self.logger.info('freezing, optimizing and exporting graph, could take a while...')
         with Pool(processes=1) as pool:
             # optimize the graph, must be done in another process
@@ -115,86 +95,98 @@ class BertServer(threading.Thread):
         self.logger.info('shutting down...')
         for p in self.processes:
             p.close()
-        self.frontend.close()
-        self.backend.close()
-        self.sink.close()
-        self.context.term()
         self.logger.info('terminated!')
 
     def run(self):
-        num_req = 0
-        run_on_gpu = False
-        device_map = [-1] * self.num_worker
-        if not self.args.cpu:
-            try:
-                import GPUtil
-                num_all_gpu = len(GPUtil.getGPUs())
-                avail_gpu = GPUtil.getAvailable(order='memory', limit=min(num_all_gpu, self.num_worker))
-                num_avail_gpu = len(avail_gpu)
-                if num_avail_gpu < self.num_worker:
-                    self.logger.warn('only %d out of %d GPU(s) is available/free, but "-num_worker=%d"' %
-                                     (num_avail_gpu, num_all_gpu, self.num_worker))
-                    self.logger.warn('multiple workers will be allocated to one GPU, '
-                                     'may not scale well and may raise out-of-memory')
-                device_map = (avail_gpu * self.num_worker)[: self.num_worker]
-                run_on_gpu = True
-            except FileNotFoundError:
-                self.logger.warn('nvidia-smi is missing, often means no gpu on this machine. '
-                                 'fall back to cpu!')
+        with zmq.Context() as ctx, \
+                ctx.socket(zmq.PULL) as frontend, \
+                ctx.socket(zmq.PAIR) as sink, \
+                ctx.socket(zmq.PUSH) as backend:
+            # bind all sockets
+            self.logger.info('bind all sockets')
+            frontend.bind('tcp://*:%d' % self.port)
+            addr_front2sink = _auto_bind(sink)
+            addr_backend = _auto_bind(backend)
 
-        self.logger.info('device_map: \n\t\t%s' % '\n\t\t'.join(
-            'worker %2d -> %s' % (w_id, ('gpu %2d' % g_id) if g_id >= 0 else 'cpu') for w_id, g_id in
-            enumerate(device_map)))
+            # start the sink process
+            self.logger.info('start the sink')
+            proc_sink = BertSink(self.args, addr_front2sink)
+            self.processes.append(proc_sink)
+            proc_sink.start()
+            addr_sink = sink.recv().decode('ascii')
 
-        # start the backend processes
-        for idx, device_id in enumerate(device_map):
-            process = BertWorker(idx, self.args, self.addr_backend, self.addr_sink, device_id, self.graph_path)
-            self.processes.append(process)
-            process.start()
+            self.logger.info('get devices')
+            run_on_gpu = False
+            device_map = [-1] * self.num_worker
+            if not self.args.cpu:
+                try:
+                    import GPUtil
+                    num_all_gpu = len(GPUtil.getGPUs())
+                    avail_gpu = GPUtil.getAvailable(order='memory', limit=min(num_all_gpu, self.num_worker))
+                    num_avail_gpu = len(avail_gpu)
+                    if num_avail_gpu < self.num_worker:
+                        self.logger.warn('only %d out of %d GPU(s) is available/free, but "-num_worker=%d"' %
+                                         (num_avail_gpu, num_all_gpu, self.num_worker))
+                        self.logger.warn('multiple workers will be allocated to one GPU, '
+                                         'may not scale well and may raise out-of-memory')
+                    device_map = (avail_gpu * self.num_worker)[: self.num_worker]
+                    run_on_gpu = True
+                except FileNotFoundError:
+                    self.logger.warn('nvidia-smi is missing, often means no gpu on this machine. '
+                                     'fall back to cpu!')
 
-        while True:
-            try:
-                request = self.frontend.recv_multipart()
-                client, msg, req_id = request
-                if msg == ServerCommand.show_config:
-                    self.logger.info('new config request\treq id: %d\tclient: %s' % (int(req_id), client))
-                    self.sink.send_multipart([client, msg,
-                                              jsonapi.dumps({**{'client': client.decode('ascii'),
-                                                                'num_subprocess': len(self.processes),
-                                                                'ventilator -> worker': self.addr_backend,
-                                                                'worker -> sink': self.addr_sink,
-                                                                'ventilator <-> sink': self.addr_front2sink,
-                                                                'server_current_time': str(datetime.now()),
-                                                                'num_request': num_req,
-                                                                'run_on_gpu': run_on_gpu,
-                                                                'server_version': __version__},
-                                                             **self.args_dict}), req_id])
-                    continue
+            self.logger.info('device map: \n\t\t%s' % '\n\t\t'.join(
+                'worker %2d -> %s' % (w_id, ('gpu %2d' % g_id) if g_id >= 0 else 'cpu') for w_id, g_id in
+                enumerate(device_map)))
 
-                self.logger.info('new encode request\treq id: %d\tclient: %s' % (int(req_id), client))
-                num_req += 1
-                seqs = jsonapi.loads(msg)
-                num_seqs = len(seqs)
-                # register a new job at sink
-                self.sink.send_multipart([client, ServerCommand.new_job, b'%d' % num_seqs, req_id])
+            # start the backend processes
+            for idx, device_id in enumerate(device_map):
+                process = BertWorker(idx, self.args, addr_backend, addr_sink, device_id, self.graph_path)
+                self.processes.append(process)
+                process.start()
 
-                job_id = client + b'#' + req_id
-                if num_seqs > self.max_batch_size:
-                    # partition the large batch into small batches
-                    s_idx = 0
-                    while s_idx < num_seqs:
-                        tmp = seqs[s_idx: (s_idx + self.max_batch_size)]
-                        if tmp:
-                            partial_job_id = job_id + b'@%d' % s_idx
-                            self.backend.send_multipart([partial_job_id, jsonapi.dumps(tmp)])
-                        s_idx += len(tmp)
-                else:
-                    self.backend.send_multipart([job_id, msg])
-            except zmq.error.ContextTerminated:
-                self.logger.error('context is closed!')
-            except ValueError:
-                self.logger.error('received a wrongly-formatted request (expected 3 frames, got %d)' % len(request))
-                self.logger.error('\n'.join('field %d: %s' % (idx, k) for idx, k in enumerate(request)))
+            num_req = 0
+            while True:
+                try:
+                    request = frontend.recv_multipart()
+                    num_req += 1
+                    client, msg, req_id = request
+                    if msg == ServerCommand.show_config:
+                        self.logger.info('new config request\treq id: %d\tclient: %s' % (int(req_id), client))
+                        sink.send_multipart([client, msg,
+                                             jsonapi.dumps({**{'client': client.decode('ascii'),
+                                                               'num_subprocess': len(self.processes),
+                                                               'ventilator -> worker': addr_backend,
+                                                               'worker -> sink': addr_sink,
+                                                               'ventilator <-> sink': addr_front2sink,
+                                                               'server_current_time': str(datetime.now()),
+                                                               'num_request': num_req,
+                                                               'run_on_gpu': run_on_gpu,
+                                                               'server_version': __version__},
+                                                            **self.args_dict}), req_id])
+                        continue
+
+                    self.logger.info('new encode request\treq id: %d\tclient: %s' % (int(req_id), client))
+                    seqs = jsonapi.loads(msg)
+                    num_seqs = len(seqs)
+                    # register a new job at sink
+                    sink.send_multipart([client, ServerCommand.new_job, b'%d' % num_seqs, req_id])
+
+                    job_id = client + b'#' + req_id
+                    if num_seqs > self.max_batch_size:
+                        # partition the large batch into small batches
+                        s_idx = 0
+                        while s_idx < num_seqs:
+                            tmp = seqs[s_idx: (s_idx + self.max_batch_size)]
+                            if tmp:
+                                partial_job_id = job_id + b'@%d' % s_idx
+                                backend.send_multipart([partial_job_id, jsonapi.dumps(tmp)])
+                            s_idx += len(tmp)
+                    else:
+                        backend.send_multipart([job_id, msg])
+                except ValueError:
+                    self.logger.error('received a wrongly-formatted request (expected 3 frames, got %d)' % len(request))
+                    self.logger.error('\n'.join('field %d: %s' % (idx, k) for idx, k in enumerate(request)))
 
 
 class BertSink(Process):

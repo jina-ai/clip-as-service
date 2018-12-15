@@ -10,8 +10,8 @@ from bert_serving.server import BertServer
 from bert_serving.server.bert.extract_features import PoolingStrategy
 from numpy import mean
 
-PORT = 6666
-PORT_OUT = 6667
+PORT = 7777
+PORT_OUT = 7778
 
 
 def tprint(msg):
