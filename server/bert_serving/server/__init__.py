@@ -7,7 +7,7 @@ import sys
 import threading
 import time
 import uuid
-from collections import defaultdict
+from collections import defaultdict, namedtuple
 from datetime import datetime
 from multiprocessing import Process
 from multiprocessing.pool import Pool
@@ -57,6 +57,9 @@ class ServerCommand:
     terminate = b'TERMINATION'
     show_config = b'SHOW_CONFIG'
     new_job = b'REGISTER'
+
+
+RequestCounter = namedtuple('RequestCounter', ['config', 'data'])
 
 
 class BertServer(threading.Thread):
@@ -143,13 +146,13 @@ class BertServer(threading.Thread):
             self.processes.append(process)
             process.start()
 
-        num_req = 0
+        num_req = RequestCounter(0, 0)
         while True:
             try:
                 request = frontend.recv_multipart()
-                num_req += 1
                 client, msg, req_id = request
                 if msg == ServerCommand.show_config:
+                    num_req.config += 1
                     self.logger.info('new config request\treq id: %d\tclient: %s' % (int(req_id), client))
                     status_runtime = {'client': client.decode('ascii'),
                                       'num_process': len(self.processes),
@@ -157,32 +160,33 @@ class BertServer(threading.Thread):
                                       'worker -> sink': addr_sink,
                                       'ventilator <-> sink': addr_front2sink,
                                       'server_current_time': str(datetime.now()),
-                                      'num_request': num_req,
+                                      'num_config_request': num_req.config,
+                                      'num_data_request': num_req.data,
                                       'run_on_gpu': run_on_gpu}
 
                     sink.send_multipart([client, msg, jsonapi.dumps({**status_runtime,
                                                                      **self.status_args,
                                                                      **self.status_static}), req_id])
-                    continue
-
-                self.logger.info('new encode request\treq id: %d\tclient: %s' % (int(req_id), client))
-                seqs = jsonapi.loads(msg)
-                num_seqs = len(seqs)
-                # register a new job at sink
-                sink.send_multipart([client, ServerCommand.new_job, b'%d' % num_seqs, req_id])
-
-                job_id = client + b'#' + req_id
-                if num_seqs > self.max_batch_size:
-                    # partition the large batch into small batches
-                    s_idx = 0
-                    while s_idx < num_seqs:
-                        tmp = seqs[s_idx: (s_idx + self.max_batch_size)]
-                        if tmp:
-                            partial_job_id = job_id + b'@%d' % s_idx
-                            backend.send_multipart([partial_job_id, jsonapi.dumps(tmp)])
-                        s_idx += len(tmp)
                 else:
-                    backend.send_multipart([job_id, msg])
+                    num_req.data += 1
+                    self.logger.info('new encode request\treq id: %d\tclient: %s' % (int(req_id), client))
+                    seqs = jsonapi.loads(msg)
+                    num_seqs = len(seqs)
+                    # register a new job at sink
+                    sink.send_multipart([client, ServerCommand.new_job, b'%d' % num_seqs, req_id])
+
+                    job_id = client + b'#' + req_id
+                    if num_seqs > self.max_batch_size:
+                        # partition the large batch into small batches
+                        s_idx = 0
+                        while s_idx < num_seqs:
+                            tmp = seqs[s_idx: (s_idx + self.max_batch_size)]
+                            if tmp:
+                                partial_job_id = job_id + b'@%d' % s_idx
+                                backend.send_multipart([partial_job_id, jsonapi.dumps(tmp)])
+                            s_idx += len(tmp)
+                    else:
+                        backend.send_multipart([job_id, msg])
             except ValueError:
                 self.logger.error('received a wrongly-formatted request (expected 3 frames, got %d)' % len(request))
                 self.logger.error('\n'.join('field %d: %s' % (idx, k) for idx, k in enumerate(request)))
