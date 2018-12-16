@@ -129,7 +129,9 @@ class BertServer(threading.Thread):
             try:
                 request = frontend.recv_multipart()
                 client, msg, req_id = request
-                if msg == ServerCommand.show_config:
+                if msg == ServerCommand.terminate:
+                    break
+                elif msg == ServerCommand.show_config:
                     num_req['config'] += 1
                     self.logger.info('new config request\treq id: %d\tclient: %s' % (int(req_id), client))
                     status_runtime = {'client': client.decode('ascii'),
@@ -145,8 +147,6 @@ class BertServer(threading.Thread):
                     sink.send_multipart([client, msg, jsonapi.dumps({**status_runtime,
                                                                      **self.status_args,
                                                                      **self.status_static}), req_id])
-                elif msg == ServerCommand.terminate:
-                    break
                 else:
                     num_req['data'] += 1
                     self.logger.info('new encode request\treq id: %d\tclient: %s' % (int(req_id), client))
