@@ -22,7 +22,7 @@ from .bert.tokenization import FullTokenizer
 from .graph import optimize_graph
 from .helper import *
 
-__version__ = '1.5.5'
+__version__ = '1.5.6'
 
 _tf_ver_ = check_tf_version()
 
