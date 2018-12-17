@@ -120,7 +120,8 @@ class BertClient:
             'port': self.port,
             'port_out': self.port_out,
             'server_ip': self.ip,
-            'client_version': __version__
+            'client_version': __version__,
+            'timeout': self.timeout
         }
 
     @property
