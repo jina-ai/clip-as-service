@@ -83,19 +83,20 @@ class BertServer(threading.Thread):
     @zmqd.socket(zmq.PULL)
     @zmqd.socket(zmq.PAIR)
     @zmqd.socket(zmq.PUSH)
-    def _run(self, _, frontend, sink, backend):
+    @zmqd.socket(zmq.PUSH)
+    def _run(self, _, frontend, sink, backend, back2sink):
         # bind all sockets
         self.logger.info('bind all sockets')
         frontend.bind('tcp://*:%d' % self.port)
-        addr_front2sink = auto_bind(sink)
-        addr_backend = auto_bind(backend)
+        addr_front2sink = auto_bind(sink, self.logger)
+        addr_front2back = auto_bind(backend, self.logger)
+        addr_back2sink = auto_bind(back2sink, self.logger)
 
         # start the sink process
         self.logger.info('start the sink')
-        proc_sink = BertSink(self.args, addr_front2sink)
-        self.processes.append(proc_sink)
-        proc_sink.start()
-        addr_sink = sink.recv().decode('ascii')
+        proc = BertSink(self.args, addr_front2sink, addr_back2sink)
+        self.processes.append(proc)
+        proc.start()
 
         self.logger.info('get devices')
         run_on_gpu = False
@@ -130,9 +131,9 @@ class BertServer(threading.Thread):
 
         # start the backend processes
         for idx, device_id in enumerate(device_map):
-            process = BertWorker(idx, self.args, addr_backend, addr_sink, device_id, self.graph_path)
-            self.processes.append(process)
-            process.start()
+            proc = BertWorker(idx, self.args, addr_front2back, addr_back2sink, device_id, self.graph_path)
+            self.processes.append(proc)
+            proc.start()
 
         num_req = defaultdict(int)
         while True:
@@ -146,8 +147,8 @@ class BertServer(threading.Thread):
                     self.logger.info('new config request\treq id: %d\tclient: %s' % (int(req_id), client))
                     status_runtime = {'client': client.decode('ascii'),
                                       'num_process': len(self.processes),
-                                      'ventilator -> worker': addr_backend,
-                                      'worker -> sink': addr_sink,
+                                      'ventilator -> worker': addr_front2back,
+                                      'worker -> sink': addr_back2sink,
                                       'ventilator <-> sink': addr_front2sink,
                                       'server_current_time': str(datetime.now()),
                                       'num_config_request': num_req['config'],
@@ -185,12 +186,13 @@ class BertServer(threading.Thread):
 
 
 class BertSink(Process):
-    def __init__(self, args, front_sink_addr):
+    def __init__(self, args, front_sink_addr, back_sink_addr):
         super().__init__()
         self.port = args.port_out
         self.exit_flag = multiprocessing.Event()
         self.logger = set_logger(colored('SINK', 'green'), args.verbose)
         self.front_sink_addr = front_sink_addr
+        self.back_sink_addr = back_sink_addr
 
     def close(self):
         self.logger.info('shutting down...')
@@ -206,8 +208,8 @@ class BertSink(Process):
     @zmqd.socket(zmq.PAIR)
     @zmqd.socket(zmq.PUB)
     def _run(self, receiver, frontend, sender):
-        receiver_addr = auto_bind(receiver)
         frontend.connect(self.front_sink_addr)
+        receiver.connect(self.back_sink_addr)
         sender.bind('tcp://*:%d' % self.port)
 
         pending_checksum = defaultdict(int)
@@ -217,9 +219,6 @@ class BertSink(Process):
         poller = zmq.Poller()
         poller.register(frontend, zmq.POLLIN)
         poller.register(receiver, zmq.POLLIN)
-
-        # send worker receiver address back to frontend
-        frontend.send(receiver_addr.encode('ascii'))
 
         self.logger.info('ready')
 
@@ -319,9 +318,7 @@ class BertWorker(Process):
         # session-wise XLA doesn't seem to work on tf 1.10
         # if args.xla:
         #     config.graph_options.optimizer_options.global_jit_level = tf.OptimizerOptions.ON_1
-        estimator = Estimator(model_fn=model_fn, config=RunConfig(session_config=config))
-        atexit.register(clean_tmp, estimator.model_dir, self.logger)
-        return estimator
+        return Estimator(model_fn=model_fn, config=RunConfig(session_config=config))
 
     def run(self):
         self._run()
@@ -334,6 +331,7 @@ class BertWorker(Process):
 
         tf = import_tf(self.device_id, self.verbose)
         estimator = self.get_estimator(tf)
+        atexit.register(clean_tmp, estimator.model_dir, self.logger)
 
         receiver.connect(self.worker_address)
         sink.connect(self.sink_address)

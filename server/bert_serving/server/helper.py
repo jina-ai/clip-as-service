@@ -1,4 +1,5 @@
 import argparse
+import atexit
 import logging
 import os
 import shutil
@@ -83,7 +84,7 @@ def import_tf(device_id=-1, verbose=False):
     return tf
 
 
-def auto_bind(socket):
+def auto_bind(socket, logger):
     if os.name == 'nt':  # for Windows
         socket.bind_to_random_port('tcp://*')
     else:
@@ -97,12 +98,18 @@ def auto_bind(socket):
             tmp_dir = '*'
 
         socket.bind('ipc://{}'.format(tmp_dir))
-    return socket.getsockopt(zmq.LAST_ENDPOINT).decode('ascii')
+    endpoint = socket.getsockopt_string(zmq.LAST_ENDPOINT)
+    if endpoint.startswith('ipc://'):
+        tmp_dir = endpoint.replace('ipc://', '')
+        atexit.register(clean_tmp, tmp_dir, logger)
+    return endpoint
 
 
 def clean_tmp(fp, logger):
     logger.info('clean up %s' % fp)
-    if os.path.isfile(fp):
+    if fp.strip() in {'.', '*'}:
+        logger.warning('"%s" is too wide, no cleaning')
+    elif os.path.isfile(fp):
         os.remove(fp)  # remove the file
     elif os.path.isdir(fp):
         shutil.rmtree(fp)  # remove dir and all contains
