@@ -115,7 +115,7 @@ class BertServer(threading.Thread):
                     self.logger.warning('no GPU available, fall back to CPU')
 
                 if run_on_gpu:
-                    device_map = (avail_gpu * self.num_worker)[: self.num_worker]
+                    device_map = ((self.args.device_map or avail_gpu) * self.num_worker)[: self.num_worker]
             except FileNotFoundError:
                 self.logger.warning('nvidia-smi is missing, often means no gpu on this machine. '
                                     'fall back to cpu!')
