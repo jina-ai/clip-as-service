@@ -176,10 +176,11 @@ bert-serving-start -model_dir [-max_seq_len] [-num_worker] [-max_batch_size] [-p
 | `port` | int | `5555` | port for pushing data from client to server |
 | `port_out` | int | `5556`| port for publishing results from server to client |
 | `pooling_strategy` | str | `REDUCE_MEAN` | the pooling strategy for generating encoding vectors, valid values are `NONE`, `REDUCE_MEAN`, `REDUCE_MAX`, `REDUCE_MEAN_MAX`, `CLS_TOKEN`, `FIRST_TOKEN`, `SEP_TOKEN`, `LAST_TOKEN`. Explanation of these strategies [can be found here](#q-what-are-the-available-pooling-strategies). To get encoding for each token in the sequence, please set this to `NONE`.|
-| `pooling_layer` | int | `-2` | the encoding layer that pooling operates on, where `-1` means the last layer, `-2` means the second-to-last, etc.|
+| `pooling_layer` | list | `[-2]` | the encoding layer that pooling operates on, where `-1` means the last layer, `-2` means the second-to-last, `[-1, -2]` means concatenating the result of last two layers, etc.|
 | `gpu_memory_fraction` | float | `0.5` | the fraction of the overall amount of memory that each GPU should be allocated per worker |
 | `cpu` | bool | False | run on CPU instead of GPU |
 | `xla` | bool | False | enable [XLA compiler](https://www.tensorflow.org/xla/jit) for graph optimization (*experimental!*) |
+| `device_map` | list | `[]` | specify the list of GPU device ids that will be used (id starts from 0)|
 
 ### Client-side configs
 
