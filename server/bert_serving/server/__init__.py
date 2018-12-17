@@ -17,9 +17,6 @@ import zmq.decorators as zmqd
 from termcolor import colored
 from zmq.utils import jsonapi
 
-from .bert.extract_features import convert_lst_to_features
-from .bert.tokenization import FullTokenizer
-from .graph import optimize_graph
 from .helper import *
 
 __all__ = ['__version__', 'BertServer']
@@ -58,6 +55,7 @@ class BertServer(threading.Thread):
         self.logger.info('freeze, optimize and export graph, could take a while...')
         with Pool(processes=1) as pool:
             # optimize the graph, must be done in another process
+            from .graph import optimize_graph
             self.graph_path = pool.apply(optimize_graph, (self.args,))
         self.logger.info('optimized graph is stored at: %s' % self.graph_path)
 
@@ -339,6 +337,9 @@ class BertWorker(Process):
             self.logger.info('job done\tsize: %s\tclient: %s' % (r['encodes'].shape, r['client_id']))
 
     def input_fn_builder(self, worker, tf):
+        from .bert.extract_features import convert_lst_to_features
+        from .bert.tokenization import FullTokenizer
+
         def gen():
             tokenizer = FullTokenizer(vocab_file=os.path.join(self.model_dir, 'vocab.txt'))
             self.logger.info('ready and listening!')
