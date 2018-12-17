@@ -1,3 +1,4 @@
+> **Please visit https://github.com/hanxiao/bert-as-service for the latest version.**
 <h1 align="center">
   bert-as-service
 </h1>

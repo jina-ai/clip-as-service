@@ -23,7 +23,7 @@ from .graph import optimize_graph
 from .helper import *
 
 __all__ = ['__version__', 'BertServer']
-__version__ = '1.5.6'
+__version__ = '1.5.7'
 
 _tf_ver_ = check_tf_version()
 
