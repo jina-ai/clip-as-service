@@ -20,7 +20,7 @@ from zmq.utils import jsonapi
 from .helper import *
 
 __all__ = ['__version__', 'BertServer']
-__version__ = '1.5.7'
+__version__ = '1.5.8'
 
 _tf_ver_ = check_tf_version()
 

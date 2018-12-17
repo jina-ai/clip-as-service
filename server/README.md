@@ -1,4 +1,4 @@
-> **Please visit https://github.com/hanxiao/bert-as-service for the latest version.**
+> **This README.md is a mirror for PyPI. Please visit https://github.com/hanxiao/bert-as-service/blob/master/README.md for the latest README.md.**
 <h1 align="center">
   bert-as-service
 </h1>
@@ -423,6 +423,18 @@ if cosine(A, B) > cosine(A, C), then A is more similar to B than C.
 ##### **Q:** How can I choose `num_worker`?
 
 **A:** Generally, the number of workers should be less than or equal to the number of GPU/CPU you have. Otherwise, multiple workers will be allocated to one GPU/CPU, which may not scale well (and may cause out-of-memory on GPU).
+
+##### **Q:** Can I specify which GPU to use?
+
+**A:** Yes, you can specifying `-device_map` as follows:
+```bash
+bert-serving-start -device_map 0 1 4 -num_worker 4 -model_dir ...
+```
+This will start four workers and allocate them to GPU0, GPU1, GPU4 and again GPU0, respectively. In general, if `num_worker` > `device_map`, then devices will be reused and shared by the workers (may scale suboptimally or cause OOM); if `num_worker` < `device_map`, only `device_map[:num_worker]` will be used.
+
+Note, `device_map` is ignored when running on CPU.
+
+
 
 ## Benchmark
 
