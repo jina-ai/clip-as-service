@@ -56,10 +56,10 @@ class BertClient:
 
         self.receiver = self.context.socket(zmq.SUB)
         self.receiver.setsockopt(zmq.SUBSCRIBE, self.identity)
-        self.receiver.setsockopt(zmq.RCVTIMEO, timeout)
         self.receiver.connect('tcp://%s:%d' % (ip, port_out))
 
         self.request_id = 0
+        self.timeout = timeout
         self.pending_request = set()
 
         if output_fmt == 'ndarray':
@@ -125,8 +125,14 @@ class BertClient:
 
     @property
     def server_status(self):
-        self._send(b'SHOW_CONFIG')
-        return jsonapi.loads(self._recv().content[1])
+        try:
+            self.receiver.setsockopt(zmq.RCVTIMEO, self.timeout)
+            self._send(b'SHOW_CONFIG')
+            return jsonapi.loads(self._recv().content[1])
+        except zmq.error.Again:
+            raise TimeoutError('no response from the server after %dms, is the server on line?' % self.timeout)
+        finally:
+            self.receiver.setsockopt(zmq.RCVTIMEO, -1)
 
     def encode(self, texts, blocking=True, is_tokenized=False):
         """ Encode a list of strings to a list of vectors
