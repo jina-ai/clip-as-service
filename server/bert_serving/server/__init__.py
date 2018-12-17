@@ -104,12 +104,12 @@ class BertServer(threading.Thread):
                 num_all_gpu = len(GPUtil.getGPUs())
                 avail_gpu = GPUtil.getAvailable(order='memory', limit=min(num_all_gpu, self.num_worker))
                 num_avail_gpu = len(avail_gpu)
-                print(num_avail_gpu)
-                if 0 < num_avail_gpu < self.num_worker:
-                    self.logger.warning('only %d out of %d GPU(s) is available/free, but "-num_worker=%d"' %
-                                        (num_avail_gpu, num_all_gpu, self.num_worker))
-                    self.logger.warning('multiple workers will be allocated to one GPU, '
-                                        'may not scale well and may raise out-of-memory')
+                if 0 < num_avail_gpu <= self.num_worker:
+                    if num_avail_gpu < self.num_worker:
+                        self.logger.warning('only %d out of %d GPU(s) is available/free, but "-num_worker=%d"' %
+                                            (num_avail_gpu, num_all_gpu, self.num_worker))
+                        self.logger.warning('multiple workers will be allocated to one GPU, '
+                                            'may not scale well and may raise out-of-memory')
                     device_map = (avail_gpu * self.num_worker)[: self.num_worker]
                     run_on_gpu = True
                 elif num_avail_gpu == 0:
