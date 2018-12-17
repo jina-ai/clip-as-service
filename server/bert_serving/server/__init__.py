@@ -328,7 +328,6 @@ class BertWorker(Process):
     def _run(self, receiver, sink):
         self.logger.info('use device %s, load graph from %s' %
                          ('cpu' if self.device_id < 0 else ('gpu: %d' % self.device_id), self.graph_path))
-        self.logger.info('please ignore "WARNING: Using temporary folder as model directory"...')
 
         tf = import_tf(self.device_id, self.verbose)
         estimator = self.get_estimator(tf)
