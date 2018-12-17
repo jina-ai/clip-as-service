@@ -53,15 +53,19 @@ def get_args_parser():
                         default=PoolingStrategy.REDUCE_MEAN, choices=list(PoolingStrategy),
                         help='the pooling strategy for generating encoding vectors')
     parser.add_argument('-cpu', action='store_true', default=False,
-                        help='running on CPU (default is on GPU)')
+                        help='running on CPU (default on GPU)')
     parser.add_argument('-xla', action='store_true', default=False,
                         help='enable XLA compiler (experimental)')
     parser.add_argument('-verbose', action='store_true', default=False,
                         help='turn on tensorflow logging for debug')
     parser.add_argument('-gpu_memory_fraction', type=float, default=0.5,
-                        help='determines the fraction of the overall amount of memory '
+                        help='determine the fraction of the overall amount of memory '
                              'that each visible GPU should be allocated per worker. '
                              'Should be in range [0.0, 1.0]')
+    parser.add_argument('-device_map', type=int, nargs='+', default=[],
+                        help='specify the list of GPU device ids that will be used (id starts from 0).'
+                             'If num_worker > len(device_map), then device will be reused; '
+                             'if num_worker < len(device_map), then device_map[:num_worker] will be used')
     parser.add_argument('-version', action='version', version='%(prog)s ' + __version__)
     return parser
 

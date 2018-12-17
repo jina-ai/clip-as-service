@@ -423,6 +423,18 @@ if cosine(A, B) > cosine(A, C), then A is more similar to B than C.
 
 **A:** Generally, the number of workers should be less than or equal to the number of GPU/CPU you have. Otherwise, multiple workers will be allocated to one GPU/CPU, which may not scale well (and may cause out-of-memory on GPU).
 
+##### **Q:** Can I specify which GPU to use?
+
+**A:** Yes, you can specifying `-device_map` as follows:
+```bash
+bert-serving-start -device_map 0 1 4 -num_worker 4 -model_dir ...
+```
+This will start four workers and allocate them to GPU0, GPU1, GPU4 and again GPU0, respectively. In general, if `num_worker` > `device_map`, then devices will be reused and shared by the workers (may scale suboptimally or cause OOM); if `num_worker` < `device_map`, only `device_map[:num_worker]` will be used.
+
+Note, `device_map` is ignored when running on CPU.
+
+
+
 ## Benchmark
 
 The primary goal of benchmarking is to test the scalability and the speed of this service, which is crucial for using it in a dev/prod environment. Benchmark was done on Tesla M40 24GB, experiments were repeated 10 times and the average value is reported.

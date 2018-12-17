@@ -17,9 +17,6 @@ import zmq.decorators as zmqd
 from termcolor import colored
 from zmq.utils import jsonapi
 
-from .bert.extract_features import convert_lst_to_features
-from .bert.tokenization import FullTokenizer
-from .graph import optimize_graph
 from .helper import *
 
 __all__ = ['__version__', 'BertServer']
@@ -58,6 +55,7 @@ class BertServer(threading.Thread):
         self.logger.info('freeze, optimize and export graph, could take a while...')
         with Pool(processes=1) as pool:
             # optimize the graph, must be done in another process
+            from .graph import optimize_graph
             self.graph_path = pool.apply(optimize_graph, (self.args,))
         self.logger.info('optimized graph is stored at: %s' % self.graph_path)
 
@@ -110,14 +108,18 @@ class BertServer(threading.Thread):
                 elif 0 < num_avail_gpu < self.num_worker:
                     self.logger.warning('only %d out of %d GPU(s) is available/free, but "-num_worker=%d"' %
                                         (num_avail_gpu, num_all_gpu, self.num_worker))
-                    self.logger.warning('multiple workers will be allocated to one GPU, '
-                                        'may not scale well and may raise out-of-memory')
+                    if not self.args.device_map:
+                        self.logger.warning('multiple workers will be allocated to one GPU, '
+                                            'may not scale well and may raise out-of-memory')
+                    else:
+                        self.logger.warning('workers will be allocated based on "-device_map=%s", '
+                                            'may not scale well and may raise out-of-memory' % self.args.device_map)
                     run_on_gpu = True
                 else:
                     self.logger.warning('no GPU available, fall back to CPU')
 
                 if run_on_gpu:
-                    device_map = (avail_gpu * self.num_worker)[: self.num_worker]
+                    device_map = ((self.args.device_map or avail_gpu) * self.num_worker)[: self.num_worker]
             except FileNotFoundError:
                 self.logger.warning('nvidia-smi is missing, often means no gpu on this machine. '
                                     'fall back to cpu!')
@@ -339,6 +341,9 @@ class BertWorker(Process):
             self.logger.info('job done\tsize: %s\tclient: %s' % (r['encodes'].shape, r['client_id']))
 
     def input_fn_builder(self, worker, tf):
+        from .bert.extract_features import convert_lst_to_features
+        from .bert.tokenization import FullTokenizer
+
         def gen():
             tokenizer = FullTokenizer(vocab_file=os.path.join(self.model_dir, 'vocab.txt'))
             self.logger.info('ready and listening!')
