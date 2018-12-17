@@ -412,6 +412,11 @@ Please consider the following instead:
 if cosine(A, B) > cosine(A, C), then A is more similar to B than C.
 ```
 
+The graph below illustrates the pairwise similarity of 3000 Chinese sentences randomly sampled from web (char. length < 25). We compute cosine similarity based on the sentence vectors and [Rouge-L](https://en.wikipedia.org/wiki/ROUGE_(metric)) based on the raw text. The diagonal (self-correlation) is removed for the sake of clarity. As one can see, there is some positive correlation between these two metrics.
+
+<p align="center"><img src=".github/cosine-vs-rougel.png?raw=true"/></p>   
+
+
 ##### **Q:** I'm getting bad performance, what should I do?
 
 **A:** This often suggests that the pretrained BERT could not generate a descent representation of your downstream task. Thus, you can fine-tune the model on the downstream task and then use `bert-as-service` to serve the fine-tuned BERT. Note that, `bert-as-service` is just a feature extraction service based on BERT. Nothing stops you from using a fine-tuned BERT.
