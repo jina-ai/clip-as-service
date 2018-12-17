@@ -179,7 +179,7 @@ bert-serving-start -model_dir [-max_seq_len] [-num_worker] [-max_batch_size] [-p
 | `pooling_layer` | int | `-2` | the encoding layer that pooling operates on, where `-1` means the last layer, `-2` means the second-to-last, etc.|
 | `gpu_memory_fraction` | float | `0.5` | the fraction of the overall amount of memory that each GPU should be allocated per worker |
 | `cpu` | bool | False | run on CPU instead of GPU |
-| `xla` | bool | False | enable [XLA compiler](https://www.tensorflow.org/xla/jit) for graph optimization |
+| `xla` | bool | False | enable [XLA compiler](https://www.tensorflow.org/xla/jit) for graph optimization (*experimental!*) |
 
 ### Client-side configs
 
@@ -421,9 +421,7 @@ if cosine(A, B) > cosine(A, C), then A is more similar to B than C.
 
 ##### **Q:** How can I choose `num_worker`?
 
-**A:** Generally, the number of workers should be less than or equal to the number of GPU/CPU you have. Otherwise, multiple workers will be allocated to one GPU/CPU, which may not scale well (and may cause out-of-memory on GPU). 
-
-
+**A:** Generally, the number of workers should be less than or equal to the number of GPU/CPU you have. Otherwise, multiple workers will be allocated to one GPU/CPU, which may not scale well (and may cause out-of-memory on GPU).
 
 ## Benchmark
 

@@ -24,13 +24,16 @@ function clean_build {
 
 function pub_pypi {
     # publish to pypi
-    cp README.md $1
     cd $1
     clean_build
     python setup.py sdist bdist_wheel $2
     twine upload dist/*
     clean_build
     cd -
+}
+
+function update_readme {
+    echo '> **Please visit https://github.com/hanxiao/bert-as-service for the latest version.' | cat - README.md > temp && mv temp $1'README.md'
 }
 
 CLIENT_DIR='client/'
@@ -53,6 +56,9 @@ VER_VAL=$VER_TAG"'"${VER#"v"}"'"
 
 change_line "$VER_TAG" "$VER_VAL" $CLIENT_CODE
 change_line "$VER_TAG" "$VER_VAL" $SERVER_CODE
+update_readme $CLIENT_DIR
+update_readme $SERVER_DIR
+
 git add $CLIENT_CODE $SERVER_CODE $CLIENT_MD $SERVER_MD
 git commit -m 'increase version number'
 git push origin master
