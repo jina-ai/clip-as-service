@@ -22,6 +22,7 @@ from .bert.tokenization import FullTokenizer
 from .graph import optimize_graph
 from .helper import *
 
+__all__ = ['__version__', 'BertServer']
 __version__ = '1.5.6'
 
 _tf_ver_ = check_tf_version()
@@ -36,7 +37,7 @@ class ServerCommand:
 class BertServer(threading.Thread):
     def __init__(self, args):
         super().__init__()
-        self.logger = set_logger(colored('VENTILATOR', 'magenta'))
+        self.logger = set_logger(colored('VENTILATOR', 'magenta'), args.verbose)
 
         self.model_dir = args.model_dir
         self.max_seq_len = args.max_seq_len
@@ -71,7 +72,7 @@ class BertServer(threading.Thread):
     @zmqd.socket(zmq.PUSH)
     def _send_close_signal(self, _, frontend):
         frontend.connect('tcp://localhost:%d' % self.port)
-        frontend.send_multipart([b'', ServerCommand.terminate, b''])
+        frontend.send_multipart([b'', ServerCommand.terminate, b'', b''])
 
     def run(self):
         self._run()
@@ -103,16 +104,23 @@ class BertServer(threading.Thread):
                 num_all_gpu = len(GPUtil.getGPUs())
                 avail_gpu = GPUtil.getAvailable(order='memory', limit=min(num_all_gpu, self.num_worker))
                 num_avail_gpu = len(avail_gpu)
-                if num_avail_gpu < self.num_worker:
-                    self.logger.warn('only %d out of %d GPU(s) is available/free, but "-num_worker=%d"' %
-                                     (num_avail_gpu, num_all_gpu, self.num_worker))
-                    self.logger.warn('multiple workers will be allocated to one GPU, '
-                                     'may not scale well and may raise out-of-memory')
-                device_map = (avail_gpu * self.num_worker)[: self.num_worker]
-                run_on_gpu = True
+
+                if num_avail_gpu >= self.num_worker:
+                    run_on_gpu = True
+                elif 0 < num_avail_gpu < self.num_worker:
+                    self.logger.warning('only %d out of %d GPU(s) is available/free, but "-num_worker=%d"' %
+                                        (num_avail_gpu, num_all_gpu, self.num_worker))
+                    self.logger.warning('multiple workers will be allocated to one GPU, '
+                                        'may not scale well and may raise out-of-memory')
+                    run_on_gpu = True
+                else:
+                    self.logger.warning('no GPU available, fall back to CPU')
+
+                if run_on_gpu:
+                    device_map = (avail_gpu * self.num_worker)[: self.num_worker]
             except FileNotFoundError:
-                self.logger.warn('nvidia-smi is missing, often means no gpu on this machine. '
-                                 'fall back to cpu!')
+                self.logger.warning('nvidia-smi is missing, often means no gpu on this machine. '
+                                    'fall back to cpu!')
 
         self.logger.info('device map: \n\t\t%s' % '\n\t\t'.join(
             'worker %2d -> %s' % (w_id, ('gpu %2d' % g_id) if g_id >= 0 else 'cpu') for w_id, g_id in
@@ -128,7 +136,7 @@ class BertServer(threading.Thread):
         while True:
             try:
                 request = frontend.recv_multipart()
-                client, msg, req_id = request
+                client, msg, req_id, msg_len = request
                 if msg == ServerCommand.terminate:
                     break
                 elif msg == ServerCommand.show_config:
@@ -149,17 +157,17 @@ class BertServer(threading.Thread):
                                                                      **self.status_static}), req_id])
                 else:
                     num_req['data'] += 1
-                    self.logger.info('new encode request\treq id: %d\tclient: %s' % (int(req_id), client))
-                    seqs = jsonapi.loads(msg)
-                    num_seqs = len(seqs)
+                    self.logger.info('new encode request\treq id: %d\tsize: %d\tclient: %s' %
+                                     (int(req_id), int(msg_len), client))
                     # register a new job at sink
-                    sink.send_multipart([client, ServerCommand.new_job, b'%d' % num_seqs, req_id])
+                    sink.send_multipart([client, ServerCommand.new_job, msg_len, req_id])
 
                     job_id = client + b'#' + req_id
-                    if num_seqs > self.max_batch_size:
+                    if int(msg_len) > self.max_batch_size:
+                        seqs = jsonapi.loads(msg)
                         # partition the large batch into small batches
                         s_idx = 0
-                        while s_idx < num_seqs:
+                        while s_idx < int(msg_len):
                             tmp = seqs[s_idx: (s_idx + self.max_batch_size)]
                             if tmp:
                                 partial_job_id = job_id + b'@%d' % s_idx
@@ -168,7 +176,7 @@ class BertServer(threading.Thread):
                     else:
                         backend.send_multipart([job_id, msg])
             except ValueError:
-                self.logger.error('received a wrongly-formatted request (expected 3 frames, got %d)' % len(request))
+                self.logger.error('received a wrongly-formatted request (expected 4 frames, got %d)' % len(request))
                 self.logger.error('\n'.join('field %d: %s' % (idx, k) for idx, k in enumerate(request)))
 
         self.logger.info('terminated!')
@@ -179,7 +187,7 @@ class BertSink(Process):
         super().__init__()
         self.port = args.port_out
         self.exit_flag = multiprocessing.Event()
-        self.logger = set_logger(colored('SINK', 'green'))
+        self.logger = set_logger(colored('SINK', 'green'), args.verbose)
         self.front_sink_addr = front_sink_addr
 
     def close(self):
@@ -262,7 +270,7 @@ class BertWorker(Process):
         super().__init__()
         self.worker_id = id
         self.device_id = device_id
-        self.logger = set_logger(colored('WORKER-%d' % self.worker_id, 'yellow'))
+        self.logger = set_logger(colored('WORKER-%d' % self.worker_id, 'yellow'), args.verbose)
         self.max_seq_len = args.max_seq_len
         self.daemon = True
         self.exit_flag = multiprocessing.Event()
@@ -271,6 +279,7 @@ class BertWorker(Process):
         self.prefetch_factor = 10
         self.gpu_memory_fraction = args.gpu_memory_fraction
         self.model_dir = args.model_dir
+        self.verbose = args.verbose
         self.graph_path = graph_path
 
     def close(self):
@@ -319,11 +328,8 @@ class BertWorker(Process):
     def _run(self, receiver, sink):
         self.logger.info('use device %s, load graph from %s' %
                          ('cpu' if self.device_id < 0 else ('gpu: %d' % self.device_id), self.graph_path))
-        os.environ['CUDA_VISIBLE_DEVICES'] = str(self.device_id)
-        os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
-        self.logger.info('please ignore "WARNING: Using temporary folder as model directory"...')
 
-        import tensorflow as tf
+        tf = import_tf(self.device_id, self.verbose)
         estimator = self.get_estimator(tf)
 
         receiver.connect(self.worker_address)

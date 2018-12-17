@@ -17,9 +17,6 @@ def get_print_args():
 
 if __name__ == '__main__':
     args = get_print_args()
-    if args.version:
-        print('version: %s' % BertServer.__version__)
-    else:
-        server = BertServer(args)
-        server.start()
-        server.join()
+    server = BertServer(args)
+    server.start()
+    server.join()

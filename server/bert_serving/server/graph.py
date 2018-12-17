@@ -5,6 +5,9 @@ import tempfile
 from enum import Enum
 
 from .bert import modeling
+from .helper import import_tf
+
+__all__ = ['PoolingStrategy', 'optimize_graph']
 
 
 class PoolingStrategy(Enum):
@@ -30,11 +33,7 @@ class PoolingStrategy(Enum):
 
 def optimize_graph(args):
     # we don't need GPU for optimizing the graph
-    os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
-    os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
-
-    import tensorflow as tf
-    tf.logging.set_verbosity(tf.logging.ERROR)
+    tf = import_tf(verbose=args.verbose)
     from tensorflow.python.tools.optimize_for_inference_lib import optimize_for_inference
 
     config = tf.ConfigProto(device_count={'GPU': 0}, allow_soft_placement=True)
