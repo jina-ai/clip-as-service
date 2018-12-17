@@ -133,7 +133,8 @@ class BertClient:
             self._send(b'SHOW_CONFIG')
             return jsonapi.loads(self._recv().content[1])
         except zmq.error.Again as _e:
-            t_e = TimeoutError('no response from the server after %dms, is the server on line?' % self.timeout)
+            t_e = TimeoutError(
+                'no response from the server after ("timeout"=%dms), is the server on line?' % self.timeout)
             if _py2:
                 raise t_e
             else:
