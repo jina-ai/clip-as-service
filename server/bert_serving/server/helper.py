@@ -45,17 +45,17 @@ def get_args_parser():
     parser.add_argument('-port', '-port_in', '-port_data', type=int, default=5555,
                         help='server port for receiving data from client')
     parser.add_argument('-port_out', '-port_result', type=int, default=5556,
-                        help='server port for outputting result to client')
+                        help='server port for sending result to client')
     parser.add_argument('-pooling_layer', type=int, nargs='+', default=[-2],
                         help='the encoder layer(s) that receives pooling. '
-                             'Give a list in order to concatenate several layers into 1.')
+                             'Give a list in order to concatenate several layers into one')
     parser.add_argument('-pooling_strategy', type=PoolingStrategy.from_string,
                         default=PoolingStrategy.REDUCE_MEAN, choices=list(PoolingStrategy),
                         help='the pooling strategy for generating encoding vectors')
     parser.add_argument('-cpu', action='store_true', default=False,
                         help='running on CPU (default is on GPU)')
     parser.add_argument('-xla', action='store_true', default=False,
-                        help='enable XLA compiler')
+                        help='enable XLA compiler (experimental)')
     parser.add_argument('-gpu_memory_fraction', type=float, default=0.5,
                         help='determines the fraction of the overall amount of memory '
                              'that each visible GPU should be allocated per worker. '
