@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # Han Xiao <artex.xh@gmail.com> <https://hanxiao.github.io>
+import atexit
 import multiprocessing
 import os
 import sys
@@ -59,6 +60,7 @@ class BertServer(threading.Thread):
         with Pool(processes=1) as pool:
             # optimize the graph, must be done in another process
             self.graph_path = pool.apply(optimize_graph, (self.args,))
+        atexit.register(clean_tmp, self.graph_path, self.logger)
         self.logger.info('optimized graph is stored at: %s' % self.graph_path)
 
     def close(self):
@@ -317,8 +319,9 @@ class BertWorker(Process):
         # session-wise XLA doesn't seem to work on tf 1.10
         # if args.xla:
         #     config.graph_options.optimizer_options.global_jit_level = tf.OptimizerOptions.ON_1
-
-        return Estimator(model_fn=model_fn, config=RunConfig(session_config=config))
+        estimator = Estimator(model_fn=model_fn, config=RunConfig(session_config=config))
+        atexit.register(clean_tmp, estimator.model_dir, self.logger)
+        return estimator
 
     def run(self):
         self._run()

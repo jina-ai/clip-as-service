@@ -1,12 +1,14 @@
 import argparse
 import logging
 import os
+import shutil
 import uuid
 
 import zmq
 from zmq.utils import jsonapi
 
-__all__ = ['set_logger', 'send_ndarray', 'get_args_parser', 'check_tf_version', 'auto_bind', 'import_tf']
+__all__ = ['set_logger', 'send_ndarray', 'get_args_parser',
+           'check_tf_version', 'auto_bind', 'import_tf', 'clean_tmp']
 
 
 def set_logger(context, verbose=False):
@@ -96,3 +98,13 @@ def auto_bind(socket):
 
         socket.bind('ipc://{}'.format(tmp_dir))
     return socket.getsockopt(zmq.LAST_ENDPOINT).decode('ascii')
+
+
+def clean_tmp(fp, logger):
+    logger.info('clean up %s' % fp)
+    if os.path.isfile(fp):
+        os.remove(fp)  # remove the file
+    elif os.path.isdir(fp):
+        shutil.rmtree(fp)  # remove dir and all contains
+    else:
+        logger.error('clean-up failed: "%s" is not a file or dir' % fp)
