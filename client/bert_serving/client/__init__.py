@@ -33,7 +33,7 @@ Response = namedtuple('Response', ['id', 'content'])
 class BertClient:
     def __init__(self, ip='localhost', port=5555, port_out=5556,
                  output_fmt='ndarray', show_server_config=False,
-                 identity=None, check_version=True):
+                 identity=None, check_version=True, timeout=2000):
         """ A client object connected to a BertServer
 
         Create a BertClient that connects with a BertServer
@@ -46,6 +46,8 @@ class BertClient:
         either in numpy array or python List[List[float]] (ndarray/list)
         :param show_server_config: whether to show server configs when first connected
         :param identity: the UUID of this client
+        :param check_version: check if server has the same version as client, raise AttributeError if not the same
+        :param timeout: set the timeout (milliseconds) for receive operation on the client
         """
         self.context = zmq.Context()
         self.sender = self.context.socket(zmq.PUSH)
@@ -54,6 +56,7 @@ class BertClient:
 
         self.receiver = self.context.socket(zmq.SUB)
         self.receiver.setsockopt(zmq.SUBSCRIBE, self.identity)
+        self.receiver.setsockopt(zmq.RCVTIMEO, timeout)
         self.receiver.connect('tcp://%s:%d' % (ip, port_out))
 
         self.request_id = 0
