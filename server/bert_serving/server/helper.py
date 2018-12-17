@@ -6,6 +6,7 @@ import uuid
 import zmq
 from zmq.utils import jsonapi
 
+from . import __version__
 from .graph import PoolingStrategy
 
 __all__ = ['set_logger', 'send_ndarray', 'get_args_parser', 'check_tf_version', 'auto_bind']
@@ -59,8 +60,7 @@ def get_args_parser():
                         help='determines the fraction of the overall amount of memory '
                              'that each visible GPU should be allocated per worker. '
                              'Should be in range [0.0, 1.0]')
-    parser.add_argument('-version', action='store_true', default=False,
-                        help='show version and exit')
+    parser.add_argument('-version', action='version', version='%(prog)s ' + __version__)
     return parser
 
 
