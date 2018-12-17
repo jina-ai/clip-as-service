@@ -108,8 +108,12 @@ class BertServer(threading.Thread):
                 elif 0 < num_avail_gpu < self.num_worker:
                     self.logger.warning('only %d out of %d GPU(s) is available/free, but "-num_worker=%d"' %
                                         (num_avail_gpu, num_all_gpu, self.num_worker))
-                    self.logger.warning('multiple workers will be allocated to one GPU, '
-                                        'may not scale well and may raise out-of-memory')
+                    if not self.args.device_map:
+                        self.logger.warning('multiple workers will be allocated to one GPU, '
+                                            'may not scale well and may raise out-of-memory')
+                    else:
+                        self.logger.warning('workers will be allocated based on "-device_map=%s", '
+                                            'may not scale well and may raise out-of-memory' % self.args.device_map)
                     run_on_gpu = True
                 else:
                     self.logger.warning('no GPU available, fall back to CPU')
