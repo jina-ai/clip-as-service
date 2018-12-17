@@ -11,7 +11,7 @@ from bert_serving.server.helper import get_args_parser
 def get_print_args():
     args = get_args_parser().parse_args()
     param_str = '\n'.join(['%20s = %s' % (k, v) for k, v in sorted(vars(args).items())])
-    print('usage: %s\n%20s   %s\n%s\n%s\n' % (' '.join(sys.argv), 'ARG', 'VALUE', '_' * 50, param_str))
+    print('usage: %(prog)s %s\n%20s   %s\n%s\n%s\n' % (' '.join(sys.argv), 'ARG', 'VALUE', '_' * 50, param_str))
     return args
 
 
