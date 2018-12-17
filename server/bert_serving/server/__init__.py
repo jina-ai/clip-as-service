@@ -37,7 +37,7 @@ class ServerCommand:
 class BertServer(threading.Thread):
     def __init__(self, args):
         super().__init__()
-        self.logger = set_logger(colored('VENTILATOR', 'magenta'))
+        self.logger = set_logger(colored('VENTILATOR', 'magenta'), args.verbose)
 
         self.model_dir = args.model_dir
         self.max_seq_len = args.max_seq_len
@@ -182,7 +182,7 @@ class BertSink(Process):
         super().__init__()
         self.port = args.port_out
         self.exit_flag = multiprocessing.Event()
-        self.logger = set_logger(colored('SINK', 'green'))
+        self.logger = set_logger(colored('SINK', 'green'), args.verbose)
         self.front_sink_addr = front_sink_addr
 
     def close(self):
@@ -265,7 +265,7 @@ class BertWorker(Process):
         super().__init__()
         self.worker_id = id
         self.device_id = device_id
-        self.logger = set_logger(colored('WORKER-%d' % self.worker_id, 'yellow'))
+        self.logger = set_logger(colored('WORKER-%d' % self.worker_id, 'yellow'), args.verbose)
         self.max_seq_len = args.max_seq_len
         self.daemon = True
         self.exit_flag = multiprocessing.Event()

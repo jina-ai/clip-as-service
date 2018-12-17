@@ -9,14 +9,14 @@ from zmq.utils import jsonapi
 __all__ = ['set_logger', 'send_ndarray', 'get_args_parser', 'check_tf_version', 'auto_bind', 'import_tf']
 
 
-def set_logger(context):
+def set_logger(context, verbose=False):
     logger = logging.getLogger(context)
-    logger.setLevel(logging.INFO)
+    logger.setLevel(logging.DEBUG if verbose else logging.WARNING)
     formatter = logging.Formatter(
         '%(levelname)-.1s:' + context + ':[%(filename).3s:%(funcName).3s:%(lineno)3d]:%(message)s', datefmt=
         '%m-%d %H:%M:%S')
     console_handler = logging.StreamHandler()
-    console_handler.setLevel(logging.INFO)
+    console_handler.setLevel(logging.DEBUG if verbose else logging.WARNING)
     console_handler.setFormatter(formatter)
     logger.handlers = []
     logger.addHandler(console_handler)
