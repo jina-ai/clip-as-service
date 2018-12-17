@@ -8,7 +8,7 @@ from zmq.utils import jsonapi
 
 from .graph import PoolingStrategy
 
-__all__ = ['set_logger', 'send_ndarray', 'get_args_parser', 'check_tf_version', 'auto_bind']
+__all__ = ['set_logger', 'send_ndarray', 'get_args_parser', 'check_tf_version', 'auto_bind', 'import_tf']
 
 
 def set_logger(context):
@@ -56,6 +56,8 @@ def get_args_parser():
                         help='running on CPU (default is on GPU)')
     parser.add_argument('-xla', action='store_true', default=False,
                         help='enable XLA compiler (experimental)')
+    parser.add_argument('-verbose', action='store_true', default=False,
+                        help='turn on tensorflow logging for debug')
     parser.add_argument('-gpu_memory_fraction', type=float, default=0.5,
                         help='determines the fraction of the overall amount of memory '
                              'that each visible GPU should be allocated per worker. '
@@ -69,6 +71,14 @@ def check_tf_version():
     tf_ver = tf.__version__.split('.')
     assert int(tf_ver[0]) >= 1 and int(tf_ver[1]) >= 10, 'Tensorflow >=1.10 is required!'
     return tf_ver
+
+
+def import_tf(device_id=-1, verbose=False):
+    os.environ['CUDA_VISIBLE_DEVICES'] = '-1' if device_id < 0 else str(device_id)
+    os.environ['TF_CPP_MIN_LOG_LEVEL'] = '0' if verbose else '3'
+    import tensorflow as tf
+    tf.logging.set_verbosity(tf.logging.DEBUG if verbose else tf.logging.ERROR)
+    return tf
 
 
 def auto_bind(socket):

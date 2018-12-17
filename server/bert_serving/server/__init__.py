@@ -272,6 +272,7 @@ class BertWorker(Process):
         self.prefetch_factor = 10
         self.gpu_memory_fraction = args.gpu_memory_fraction
         self.model_dir = args.model_dir
+        self.verbose = args.verbose
         self.graph_path = graph_path
 
     def close(self):
@@ -320,11 +321,9 @@ class BertWorker(Process):
     def _run(self, receiver, sink):
         self.logger.info('use device %s, load graph from %s' %
                          ('cpu' if self.device_id < 0 else ('gpu: %d' % self.device_id), self.graph_path))
-        os.environ['CUDA_VISIBLE_DEVICES'] = str(self.device_id)
-        os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
         self.logger.info('please ignore "WARNING: Using temporary folder as model directory"...')
 
-        import tensorflow as tf
+        tf = import_tf(self.device_id, self.verbose)
         estimator = self.get_estimator(tf)
 
         receiver.connect(self.worker_address)
