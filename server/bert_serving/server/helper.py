@@ -113,7 +113,5 @@ def clean_tmp(fp, logger):
         os.remove(fp)  # remove the file
     elif os.path.isdir(fp):
         shutil.rmtree(fp)  # remove dir and all contains
-    elif os.path.islink(fp):
-        os.unlink(fp)
     else:
         logger.error('clean-up failed: "%s" is not a file or dir' % fp)
