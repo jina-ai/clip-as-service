@@ -33,7 +33,7 @@ function pub_pypi {
 }
 
 function update_readme {
-    echo '> **Please visit https://github.com/hanxiao/bert-as-service for the latest version.**' | cat - README.md > temp && mv temp $1'README.md'
+    echo '> **This README.md is a mirror for PyPI. Please visit https://github.com/hanxiao/bert-as-service/blob/master/README.md for the latest README.md.**' | cat - README.md > temp && mv temp $1'README.md'
 }
 
 CLIENT_DIR='client/'
