@@ -18,11 +18,13 @@ __all__ = ['__version__', 'BertClient']
 __version__ = '1.5.6'
 
 if sys.version_info >= (3, 0):
+    _py2 = False
     _str = str
     _buffer = memoryview
     _unicode = lambda x: x
 else:
     # make it compatible for py2
+    _py2 = True
     _str = basestring
     _buffer = buffer
     _unicode = lambda x: [BertClient._force_to_unicode(y) for y in x]
@@ -130,8 +132,12 @@ class BertClient:
             self.receiver.setsockopt(zmq.RCVTIMEO, self.timeout)
             self._send(b'SHOW_CONFIG')
             return jsonapi.loads(self._recv().content[1])
-        except zmq.error.Again:
-            raise TimeoutError('no response from the server after %dms, is the server on line?' % self.timeout)
+        except zmq.error.Again as _e:
+            t_e = TimeoutError('no response from the server after %dms, is the server on line?' % self.timeout)
+            if _py2:
+                raise t_e
+            else:
+                raise t_e from _e
         finally:
             self.receiver.setsockopt(zmq.RCVTIMEO, -1)
 
