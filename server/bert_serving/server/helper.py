@@ -4,9 +4,9 @@ import os
 import uuid
 
 import zmq
+from bert_serving.server import __version__
 from zmq.utils import jsonapi
 
-from . import __version__
 from .graph import PoolingStrategy
 
 __all__ = ['set_logger', 'send_ndarray', 'get_args_parser', 'check_tf_version', 'auto_bind']
