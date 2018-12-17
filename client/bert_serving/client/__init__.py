@@ -12,6 +12,8 @@ import numpy as np
 import zmq
 from zmq.utils import jsonapi
 
+__all__ = ['__version__', 'BertClient']
+
 # in the future client version must match with server version
 __version__ = '1.5.6'
 
@@ -87,8 +89,8 @@ class BertClient:
         self.receiver.close()
         self.context.term()
 
-    def _send(self, msg):
-        self.sender.send_multipart([self.identity, msg, b'%d' % self.request_id])
+    def _send(self, msg, msg_len=0):
+        self.sender.send_multipart([self.identity, msg, b'%d' % self.request_id, b'%d' % msg_len])
         self.pending_request.add(self.request_id)
         self.request_id += 1
 
@@ -142,7 +144,7 @@ class BertClient:
             self._check_input_lst_str(texts)
 
         texts = _unicode(texts)
-        self._send(jsonapi.dumps(texts))
+        self._send(jsonapi.dumps(texts), len(texts))
         return self._recv_ndarray().content if blocking else None
 
     def fetch(self, delay=.0):

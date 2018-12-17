@@ -72,7 +72,7 @@ class BertServer(threading.Thread):
     @zmqd.socket(zmq.PUSH)
     def _send_close_signal(self, _, frontend):
         frontend.connect('tcp://localhost:%d' % self.port)
-        frontend.send_multipart([b'', ServerCommand.terminate, b''])
+        frontend.send_multipart([b'', ServerCommand.terminate, b'', b''])
 
     def run(self):
         self._run()
@@ -129,7 +129,7 @@ class BertServer(threading.Thread):
         while True:
             try:
                 request = frontend.recv_multipart()
-                client, msg, req_id = request
+                client, msg, req_id, msg_len = request
                 if msg == ServerCommand.terminate:
                     break
                 elif msg == ServerCommand.show_config:
@@ -150,17 +150,17 @@ class BertServer(threading.Thread):
                                                                      **self.status_static}), req_id])
                 else:
                     num_req['data'] += 1
-                    self.logger.info('new encode request\treq id: %d\tclient: %s' % (int(req_id), client))
-                    seqs = jsonapi.loads(msg)
-                    num_seqs = len(seqs)
+                    self.logger.info('new encode request\treq id: %d\tsize: %d\tclient: %s' %
+                                     (int(req_id), int(msg_len), client))
                     # register a new job at sink
-                    sink.send_multipart([client, ServerCommand.new_job, b'%d' % num_seqs, req_id])
+                    sink.send_multipart([client, ServerCommand.new_job, msg_len, req_id])
 
                     job_id = client + b'#' + req_id
-                    if num_seqs > self.max_batch_size:
+                    if int(msg_len) > self.max_batch_size:
+                        seqs = jsonapi.loads(msg)
                         # partition the large batch into small batches
                         s_idx = 0
-                        while s_idx < num_seqs:
+                        while s_idx < int(msg_len):
                             tmp = seqs[s_idx: (s_idx + self.max_batch_size)]
                             if tmp:
                                 partial_job_id = job_id + b'@%d' % s_idx
@@ -169,7 +169,7 @@ class BertServer(threading.Thread):
                     else:
                         backend.send_multipart([job_id, msg])
             except ValueError:
-                self.logger.error('received a wrongly-formatted request (expected 3 frames, got %d)' % len(request))
+                self.logger.error('received a wrongly-formatted request (expected 4 frames, got %d)' % len(request))
                 self.logger.error('\n'.join('field %d: %s' % (idx, k) for idx, k in enumerate(request)))
 
         self.logger.info('terminated!')
