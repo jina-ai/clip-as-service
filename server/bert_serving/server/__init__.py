@@ -104,13 +104,15 @@ class BertServer(threading.Thread):
                 num_all_gpu = len(GPUtil.getGPUs())
                 avail_gpu = GPUtil.getAvailable(order='memory', limit=min(num_all_gpu, self.num_worker))
                 num_avail_gpu = len(avail_gpu)
-                if num_avail_gpu < self.num_worker:
+                if 0 < num_avail_gpu < self.num_worker:
                     self.logger.warn('only %d out of %d GPU(s) is available/free, but "-num_worker=%d"' %
                                      (num_avail_gpu, num_all_gpu, self.num_worker))
                     self.logger.warn('multiple workers will be allocated to one GPU, '
                                      'may not scale well and may raise out-of-memory')
-                device_map = (avail_gpu * self.num_worker)[: self.num_worker]
-                run_on_gpu = True
+                    device_map = (avail_gpu * self.num_worker)[: self.num_worker]
+                    run_on_gpu = True
+                elif num_avail_gpu == 0:
+                    self.logger.warn('no GPU resource available, fall back to CPU')
             except FileNotFoundError:
                 self.logger.warn('nvidia-smi is missing, often means no gpu on this machine. '
                                  'fall back to cpu!')
