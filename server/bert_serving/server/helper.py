@@ -6,8 +6,6 @@ import uuid
 import zmq
 from zmq.utils import jsonapi
 
-from .graph import PoolingStrategy
-
 __all__ = ['set_logger', 'send_ndarray', 'get_args_parser', 'check_tf_version', 'auto_bind', 'import_tf']
 
 
@@ -33,6 +31,8 @@ def send_ndarray(src, dest, X, req_id=b'', flags=0, copy=True, track=False):
 
 def get_args_parser():
     from . import __version__
+    from .graph import PoolingStrategy
+
     parser = argparse.ArgumentParser()
     parser.add_argument('-model_dir', type=str, required=True,
                         help='directory of a pretrained BERT model')

@@ -7,6 +7,8 @@ from enum import Enum
 from .bert import modeling
 from .helper import import_tf
 
+__all__ = ['PoolingStrategy', 'optimize_graph']
+
 
 class PoolingStrategy(Enum):
     NONE = 0
