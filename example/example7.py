@@ -15,7 +15,7 @@ from collections import namedtuple
 
 import numpy as np
 import pandas as pd
-from MulticoreTSNE import MulticoreTSNE as TSNE
+# from MulticoreTSNE import MulticoreTSNE as TSNE
 from bert_serving.client import BertClient
 from bert_serving.server import BertServer
 from bert_serving.server.graph import PoolingStrategy
@@ -67,7 +67,11 @@ common = {
     'num_client': 1,
     'pooling_strategy': PoolingStrategy.REDUCE_MEAN,
     'pooling_layer': [-2],
-    'gpu_memory_fraction': 0.5
+    'gpu_memory_fraction': 0.5,
+    'xla': False,
+    'cpu': False,
+    'verbose': False,
+    'device_map': []
 }
 args = namedtuple('args_namedtuple', ','.join(common.keys()))
 for k, v in common.items():
