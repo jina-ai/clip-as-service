@@ -35,7 +35,7 @@ Response = namedtuple('Response', ['id', 'content'])
 class BertClient:
     def __init__(self, ip='localhost', port=5555, port_out=5556,
                  output_fmt='ndarray', show_server_config=False,
-                 identity=None, check_version=True, timeout=2000):
+                 identity=None, check_version=True, timeout=5000):
         """ A client object connected to a BertServer
 
         Create a BertClient that connects with a BertServer
@@ -134,7 +134,8 @@ class BertClient:
             return jsonapi.loads(self._recv().content[1])
         except zmq.error.Again as _e:
             t_e = TimeoutError(
-                'no response from the server after ("timeout"=%dms), is the server on line?' % self.timeout)
+                'no response from the server (with "timeout"=%d ms), '
+                'is the server on-line? is network broken? are "port" and "port_out" correct?' % self.timeout)
             if _py2:
                 raise t_e
             else:
