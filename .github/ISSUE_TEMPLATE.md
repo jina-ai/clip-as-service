@@ -4,7 +4,7 @@
 
 * [ ] Are you running the latest `bert-as-service`?
 * [ ] Did you follow [the installation](https://github.com/hanxiao/bert-as-service#install) and [the usage](https://github.com/hanxiao/bert-as-service#usage) instructions in `README.md`?
-* [ ] Did you check the [FAQ list in `README.md`](https://github.com/hanxiao/bert-as-service#faq)?
+* [ ] Did you check the [FAQ list in `README.md`](https://github.com/hanxiao/bert-as-service#speech_balloon-faq)?
 * [ ] Did you perform [a cursory search on existing issues](https://github.com/hanxiao/bert-as-service/issues)?
 
 **System information**
