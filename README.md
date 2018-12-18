@@ -59,9 +59,11 @@
 <h2 align="center">Highlights</h2>
 
 - :telescope: **State-of-the-art**: build on pretrained 12/24-layer BERT models released by Google AI, which is considered as a milestone in the NLP community.
-- :hatching_chick: **Easy-to-use**: require only two lines of code to get sentence encodes.
-- :zap: **Fast**: 900 sentences/s on a single Tesla M40 24GB with. See [benchmark](#zap-benchmark).
+- :hatching_chick: **Easy-to-use**: require only two lines of code to get sentence/token-level encodes.
+- :zap: **Fast**: 900 sentences/s on a single Tesla M40 24GB. Low latency, optimized for speed. See [benchmark](#zap-benchmark).
 - :octopus: **Scalable**: scale nicely and smoothly on multiple GPUs and multiple clients without worrying about concurrency. See [benchmark](#speed-wrt-num_client).
+
+And even more features: asynchronous encoding, multicasting, mix GPU & CPU scheduling, `tf.data` compatible, customized tokenizer, pooling strategy and layer, XLA support etc.  
 
 
 <h2 align="center">Install</h2>
