@@ -35,9 +35,11 @@
   <a href="#what-is-it">What is it</a> •
   <a href="#install">Install</a> •
   <a href="#usage">Usage</a> •
+  <a href="#server-and-client-configurations">Configuration</a> •
+  <a href="#tutorial">Tutorial</a> •
   <a href="#faq">FAQ</a> •
-  <a href="#benchmark">Benchmark</a> •
-  <a href="#tutorial">Tutorial</a>
+  <a href="#benchmark">Benchmark</a>
+  
 </p>
 
 <p align="center">
@@ -195,6 +197,7 @@ Client-side is Python class `BertClient`, which accepts arguments as follows:
 | `show_server_config` | bool | `False` | whether to show server configs when first connected |
 | `check_version` | bool | `True` | whether to force client and server to have the same version |
 | `identity` | str | `None` | a UUID that identifies the client, useful in multi-casting |
+| `timeout` | int | `5000` | set the timeout (milliseconds) for receive operation on the client |
 
 A `BertClient` implements the following methods and properties:
 
@@ -207,6 +210,220 @@ A `BertClient` implements the following methods and properties:
 |`.close()`|Gracefully close the connection between the client and the server|
 |`.status`|Get the client status in JSON format|
 |`.server_status`|Get the server status in JSON format|
+
+
+
+## Tutorial
+
+> The full list of examples can be found in [`example/`](example). You can run each via `python example/example-k.py`. Note that they are only tested on Python 3.
+
+### Getting ELMo-like contextual word embedding
+
+Start the server with `pooling_strategy` set to NONE.
+```bash
+bert-serving-start -pooling_strategy NONE -model_dir /tmp/english_L-12_H-768_A-12/
+```
+
+To get the word embedding corresponds to every token, you can simply use slice index as follows:
+```python
+# max_seq_len = 25
+# pooling_strategy = NONE
+
+bc = BertClient()
+vec = bc.encode(['hey you', 'whats up?'])
+
+vec  # [2, 25, 768]
+vec[0]  # [1, 25, 768], sentence embeddings for `hey you`
+vec[0][0]  # [1, 1, 768], word embedding for `[CLS]`
+vec[0][1]  # [1, 1, 768], word embedding for `hey`
+vec[0][2]  # [1, 1, 768], word embedding for `you`
+vec[0][3]  # [1, 1, 768], word embedding for `[SEP]`
+vec[0][4]  # [1, 1, 768], word embedding for padding symbol
+vec[0][25]  # error, out of index!
+```
+
+Note that no matter how long your original sequence is, the service will always return a `[max_seq_len, 768]` matrix for every sequence. When using slice index to get the word embedding, beware of the special tokens padded to the sequence, i.e. `[CLS]`, `[SEP]`, `0_PAD`. 
+
+### Using your own tokenizer
+
+Often you want to use your own tokenizer to segment sentences instead of the default one from BERT. Simply call `encode(is_tokenized=True)` on the client slide as follows:
+
+```python
+texts = ['hello world!', 'good day']
+
+# a naive whitespace tokenizer
+texts2 = [s.split() for s in texts]
+
+vecs = bc.encode(texts2, is_tokenized=True)
+```
+This gives `[2, 25, 768]` tensor where the first `[1, 25, 768]` corresponds to the token-level encoding of "hello world!". If you look into its values, you will find that only the first four elements, i.e. `[1, 0:3, 768]` have values, all the others are zeros. This is due to the fact that BERT considers "hello world!" as four tokens: `[CLS]` `hello` `world!` `[SEP]`, the rest are padding symbols and are masked out before output.
+
+Note that there is no need to start a separate server for handling tokenized/untokenized sentences. The server can tell and handle both cases automatically.
+
+Beware that the pretrained BERT Chinese from Google is character-based, i.e. its vocabulary is made of single Chinese characters. Therefore it makes no sense if you use word-level segmentation algorithm to pre-process the data and feed to such model.
+
+
+### Using `BertClient` with `tf.data` API
+
+The [`tf.data`](https://www.tensorflow.org/guide/datasets) API enables you to build complex input pipelines from simple, reusable pieces. One can also use `BertClient` to encode sentences on-the-fly and use the vectors in a downstream model. Here is an example:
+
+```python
+batch_size = 256
+num_parallel_calls = 4
+num_clients = num_parallel_calls * 2  # should be at least greater than `num_parallel_calls`
+
+# start a pool of clients
+bc_clients = [BertClient(show_server_config=False) for _ in range(num_clients)]
+
+
+def get_encodes(x):
+    # x is `batch_size` of lines, each of which is a json object
+    samples = [json.loads(l) for l in x]
+    text = [s['raw_text'] for s in samples]  # List[List[str]]
+    labels = [s['label'] for s in samples]  # List[str]
+    # get a client from available clients
+    bc_client = bc_clients.pop()
+    features = bc_client.encode(text)
+    # after use, put it back
+    bc_clients.append(bc_client)
+    return features, labels
+
+
+ds = (tf.data.TextLineDataset(train_fp).batch(batch_size)
+        .map(lambda x: tf.py_func(get_encodes, [x], [tf.float32, tf.string]),  num_parallel_calls=num_parallel_calls)
+        .map(lambda x, y: {'feature': x, 'label': y})
+        .make_one_shot_iterator().get_next())
+```
+
+The trick here is to start a pool of `BertClient` and reuse them one by one. In this way, we can fully harness the power of `num_parallel_calls` of `Dataset.map()` API.  
+
+The complete example can [be found example4.py](example/example4.py). There is also [an example in Keras](https://github.com/hanxiao/bert-as-service/issues/29#issuecomment-442362241). 
+
+### Training a text classifier using BERT features and `tf.estimator` API
+
+Following the last example, we can easily extend it to a full classifier using `tf.estimator` API. One only need minor change on the input function as follows:
+
+```python
+estimator = DNNClassifier(
+    hidden_units=[512],
+    feature_columns=[tf.feature_column.numeric_column('feature', shape=(768,))],
+    n_classes=len(laws),
+    config=run_config,
+    label_vocabulary=laws_str,
+    dropout=0.1)
+
+input_fn = lambda fp: (tf.data.TextLineDataset(fp)
+                       .apply(tf.contrib.data.shuffle_and_repeat(buffer_size=10000))
+                       .batch(batch_size)
+                       .map(lambda x: tf.py_func(get_encodes, [x], [tf.float32, tf.string]), num_parallel_calls=num_parallel_calls)
+                       .map(lambda x, y: ({'feature': x}, y))
+                       .prefetch(20))
+
+train_spec = TrainSpec(input_fn=lambda: input_fn(train_fp))
+eval_spec = EvalSpec(input_fn=lambda: input_fn(eval_fp), throttle_secs=0)
+train_and_evaluate(estimator, train_spec, eval_spec)
+```
+
+The complete example can [be found example5.py](example/example5.py), in which a simple MLP is built on BERT features for predicting the relevant articles according to the fact description in the law documents. The problem is a part of the [Chinese AI and Law Challenge Competition](https://github.com/thunlp/CAIL/blob/master/README_en.md).
+
+
+### Saving and loading with TFRecord data
+The TFRecord file format is a simple record-oriented binary format that many TensorFlow applications use for training data. You can also pre-encode all your sequences and store their encodings to a TFRecord file, then later load it to build a `tf.Dataset`. For example, to write encoding into a TFRecord file:
+
+```python
+bc = BertClient()
+list_vec = bc.encode(lst_str)
+list_label = [0 for _ in lst_str]  # a dummy list of all-zero labels
+
+# write to tfrecord
+with tf.python_io.TFRecordWriter('tmp.tfrecord') as writer:
+    def create_float_feature(values):
+        return tf.train.Feature(float_list=tf.train.FloatList(value=values))
+
+    def create_int_feature(values):
+        return tf.train.Feature(int64_list=tf.train.Int64List(value=list(values)))
+
+    for (vec, label) in zip(list_vec, list_label):
+        features = {'features': create_float_feature(vec), 'labels': create_int_feature([label])}
+        tf_example = tf.train.Example(features=tf.train.Features(feature=features))
+        writer.write(tf_example.SerializeToString())
+```
+
+Now we can load from it and build a `tf.Dataset`:
+```python
+def _decode_record(record):
+    """Decodes a record to a TensorFlow example."""
+    return tf.parse_single_example(record, {
+        'features': tf.FixedLenFeature([768], tf.float32),
+        'labels': tf.FixedLenFeature([], tf.int64),
+    })
+
+ds = (tf.data.TFRecordDataset('tmp.tfrecord').repeat().shuffle(buffer_size=100).apply(
+    tf.contrib.data.map_and_batch(lambda record: _decode_record(record), batch_size=64))
+      .make_one_shot_iterator().get_next())
+```
+
+The complete example can [be found example6.py](example/example6.py). 
+
+To save word/token-level embedding to TFRecord, one needs to first flatten `[max_seq_len, num_hidden]` tensor into an 1D array as follows:
+```python
+def create_float_feature(values):
+    return tf.train.Feature(float_list=tf.train.FloatList(value=values.reshape(-1)))
+```
+And later reconstruct the shape when loading it:
+```python
+name_to_features = {
+    "feature": tf.FixedLenFeature([max_seq_length * num_hidden], tf.float32),
+    "label_ids": tf.FixedLenFeature([], tf.int64),
+}
+    
+def _decode_record(record, name_to_features):
+    """Decodes a record to a TensorFlow example."""
+    example = tf.parse_single_example(record, name_to_features)
+    example['feature'] = tf.reshape(example['feature'], [max_seq_length, -1])
+    return example
+```
+Be careful, this will generate a huge TFRecord file.
+
+### Asynchronous encoding
+
+`BertClient.encode()` offers a nice synchronous way to get sentence encodes. However,   sometimes we want to do it in an asynchronous manner by feeding all textual data to the server first, fetching the encoded results later. This can be easily done by:
+```python
+# an endless data stream, generating data in an extremely fast speed
+def text_gen():
+    while True:
+        yield lst_str  # yield a batch of text lines
+
+bc = BertClient()
+
+# get encoded vectors
+for j in bc.encode_async(text_gen(), max_num_batch=10):
+    print('received %d x %d' % (j.shape[0], j.shape[1]))
+```
+
+The complete example can [be found example2.py](example/example2.py).
+
+### Broadcasting to multiple clients
+
+The encoded result is routed to the client according to its identity. If you have multiple clients with same identity, then they all receive the results! You can use this *multicast* feature to do some cool things, e.g. training multiple different models (some using `scikit-learn` some using `tensorflow`) in multiple separated processes while only call `BertServer` once. In the example below, `bc` and its two clones will all receive encoded vector.
+
+```python
+# clone a client by reusing the identity 
+def client_clone(id, idx):
+    bc = BertClient(identity=id)
+    for j in bc.listen():
+        print('clone-client-%d: received %d x %d' % (idx, j.shape[0], j.shape[1]))
+
+bc = BertClient()
+# start two cloned clients sharing the same identity as bc
+for j in range(2):
+    threading.Thread(target=client_clone, args=(bc.identity, j)).start()
+
+for _ in range(3):
+    bc.encode(lst_str)
+```
+The complete example can [be found in example3.py](example/example3.py).
+
 
 ## FAQ
 
@@ -569,214 +786,3 @@ As one can observe, 1 clients 1 GPU = 381 seqs/s, 2 clients 2 GPU 402 seqs/s, 4 
 | [-11]           | 1523  | 2737  | 4752  |
 | [-12]           | 1568  | 2985  | 5303  |
 
-
-## Tutorial
-
-> The full list of examples can be found in [`example/`](example). You can run each via `python example/example-k.py`. Note that they are only tested on Python 3.
-
-### Getting ELMo-like contextual word embedding
-
-Start the server with `pooling_strategy` set to NONE.
-```bash
-bert-serving-start -pooling_strategy NONE -model_dir /tmp/english_L-12_H-768_A-12/
-```
-
-To get the word embedding corresponds to every token, you can simply use slice index as follows:
-```python
-# max_seq_len = 25
-# pooling_strategy = NONE
-
-bc = BertClient()
-vec = bc.encode(['hey you', 'whats up?'])
-
-vec  # [2, 25, 768]
-vec[0]  # [1, 25, 768], sentence embeddings for `hey you`
-vec[0][0]  # [1, 1, 768], word embedding for `[CLS]`
-vec[0][1]  # [1, 1, 768], word embedding for `hey`
-vec[0][2]  # [1, 1, 768], word embedding for `you`
-vec[0][3]  # [1, 1, 768], word embedding for `[SEP]`
-vec[0][4]  # [1, 1, 768], word embedding for padding symbol
-vec[0][25]  # error, out of index!
-```
-
-Note that no matter how long your original sequence is, the service will always return a `[max_seq_len, 768]` matrix for every sequence. When using slice index to get the word embedding, beware of the special tokens padded to the sequence, i.e. `[CLS]`, `[SEP]`, `0_PAD`. 
-
-### Using your own tokenizer
-
-Often you want to use your own tokenizer to segment sentences instead of the default one from BERT. Simply call `encode(is_tokenized=True)` on the client slide as follows:
-
-```python
-texts = ['hello world!', 'good day']
-
-# a naive whitespace tokenizer
-texts2 = [s.split() for s in texts]
-
-vecs = bc.encode(texts2, is_tokenized=True)
-```
-This gives `[2, 25, 768]` tensor where the first `[1, 25, 768]` corresponds to the token-level encoding of "hello world!". If you look into its values, you will find that only the first four elements, i.e. `[1, 0:3, 768]` have values, all the others are zeros. This is due to the fact that BERT considers "hello world!" as four tokens: `[CLS]` `hello` `world!` `[SEP]`, the rest are padding symbols and are masked out before output.
-
-Note that there is no need to start a separate server for handling tokenized/untokenized sentences. The server can tell and handle both cases automatically.
-
-Beware that the pretrained BERT Chinese from Google is character-based, i.e. its vocabulary is made of single Chinese characters. Therefore it makes no sense if you use word-level segmentation algorithm to pre-process the data and feed to such model.
-
-
-### Using `BertClient` with `tf.data` API
-
-The [`tf.data`](https://www.tensorflow.org/guide/datasets) API enables you to build complex input pipelines from simple, reusable pieces. One can also use `BertClient` to encode sentences on-the-fly and use the vectors in a downstream model. Here is an example:
-
-```python
-batch_size = 256
-num_parallel_calls = 4
-num_clients = num_parallel_calls * 2  # should be at least greater than `num_parallel_calls`
-
-# start a pool of clients
-bc_clients = [BertClient(show_server_config=False) for _ in range(num_clients)]
-
-
-def get_encodes(x):
-    # x is `batch_size` of lines, each of which is a json object
-    samples = [json.loads(l) for l in x]
-    text = [s['raw_text'] for s in samples]  # List[List[str]]
-    labels = [s['label'] for s in samples]  # List[str]
-    # get a client from available clients
-    bc_client = bc_clients.pop()
-    features = bc_client.encode(text)
-    # after use, put it back
-    bc_clients.append(bc_client)
-    return features, labels
-
-
-ds = (tf.data.TextLineDataset(train_fp).batch(batch_size)
-        .map(lambda x: tf.py_func(get_encodes, [x], [tf.float32, tf.string]),  num_parallel_calls=num_parallel_calls)
-        .map(lambda x, y: {'feature': x, 'label': y})
-        .make_one_shot_iterator().get_next())
-```
-
-The trick here is to start a pool of `BertClient` and reuse them one by one. In this way, we can fully harness the power of `num_parallel_calls` of `Dataset.map()` API.  
-
-The complete example can [be found example4.py](example/example4.py). There is also [an example in Keras](https://github.com/hanxiao/bert-as-service/issues/29#issuecomment-442362241). 
-
-### Training a text classifier using BERT features and `tf.estimator` API
-
-Following the last example, we can easily extend it to a full classifier using `tf.estimator` API. One only need minor change on the input function as follows:
-
-```python
-estimator = DNNClassifier(
-    hidden_units=[512],
-    feature_columns=[tf.feature_column.numeric_column('feature', shape=(768,))],
-    n_classes=len(laws),
-    config=run_config,
-    label_vocabulary=laws_str,
-    dropout=0.1)
-
-input_fn = lambda fp: (tf.data.TextLineDataset(fp)
-                       .apply(tf.contrib.data.shuffle_and_repeat(buffer_size=10000))
-                       .batch(batch_size)
-                       .map(lambda x: tf.py_func(get_encodes, [x], [tf.float32, tf.string]), num_parallel_calls=num_parallel_calls)
-                       .map(lambda x, y: ({'feature': x}, y))
-                       .prefetch(20))
-
-train_spec = TrainSpec(input_fn=lambda: input_fn(train_fp))
-eval_spec = EvalSpec(input_fn=lambda: input_fn(eval_fp), throttle_secs=0)
-train_and_evaluate(estimator, train_spec, eval_spec)
-```
-
-The complete example can [be found example5.py](example/example5.py), in which a simple MLP is built on BERT features for predicting the relevant articles according to the fact description in the law documents. The problem is a part of the [Chinese AI and Law Challenge Competition](https://github.com/thunlp/CAIL/blob/master/README_en.md).
-
-
-### Saving and loading with TFRecord data
-The TFRecord file format is a simple record-oriented binary format that many TensorFlow applications use for training data. You can also pre-encode all your sequences and store their encodings to a TFRecord file, then later load it to build a `tf.Dataset`. For example, to write encoding into a TFRecord file:
-
-```python
-bc = BertClient()
-list_vec = bc.encode(lst_str)
-list_label = [0 for _ in lst_str]  # a dummy list of all-zero labels
-
-# write to tfrecord
-with tf.python_io.TFRecordWriter('tmp.tfrecord') as writer:
-    def create_float_feature(values):
-        return tf.train.Feature(float_list=tf.train.FloatList(value=values))
-
-    def create_int_feature(values):
-        return tf.train.Feature(int64_list=tf.train.Int64List(value=list(values)))
-
-    for (vec, label) in zip(list_vec, list_label):
-        features = {'features': create_float_feature(vec), 'labels': create_int_feature([label])}
-        tf_example = tf.train.Example(features=tf.train.Features(feature=features))
-        writer.write(tf_example.SerializeToString())
-```
-
-Now we can load from it and build a `tf.Dataset`:
-```python
-def _decode_record(record):
-    """Decodes a record to a TensorFlow example."""
-    return tf.parse_single_example(record, {
-        'features': tf.FixedLenFeature([768], tf.float32),
-        'labels': tf.FixedLenFeature([], tf.int64),
-    })
-
-ds = (tf.data.TFRecordDataset('tmp.tfrecord').repeat().shuffle(buffer_size=100).apply(
-    tf.contrib.data.map_and_batch(lambda record: _decode_record(record), batch_size=64))
-      .make_one_shot_iterator().get_next())
-```
-
-The complete example can [be found example6.py](example/example6.py). 
-
-To save word/token-level embedding to TFRecord, one needs to first flatten `[max_seq_len, num_hidden]` tensor into an 1D array as follows:
-```python
-def create_float_feature(values):
-    return tf.train.Feature(float_list=tf.train.FloatList(value=values.reshape(-1)))
-```
-And later reconstruct the shape when loading it:
-```python
-name_to_features = {
-    "feature": tf.FixedLenFeature([max_seq_length * num_hidden], tf.float32),
-    "label_ids": tf.FixedLenFeature([], tf.int64),
-}
-    
-def _decode_record(record, name_to_features):
-    """Decodes a record to a TensorFlow example."""
-    example = tf.parse_single_example(record, name_to_features)
-    example['feature'] = tf.reshape(example['feature'], [max_seq_length, -1])
-    return example
-```
-Be careful, this will generate a huge TFRecord file.
-
-### Asynchronous encoding
-
-`BertClient.encode()` offers a nice synchronous way to get sentence encodes. However,   sometimes we want to do it in an asynchronous manner by feeding all textual data to the server first, fetching the encoded results later. This can be easily done by:
-```python
-# an endless data stream, generating data in an extremely fast speed
-def text_gen():
-    while True:
-        yield lst_str  # yield a batch of text lines
-
-bc = BertClient()
-
-# get encoded vectors
-for j in bc.encode_async(text_gen(), max_num_batch=10):
-    print('received %d x %d' % (j.shape[0], j.shape[1]))
-```
-
-The complete example can [be found example2.py](example/example2.py).
-
-### Broadcasting to multiple clients
-
-The encoded result is routed to the client according to its identity. If you have multiple clients with same identity, then they all receive the results! You can use this *multicast* feature to do some cool things, e.g. training multiple different models (some using `scikit-learn` some using `tensorflow`) in multiple separated processes while only call `BertServer` once. In the example below, `bc` and its two clones will all receive encoded vector.
-
-```python
-# clone a client by reusing the identity 
-def client_clone(id, idx):
-    bc = BertClient(identity=id)
-    for j in bc.listen():
-        print('clone-client-%d: received %d x %d' % (idx, j.shape[0], j.shape[1]))
-
-bc = BertClient()
-# start two cloned clients sharing the same identity as bc
-for j in range(2):
-    threading.Thread(target=client_clone, args=(bc.identity, j)).start()
-
-for _ in range(3):
-    bc.encode(lst_str)
-```
-The complete example can [be found in example3.py](example/example3.py).
