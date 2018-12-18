@@ -1,6 +1,4 @@
-<h1 align="center">
-  bert-as-service
-</h1>
+<h1 align="center">bert-as-service</h1>
 
 <p align="center">Using BERT model as a sentence encoding service, i.e. mapping a variable-length sentence to a fixed-length vector.</p>
 
@@ -219,7 +217,20 @@ A `BertClient` implements the following methods and properties:
 
 <h2 align="center">:book: Tutorial</h2>
 
-> The full list of examples can be found in [`example/`](example). You can run each via `python example/example-k.py`. Note that they are only tested on Python 3.
+The full list of examples can be found in [`example/`](example). You can run each via `python example/example-k.py`. Note that they are only tested on Python 3.
+
+<details>
+ <summary>Table of contents (click to expand...)</summary>
+
+> - [Getting ELMo-like contextual word embedding](#getting-elmo-like-contextual-word-embedding)
+> - [Using your own tokenizer](#using-your-own-tokenizer)
+> - [Using `BertClient` with `tf.data` API](#using-bertclient-with-tfdata-api)
+> - [Training a text classifier using BERT features and tf.estimator API](#training-a-text-classifier-using-bert-features-and-tfestimator-api)
+> - [Saving and loading with TFRecord data](#saving-and-loading-with-tfrecord-data)
+> - [Asynchronous encoding](#asynchronous-encoding)
+> - [Broadcasting to multiple clients](#broadcasting-to-multiple-clients)
+
+</details>
 
 ### Getting ELMo-like contextual word embedding
 
