@@ -180,6 +180,7 @@ bert-serving-start -model_dir [-max_seq_len] [-num_worker] [-max_batch_size] [-p
 | `max_seq_len` | int | `25` | maximum length of sequence, longer sequence will be trimmed on the right side. |
 | `num_worker` | int | `1` | number of (GPU/CPU) worker runs BERT model, each works in a separate process. |
 | `max_batch_size` | int | `256` | maximum number of sequences handled by each worker, larger batch will be partitioned into small batches. |
+| `priority_batch_size` | int | `16` | batch smaller than this size will be labeled as high priority, and jumps forward in the job queue to get result faster |
 | `port` | int | `5555` | port for pushing data from client to server |
 | `port_out` | int | `5556`| port for publishing results from server to client |
 | `pooling_strategy` | str | `REDUCE_MEAN` | the pooling strategy for generating encoding vectors, valid values are `NONE`, `REDUCE_MEAN`, `REDUCE_MAX`, `REDUCE_MEAN_MAX`, `CLS_TOKEN`, `FIRST_TOKEN`, `SEP_TOKEN`, `LAST_TOKEN`. Explanation of these strategies [can be found here](#q-what-are-the-available-pooling-strategies). To get encoding for each token in the sequence, please set this to `NONE`.|

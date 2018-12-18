@@ -42,6 +42,9 @@ def get_args_parser():
                         help='number of server instances')
     parser.add_argument('-max_batch_size', type=int, default=256,
                         help='maximum number of sequences handled by each worker')
+    parser.add_argument('-priority_batch_size', type=int, default=16,
+                        help='batch smaller than this size will be labeled as high priority,'
+                             'and jumps forward in the job queue')
     parser.add_argument('-port', '-port_in', '-port_data', type=int, default=5555,
                         help='server port for receiving data from client')
     parser.add_argument('-port_out', '-port_result', type=int, default=5556,
