@@ -73,6 +73,7 @@
 <h2 align="center">
   Install
 </h2>
+
 You can install the server and client via `pip` either *separately* or even on *different* machines:
 ```bash
 pip install bert-serving-server  # server
