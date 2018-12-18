@@ -442,7 +442,7 @@ The complete example can [be found in example3.py](example/example3.py).
 
 
 <h2 align="center">
-  FAQ
+  :speech_balloon:  FAQ
 </h2>
 
 ##### **Q:** Where is the BERT code come from?
@@ -675,8 +675,9 @@ This will start four workers and allocate them to GPU0, GPU1, GPU4 and again GPU
 Note, `device_map` is ignored when running on CPU.
 
 
-
-## Benchmark
+<h2 align="center">
+:zap: Benchmark
+</h2>
 
 The primary goal of benchmarking is to test the scalability and the speed of this service, which is crucial for using it in a dev/prod environment. Benchmark was done on Tesla M40 24GB, experiments were repeated 10 times and the average value is reported.
 
