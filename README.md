@@ -60,14 +60,19 @@
 
 **Finally, `bert-as-service`** uses BERT as a sentence encoder and hosts it as a service via ZeroMQ, allowing you to map sentences into fixed-length representations in just two lines of code. 
 
-## Highlights
+<h2 align="center">
+  Highlights
+</h2>
 
 - :telescope: **State-of-the-art**: build on pretrained 12/24-layer BERT models released by Google AI, which is considered as a milestone in the NLP community.
 - :hatching_chick: **Easy-to-use**: require only two lines of code to get sentence encodes.
 - :zap: **Fast**: 900 sentences/s on a single Tesla M40 24GB with. See [benchmark](#Benchmark).
 - :octopus: **Scalable**: scale nicely and smoothly on multiple GPUs and multiple clients without worrying about concurrency. See [benchmark](#speed-wrt-num_client).
 
-## Install
+
+<h2 align="center">
+  Install
+</h2>
 You can install the server and client via `pip` either *separately* or even on *different* machines:
 ```bash
 pip install bert-serving-server  # server
@@ -78,7 +83,9 @@ Note that the server MUST be run on **Python >= 3.5** and **Tensorflow >= 1.10**
 
 :point_up: The client can be run on both Python 2 and 3 [for the following consideration](#q-can-i-run-it-in-python-2).
 
-## Usage
+<h2 align="center">
+  Usage
+</h2>
 
 #### 1. Download a Pre-trained BERT Model
 Download a model listed below, then uncompress the zip file into some folder, say `/tmp/english_L-12_H-768_A-12/`
