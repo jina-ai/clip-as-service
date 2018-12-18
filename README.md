@@ -162,6 +162,7 @@ Note that you only need `pip install -U bert-serving-client` in this case, the s
 
 
 <h2 align="center">Server and Client Configurations</h2>
+<p align="right"><a href="#bert-as-service"><sup>▴ Back to top</sup></a></p>
 
 
 ### Server-side configs
@@ -216,6 +217,7 @@ A `BertClient` implements the following methods and properties:
 
 
 <h2 align="center">:book: Tutorial</h2>
+<p align="right"><a href="#bert-as-service"><sup>▴ Back to top</sup></a></p>
 
 The full list of examples can be found in [`example/`](example). You can run each via `python example/example-k.py`. Note that they are only tested on Python 3.
 
@@ -441,6 +443,7 @@ The complete example can [be found in example3.py](example/example3.py).
 
 
 <h2 align="center">:speech_balloon: FAQ</h2>
+<p align="right"><a href="#bert-as-service"><sup>▴ Back to top</sup></a></p>
 
 ##### **Q:** Where is the BERT code come from?
 
@@ -671,7 +674,6 @@ This will start four workers and allocate them to GPU0, GPU1, GPU4 and again GPU
 
 Note, `device_map` is ignored when running on CPU.
 
-<p align="right"><a href="#bert-as-service"><sup>▴ Back to top</sup></a></p>
 <h2 align="center">:zap: Benchmark</h2>
 <p align="right"><a href="#bert-as-service"><sup>▴ Back to top</sup></a></p>
 
