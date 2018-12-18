@@ -384,8 +384,9 @@ class BertWorker(Process):
             while not self.exit_flag.is_set():
                 events = dict(poller.poll())
                 if sock_hprio in events:
-                    yield_job(sock_hprio)
+                    # yield_job(sock_hprio)
                     self.logger.info('a high priority job received')
+                    sock_hprio.recv_multipart()
                 if sock in events:
                     yield_job(sock)
 
