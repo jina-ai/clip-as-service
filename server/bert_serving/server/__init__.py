@@ -94,6 +94,7 @@ class BertServer(threading.Thread):
         frontend.bind('tcp://*:%d' % self.port)
         addr_front2sink = auto_bind(sink)
         addr_backend_list = [auto_bind(b) for b in backend_socks]
+        self.logger.info('open %d ventilator-worker sockets' % len(addr_backend_list))
 
         # start the sink process
         self.logger.info('start the sink')
