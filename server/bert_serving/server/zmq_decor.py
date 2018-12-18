@@ -12,11 +12,12 @@ import zmq
 class _MyDecorator(_Decorator):
     def __call__(self, *dec_args, **dec_kwargs):
         kw_name, dec_args, dec_kwargs = self.process_decorator_args(*dec_args, **dec_kwargs)
-        num_socket = dec_kwargs.pop('num_socket')
+        num_socket_str = dec_kwargs.pop('num_socket')
 
         def decorator(func):
             @wraps(func)
             def wrapper(*args, **kwargs):
+                num_socket = getattr(args[0], num_socket_str)
                 targets = [self.get_target(*args, **kwargs) for _ in range(num_socket)]
                 with ExitStack() as stack:
                     for target in targets:

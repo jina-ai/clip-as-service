@@ -25,7 +25,6 @@ __all__ = ['__version__', 'BertServer']
 __version__ = '1.5.9'
 
 _tf_ver_ = check_tf_version()
-_num_socket_ = 8  # optimize concurrency for multi-clients
 
 
 class ServerCommand:
@@ -43,6 +42,7 @@ class BertServer(threading.Thread):
         self.max_seq_len = args.max_seq_len
         self.num_worker = args.num_worker
         self.max_batch_size = args.max_batch_size
+        self.num_concurrent_socket = max(8, args.num_worker * 2)  # optimize concurrency for multi-clients
         self.port = args.port
         self.args = args
         self.status_args = {k: (v if k != 'pooling_strategy' else v.value) for k, v in sorted(vars(args).items())}
@@ -81,7 +81,7 @@ class BertServer(threading.Thread):
     @zmqd.context()
     @zmqd.socket(zmq.PULL)
     @zmqd.socket(zmq.PAIR)
-    @multi_socket(zmq.PUSH, num_socket=8)
+    @multi_socket(zmq.PUSH, num_socket='num_concurrent_socket')
     def _run(self, _, frontend, sink, *backend_socks):
 
         def push_new_job(_job_id, _json_msg, _msg_len):
@@ -129,7 +129,7 @@ class BertServer(threading.Thread):
                                       'num_config_request': num_req['config'],
                                       'num_data_request': num_req['data'],
                                       'device_map': device_map,
-                                      'num_sockets': _num_socket_}
+                                      'num_concurrent_socket': self.num_concurrent_socket}
 
                     sink.send_multipart([client, msg, jsonapi.dumps({**status_runtime,
                                                                      **self.status_args,
@@ -290,6 +290,7 @@ class BertWorker(Process):
         self.daemon = True
         self.exit_flag = multiprocessing.Event()
         self.worker_address = worker_address_list
+        self.num_concurrent_socket = len(self.worker_address)
         self.sink_address = sink_address
         self.prefetch_factor = 10
         self.gpu_memory_fraction = args.gpu_memory_fraction
@@ -339,7 +340,7 @@ class BertWorker(Process):
         self._run()
 
     @zmqd.socket(zmq.PUSH)
-    @multi_socket(zmq.PULL, num_socket=_num_socket_)
+    @multi_socket(zmq.PULL, num_socket='num_concurrent_socket')
     def _run(self, sink, *receivers):
         self.logger.info('use device %s, load graph from %s' %
                          ('cpu' if self.device_id < 0 else ('gpu: %d' % self.device_id), self.graph_path))
