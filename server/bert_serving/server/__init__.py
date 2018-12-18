@@ -167,14 +167,10 @@ class BertServer(threading.Thread):
                     job_id = client + b'#' + req_id
                     if int(msg_len) > self.max_batch_size:
                         seqs = jsonapi.loads(msg)
-                        # partition the large batch into small batches
-                        s_idx = 0
-                        while s_idx < int(msg_len):
-                            tmp = seqs[s_idx: (s_idx + self.max_batch_size)]
-                            if tmp:
-                                partial_job_id = job_id + b'@%d' % s_idx
-                                backend.send_multipart([partial_job_id, jsonapi.dumps(tmp)])
-                            s_idx += len(tmp)
+                        job_gen = ((job_id + b'@%d' % i, seqs[i:(i + self.max_batch_size)]) for i in
+                                   range(0, int(msg_len), self.max_batch_size))
+                        for partial_job_id, job in job_gen:
+                            backend.send_multipart([partial_job_id, jsonapi.dumps(job)])
                     else:
                         backend.send_multipart([job_id, msg])
             except ValueError:
