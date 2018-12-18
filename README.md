@@ -34,9 +34,9 @@
   <a href="#install">Install</a> •
   <a href="#usage">Usage</a> •
   <a href="#server-and-client-configurations">Configuration</a> •
-  <a href="#tutorial">Tutorial</a> •
-  <a href="#faq">FAQ</a> •
-  <a href="#benchmark">Benchmark</a>
+  <a href="#book-tutorial">Tutorial</a> •
+  <a href="#speech_balloon-faq">FAQ</a> •
+  <a href="#zap-benchmark">Benchmark</a>
   
 </p>
 
@@ -60,7 +60,7 @@
 
 - :telescope: **State-of-the-art**: build on pretrained 12/24-layer BERT models released by Google AI, which is considered as a milestone in the NLP community.
 - :hatching_chick: **Easy-to-use**: require only two lines of code to get sentence encodes.
-- :zap: **Fast**: 900 sentences/s on a single Tesla M40 24GB with. See [benchmark](#Benchmark).
+- :zap: **Fast**: 900 sentences/s on a single Tesla M40 24GB with. See [benchmark](#zap-benchmark).
 - :octopus: **Scalable**: scale nicely and smoothly on multiple GPUs and multiple clients without worrying about concurrency. See [benchmark](#speed-wrt-num_client).
 
 
@@ -522,7 +522,7 @@ Intuitively, `pooling_layer=-1` is close to the training output, so it may be bi
 
 ##### **Q:** Did you benchmark the efficiency?
 
-**A:** Yes. See [Benchmark](#Benchmark).
+**A:** Yes. See [Benchmark](#zap-benchmark).
 
 To reproduce the results, please run [`python benchmark.py`](benchmark.py).
 
