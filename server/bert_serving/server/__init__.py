@@ -86,8 +86,10 @@ class BertServer(threading.Thread):
             """ push to backend based on the msg length """
             if _msg_len <= self.args.priority_batch_size:
                 backend_hprio.send_multipart([_job_id, _json_msg])
+                self.logger.info('a high priority job is pushed')
             else:
                 backend.send_multipart([_job_id, _json_msg])
+                self.logger.info('a job is pushed')
 
         # bind all sockets
         self.logger.info('bind all sockets')
