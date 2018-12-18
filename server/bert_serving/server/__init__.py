@@ -79,12 +79,22 @@ class BertServer(threading.Thread):
     @zmqd.socket(zmq.PULL)
     @zmqd.socket(zmq.PAIR)
     @zmqd.socket(zmq.PUSH)
-    def _run(self, _, frontend, sink, backend):
+    @zmqd.socket(zmq.PUSH)
+    def _run(self, _, frontend, sink, backend, backend_hprio):
+
+        def push_new_job(_job_id, _json_msg, _msg_len):
+            """ push to backend based on the msg length """
+            if _msg_len <= self.args.priority_batch_size:
+                backend_hprio.send_multipart([_job_id, _json_msg])
+            else:
+                backend.send_multipart([_job_id, _json_msg])
+
         # bind all sockets
         self.logger.info('bind all sockets')
         frontend.bind('tcp://*:%d' % self.port)
         addr_front2sink = auto_bind(sink)
         addr_backend = auto_bind(backend)
+        addr_backend_hprio = auto_bind(backend_hprio)  # a new socket for high priority job
 
         # start the sink process
         self.logger.info('start the sink')
@@ -93,6 +103,60 @@ class BertServer(threading.Thread):
         proc_sink.start()
         addr_sink = sink.recv().decode('ascii')
 
+        # start the backend processes
+        device_map = self._get_device_map()
+        for idx, device_id in enumerate(device_map):
+            process = BertWorker(idx, self.args, addr_backend, addr_backend_hprio, addr_sink, device_id,
+                                 self.graph_path)
+            self.processes.append(process)
+            process.start()
+
+        num_req = defaultdict(int)
+        while True:
+            try:
+                request = frontend.recv_multipart()
+                client, msg, req_id, msg_len = request
+                if msg == ServerCommand.terminate:
+                    break
+                elif msg == ServerCommand.show_config:
+                    num_req['config'] += 1
+                    self.logger.info('new config request\treq id: %d\tclient: %s' % (int(req_id), client))
+                    status_runtime = {'client': client.decode('ascii'),
+                                      'num_process': len(self.processes),
+                                      'ventilator -> worker': addr_backend,
+                                      'worker -> sink': addr_sink,
+                                      'ventilator <-> sink': addr_front2sink,
+                                      'server_current_time': str(datetime.now()),
+                                      'num_config_request': num_req['config'],
+                                      'num_data_request': num_req['data'],
+                                      'device_map': device_map}
+
+                    sink.send_multipart([client, msg, jsonapi.dumps({**status_runtime,
+                                                                     **self.status_args,
+                                                                     **self.status_static}), req_id])
+                else:
+                    num_req['data'] += 1
+                    self.logger.info('new encode request\treq id: %d\tsize: %d\tclient: %s' %
+                                     (int(req_id), int(msg_len), client))
+                    # register a new job at sink
+                    sink.send_multipart([client, ServerCommand.new_job, msg_len, req_id])
+
+                    job_id = client + b'#' + req_id
+                    if int(msg_len) > self.max_batch_size:
+                        seqs = jsonapi.loads(msg)
+                        job_gen = ((job_id + b'@%d' % i, seqs[i:(i + self.max_batch_size)]) for i in
+                                   range(0, int(msg_len), self.max_batch_size))
+                        for partial_job_id, job in job_gen:
+                            push_new_job(partial_job_id, jsonapi.dumps(job), len(job))
+                    else:
+                        push_new_job(job_id, msg, int(msg_len))
+            except ValueError:
+                self.logger.error('received a wrongly-formatted request (expected 4 frames, got %d)' % len(request))
+                self.logger.error('\n'.join('field %d: %s' % (idx, k) for idx, k in enumerate(request)))
+
+        self.logger.info('terminated!')
+
+    def _get_device_map(self):
         self.logger.info('get devices')
         run_on_gpu = False
         device_map = [-1] * self.num_worker
@@ -123,61 +187,10 @@ class BertServer(threading.Thread):
             except FileNotFoundError:
                 self.logger.warning('nvidia-smi is missing, often means no gpu on this machine. '
                                     'fall back to cpu!')
-
         self.logger.info('device map: \n\t\t%s' % '\n\t\t'.join(
             'worker %2d -> %s' % (w_id, ('gpu %2d' % g_id) if g_id >= 0 else 'cpu') for w_id, g_id in
             enumerate(device_map)))
-
-        # start the backend processes
-        for idx, device_id in enumerate(device_map):
-            process = BertWorker(idx, self.args, addr_backend, addr_sink, device_id, self.graph_path)
-            self.processes.append(process)
-            process.start()
-
-        num_req = defaultdict(int)
-        while True:
-            try:
-                request = frontend.recv_multipart()
-                client, msg, req_id, msg_len = request
-                if msg == ServerCommand.terminate:
-                    break
-                elif msg == ServerCommand.show_config:
-                    num_req['config'] += 1
-                    self.logger.info('new config request\treq id: %d\tclient: %s' % (int(req_id), client))
-                    status_runtime = {'client': client.decode('ascii'),
-                                      'num_process': len(self.processes),
-                                      'ventilator -> worker': addr_backend,
-                                      'worker -> sink': addr_sink,
-                                      'ventilator <-> sink': addr_front2sink,
-                                      'server_current_time': str(datetime.now()),
-                                      'num_config_request': num_req['config'],
-                                      'num_data_request': num_req['data'],
-                                      'run_on_gpu': run_on_gpu}
-
-                    sink.send_multipart([client, msg, jsonapi.dumps({**status_runtime,
-                                                                     **self.status_args,
-                                                                     **self.status_static}), req_id])
-                else:
-                    num_req['data'] += 1
-                    self.logger.info('new encode request\treq id: %d\tsize: %d\tclient: %s' %
-                                     (int(req_id), int(msg_len), client))
-                    # register a new job at sink
-                    sink.send_multipart([client, ServerCommand.new_job, msg_len, req_id])
-
-                    job_id = client + b'#' + req_id
-                    if int(msg_len) > self.max_batch_size:
-                        seqs = jsonapi.loads(msg)
-                        job_gen = ((job_id + b'@%d' % i, seqs[i:(i + self.max_batch_size)]) for i in
-                                   range(0, int(msg_len), self.max_batch_size))
-                        for partial_job_id, job in job_gen:
-                            backend.send_multipart([partial_job_id, jsonapi.dumps(job)])
-                    else:
-                        backend.send_multipart([job_id, msg])
-            except ValueError:
-                self.logger.error('received a wrongly-formatted request (expected 4 frames, got %d)' % len(request))
-                self.logger.error('\n'.join('field %d: %s' % (idx, k) for idx, k in enumerate(request)))
-
-        self.logger.info('terminated!')
+        return device_map
 
 
 class BertSink(Process):
@@ -264,7 +277,7 @@ class BertSink(Process):
 
 
 class BertWorker(Process):
-    def __init__(self, id, args, worker_address, sink_address, device_id, graph_path):
+    def __init__(self, id, args, worker_address, worker_address_hprio, sink_address, device_id, graph_path):
         super().__init__()
         self.worker_id = id
         self.device_id = device_id
@@ -273,6 +286,7 @@ class BertWorker(Process):
         self.daemon = True
         self.exit_flag = multiprocessing.Event()
         self.worker_address = worker_address
+        self.worker_address_hprio = worker_address_hprio
         self.sink_address = sink_address
         self.prefetch_factor = 10
         self.gpu_memory_fraction = args.gpu_memory_fraction
@@ -322,8 +336,9 @@ class BertWorker(Process):
         self._run()
 
     @zmqd.socket(zmq.PULL)
+    @zmqd.socket(zmq.PULL)
     @zmqd.socket(zmq.PUSH)
-    def _run(self, receiver, sink):
+    def _run(self, receiver, receiver_hprio, sink):
         self.logger.info('use device %s, load graph from %s' %
                          ('cpu' if self.device_id < 0 else ('gpu: %d' % self.device_id), self.graph_path))
 
@@ -331,22 +346,21 @@ class BertWorker(Process):
         estimator = self.get_estimator(tf)
 
         receiver.connect(self.worker_address)
+        receiver_hprio.connect(self.worker_address_hprio)
+
         sink.connect(self.sink_address)
-        for r in estimator.predict(self.input_fn_builder(receiver, tf), yield_single_examples=False):
+        for r in estimator.predict(self.input_fn_builder(receiver, receiver_hprio, tf), yield_single_examples=False):
             send_ndarray(sink, r['client_id'], r['encodes'])
             self.logger.info('job done\tsize: %s\tclient: %s' % (r['encodes'].shape, r['client_id']))
 
-    def input_fn_builder(self, worker, tf):
+    def input_fn_builder(self, sock, sock_hprio, tf):
         from .bert.extract_features import convert_lst_to_features
         from .bert.tokenization import FullTokenizer
 
         def gen():
-            tokenizer = FullTokenizer(vocab_file=os.path.join(self.model_dir, 'vocab.txt'))
-            self.logger.info('ready and listening!')
-
-            while not self.exit_flag.is_set():
-                client_id, msg = worker.recv_multipart()
-                msg = jsonapi.loads(msg)
+            def yield_job(socket):
+                client_id, raw_msg = socket.recv_multipart()
+                msg = jsonapi.loads(raw_msg)
                 self.logger.info('new job\tsize: %d\tclient: %s' % (len(msg), client_id))
                 # check if msg is a list of list, if yes consider the input is already tokenized
                 is_tokenized = all(isinstance(el, list) for el in msg)
@@ -357,6 +371,21 @@ class BertWorker(Process):
                     'input_mask': [f.input_mask for f in tmp_f],
                     'input_type_ids': [f.input_type_ids for f in tmp_f]
                 }
+
+            tokenizer = FullTokenizer(vocab_file=os.path.join(self.model_dir, 'vocab.txt'))
+            poller = zmq.Poller()
+            poller.register(sock, zmq.POLLIN)
+            poller.register(sock_hprio, zmq.POLLIN)
+
+            self.logger.info('ready and listening!')
+
+            while not self.exit_flag.is_set():
+                events = dict(poller.poll())
+                if sock_hprio in events:
+                    yield_job(sock_hprio)
+                    self.logger.info('a high priority job received')
+                if sock in events:
+                    yield_job(sock)
 
         def input_fn():
             return (tf.data.Dataset.from_generator(
