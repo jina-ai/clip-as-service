@@ -361,14 +361,14 @@ class BertWorker(Process):
         from .bert.tokenization import FullTokenizer
 
         def gen():
-            def yield_job(socket):
+            def build_job(socket):
                 client_id, raw_msg = socket.recv_multipart()
                 msg = jsonapi.loads(raw_msg)
                 self.logger.info('new job\tsize: %d\tclient: %s' % (len(msg), client_id))
                 # check if msg is a list of list, if yes consider the input is already tokenized
                 is_tokenized = all(isinstance(el, list) for el in msg)
                 tmp_f = list(convert_lst_to_features(msg, self.max_seq_len, tokenizer, is_tokenized))
-                yield {
+                return {
                     'client_id': client_id,
                     'input_ids': [f.input_ids for f in tmp_f],
                     'input_mask': [f.input_mask for f in tmp_f],
@@ -385,11 +385,10 @@ class BertWorker(Process):
             while not self.exit_flag.is_set():
                 events = dict(poller.poll())
                 if sock_hprio in events:
-                    # yield_job(sock_hprio)
                     self.logger.info('a high priority job received')
-                    sock_hprio.recv_multipart()
+                    yield build_job(sock_hprio)
                 if sock in events:
-                    yield_job(sock)
+                    yield build_job(sock)
 
         def input_fn():
             return (tf.data.Dataset.from_generator(
