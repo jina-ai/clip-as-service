@@ -1,6 +1,4 @@
-<h1 align="center">
-  bert-as-service
-</h1>
+<h1 align="center">bert-as-service</h1>
 
 <p align="center">Using BERT model as a sentence encoding service, i.e. mapping a variable-length sentence to a fixed-length vector.</p>
 
@@ -36,9 +34,9 @@
   <a href="#install">Install</a> •
   <a href="#usage">Usage</a> •
   <a href="#server-and-client-configurations">Configuration</a> •
-  <a href="#tutorial">Tutorial</a> •
-  <a href="#faq">FAQ</a> •
-  <a href="#benchmark">Benchmark</a>
+  <a href="#book-tutorial">Tutorial</a> •
+  <a href="#speech_balloon-faq">FAQ</a> •
+  <a href="#zap-benchmark">Benchmark</a>
   
 </p>
 
@@ -48,7 +46,8 @@
 
 <h6 align="center">Made by Han Xiao • :globe_with_meridians: <a href="https://hanxiao.github.io">https://hanxiao.github.io</a></h6>
 
-## What is it
+
+<h2 align="center">What is it</h2>
 
 **BERT** is a NLP model [developed by Google](https://github.com/google-research/bert) for pre-training language representations. It leverages an enormous amount of plain text data publicly available on the web and is trained in an unsupervised manner. Pre-training a BERT model is a fairly expensive yet one-time procedure for each language. Fortunately, Google released several pre-trained models where [you can download from here](https://github.com/google-research/bert#pre-trained-models).
 
@@ -57,14 +56,16 @@
 
 **Finally, `bert-as-service`** uses BERT as a sentence encoder and hosts it as a service via ZeroMQ, allowing you to map sentences into fixed-length representations in just two lines of code. 
 
-## Highlights
+<h2 align="center">Highlights</h2>
 
 - :telescope: **State-of-the-art**: build on pretrained 12/24-layer BERT models released by Google AI, which is considered as a milestone in the NLP community.
 - :hatching_chick: **Easy-to-use**: require only two lines of code to get sentence encodes.
-- :zap: **Fast**: 900 sentences/s on a single Tesla M40 24GB with. See [benchmark](#Benchmark).
+- :zap: **Fast**: 900 sentences/s on a single Tesla M40 24GB with. See [benchmark](#zap-benchmark).
 - :octopus: **Scalable**: scale nicely and smoothly on multiple GPUs and multiple clients without worrying about concurrency. See [benchmark](#speed-wrt-num_client).
 
-## Install
+
+<h2 align="center">Install</h2>
+
 You can install the server and client via `pip` either *separately* or even on *different* machines:
 ```bash
 pip install bert-serving-server  # server
@@ -75,7 +76,7 @@ Note that the server MUST be run on **Python >= 3.5** and **Tensorflow >= 1.10**
 
 :point_up: The client can be run on both Python 2 and 3 [for the following consideration](#q-can-i-run-it-in-python-2).
 
-## Usage
+<h2 align="center">Usage</h2>
 
 #### 1. Download a Pre-trained BERT Model
 Download a model listed below, then uncompress the zip file into some folder, say `/tmp/english_L-12_H-768_A-12/`
@@ -159,8 +160,10 @@ Note that you only need `pip install -U bert-serving-client` in this case, the s
 > - [Asynchronous encoding](#asynchronous-encoding)
 > - [Broadcasting to multiple clients](#broadcasting-to-multiple-clients)
 
- 
-## Server and Client Configurations
+
+<h2 align="center">Server and Client Configurations</h2>
+<p align="right"><a href="#bert-as-service"><sup>▴ Back to top</sup></a></p>
+
 
 ### Server-side configs
 
@@ -213,9 +216,23 @@ A `BertClient` implements the following methods and properties:
 
 
 
-## Tutorial
+<h2 align="center">:book: Tutorial</h2>
+<p align="right"><a href="#bert-as-service"><sup>▴ Back to top</sup></a></p>
 
-> The full list of examples can be found in [`example/`](example). You can run each via `python example/example-k.py`. Note that they are only tested on Python 3.
+The full list of examples can be found in [`example/`](example). You can run each via `python example/example-k.py`. Note that they are only tested on Python 3.
+
+<details>
+ <summary>Table of contents (click to expand...)</summary>
+
+> - [Getting ELMo-like contextual word embedding](#getting-elmo-like-contextual-word-embedding)
+> - [Using your own tokenizer](#using-your-own-tokenizer)
+> - [Using `BertClient` with `tf.data` API](#using-bertclient-with-tfdata-api)
+> - [Training a text classifier using BERT features and tf.estimator API](#training-a-text-classifier-using-bert-features-and-tfestimator-api)
+> - [Saving and loading with TFRecord data](#saving-and-loading-with-tfrecord-data)
+> - [Asynchronous encoding](#asynchronous-encoding)
+> - [Broadcasting to multiple clients](#broadcasting-to-multiple-clients)
+
+</details>
 
 ### Getting ELMo-like contextual word embedding
 
@@ -425,7 +442,8 @@ for _ in range(3):
 The complete example can [be found in example3.py](example/example3.py).
 
 
-## FAQ
+<h2 align="center">:speech_balloon: FAQ</h2>
+<p align="right"><a href="#bert-as-service"><sup>▴ Back to top</sup></a></p>
 
 ##### **Q:** Where is the BERT code come from?
 
@@ -507,7 +525,7 @@ Intuitively, `pooling_layer=-1` is close to the training output, so it may be bi
 
 ##### **Q:** Did you benchmark the efficiency?
 
-**A:** Yes. See [Benchmark](#Benchmark).
+**A:** Yes. See [Benchmark](#zap-benchmark).
 
 To reproduce the results, please run [`python benchmark.py`](benchmark.py).
 
@@ -656,9 +674,8 @@ This will start four workers and allocate them to GPU0, GPU1, GPU4 and again GPU
 
 Note, `device_map` is ignored when running on CPU.
 
-
-
-## Benchmark
+<h2 align="center">:zap: Benchmark</h2>
+<p align="right"><a href="#bert-as-service"><sup>▴ Back to top</sup></a></p>
 
 The primary goal of benchmarking is to test the scalability and the speed of this service, which is crucial for using it in a dev/prod environment. Benchmark was done on Tesla M40 24GB, experiments were repeated 10 times and the average value is reported.
 
