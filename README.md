@@ -170,8 +170,11 @@ Note that you only need `pip install -U bert-serving-client` in this case, the s
 > - [Asynchronous encoding](#asynchronous-encoding)
 > - [Broadcasting to multiple clients](#broadcasting-to-multiple-clients)
 
- 
-## Server and Client Configurations
+
+<h2 align="center">
+  Server and Client Configurations
+</h2>
+
 
 ### Server-side configs
 
@@ -224,7 +227,9 @@ A `BertClient` implements the following methods and properties:
 
 
 
-## Tutorial
+<h2 align="center">
+  :book:  Tutorial
+</h2>
 
 > The full list of examples can be found in [`example/`](example). You can run each via `python example/example-k.py`. Note that they are only tested on Python 3.
 
@@ -436,7 +441,9 @@ for _ in range(3):
 The complete example can [be found in example3.py](example/example3.py).
 
 
-## FAQ
+<h2 align="center">
+  FAQ
+</h2>
 
 ##### **Q:** Where is the BERT code come from?
 
