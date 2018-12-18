@@ -49,9 +49,7 @@
 <h6 align="center">Made by Han Xiao • :globe_with_meridians: <a href="https://hanxiao.github.io">https://hanxiao.github.io</a></h6>
 
 
-<h2 align="center">
-  What is it
-</h2>
+<h2 align="center">What is it</h2>
 
 **BERT** is a NLP model [developed by Google](https://github.com/google-research/bert) for pre-training language representations. It leverages an enormous amount of plain text data publicly available on the web and is trained in an unsupervised manner. Pre-training a BERT model is a fairly expensive yet one-time procedure for each language. Fortunately, Google released several pre-trained models where [you can download from here](https://github.com/google-research/bert#pre-trained-models).
 
@@ -60,9 +58,7 @@
 
 **Finally, `bert-as-service`** uses BERT as a sentence encoder and hosts it as a service via ZeroMQ, allowing you to map sentences into fixed-length representations in just two lines of code. 
 
-<h2 align="center">
-  Highlights
-</h2>
+<h2 align="center">Highlights</h2>
 
 - :telescope: **State-of-the-art**: build on pretrained 12/24-layer BERT models released by Google AI, which is considered as a milestone in the NLP community.
 - :hatching_chick: **Easy-to-use**: require only two lines of code to get sentence encodes.
@@ -70,9 +66,7 @@
 - :octopus: **Scalable**: scale nicely and smoothly on multiple GPUs and multiple clients without worrying about concurrency. See [benchmark](#speed-wrt-num_client).
 
 
-<h2 align="center">
-  Install
-</h2>
+<h2 align="center">Install</h2>
 
 You can install the server and client via `pip` either *separately* or even on *different* machines:
 ```bash
@@ -84,9 +78,7 @@ Note that the server MUST be run on **Python >= 3.5** and **Tensorflow >= 1.10**
 
 :point_up: The client can be run on both Python 2 and 3 [for the following consideration](#q-can-i-run-it-in-python-2).
 
-<h2 align="center">
-  Usage
-</h2>
+<h2 align="center">Usage</h2>
 
 #### 1. Download a Pre-trained BERT Model
 Download a model listed below, then uncompress the zip file into some folder, say `/tmp/english_L-12_H-768_A-12/`
@@ -171,9 +163,7 @@ Note that you only need `pip install -U bert-serving-client` in this case, the s
 > - [Broadcasting to multiple clients](#broadcasting-to-multiple-clients)
 
 
-<h2 align="center">
-  Server and Client Configurations
-</h2>
+<h2 align="center">Server and Client Configurations</h2>
 
 
 ### Server-side configs
@@ -227,9 +217,7 @@ A `BertClient` implements the following methods and properties:
 
 
 
-<h2 align="center">
-  :book:  Tutorial
-</h2>
+<h2 align="center">:book: Tutorial</h2>
 
 > The full list of examples can be found in [`example/`](example). You can run each via `python example/example-k.py`. Note that they are only tested on Python 3.
 
@@ -441,9 +429,7 @@ for _ in range(3):
 The complete example can [be found in example3.py](example/example3.py).
 
 
-<h2 align="center">
-  :speech_balloon:  FAQ
-</h2>
+<h2 align="center">:speech_balloon: FAQ</h2>
 
 ##### **Q:** Where is the BERT code come from?
 
@@ -675,9 +661,7 @@ This will start four workers and allocate them to GPU0, GPU1, GPU4 and again GPU
 Note, `device_map` is ignored when running on CPU.
 
 
-<h2 align="center">
-:zap: Benchmark
-</h2>
+<h2 align="center">:zap: Benchmark</h2>
 
 The primary goal of benchmarking is to test the scalability and the speed of this service, which is crucial for using it in a dev/prod environment. Benchmark was done on Tesla M40 24GB, experiments were repeated 10 times and the average value is reported.
 
