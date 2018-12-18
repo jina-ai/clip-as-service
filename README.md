@@ -671,8 +671,9 @@ This will start four workers and allocate them to GPU0, GPU1, GPU4 and again GPU
 
 Note, `device_map` is ignored when running on CPU.
 
-<p align="right"><a href="#bert-as-service"><sub>▴ Back to top</sub></a></p>
+<p align="right"><a href="#bert-as-service"><sup>▴ Back to top</sup></a></p>
 <h2 align="center">:zap: Benchmark</h2>
+<p align="right"><a href="#bert-as-service"><sup>▴ Back to top</sup></a></p>
 
 The primary goal of benchmarking is to test the scalability and the speed of this service, which is crucial for using it in a dev/prod environment. Benchmark was done on Tesla M40 24GB, experiments were repeated 10 times and the average value is reported.
 
