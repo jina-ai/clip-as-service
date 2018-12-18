@@ -3,6 +3,7 @@
 # Han Xiao <artex.xh@gmail.com> <https://hanxiao.github.io>
 import multiprocessing
 import os
+import random
 import sys
 import threading
 import time
@@ -18,6 +19,7 @@ from termcolor import colored
 from zmq.utils import jsonapi
 
 from .helper import *
+from .zmq_decor import multi_socket
 
 __all__ = ['__version__', 'BertServer']
 __version__ = '1.5.9'
@@ -40,6 +42,7 @@ class BertServer(threading.Thread):
         self.max_seq_len = args.max_seq_len
         self.num_worker = args.num_worker
         self.max_batch_size = args.max_batch_size
+        self.num_concurrent_socket = max(8, args.num_worker * 2)  # optimize concurrency for multi-clients
         self.port = args.port
         self.args = args
         self.status_args = {k: (v if k != 'pooling_strategy' else v.value) for k, v in sorted(vars(args).items())}
@@ -78,23 +81,19 @@ class BertServer(threading.Thread):
     @zmqd.context()
     @zmqd.socket(zmq.PULL)
     @zmqd.socket(zmq.PAIR)
-    @zmqd.socket(zmq.PUSH)
-    @zmqd.socket(zmq.PUSH)
-    def _run(self, _, frontend, sink, backend, backend_hprio):
+    @multi_socket(zmq.PUSH, num_socket='num_concurrent_socket')
+    def _run(self, _, frontend, sink, *backend_socks):
 
         def push_new_job(_job_id, _json_msg, _msg_len):
-            """ push to backend based on the msg length """
-            if _msg_len <= self.args.priority_batch_size:
-                backend_hprio.send_multipart([_job_id, _json_msg])
-            else:
-                backend.send_multipart([_job_id, _json_msg])
+            # backend_socks[0] is always at the highest priority
+            _sock = backend_socks[0] if _msg_len <= self.args.priority_batch_size else rand_backend_socket
+            _sock.send_multipart([_job_id, _json_msg])
 
         # bind all sockets
         self.logger.info('bind all sockets')
         frontend.bind('tcp://*:%d' % self.port)
         addr_front2sink = auto_bind(sink)
-        addr_backend = auto_bind(backend)
-        addr_backend_hprio = auto_bind(backend_hprio)  # a new socket for high priority job
+        addr_backend_list = [auto_bind(b) for b in backend_socks]
 
         # start the sink process
         self.logger.info('start the sink')
@@ -106,11 +105,12 @@ class BertServer(threading.Thread):
         # start the backend processes
         device_map = self._get_device_map()
         for idx, device_id in enumerate(device_map):
-            process = BertWorker(idx, self.args, addr_backend, addr_backend_hprio, addr_sink, device_id,
+            process = BertWorker(idx, self.args, addr_backend_list, addr_sink, device_id,
                                  self.graph_path)
             self.processes.append(process)
             process.start()
 
+        rand_backend_socket = None
         num_req = defaultdict(int)
         while True:
             try:
@@ -123,14 +123,14 @@ class BertServer(threading.Thread):
                     self.logger.info('new config request\treq id: %d\tclient: %s' % (int(req_id), client))
                     status_runtime = {'client': client.decode('ascii'),
                                       'num_process': len(self.processes),
-                                      'ventilator -> worker': addr_backend,
-                                      'ventilator -> worker (priority)': addr_backend_hprio,
+                                      'ventilator -> worker': addr_backend_list,
                                       'worker -> sink': addr_sink,
                                       'ventilator <-> sink': addr_front2sink,
                                       'server_current_time': str(datetime.now()),
                                       'num_config_request': num_req['config'],
                                       'num_data_request': num_req['data'],
-                                      'device_map': device_map}
+                                      'device_map': device_map,
+                                      'num_concurrent_socket': self.num_concurrent_socket}
 
                     sink.send_multipart([client, msg, jsonapi.dumps({**status_runtime,
                                                                      **self.status_args,
@@ -142,6 +142,13 @@ class BertServer(threading.Thread):
                     # register a new job at sink
                     sink.send_multipart([client, ServerCommand.new_job, msg_len, req_id])
 
+                    # renew the backend socket to prevent large job queueing up
+                    # [0] is reserved for high priority job
+                    # last used backennd shouldn't be selected either as it may be queued up already
+                    rand_backend_socket = random.choice([b for b in backend_socks[1:] if b != rand_backend_socket])
+
+                    # push a new job, note super large job will be pushed to one socket only,
+                    # leaving other sockets free
                     job_id = client + b'#' + req_id
                     if int(msg_len) > self.max_batch_size:
                         seqs = jsonapi.loads(msg)
@@ -278,7 +285,7 @@ class BertSink(Process):
 
 
 class BertWorker(Process):
-    def __init__(self, id, args, worker_address, worker_address_hprio, sink_address, device_id, graph_path):
+    def __init__(self, id, args, worker_address_list, sink_address, device_id, graph_path):
         super().__init__()
         self.worker_id = id
         self.device_id = device_id
@@ -286,8 +293,8 @@ class BertWorker(Process):
         self.max_seq_len = args.max_seq_len
         self.daemon = True
         self.exit_flag = multiprocessing.Event()
-        self.worker_address = worker_address
-        self.worker_address_hprio = worker_address_hprio
+        self.worker_address = worker_address_list
+        self.num_concurrent_socket = len(self.worker_address)
         self.sink_address = sink_address
         self.prefetch_factor = 10
         self.gpu_memory_fraction = args.gpu_memory_fraction
@@ -336,57 +343,51 @@ class BertWorker(Process):
     def run(self):
         self._run()
 
-    @zmqd.socket(zmq.PULL)
-    @zmqd.socket(zmq.PULL)
     @zmqd.socket(zmq.PUSH)
-    def _run(self, receiver, receiver_hprio, sink):
+    @multi_socket(zmq.PULL, num_socket='num_concurrent_socket')
+    def _run(self, sink, *receivers):
         self.logger.info('use device %s, load graph from %s' %
                          ('cpu' if self.device_id < 0 else ('gpu: %d' % self.device_id), self.graph_path))
 
         tf = import_tf(self.device_id, self.verbose)
         estimator = self.get_estimator(tf)
 
-        receiver.connect(self.worker_address)
-        receiver_hprio.connect(self.worker_address_hprio)
+        for sock, addr in zip(receivers, self.worker_address):
+            sock.connect(addr)
 
         sink.connect(self.sink_address)
-        for r in estimator.predict(self.input_fn_builder(receiver, receiver_hprio, tf), yield_single_examples=False):
+        for r in estimator.predict(self.input_fn_builder(receivers, tf), yield_single_examples=False):
             send_ndarray(sink, r['client_id'], r['encodes'])
             self.logger.info('job done\tsize: %s\tclient: %s' % (r['encodes'].shape, r['client_id']))
 
-    def input_fn_builder(self, sock, sock_hprio, tf):
+    def input_fn_builder(self, socks, tf):
         from .bert.extract_features import convert_lst_to_features
         from .bert.tokenization import FullTokenizer
 
         def gen():
-            def build_job(socket):
-                client_id, raw_msg = socket.recv_multipart()
-                msg = jsonapi.loads(raw_msg)
-                self.logger.info('new job\tsize: %d\tclient: %s' % (len(msg), client_id))
-                # check if msg is a list of list, if yes consider the input is already tokenized
-                is_tokenized = all(isinstance(el, list) for el in msg)
-                tmp_f = list(convert_lst_to_features(msg, self.max_seq_len, tokenizer, is_tokenized))
-                return {
-                    'client_id': client_id,
-                    'input_ids': [f.input_ids for f in tmp_f],
-                    'input_mask': [f.input_mask for f in tmp_f],
-                    'input_type_ids': [f.input_type_ids for f in tmp_f]
-                }
-
             tokenizer = FullTokenizer(vocab_file=os.path.join(self.model_dir, 'vocab.txt'))
             poller = zmq.Poller()
-            poller.register(sock, zmq.POLLIN)
-            poller.register(sock_hprio, zmq.POLLIN)
+            for sock in socks:
+                poller.register(sock, zmq.POLLIN)
 
             self.logger.info('ready and listening!')
 
             while not self.exit_flag.is_set():
                 events = dict(poller.poll())
-                if sock_hprio in events:
-                    self.logger.info('a high priority job received')
-                    yield build_job(sock_hprio)
-                if sock in events:
-                    yield build_job(sock)
+                for sock_idx, sock in enumerate(socks):
+                    if sock in events:
+                        client_id, raw_msg = sock.recv_multipart()
+                        msg = jsonapi.loads(raw_msg)
+                        self.logger.info('new job\tsocket: %d\tsize: %d\tclient: %s' % (sock_idx, len(msg), client_id))
+                        # check if msg is a list of list, if yes consider the input is already tokenized
+                        is_tokenized = all(isinstance(el, list) for el in msg)
+                        tmp_f = list(convert_lst_to_features(msg, self.max_seq_len, tokenizer, is_tokenized))
+                        yield {
+                            'client_id': client_id,
+                            'input_ids': [f.input_ids for f in tmp_f],
+                            'input_mask': [f.input_mask for f in tmp_f],
+                            'input_type_ids': [f.input_type_ids for f in tmp_f]
+                        }
 
         def input_fn():
             return (tf.data.Dataset.from_generator(
