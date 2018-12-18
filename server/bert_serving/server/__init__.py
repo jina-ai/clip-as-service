@@ -126,6 +126,7 @@ class BertServer(threading.Thread):
                     status_runtime = {'client': client.decode('ascii'),
                                       'num_process': len(self.processes),
                                       'ventilator -> worker': addr_backend,
+                                      'ventilator -> worker (priority)': addr_backend_hprio,
                                       'worker -> sink': addr_sink,
                                       'ventilator <-> sink': addr_front2sink,
                                       'server_current_time': str(datetime.now()),
