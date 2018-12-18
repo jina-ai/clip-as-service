@@ -82,7 +82,7 @@ class BertServer(threading.Thread):
     @zmqd.socket(zmq.PULL)
     @zmqd.socket(zmq.PAIR)
     @multi_socket(zmq.PUSH, num_socket=8)
-    def _run(self, _, frontend, sink, backend_socks):
+    def _run(self, _, frontend, sink, *backend_socks):
 
         def push_new_job(_job_id, _json_msg, _msg_len):
             # backend_socks[0] is always at the highest priority
@@ -340,7 +340,7 @@ class BertWorker(Process):
 
     @zmqd.socket(zmq.PUSH)
     @multi_socket(zmq.PULL, num_socket=_num_socket_)
-    def _run(self, sink, receivers):
+    def _run(self, sink, *receivers):
         self.logger.info('use device %s, load graph from %s' %
                          ('cpu' if self.device_id < 0 else ('gpu: %d' % self.device_id), self.graph_path))
 
