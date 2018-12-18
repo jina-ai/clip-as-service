@@ -110,6 +110,7 @@ class BertServer(threading.Thread):
             self.processes.append(process)
             process.start()
 
+        rand_backend_socket = None
         num_req = defaultdict(int)
         while True:
             try:
@@ -140,8 +141,11 @@ class BertServer(threading.Thread):
                                      (int(req_id), int(msg_len), client))
                     # register a new job at sink
                     sink.send_multipart([client, ServerCommand.new_job, msg_len, req_id])
+
                     # renew the backend socket to prevent large job queueing up
-                    rand_backend_socket = random.choice(backend_socks[1:])
+                    # [0] is reserved for high priority job
+                    # last used backennd shouldn't be selected either as it may be queued up already
+                    rand_backend_socket = random.choice([b for b in backend_socks[1:] if b != rand_backend_socket])
 
                     # push a new job, note super large job will be pushed to one socket only,
                     # leaving other sockets free
