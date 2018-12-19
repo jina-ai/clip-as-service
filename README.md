@@ -178,8 +178,8 @@ bert-serving-start --help
 
 | Argument | Type | Default | Description |
 |--------------------|------|-------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `model_dir` | str |  | folder path of the pre-trained BERT model. |
-| `tuned_model_dir`| str | | folder path of a fine-tuned BERT model. |
+| `model_dir` | str | *Required* | folder path of the pre-trained BERT model. |
+| `tuned_model_dir`| str |` `| folder path of a fine-tuned BERT model. |
 | `ckpt_name`| str | `bert_model.ckpt` | filename of the checkpoint file. |
 | `config_name`| str | `bert_config.json` | filename of the JSON config file for BERT model. | 
 | `max_seq_len` | int | `25` | maximum length of sequence, longer sequence will be trimmed on the right side. |
@@ -307,12 +307,12 @@ model.ckpt-343.meta                               3.9M
 train.tf_record                                   2.0M
 ```
 
-Don't be afraid of those mysterious files, as the only important one to us is `model.ckpt-343.data-00000-of-00001` (looks like my training stops at 343 steps. You may get `model.ckpt-123.data-00000-of-00001` or `model.ckpt-9876.data-00000-of-00001` depending on your total training steps). Now we have collected all three pieces of information that are needed for serving this fine-tuned model:
-1. The pretrained model is downloaded to `/path/to/bert/uncased_L-12_H-768_A-12`
-2. Our fine-tuned model is stored at `/tmp/mrpc_output/`;
-3. Our fine-tuned model checkpoint is named as `model.ckpt-343` something something.
+Don't be afraid of those mysterious files, as the only important one to us is `model.ckpt-343.data-00000-of-00001` (looks like my training stops at the 343 step. One may get `model.ckpt-123.data-00000-of-00001` or `model.ckpt-9876.data-00000-of-00001` depending on the total training steps). Now we have collected all three pieces of information that are needed for serving this fine-tuned model:
+- The pretrained model is downloaded to `/path/to/bert/uncased_L-12_H-768_A-12`
+- Our fine-tuned model is stored at `/tmp/mrpc_output/`;
+- Our fine-tuned model checkpoint is named as `model.ckpt-343` something something.
 
-Now start our BertServer as:
+Now start our BertServer as follows:
 
 ```bash
 bert-serving-start -model_dir=/pretrained/uncased_L-12_H-768_A-12 -tuned_model_dir=/tmp/mrpc_output/ -ckpt_name=model.ckpt-343
