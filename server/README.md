@@ -69,15 +69,15 @@ More features: asynchronous encoding, multicasting, mix GPU & CPU workloads, gra
 
 <h2 align="center">Install</h2>
 
-You can install the server and client via `pip` either *separately* or even on *different* machines:
+Install the server and client via `pip`. They can be installed separately or even on *different* machines:
 ```bash
 pip install bert-serving-server  # server
 pip install bert-serving-client  # client, independent of `bert-serving-server`
 ```
 
-Note that the server MUST be run on **Python >= 3.5** and **Tensorflow >= 1.10** (*one-point-ten*). Again, the server does not support Python 2!
+Note that the server MUST be running on **Python >= 3.5** with **Tensorflow >= 1.10** (*one-point-ten*). Again, the server does not support Python 2!
 
-:point_up: The client can be run on both Python 2 and 3 [for the following consideration](#q-can-i-run-it-in-python-2).
+:point_up: The client can be running on both Python 2 and 3 [for the following consideration](#q-can-i-run-it-in-python-2).
 
 <h2 align="center">Usage</h2>
 
@@ -155,6 +155,8 @@ bc.encode(['First do it', 'then do it right', 'then do it better'])
 Note that you only need `pip install -U bert-serving-client` in this case, the server side is not required.
 
 > :bulb: **Want to learn more? Checkout our tutorial:**
+> - [Building a QA semantic search engine in 3 min.](#building-a-qa-semantic-search-engine-in-3-minutes)
+> - [Serving a fine-tuned BERT model](#serving-a-fine-tuned-bert-model)
 > - [Getting ELMo-like contextual word embedding](#getting-elmo-like-contextual-word-embedding)
 > - [Using your own tokenizer](#using-your-own-tokenizer)
 > - [Using `BertClient` with `tf.data` API](#using-bertclient-with-tfdata-api)
@@ -170,14 +172,17 @@ Note that you only need `pip install -U bert-serving-client` in this case, the s
 
 ### Server-side configs
 
-Server-side is a CLI `bert-serving-start`, you can specify its arguments via:
+Server-side is a CLI `bert-serving-start`, you can get the latest usage via:
 ```bash
-bert-serving-start -model_dir [-max_seq_len] [-num_worker] [-max_batch_size] [-port] [-port_out] [-pooling_strategy] [-pooling_layer]
+bert-serving-start --help
 ```
 
 | Argument | Type | Default | Description |
 |--------------------|------|-------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `model_dir` | str |  | folder path of the pre-trained BERT model. |
+| `model_dir` | str | *Required* | folder path of the pre-trained BERT model. |
+| `tuned_model_dir`| str |` `| folder path of a fine-tuned BERT model. |
+| `ckpt_name`| str | `bert_model.ckpt` | filename of the checkpoint file. |
+| `config_name`| str | `bert_config.json` | filename of the JSON config file for BERT model. | 
 | `max_seq_len` | int | `25` | maximum length of sequence, longer sequence will be trimmed on the right side. |
 | `num_worker` | int | `1` | number of (GPU/CPU) worker runs BERT model, each works in a separate process. |
 | `max_batch_size` | int | `256` | maximum number of sequences handled by each worker, larger batch will be partitioned into small batches. |
@@ -223,11 +228,13 @@ A `BertClient` implements the following methods and properties:
 <h2 align="center">:book: Tutorial</h2>
 <p align="right"><a href="#bert-as-service"><sup>▴ Back to top</sup></a></p>
 
-The full list of examples can be found in [`example/`](example). You can run each via `python example/example-k.py`. Note that they are only tested on Python 3.
+The full list of examples can be found in [`example/`](example). You can run each via `python example/example-k.py`. Most of examples require you to start a BertServer first, please follow [the instruction here](#2-start-the-bert-service). Note that although `BertClient` works universally on both Python 2.x and 3.x, examples are only tested on Python 3.6.
 
 <details>
  <summary>Table of contents (click to expand...)</summary>
 
+> - [Building a QA semantic search engine in 3 min.](#building-a-qa-semantic-search-engine-in-3-minutes)
+> - [Serving a fine-tuned BERT model](#serving-a-fine-tuned-bert-model)
 > - [Getting ELMo-like contextual word embedding](#getting-elmo-like-contextual-word-embedding)
 > - [Using your own tokenizer](#using-your-own-tokenizer)
 > - [Using `BertClient` with `tf.data` API](#using-bertclient-with-tfdata-api)
@@ -237,6 +244,88 @@ The full list of examples can be found in [`example/`](example). You can run eac
 > - [Broadcasting to multiple clients](#broadcasting-to-multiple-clients)
 
 </details>
+
+### Building a QA semantic search engine in 3 minutes
+
+> The complete example can [be found example8.py](example/example8.py).
+
+As the first example, we will implement a simple QA search engine using `bert-as-service` in just three minutes. No kidding! The goal is to find similar questions to user's input and return the corresponding answer. To start, we need a list of question-answer pairs. Fortunately, this README file already contains [a list of FAQ](#speech_balloon-faq), so I will just use that to make this example perfectly self-contained. Let's first load all questions and show some statistics.
+
+```python
+prefix_q = '##### **Q:** '
+with open('README.md') as fp:
+    questions = [v.replace(prefix_q, '').strip() for v in fp if v.strip() and v.startswith(prefix_q)]
+    print('%d questions loaded, avg. len of %d' % (len(questions), np.mean([len(d.split()) for d in questions])))
+```
+
+This gives `33 questions loaded, avg. len of 9`. So looks like we have enough questions. Now start a BertServer with `uncased_L-12_H-768_A-12` pretrained BERT model:
+```bash
+bert-serving-start -num_worker=1 -model_dir=/data/cips/data/lab/data/model/uncased_L-12_H-768_A-12
+```
+ 
+Next, we need to encode our questions into vectors:
+```python
+bc = BertClient(port=4000, port_out=4001)
+doc_vecs = bc.encode(questions)
+```
+
+Finally, we are ready to receive new query and perform a simple "fuzzy" search against the existing questions. To do that, every time a new query is coming, we encode it as a vector and compute its dot product with `doc_vecs`; sort the result descendingly; and return the top-k similar questions as follows: 
+```python
+while True:
+    query = input('your question: ')
+    query_vec = bc.encode([query])[0]
+    # compute simple dot product as score
+    score = np.sum(query_vec * doc_vecs, axis=1)
+    topk_idx = np.argsort(score)[::-1][:topk]
+    for idx in topk_idx:
+        print('> %s\t%s' % (score[idx], questions[idx]))
+```
+
+That's it! Now run the code and type your query, see how this search engine handles fuzzy match:
+<p align="center"><img src=".github/qasearch-demo.gif?raw=true"/></p>
+
+### Serving a fine-tuned BERT model
+
+Pretrained BERT models often show quite "okayish" performance on many tasks. However, to release the true power of BERT a fine-tuning on the downstream task (or on domain-specific data) is necessary. In this example, I will show you how to serve a fine-tuned BERT model.
+
+We follow the instruction in ["Sentence (and sentence-pair) classification tasks"](https://github.com/google-research/bert#sentence-and-sentence-pair-classification-tasks) and use `run_classifier.py` to fine tune `uncased_L-12_H-768_A-12` model on MRPC task. The fine-tuned model is stored at `/tmp/mrpc_output/`, which can be changed by specifying `--output_dir` of `run_classifier.py`.
+
+If you look into `/tmp/mrpc_output/`, it contains something like:
+```bash
+checkpoint                                        128
+eval                                              4.0K
+eval_results.txt                                  86
+eval.tf_record                                    219K
+events.out.tfevents.1545202214.TENCENT64.site     6.1M
+events.out.tfevents.1545203242.TENCENT64.site     14M
+graph.pbtxt                                       9.0M
+model.ckpt-0.data-00000-of-00001                  1.3G
+model.ckpt-0.index                                23K
+model.ckpt-0.meta                                 3.9M
+model.ckpt-343.data-00000-of-00001                1.3G
+model.ckpt-343.index                              23K
+model.ckpt-343.meta                               3.9M
+train.tf_record                                   2.0M
+```
+
+Don't be afraid of those mysterious files, as the only important one to us is `model.ckpt-343.data-00000-of-00001` (looks like my training stops at the 343 step. One may get `model.ckpt-123.data-00000-of-00001` or `model.ckpt-9876.data-00000-of-00001` depending on the total training steps). Now we have collected all three pieces of information that are needed for serving this fine-tuned model:
+- The pretrained model is downloaded to `/path/to/bert/uncased_L-12_H-768_A-12`
+- Our fine-tuned model is stored at `/tmp/mrpc_output/`;
+- Our fine-tuned model checkpoint is named as `model.ckpt-343` something something.
+
+Now start a BertServer by putting three pieces together:
+
+```bash
+bert-serving-start -model_dir=/pretrained/uncased_L-12_H-768_A-12 -tuned_model_dir=/tmp/mrpc_output/ -ckpt_name=model.ckpt-343
+```
+
+After the server started, you should find this line in the log:
+```text
+I:GRAPHOPT:[gra:opt: 50]:checkpoint (override by fine-tuned model): /tmp/mrpc_output/model.ckpt-343
+```
+Which means the BERT parameters is overrode and successfully loaded from our fine-tuned `/tmp/mrpc_output/model.ckpt-343`. Done!
+
+In short, find your fine-tuned model path and checkpoint name, then feed them to `-tuned_model_dir` and `-ckpt_name`, respectively.
 
 ### Getting ELMo-like contextual word embedding
 
@@ -286,6 +375,8 @@ Beware that the pretrained BERT Chinese from Google is character-based, i.e. its
 
 ### Using `BertClient` with `tf.data` API
 
+> The complete example can [be found example4.py](example/example4.py). There is also [an example in Keras](https://github.com/hanxiao/bert-as-service/issues/29#issuecomment-442362241). 
+
 The [`tf.data`](https://www.tensorflow.org/guide/datasets) API enables you to build complex input pipelines from simple, reusable pieces. One can also use `BertClient` to encode sentences on-the-fly and use the vectors in a downstream model. Here is an example:
 
 ```python
@@ -318,9 +409,10 @@ ds = (tf.data.TextLineDataset(train_fp).batch(batch_size)
 
 The trick here is to start a pool of `BertClient` and reuse them one by one. In this way, we can fully harness the power of `num_parallel_calls` of `Dataset.map()` API.  
 
-The complete example can [be found example4.py](example/example4.py). There is also [an example in Keras](https://github.com/hanxiao/bert-as-service/issues/29#issuecomment-442362241). 
 
 ### Training a text classifier using BERT features and `tf.estimator` API
+
+> The complete example can [be found example5.py](example/example5.py).
 
 Following the last example, we can easily extend it to a full classifier using `tf.estimator` API. One only need minor change on the input function as follows:
 
@@ -349,6 +441,9 @@ The complete example can [be found example5.py](example/example5.py), in which a
 
 
 ### Saving and loading with TFRecord data
+
+> The complete example can [be found example6.py](example/example6.py). 
+
 The TFRecord file format is a simple record-oriented binary format that many TensorFlow applications use for training data. You can also pre-encode all your sequences and store their encodings to a TFRecord file, then later load it to build a `tf.Dataset`. For example, to write encoding into a TFRecord file:
 
 ```python
@@ -384,8 +479,6 @@ ds = (tf.data.TFRecordDataset('tmp.tfrecord').repeat().shuffle(buffer_size=100).
       .make_one_shot_iterator().get_next())
 ```
 
-The complete example can [be found example6.py](example/example6.py). 
-
 To save word/token-level embedding to TFRecord, one needs to first flatten `[max_seq_len, num_hidden]` tensor into an 1D array as follows:
 ```python
 def create_float_feature(values):
@@ -408,6 +501,8 @@ Be careful, this will generate a huge TFRecord file.
 
 ### Asynchronous encoding
 
+> The complete example can [be found example2.py](example/example2.py).
+
 `BertClient.encode()` offers a nice synchronous way to get sentence encodes. However,   sometimes we want to do it in an asynchronous manner by feeding all textual data to the server first, fetching the encoded results later. This can be easily done by:
 ```python
 # an endless data stream, generating data in an extremely fast speed
@@ -422,9 +517,9 @@ for j in bc.encode_async(text_gen(), max_num_batch=10):
     print('received %d x %d' % (j.shape[0], j.shape[1]))
 ```
 
-The complete example can [be found example2.py](example/example2.py).
-
 ### Broadcasting to multiple clients
+
+> The complete example can [be found in example3.py](example/example3.py).
 
 The encoded result is routed to the client according to its identity. If you have multiple clients with same identity, then they all receive the results! You can use this *multicast* feature to do some cool things, e.g. training multiple different models (some using `scikit-learn` some using `tensorflow`) in multiple separated processes while only call `BertServer` once. In the example below, `bc` and its two clones will all receive encoded vector.
 
@@ -443,7 +538,6 @@ for j in range(2):
 for _ in range(3):
     bc.encode(lst_str)
 ```
-The complete example can [be found in example3.py](example/example3.py).
 
 
 <h2 align="center">:speech_balloon: FAQ</h2>
