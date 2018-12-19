@@ -38,7 +38,7 @@ def optimize_graph(args):
 
     config = tf.ConfigProto(device_count={'GPU': 0}, allow_soft_placement=True)
 
-    config_fp = os.path.join(args.model_dir, 'bert_config.json')
+    config_fp = os.path.join(args.model_dir, args.config_name)
     init_checkpoint = os.path.join(args.tuned_model_dir or args.model_dir, args.ckpt_name)
     with tf.gfile.GFile(config_fp, 'r') as f:
         bert_config = modeling.BertConfig.from_dict(json.load(f))
