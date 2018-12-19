@@ -243,7 +243,7 @@ The full list of examples can be found in [`example/`](example). You can run eac
 
 > The complete example can [be found example8.py](example/example8.py).
 
-As the first example, I'd like to show you how to implement a QA search prototype using `bert-as-service` in 3 minutes. The goal is to find similar questions to user's input query and return the corresponding answer. To start, we need a list of question-answer pairs. Fortunately, this README file already contains [a list of FAQ](#speech_balloon-faq), so I will just use that to make this example perfectly self-contained. Let's first load all questions and show some statistics.
+As the first example, we will implement a simple QA search engine using `bert-as-service` in just three minutes. No kidding! The goal is to find similar questions to user's input and return the corresponding answer. To start, we need a list of question-answer pairs. Fortunately, this README file already contains [a list of FAQ](#speech_balloon-faq), so I will just use that to make this example perfectly self-contained. Let's first load all questions and show some statistics.
 
 ```python
 prefix_q = '##### **Q:** '
