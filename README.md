@@ -223,7 +223,7 @@ A `BertClient` implements the following methods and properties:
 <h2 align="center">:book: Tutorial</h2>
 <p align="right"><a href="#bert-as-service"><sup>▴ Back to top</sup></a></p>
 
-The full list of examples can be found in [`example/`](example). You can run each via `python example/example-k.py`. Note that they are only tested on Python 3.
+The full list of examples can be found in [`example/`](example). You can run each via `python example/example-k.py`. Most of examples require you to start a BertServer first, please follow [the instruction here](#2-start-the-bert-service). Note that although `BertClient` works universally on both Python 2.x and 3.x, examples are only tested on Python 3.6.
 
 <details>
  <summary>Table of contents (click to expand...)</summary>
