@@ -240,7 +240,8 @@ The full list of examples can be found in [`example/`](example). You can run eac
 </details>
 
 ### Building a QA semantic search engine in 3 minutes
-<a href='example/example8.py><sup>:page_facing_up: example/example8</sup></a>
+
+> The complete example can [be found example8.py](example/example8.py).
 
 As the first example, I'd like to show you how to implement a QA search prototype using `bert-as-service` in 3 minutes. The goal is to find similar questions to user's input query and return the corresponding answer. To start, we need a list of question-answer pairs. Fortunately, this README file already contains [a list of FAQ](#speech_balloon-faq), so I will just use that to make this example perfectly self-contained. Let's first load all questions and show some statistics.
 
@@ -281,10 +282,6 @@ while True:
 
 That's it! Now run the code and type your query, see how this search engine handles fuzzy match:
 <p align="center"><img src=".github/qasearch-demo.gif?raw=true"/></p>
-
-
-The complete example can [be found example8.py](example/example8.py).
-
 
 
 ### Getting ELMo-like contextual word embedding
@@ -335,6 +332,8 @@ Beware that the pretrained BERT Chinese from Google is character-based, i.e. its
 
 ### Using `BertClient` with `tf.data` API
 
+> The complete example can [be found example4.py](example/example4.py). There is also [an example in Keras](https://github.com/hanxiao/bert-as-service/issues/29#issuecomment-442362241). 
+
 The [`tf.data`](https://www.tensorflow.org/guide/datasets) API enables you to build complex input pipelines from simple, reusable pieces. One can also use `BertClient` to encode sentences on-the-fly and use the vectors in a downstream model. Here is an example:
 
 ```python
@@ -367,9 +366,10 @@ ds = (tf.data.TextLineDataset(train_fp).batch(batch_size)
 
 The trick here is to start a pool of `BertClient` and reuse them one by one. In this way, we can fully harness the power of `num_parallel_calls` of `Dataset.map()` API.  
 
-The complete example can [be found example4.py](example/example4.py). There is also [an example in Keras](https://github.com/hanxiao/bert-as-service/issues/29#issuecomment-442362241). 
 
 ### Training a text classifier using BERT features and `tf.estimator` API
+
+> The complete example can [be found example5.py](example/example5.py).
 
 Following the last example, we can easily extend it to a full classifier using `tf.estimator` API. One only need minor change on the input function as follows:
 
@@ -398,6 +398,9 @@ The complete example can [be found example5.py](example/example5.py), in which a
 
 
 ### Saving and loading with TFRecord data
+
+> The complete example can [be found example6.py](example/example6.py). 
+
 The TFRecord file format is a simple record-oriented binary format that many TensorFlow applications use for training data. You can also pre-encode all your sequences and store their encodings to a TFRecord file, then later load it to build a `tf.Dataset`. For example, to write encoding into a TFRecord file:
 
 ```python
@@ -433,8 +436,6 @@ ds = (tf.data.TFRecordDataset('tmp.tfrecord').repeat().shuffle(buffer_size=100).
       .make_one_shot_iterator().get_next())
 ```
 
-The complete example can [be found example6.py](example/example6.py). 
-
 To save word/token-level embedding to TFRecord, one needs to first flatten `[max_seq_len, num_hidden]` tensor into an 1D array as follows:
 ```python
 def create_float_feature(values):
@@ -457,6 +458,8 @@ Be careful, this will generate a huge TFRecord file.
 
 ### Asynchronous encoding
 
+> :memo: The complete example can [be found example2.py](example/example2.py).
+
 `BertClient.encode()` offers a nice synchronous way to get sentence encodes. However,   sometimes we want to do it in an asynchronous manner by feeding all textual data to the server first, fetching the encoded results later. This can be easily done by:
 ```python
 # an endless data stream, generating data in an extremely fast speed
@@ -470,8 +473,6 @@ bc = BertClient()
 for j in bc.encode_async(text_gen(), max_num_batch=10):
     print('received %d x %d' % (j.shape[0], j.shape[1]))
 ```
-
-The complete example can [be found example2.py](example/example2.py).
 
 ### Broadcasting to multiple clients
 
