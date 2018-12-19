@@ -289,7 +289,7 @@ Pretrained BERT models often show quite "okayish" performance on many tasks. How
 
 We follow the instruction in ["Sentence (and sentence-pair) classification tasks"](https://github.com/google-research/bert#sentence-and-sentence-pair-classification-tasks) and use `run_classifier.py` to fine tune `uncased_L-12_H-768_A-12` model on MRPC task. The fine-tuned model is stored at `/tmp/mrpc_output/`, which can be changed by specifying `--output_dir` of `run_classifier.py`.
 
-If you look into `/tmp/mrpc_output/`, it contains something as follows:
+If you look into `/tmp/mrpc_output/`, it contains something like:
 ```bash
 checkpoint                                        128
 eval                                              4.0K
@@ -312,7 +312,7 @@ Don't be afraid of those mysterious files, as the only important one to us is `m
 - Our fine-tuned model is stored at `/tmp/mrpc_output/`;
 - Our fine-tuned model checkpoint is named as `model.ckpt-343` something something.
 
-Now start our BertServer as follows:
+Now start a BertServer by putting three pieces together:
 
 ```bash
 bert-serving-start -model_dir=/pretrained/uncased_L-12_H-768_A-12 -tuned_model_dir=/tmp/mrpc_output/ -ckpt_name=model.ckpt-343
@@ -322,7 +322,7 @@ After the server started, you should find this line in the log:
 ```text
 I:GRAPHOPT:[gra:opt: 50]:checkpoint (override by fine-tuned model): /tmp/mrpc_output/model.ckpt-343
 ```
-Which says the BERT parameters is overrode and loaded from our fine-tuned `/tmp/mrpc_output/model.ckpt-343`.
+Which means the BERT parameters is overrode and successfully loaded from our fine-tuned `/tmp/mrpc_output/model.ckpt-343`. Done!
 
 In short, find your fine-tuned model path and checkpoint name, then feed them to `-tuned_model_dir` and `-ckpt_name`, respectively.
 
