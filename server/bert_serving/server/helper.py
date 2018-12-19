@@ -36,6 +36,13 @@ def get_args_parser():
     parser = argparse.ArgumentParser()
     parser.add_argument('-model_dir', type=str, required=True,
                         help='directory of a pretrained BERT model')
+    parser.add_argument('-tuned_model_dir', type=str,
+                        help='directory of a fine-tuned BERT model')
+    parser.add_argument('-ckpt_name', type=str, default='bert_model.ckpt',
+                        help='file name of the checkpoint file. By default it is "bert_model.ckpt", but '
+                             'for a fine-tuned model the name could be different.')
+    parser.add_argument('-json_config_name', type=str, default='bert_config.json',
+                        help='file name of the JSON config file for BERT model.')
     parser.add_argument('-max_seq_len', type=int, default=25,
                         help='maximum length of a sequence')
     parser.add_argument('-num_worker', type=int, default=1,
