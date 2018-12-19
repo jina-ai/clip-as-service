@@ -155,6 +155,7 @@ Note that you only need `pip install -U bert-serving-client` in this case, the s
 
 > :bulb: **Want to learn more? Checkout our tutorial:**
 > - [Building a QA semantic search engine in 3 min.](#building-a-qa-semantic-search-engine-in-3-minutes)
+> - [Serving a fine-tuned BERT model](#serving-a-fine-tuned-bert-model)
 > - [Getting ELMo-like contextual word embedding](#getting-elmo-like-contextual-word-embedding)
 > - [Using your own tokenizer](#using-your-own-tokenizer)
 > - [Using `BertClient` with `tf.data` API](#using-bertclient-with-tfdata-api)
@@ -170,14 +171,17 @@ Note that you only need `pip install -U bert-serving-client` in this case, the s
 
 ### Server-side configs
 
-Server-side is a CLI `bert-serving-start`, you can specify its arguments via:
+Server-side is a CLI `bert-serving-start`, you can get the latest usage via:
 ```bash
-bert-serving-start -model_dir [-max_seq_len] [-num_worker] [-max_batch_size] [-port] [-port_out] [-pooling_strategy] [-pooling_layer]
+bert-serving-start --help
 ```
 
 | Argument | Type | Default | Description |
 |--------------------|------|-------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `model_dir` | str |  | folder path of the pre-trained BERT model. |
+| `model_dir` | str | *Required* | folder path of the pre-trained BERT model. |
+| `tuned_model_dir`| str |` `| folder path of a fine-tuned BERT model. |
+| `ckpt_name`| str | `bert_model.ckpt` | filename of the checkpoint file. |
+| `config_name`| str | `bert_config.json` | filename of the JSON config file for BERT model. | 
 | `max_seq_len` | int | `25` | maximum length of sequence, longer sequence will be trimmed on the right side. |
 | `num_worker` | int | `1` | number of (GPU/CPU) worker runs BERT model, each works in a separate process. |
 | `max_batch_size` | int | `256` | maximum number of sequences handled by each worker, larger batch will be partitioned into small batches. |
@@ -229,6 +233,7 @@ The full list of examples can be found in [`example/`](example). You can run eac
  <summary>Table of contents (click to expand...)</summary>
 
 > - [Building a QA semantic search engine in 3 min.](#building-a-qa-semantic-search-engine-in-3-minutes)
+> - [Serving a fine-tuned BERT model](#serving-a-fine-tuned-bert-model)
 > - [Getting ELMo-like contextual word embedding](#getting-elmo-like-contextual-word-embedding)
 > - [Using your own tokenizer](#using-your-own-tokenizer)
 > - [Using `BertClient` with `tf.data` API](#using-bertclient-with-tfdata-api)
@@ -278,6 +283,48 @@ while True:
 That's it! Now run the code and type your query, see how this search engine handles fuzzy match:
 <p align="center"><img src=".github/qasearch-demo.gif?raw=true"/></p>
 
+### Serving a fine-tuned BERT model
+
+Pretrained BERT models often show quite "okayish" performance on many tasks. However, to release the true power of BERT a fine-tuning on the downstream task (or on domain-specific data) is necessary. In this example, I will show you how to serve a fine-tuned BERT model.
+
+We follow the instruction in ["Sentence (and sentence-pair) classification tasks"](https://github.com/google-research/bert#sentence-and-sentence-pair-classification-tasks) and use `run_classifier.py` to fine tune `uncased_L-12_H-768_A-12` model on MRPC task. The fine-tuned model is stored at `/tmp/mrpc_output/`, which can be changed by specifying `--output_dir` of `run_classifier.py`.
+
+If you look into `/tmp/mrpc_output/`, it contains something as follows:
+```bash
+checkpoint                                        128
+eval                                              4.0K
+eval_results.txt                                  86
+eval.tf_record                                    219K
+events.out.tfevents.1545202214.TENCENT64.site     6.1M
+events.out.tfevents.1545203242.TENCENT64.site     14M
+graph.pbtxt                                       9.0M
+model.ckpt-0.data-00000-of-00001                  1.3G
+model.ckpt-0.index                                23K
+model.ckpt-0.meta                                 3.9M
+model.ckpt-343.data-00000-of-00001                1.3G
+model.ckpt-343.index                              23K
+model.ckpt-343.meta                               3.9M
+train.tf_record                                   2.0M
+```
+
+Don't be afraid of those mysterious files, as the only important one to us is `model.ckpt-343.data-00000-of-00001` (looks like my training stops at the 343 step. One may get `model.ckpt-123.data-00000-of-00001` or `model.ckpt-9876.data-00000-of-00001` depending on the total training steps). Now we have collected all three pieces of information that are needed for serving this fine-tuned model:
+- The pretrained model is downloaded to `/path/to/bert/uncased_L-12_H-768_A-12`
+- Our fine-tuned model is stored at `/tmp/mrpc_output/`;
+- Our fine-tuned model checkpoint is named as `model.ckpt-343` something something.
+
+Now start our BertServer as follows:
+
+```bash
+bert-serving-start -model_dir=/pretrained/uncased_L-12_H-768_A-12 -tuned_model_dir=/tmp/mrpc_output/ -ckpt_name=model.ckpt-343
+```
+
+After the server started, you should find this line in the log:
+```text
+I:GRAPHOPT:[gra:opt: 50]:checkpoint (override by fine-tuned model): /tmp/mrpc_output/model.ckpt-343
+```
+Which says the BERT parameters is overrode and loaded from our fine-tuned `/tmp/mrpc_output/model.ckpt-343`.
+
+In short, find your fine-tuned model path and checkpoint name, then feed them to `-tuned_model_dir` and `-ckpt_name`, respectively.
 
 ### Getting ELMo-like contextual word embedding
 

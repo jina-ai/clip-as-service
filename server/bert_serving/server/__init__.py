@@ -60,6 +60,8 @@ class BertServer(threading.Thread):
             # optimize the graph, must be done in another process
             from .graph import optimize_graph
             self.graph_path = pool.apply(optimize_graph, (self.args,))
+        # from .graph import optimize_graph
+        # self.graph_path = optimize_graph(self.args, self.logger)
         self.logger.info('optimized graph is stored at: %s' % self.graph_path)
 
     def close(self):

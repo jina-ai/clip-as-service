@@ -34,41 +34,59 @@ def get_args_parser():
     from .graph import PoolingStrategy
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('-model_dir', type=str, required=True,
+
+    group1 = parser.add_argument_group('File Paths',
+                                       'config the path, checkpoint and filename of a pretrained/fine-tuned BERT model')
+    group1.add_argument('-model_dir', type=str, required=True,
                         help='directory of a pretrained BERT model')
-    parser.add_argument('-max_seq_len', type=int, default=25,
+    group1.add_argument('-tuned_model_dir', type=str,
+                        help='directory of a fine-tuned BERT model')
+    group1.add_argument('-ckpt_name', type=str, default='bert_model.ckpt',
+                        help='filename of the checkpoint file. By default it is "bert_model.ckpt", but '
+                             'for a fine-tuned model the name could be different.')
+    group1.add_argument('-config_name', type=str, default='bert_config.json',
+                        help='filename of the JSON config file for BERT model.')
+
+    group2 = parser.add_argument_group('BERT Parameters',
+                                       'config how BERT model and pooling works')
+    group2.add_argument('-max_seq_len', type=int, default=25,
                         help='maximum length of a sequence')
-    parser.add_argument('-num_worker', type=int, default=1,
-                        help='number of server instances')
-    parser.add_argument('-max_batch_size', type=int, default=256,
-                        help='maximum number of sequences handled by each worker')
-    parser.add_argument('-priority_batch_size', type=int, default=16,
-                        help='batch smaller than this size will be labeled as high priority,'
-                             'and jumps forward in the job queue')
-    parser.add_argument('-port', '-port_in', '-port_data', type=int, default=5555,
-                        help='server port for receiving data from client')
-    parser.add_argument('-port_out', '-port_result', type=int, default=5556,
-                        help='server port for sending result to client')
-    parser.add_argument('-pooling_layer', type=int, nargs='+', default=[-2],
+    group2.add_argument('-pooling_layer', type=int, nargs='+', default=[-2],
                         help='the encoder layer(s) that receives pooling. '
                              'Give a list in order to concatenate several layers into one')
-    parser.add_argument('-pooling_strategy', type=PoolingStrategy.from_string,
+    group2.add_argument('-pooling_strategy', type=PoolingStrategy.from_string,
                         default=PoolingStrategy.REDUCE_MEAN, choices=list(PoolingStrategy),
                         help='the pooling strategy for generating encoding vectors')
-    parser.add_argument('-cpu', action='store_true', default=False,
+
+    group3 = parser.add_argument_group('Serving Configs',
+                                       'config how server utilizes GPU/CPU resources')
+    group3.add_argument('-port', '-port_in', '-port_data', type=int, default=5555,
+                        help='server port for receiving data from client')
+    group3.add_argument('-port_out', '-port_result', type=int, default=5556,
+                        help='server port for sending result to client')
+
+    group3.add_argument('-num_worker', type=int, default=1,
+                        help='number of server instances')
+    group3.add_argument('-max_batch_size', type=int, default=256,
+                        help='maximum number of sequences handled by each worker')
+    group3.add_argument('-priority_batch_size', type=int, default=16,
+                        help='batch smaller than this size will be labeled as high priority,'
+                             'and jumps forward in the job queue')
+    group3.add_argument('-cpu', action='store_true', default=False,
                         help='running on CPU (default on GPU)')
-    parser.add_argument('-xla', action='store_true', default=False,
+    group3.add_argument('-xla', action='store_true', default=False,
                         help='enable XLA compiler (experimental)')
-    parser.add_argument('-verbose', action='store_true', default=False,
-                        help='turn on tensorflow logging for debug')
-    parser.add_argument('-gpu_memory_fraction', type=float, default=0.5,
+    group3.add_argument('-gpu_memory_fraction', type=float, default=0.5,
                         help='determine the fraction of the overall amount of memory '
                              'that each visible GPU should be allocated per worker. '
                              'Should be in range [0.0, 1.0]')
-    parser.add_argument('-device_map', type=int, nargs='+', default=[],
+    group3.add_argument('-device_map', type=int, nargs='+', default=[],
                         help='specify the list of GPU device ids that will be used (id starts from 0).'
                              'If num_worker > len(device_map), then device will be reused; '
                              'if num_worker < len(device_map), then device_map[:num_worker] will be used')
+
+    parser.add_argument('-verbose', action='store_true', default=False,
+                        help='turn on tensorflow logging for debug')
     parser.add_argument('-version', action='version', version='%(prog)s ' + __version__)
     return parser
 
