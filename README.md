@@ -154,7 +154,7 @@ bc.encode(['First do it', 'then do it right', 'then do it better'])
 Note that you only need `pip install -U bert-serving-client` in this case, the server side is not required.
 
 > :bulb: **Want to learn more? Checkout our tutorial:**
-> - [Building a QA semantic search engine in 3 min.](#building-a-qa-semantic-search-engine)
+> - [Building a QA semantic search engine in 3 min.](#building-a-qa-semantic-search-engine-in-3-minutes)
 > - [Getting ELMo-like contextual word embedding](#getting-elmo-like-contextual-word-embedding)
 > - [Using your own tokenizer](#using-your-own-tokenizer)
 > - [Using `BertClient` with `tf.data` API](#using-bertclient-with-tfdata-api)
@@ -228,7 +228,7 @@ The full list of examples can be found in [`example/`](example). You can run eac
 <details>
  <summary>Table of contents (click to expand...)</summary>
 
-> - [Building a QA semantic search engine in 3 min.](#building-a-qa-semantic-search-engine)
+> - [Building a QA semantic search engine in 3 min.](#building-a-qa-semantic-search-engine-in-3-minutes)
 > - [Getting ELMo-like contextual word embedding](#getting-elmo-like-contextual-word-embedding)
 > - [Using your own tokenizer](#using-your-own-tokenizer)
 > - [Using `BertClient` with `tf.data` API](#using-bertclient-with-tfdata-api)
@@ -252,12 +252,7 @@ with open('README.md') as fp:
     print('%d questions loaded, avg. len of %d' % (len(questions), np.mean([len(d.split()) for d in questions])))
 ```
 
-This gives:
-```
-33 questions loaded, avg. len of 9
-```
-
-Looks like we have enough questions. Now start a BertServer with `uncased_L-12_H-768_A-12` pretrained BERT model:
+This gives `33 questions loaded, avg. len of 9`. So looks like we have enough questions. Now start a BertServer with `uncased_L-12_H-768_A-12` pretrained BERT model:
 ```bash
 bert-serving-start -num_worker=1 -model_dir=/data/cips/data/lab/data/model/uncased_L-12_H-768_A-12
 ```
