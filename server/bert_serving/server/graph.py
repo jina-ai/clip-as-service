@@ -46,7 +46,8 @@ def optimize_graph(args, logger=None):
         config_fp = os.path.join(args.model_dir, args.config_name)
         init_checkpoint = os.path.join(args.tuned_model_dir or args.model_dir, args.ckpt_name)
         logger.info('model config: %s' % config_fp)
-        logger.info('checkpoint%s: %s' % (' (fine-tuned)' if args.tuned_model_dir else '()', init_checkpoint))
+        logger.info(
+            'checkpoint%s: %s' % (' (override by fine-tuned model)' if args.tuned_model_dir else '', init_checkpoint))
         with tf.gfile.GFile(config_fp, 'r') as f:
             bert_config = modeling.BertConfig.from_dict(json.load(f))
 
