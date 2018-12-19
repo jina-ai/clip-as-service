@@ -154,6 +154,7 @@ bc.encode(['First do it', 'then do it right', 'then do it better'])
 Note that you only need `pip install -U bert-serving-client` in this case, the server side is not required.
 
 > :bulb: **Want to learn more? Checkout our tutorial:**
+> - [Building a QA semantic search engine in 3 min.](#building-a-qa-semantic-search-engine)
 > - [Getting ELMo-like contextual word embedding](#getting-elmo-like-contextual-word-embedding)
 > - [Using your own tokenizer](#using-your-own-tokenizer)
 > - [Using `BertClient` with `tf.data` API](#using-bertclient-with-tfdata-api)
@@ -227,6 +228,7 @@ The full list of examples can be found in [`example/`](example). You can run eac
 <details>
  <summary>Table of contents (click to expand...)</summary>
 
+> - [Building a QA semantic search engine in 3 min.](#building-a-qa-semantic-search-engine)
 > - [Getting ELMo-like contextual word embedding](#getting-elmo-like-contextual-word-embedding)
 > - [Using your own tokenizer](#using-your-own-tokenizer)
 > - [Using `BertClient` with `tf.data` API](#using-bertclient-with-tfdata-api)
@@ -237,9 +239,10 @@ The full list of examples can be found in [`example/`](example). You can run eac
 
 </details>
 
-### Building a QA semantic search engine
+### Building a QA semantic search engine in 3 minutes
+<a href='example/example8.py><sup>:page_facing_up: example/example8</sup></a>
 
-As the first example, I'd like to show you how to implement a QA search prototype using `bert-as-service` in 5 minutes. The goal is to find similar questions to user's input query and return the corresponding answer. To start, we need a list of question-answer pairs. Fortunately, this README file already contains [a list of FAQ](#speech_balloon-faq), so I will just use that to make this example perfectly self-contained. Let's first load all questions and show some statistics.
+As the first example, I'd like to show you how to implement a QA search prototype using `bert-as-service` in 3 minutes. The goal is to find similar questions to user's input query and return the corresponding answer. To start, we need a list of question-answer pairs. Fortunately, this README file already contains [a list of FAQ](#speech_balloon-faq), so I will just use that to make this example perfectly self-contained. Let's first load all questions and show some statistics.
 
 ```python
 prefix_q = '##### **Q:** '
