@@ -11,20 +11,23 @@
 # simple similarity search on FAQ
 
 import numpy as np
-import scipy.spatial.distance
 from bert_serving.client import BertClient
+from termcolor import colored
 
 prefix_q = '##### **Q:** '
+topk = 5
 
-# start your server, e.g.
-
-with open('README.md') as fp, BertClient() as bc:
-    docs = [v.replace(prefix_q, '') for v in fp if v.strip() and v.startswith(prefix_q)]
+with open('README.md') as fp, BertClient(port=4000, port_out=4001) as bc:
+    docs = [v.replace(prefix_q, '').strip() for v in fp if v.strip() and v.startswith(prefix_q)]
     print('%d questions loaded, avg. len of %d' % (len(docs), np.mean([len(d.split()) for d in docs])))
     doc_vecs = bc.encode(docs)
 
     while True:
-        query = input('your question: ')
-        query_vec = bc.encode([query])
-        score = scipy.spatial.distance.cdist(doc_vecs, query_vec, 'cosine')
-        print(score)
+        query = input(colored('your question: ', 'green'))
+        query_vec = bc.encode([query])[0]
+        # compute simple dot product as score
+        score = np.sum(query_vec * doc_vecs, axis=1)
+        topk_idx = np.argsort(score)[::-1][:topk]
+        print('top %d questions similar to' % topk + colored(query, 'green'))
+        for idx in topk_idx:
+            print('> %s\t%s' % (colored('%.1f' % score[idx], 'cyan'), colored(docs[idx], 'yellow')))
