@@ -471,6 +471,8 @@ for j in bc.encode_async(text_gen(), max_num_batch=10):
 
 ### Broadcasting to multiple clients
 
+> The complete example can [be found in example3.py](example/example3.py).
+
 The encoded result is routed to the client according to its identity. If you have multiple clients with same identity, then they all receive the results! You can use this *multicast* feature to do some cool things, e.g. training multiple different models (some using `scikit-learn` some using `tensorflow`) in multiple separated processes while only call `BertServer` once. In the example below, `bc` and its two clones will all receive encoded vector.
 
 ```python
@@ -488,7 +490,6 @@ for j in range(2):
 for _ in range(3):
     bc.encode(lst_str)
 ```
-The complete example can [be found in example3.py](example/example3.py).
 
 
 <h2 align="center">:speech_balloon: FAQ</h2>
