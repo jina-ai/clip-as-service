@@ -4,8 +4,10 @@ import os
 import tempfile
 from enum import Enum
 
+from termcolor import colored
+
 from .bert import modeling
-from .helper import import_tf
+from .helper import import_tf, set_logger
 
 __all__ = ['PoolingStrategy', 'optimize_graph']
 
@@ -31,7 +33,9 @@ class PoolingStrategy(Enum):
             raise ValueError()
 
 
-def optimize_graph(args, logger):
+def optimize_graph(args, logger=None):
+    if not logger:
+        logger = set_logger(colored('GRAPHOPT', 'cyan'), args.verbose)
     try:
         # we don't need GPU for optimizing the graph
         tf = import_tf(verbose=args.verbose)
@@ -42,7 +46,7 @@ def optimize_graph(args, logger):
         config_fp = os.path.join(args.model_dir, args.config_name)
         init_checkpoint = os.path.join(args.tuned_model_dir or args.model_dir, args.ckpt_name)
         logger.info('model config: %s' % config_fp)
-        logger.info('checkpoint: %s' % init_checkpoint)
+        logger.info('checkpoint%s: %s' % (' (fine-tuned)' if args.tuned_model_dir else '()', init_checkpoint))
         with tf.gfile.GFile(config_fp, 'r') as f:
             bert_config = modeling.BertConfig.from_dict(json.load(f))
 
@@ -113,12 +117,12 @@ def optimize_graph(args, logger):
             tmp_g = tf.get_default_graph().as_graph_def()
 
         with tf.Session(config=config) as sess:
-            logger.info('load parameters from checkpoint')
+            logger.info('load parameters from checkpoint...')
             sess.run(tf.global_variables_initializer())
-            logger.info('freeze')
+            logger.info('freeze...')
             tmp_g = tf.graph_util.convert_variables_to_constants(sess, tmp_g, [n.name[:-2] for n in output_tensors])
             dtypes = [n.dtype for n in input_tensors]
-            logger.info('optimize')
+            logger.info('optimize...')
             tmp_g = optimize_for_inference(
                 tmp_g,
                 [n.name[:-2] for n in input_tensors],
