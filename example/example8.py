@@ -10,6 +10,7 @@
 
 # simple similarity search on FAQ
 
+import numpy as np
 import scipy.spatial.distance
 from bert_serving.client import BertClient
 
@@ -19,6 +20,7 @@ prefix_q = '##### **Q:** '
 
 with open('README.md') as fp, BertClient() as bc:
     docs = [v.replace(prefix_q, '') for v in fp if v.strip() and v.startswith(prefix_q)]
+    print('%d questions loaded, avg. len of %d' % (len(docs), np.mean([len(d.split()) for d in docs])))
     doc_vecs = bc.encode(docs)
 
     while True:
