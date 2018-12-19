@@ -241,7 +241,7 @@ The full list of examples can be found in [`example/`](example). You can run eac
 
 ### Building a QA semantic search engine in 3 minutes
 
-> The complete example can [be found example8.py](example/example8.py).
+> :small_orange_diamond: The complete example can [be found example8.py](example/example8.py).
 
 As the first example, I'd like to show you how to implement a QA search prototype using `bert-as-service` in 3 minutes. The goal is to find similar questions to user's input query and return the corresponding answer. To start, we need a list of question-answer pairs. Fortunately, this README file already contains [a list of FAQ](#speech_balloon-faq), so I will just use that to make this example perfectly self-contained. Let's first load all questions and show some statistics.
 
@@ -332,7 +332,7 @@ Beware that the pretrained BERT Chinese from Google is character-based, i.e. its
 
 ### Using `BertClient` with `tf.data` API
 
-> The complete example can [be found example4.py](example/example4.py). There is also [an example in Keras](https://github.com/hanxiao/bert-as-service/issues/29#issuecomment-442362241). 
+> :small_orange_diamond: The complete example can [be found example4.py](example/example4.py). There is also [an example in Keras](https://github.com/hanxiao/bert-as-service/issues/29#issuecomment-442362241). 
 
 The [`tf.data`](https://www.tensorflow.org/guide/datasets) API enables you to build complex input pipelines from simple, reusable pieces. One can also use `BertClient` to encode sentences on-the-fly and use the vectors in a downstream model. Here is an example:
 
@@ -369,7 +369,7 @@ The trick here is to start a pool of `BertClient` and reuse them one by one. In 
 
 ### Training a text classifier using BERT features and `tf.estimator` API
 
-> The complete example can [be found example5.py](example/example5.py).
+> :small_orange_diamond: The complete example can [be found example5.py](example/example5.py).
 
 Following the last example, we can easily extend it to a full classifier using `tf.estimator` API. One only need minor change on the input function as follows:
 
@@ -399,7 +399,7 @@ The complete example can [be found example5.py](example/example5.py), in which a
 
 ### Saving and loading with TFRecord data
 
-> The complete example can [be found example6.py](example/example6.py). 
+> :small_orange_diamond: The complete example can [be found example6.py](example/example6.py). 
 
 The TFRecord file format is a simple record-oriented binary format that many TensorFlow applications use for training data. You can also pre-encode all your sequences and store their encodings to a TFRecord file, then later load it to build a `tf.Dataset`. For example, to write encoding into a TFRecord file:
 
@@ -458,7 +458,7 @@ Be careful, this will generate a huge TFRecord file.
 
 ### Asynchronous encoding
 
-> :memo: The complete example can [be found example2.py](example/example2.py).
+> :small_orange_diamond: The complete example can [be found example2.py](example/example2.py).
 
 `BertClient.encode()` offers a nice synchronous way to get sentence encodes. However,   sometimes we want to do it in an asynchronous manner by feeding all textual data to the server first, fetching the encoded results later. This can be easily done by:
 ```python
