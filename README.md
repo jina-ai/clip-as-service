@@ -155,6 +155,7 @@ Note that you only need `pip install -U bert-serving-client` in this case, the s
 
 > :bulb: **Want to learn more? Checkout our tutorial:**
 > - [Building a QA semantic search engine in 3 min.](#building-a-qa-semantic-search-engine-in-3-minutes)
+> - [Serving a fine-tuned BERT model](#serving-a-fine-tuned-bert-model)
 > - [Getting ELMo-like contextual word embedding](#getting-elmo-like-contextual-word-embedding)
 > - [Using your own tokenizer](#using-your-own-tokenizer)
 > - [Using `BertClient` with `tf.data` API](#using-bertclient-with-tfdata-api)
@@ -232,6 +233,7 @@ The full list of examples can be found in [`example/`](example). You can run eac
  <summary>Table of contents (click to expand...)</summary>
 
 > - [Building a QA semantic search engine in 3 min.](#building-a-qa-semantic-search-engine-in-3-minutes)
+> - [Serving a fine-tuned BERT model](#serving-a-fine-tuned-bert-model)
 > - [Getting ELMo-like contextual word embedding](#getting-elmo-like-contextual-word-embedding)
 > - [Using your own tokenizer](#using-your-own-tokenizer)
 > - [Using `BertClient` with `tf.data` API](#using-bertclient-with-tfdata-api)
@@ -289,20 +291,20 @@ We follow the instruction in ["Sentence (and sentence-pair) classification tasks
 
 If you look into `/tmp/mrpc_output/`, it contains something as follows:
 ```bash
-checkpoint  128
-eval  4.0K
-eval_results.txt  86
-eval.tf_record  219K
-events.out.tfevents.1545202214.site  6.1M
-events.out.tfevents.1545203242.site  14M
-graph.pbtxt  9.0M
-model.ckpt-0.data-00000-of-00001  1.3G
-model.ckpt-0.index  23K
-model.ckpt-0.meta  3.9M
-model.ckpt-343.data-00000-of-00001  1.3G
-model.ckpt-343.index  23K
-model.ckpt-343.meta  3.9M
-train.tf_record  2.0M
+checkpoint                                        128
+eval                                              4.0K
+eval_results.txt                                  86
+eval.tf_record                                    219K
+events.out.tfevents.1545202214.TENCENT64.site     6.1M
+events.out.tfevents.1545203242.TENCENT64.site     14M
+graph.pbtxt                                       9.0M
+model.ckpt-0.data-00000-of-00001                  1.3G
+model.ckpt-0.index                                23K
+model.ckpt-0.meta                                 3.9M
+model.ckpt-343.data-00000-of-00001                1.3G
+model.ckpt-343.index                              23K
+model.ckpt-343.meta                               3.9M
+train.tf_record                                   2.0M
 ```
 
 Don't be afraid of those mysterious files, as the only important one to us is `model.ckpt-343.data-00000-of-00001` (looks like my training stops at 343 steps. You may get `model.ckpt-123.data-00000-of-00001` or `model.ckpt-9876.data-00000-of-00001` depending on your total training steps). Now we have collected all three pieces of information that are needed for serving this fine-tuned model:
