@@ -74,9 +74,9 @@ pip install bert-serving-server  # server
 pip install bert-serving-client  # client, independent of `bert-serving-server`
 ```
 
-Note that the server MUST be run on **Python >= 3.5** with **Tensorflow >= 1.10** (*one-point-ten*). Again, the server does not support Python 2!
+Note that the server MUST be running on **Python >= 3.5** with **Tensorflow >= 1.10** (*one-point-ten*). Again, the server does not support Python 2!
 
-:point_up: The client can be run on both Python 2 and 3 [for the following consideration](#q-can-i-run-it-in-python-2).
+:point_up: The client can be running on both Python 2 and 3 [for the following consideration](#q-can-i-run-it-in-python-2).
 
 <h2 align="center">Usage</h2>
 
