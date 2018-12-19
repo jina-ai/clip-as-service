@@ -50,7 +50,7 @@ def optimize_graph(args, logger=None):
         with tf.gfile.GFile(config_fp, 'r') as f:
             bert_config = modeling.BertConfig.from_dict(json.load(f))
 
-        logger.info('build graph')
+        logger.info('build graph...')
         # input placeholders, not sure if they are friendly to XLA
         input_ids = tf.placeholder(tf.int32, (None, args.max_seq_len), 'input_ids')
         input_mask = tf.placeholder(tf.int32, (None, args.max_seq_len), 'input_mask')
@@ -130,7 +130,7 @@ def optimize_graph(args, logger=None):
                 [dtype.as_datatype_enum for dtype in dtypes],
                 False)
         tmp_file = tempfile.NamedTemporaryFile('w', delete=False).name
-        logger.info('write to a tmp file: %s' % tmp_file)
+        logger.info('write graph to a tmp file: %s' % tmp_file)
         with tf.gfile.GFile(tmp_file, 'wb') as f:
             f.write(tmp_g.SerializeToString())
         return tmp_file
