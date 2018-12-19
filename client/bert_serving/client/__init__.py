@@ -258,3 +258,9 @@ class BertClient:
             print(title)
         for k, v in x.items():
             print('%30s\t=\t%-30s' % (k, v))
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
