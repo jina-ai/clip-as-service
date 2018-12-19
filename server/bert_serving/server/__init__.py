@@ -10,7 +10,6 @@ import time
 from collections import defaultdict
 from datetime import datetime
 from multiprocessing import Process
-from multiprocessing.pool import Pool
 
 import numpy as np
 import zmq
@@ -56,11 +55,14 @@ class BertServer(threading.Thread):
         }
         self.processes = []
         self.logger.info('freeze, optimize and export graph, could take a while...')
-        with Pool(processes=1) as pool:
-            # optimize the graph, must be done in another process
-            from .graph import optimize_graph
-            self.graph_path = pool.apply(optimize_graph, (self.args,))
+        # with Pool(processes=1) as pool:
+        #     # optimize the graph, must be done in another process
+        #     from .graph import optimize_graph
+        #     self.graph_path = pool.apply(optimize_graph, (self.args,))
+        from .graph import optimize_graph
+        self.graph_path = optimize_graph(self.args)
         self.logger.info('optimized graph is stored at: %s' % self.graph_path)
+        self.close()
 
     def close(self):
         self.logger.info('shutting down...')
