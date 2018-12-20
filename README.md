@@ -33,8 +33,8 @@
   <a href="#what-is-it">What is it</a> •
   <a href="#install">Install</a> •
   <a href="#getting-start">Getting Start</a> •
-  <a href="#server-and-client-configurations">Configuration</a> •
-  <a href="#book-tutorial">Tutorial</a> •
+  <a href="#server-and-client-api">API</a> •
+  <a href="#book-tutorial">Tutorials</a> •
   <a href="#speech_balloon-faq">FAQ</a> •
   <a href="#zap-benchmark">Benchmark</a>
   
@@ -153,7 +153,7 @@ bc.encode(['First do it', 'then do it right', 'then do it better'])
 
 Note that you only need `pip install -U bert-serving-client` in this case, the server side is not required.
 
-> :bulb: **Want to learn more? Checkout our tutorial:**
+> :bulb: **Want to learn more? Checkout our tutorials:**
 > - [Building a QA semantic search engine in 3 min.](#building-a-qa-semantic-search-engine-in-3-minutes)
 > - [Serving a fine-tuned BERT model](#serving-a-fine-tuned-bert-model)
 > - [Getting ELMo-like contextual word embedding](#getting-elmo-like-contextual-word-embedding)
