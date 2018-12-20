@@ -174,8 +174,7 @@ Note that you only need `pip install -U bert-serving-client` in this case, the s
 
 [![ReadTheDoc](https://readthedocs.org/projects/bert-as-service/badge/?version=latest&style=for-the-badge)](http://bert-as-service.readthedocs.io)
 
-The best way to learn `bert-as-service` API is reading the documentation.   
-
+The best way to learn `bert-as-service` API is [reading the documentation](http://bert-as-service.readthedocs.io).
 
 ### Server API
 
@@ -237,7 +236,7 @@ A `BertClient` implements the following methods and properties:
 <h2 align="center">:book: Tutorial</h2>
 <p align="right"><a href="#bert-as-service"><sup>▴ Back to top</sup></a></p>
 
-[![ReadTheDoc](https://readthedocs.org/projects/bert-as-service/badge/?version=latest&style=for-the-badge)](http://bert-as-service.readthedocs.io)
+[![ReadTheDoc](https://readthedocs.org/projects/bert-as-service/badge/?version=latest&style=for-the-badge)](https://bert-as-service.readthedocs.io/en/latest/section/faq.html)
 
 The full list of examples can be found in [`example/`](example). You can run each via `python example/example-k.py`. Most of examples require you to start a BertServer first, please follow [the instruction here](#2-start-the-bert-service). Note that although `BertClient` works universally on both Python 2.x and 3.x, examples are only tested on Python 3.6.
 
@@ -787,6 +786,8 @@ Note, `device_map` is ignored when running on CPU.
 
 <h2 align="center">:zap: Benchmark</h2>
 <p align="right"><a href="#bert-as-service"><sup>▴ Back to top</sup></a></p>
+
+[![ReadTheDoc](https://readthedocs.org/projects/bert-as-service/badge/?version=latest&style=for-the-badge)](https://bert-as-service.readthedocs.io/en/latest/section/benchmark.html)
 
 The primary goal of benchmarking is to test the scalability and the speed of this service, which is crucial for using it in a dev/prod environment. Benchmark was done on Tesla M40 24GB, experiments were repeated 10 times and the average value is reported.
 
