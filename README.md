@@ -170,7 +170,7 @@ Note that you only need `pip install -U bert-serving-client` in this case, the s
 
 The best way to look up server and client API is [reading the documentation at here](https://bert-as-service.readthedocs.io/).
 
-### Server-side configs
+### Server-side API
 
 Server-side is a CLI `bert-serving-start`, you can get the latest usage via:
 ```bash
@@ -196,7 +196,9 @@ bert-serving-start --help
 | `xla` | bool | False | enable [XLA compiler](https://www.tensorflow.org/xla/jit) for graph optimization (*experimental!*) |
 | `device_map` | list | `[]` | specify the list of GPU device ids that will be used (id starts from 0)|
 
-### Client-side configs
+### Client-side API
+
+More detailed explanation of client API [can be found in the documentation](https://bert-as-service.readthedocs.io/en/add-doc/source/client.html#api-documentation).
 
 Client-side is Python class `BertClient`, which accepts arguments as follows:
 
