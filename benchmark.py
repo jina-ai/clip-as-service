@@ -26,6 +26,7 @@ common = {
     'pooling_strategy': PoolingStrategy.REDUCE_MEAN,
     'pooling_layer': [-2],
     'gpu_memory_fraction': 0.5,
+    'prefetch_size': 10,
     'xla': False,
     'cpu': False
 }
