@@ -55,6 +55,7 @@ class BertClient:
 
         :type timeout: int
         :type check_version: bool
+        :type check_length: bool
         :type identity: str
         :type show_server_config: bool
         :type output_fmt: str
