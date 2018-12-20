@@ -38,14 +38,32 @@ class BertClient:
                  identity=None, check_version=True, timeout=5000):
         """ A client object connected to a BertServer
 
-        Create a BertClient that connects with a BertServer
-        Note, server must be ready at the moment.
+        Create a BertClient that connects to a BertServer.
+        Note, server must be ready at the moment you are calling this function.
+        If you are not sure whether the server is ready, then please set `check_version=False`
 
+        You can also use it as a context manager:
+
+        .. highlight:: python
+        .. code-block:: python
+
+            with BertClient() as bc:
+                bc.encode(...)
+
+            # bc is automatically closed out of the context
+
+        :type timeout: int
+        :type check_version: bool
+        :type identity: str
+        :type show_server_config: bool
+        :type output_fmt: str
+        :type port_out: int
+        :type port: int
+        :type ip: str
         :param ip: the ip address of the server
         :param port: port for pushing data from client to server, must be consistent with the server side config
         :param port_out: port for publishing results from server to client, must be consistent with the server side config
-        :param output_fmt: the output format of the sentence encodes,
-        either in numpy array or python List[List[float]] (ndarray/list)
+        :param output_fmt: the output format of the sentence encodes, either in numpy array or python List[List[float]] (ndarray/list)
         :param show_server_config: whether to show server configs when first connected
         :param identity: the UUID of this client
         :param check_version: check if server has the same version as client, raise AttributeError if not the same
@@ -89,7 +107,11 @@ class BertClient:
                 self._print_dict(s_status, 'server config:')
 
     def close(self):
-        """ Gently close all connections of the client """
+        """
+            Gently close all connections of the client. If you are using BertClient as context manager,
+            then this is not necessary.
+
+        """
         self.sender.close()
         self.receiver.close()
         self.context.term()
@@ -113,6 +135,13 @@ class BertClient:
 
     @property
     def status(self):
+        """
+            Get the status of this BertClient instance
+
+        :rtype: dict[str, str]
+        :return: a dictionary contains the status of this BertClient instance
+
+        """
         return {
             'identity': self.identity,
             'num_request': self.request_id,
@@ -128,6 +157,13 @@ class BertClient:
 
     @property
     def server_status(self):
+        """
+            Get the current status of the server connected to this client
+
+        :return: a dictionary contains the current status of the server connected to this client
+        :rtype: dict[str, str]
+
+        """
         try:
             self.receiver.setsockopt(zmq.RCVTIMEO, self.timeout)
             self._send(b'SHOW_CONFIG')
@@ -151,10 +187,29 @@ class BertClient:
         outer list represents sentence and inner list represent tokens in the sentence.
         Note that if `blocking` is set to False, then you need to fetch the result manually afterwards.
 
+        .. highlight:: python
+        .. code-block:: python
+
+            with BertClient() as bc:
+                # encode untokenized sentences
+                bc.encode(['First do it',
+                          'then do it right',
+                          'then do it better'])
+
+                # encode tokenized sentences
+                bc.encode([['First', 'do', 'it'],
+                           ['then', 'do', 'it', 'right'],
+                           ['then', 'do', 'it', 'better']], is_tokenized=True)
+
+        :type is_tokenized: bool
+        :type blocking: bool
+        :type texts: list[str] or list[list[str]]
         :param is_tokenized: whether the input texts is already tokenized
         :param texts: list of sentence to be encoded. Larger list for better efficiency.
         :param blocking: wait until the encoded result is returned from the server. If false, will immediately return.
-        :return: ndarray or a list[list[float]]
+        :return: encoded sentence/token-level embeddings, rows correspond to sentences
+        :rtype: numpy.ndarray or list[list[float]]
+
         """
         if is_tokenized:
             self._check_input_lst_lst_str(texts)
@@ -174,8 +229,11 @@ class BertClient:
 
         To fetch all results in the original sending order, please use `fetch_all(sort=True)`
 
+        :type delay: float
         :param delay: delay in seconds and then run fetcher
-        :return: tuple(int, ndarray), a generator that yields request id and encoded vector
+        :return: a generator that yields request id and encoded vector in a tuple, where the request id can be used to determine the order
+        :rtype: Iterator[tuple(int, numpy.ndarray)]
+
         """
         time.sleep(delay)
         while self.pending_request:
@@ -186,9 +244,13 @@ class BertClient:
 
         Use it `encode(texts, blocking=False)`. If there is no pending requests, it will return None.
 
+        :type sort: bool
+        :type concat: bool
         :param sort: sort results by their request ids. It should be True if you want to preserve the sending order
         :param concat: concatenate all results into one ndarray
-        :return: encoded vectors in a ndarray or a list of ndarray
+        :return: encoded sentence/token-level embeddings in sending order
+        :rtype: numpy.ndarray or list[list[float]]
+
         """
         if self.pending_request:
             tmp = list(self.fetch())
@@ -207,9 +269,11 @@ class BertClient:
 
         :param is_tokenized: whether batch_generator generates tokenized sentences
         :param delay: delay in seconds and then run fetcher
-        :param batch_generator: a generator that yields list[str] every time
+        :param batch_generator: a generator that yields list[str] or list[list[str]] (for `is_tokenized=True`) every time
         :param max_num_batch: stop after encoding this number of batches
-        :return: a generator that yields encoded vectors in ndarray
+        :return: a generator that yields encoded vectors in ndarray, where the request id can be used to determine the order
+        :rtype: Iterator[tuple(int, numpy.ndarray)]
+
         """
 
         def run():
