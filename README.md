@@ -553,7 +553,7 @@ for _ in range(3):
 <h2 align="center">:speech_balloon: FAQ</h2>
 <p align="right"><a href="#bert-as-service"><sup>▴ Back to top</sup></a></p>
 
-[![ReadTheDoc](https://readthedocs.org/projects/bert-as-service/badge/?version=latest&style=for-the-badge)](http://bert-as-service.readthedocs.io)
+[![ReadTheDoc](https://readthedocs.org/projects/bert-as-service/badge/?version=latest&style=for-the-badge)](https://bert-as-service.readthedocs.io/en/latest/section/faq.html)
 
 ##### **Q:** Where is the BERT code come from?
 
