@@ -35,7 +35,8 @@ Response = namedtuple('Response', ['id', 'content'])
 class BertClient:
     def __init__(self, ip='localhost', port=5555, port_out=5556,
                  output_fmt='ndarray', show_server_config=False,
-                 identity=None, check_version=True, timeout=5000):
+                 identity=None, check_version=True, check_length=True,
+                 timeout=5000):
         """ A client object connected to a BertServer
 
         Create a BertClient that connects to a BertServer.
@@ -67,8 +68,10 @@ class BertClient:
         :param show_server_config: whether to show server configs when first connected
         :param identity: the UUID of this client
         :param check_version: check if server has the same version as client, raise AttributeError if not the same
+        :param check_version: check if server `max_seq_len` is less than the sentence length before sent
         :param timeout: set the timeout (milliseconds) for receive operation on the client
         """
+
         self.context = zmq.Context()
         self.sender = self.context.socket(zmq.PUSH)
         self.identity = identity or str(uuid.uuid4()).encode('ascii')
@@ -93,8 +96,9 @@ class BertClient:
         self.port = port
         self.port_out = port_out
         self.ip = ip
+        self.length_limit = 0
 
-        if check_version or show_server_config:
+        if check_version or show_server_config or check_length:
             s_status = self.server_status
 
             if check_version and s_status['server_version'] != self.status['client_version']:
@@ -105,6 +109,9 @@ class BertClient:
 
             if show_server_config:
                 self._print_dict(s_status, 'server config:')
+
+            if check_length:
+                self.length_limit = int(s_status['max_seq_len'])
 
     def close(self):
         """
@@ -216,6 +223,14 @@ class BertClient:
         else:
             self._check_input_lst_str(texts)
 
+        if self.length_limit and not self._check_length(texts, self.length_limit, is_tokenized):
+            print('some of your sentences have more tokens than "max_seq_len=%d" set on the server, '
+                  'as consequence you may get less-accurate or truncated embeddings.\n'
+                  'here is what you can do:\n'
+                  '- disable the length-check by create a new "BertClient(check_length=False)" '
+                  'when you just want to ignore this warning\n'
+                  '- or, start a new server with a larger "max_seq_len"' % self.length_limit)
+
         texts = _unicode(texts)
         self._send(jsonapi.dumps(texts), len(texts))
         return self._recv_ndarray().content if blocking else None
@@ -287,6 +302,15 @@ class BertClient:
         t = threading.Thread(target=run)
         t.start()
         return self.fetch(delay)
+
+    @staticmethod
+    def _check_length(texts, len_limit, tokenized):
+        if tokenized:
+            # texts is already tokenized as list of str
+            return all(len(t) <= len_limit for t in texts)
+        else:
+            # do a simple whitespace tokenizer
+            return all(len(t.split()) <= len_limit for t in texts)
 
     @staticmethod
     def _check_input_lst_str(texts):
