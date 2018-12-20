@@ -1,0 +1,5 @@
+termcolor
+numpy
+pyzmq
+tensorflow
+GPUtil
