@@ -26,15 +26,15 @@ Table of Content
 ----------------
 
 .. toctree::
-:maxdepth: 2
+   :maxdepth: 2
 
-       section/what-is-it
-       section/get-start
-       tutorial/index
-       source/client
-       source/server
-       section/faq
-       section/benchmark
+   section/what-is-it
+   section/get-start
+   tutorial/index
+   source/client
+   source/server
+   section/faq
+   section/benchmark
 
 
 Indices and tables

@@ -32,7 +32,7 @@
   <a href="#highlights">Highlights</a> •
   <a href="#what-is-it">What is it</a> •
   <a href="#install">Install</a> •
-  <a href="#usage">Usage</a> •
+  <a href="#getting-start">Getting Start</a> •
   <a href="#server-and-client-configurations">Configuration</a> •
   <a href="#book-tutorial">Tutorial</a> •
   <a href="#speech_balloon-faq">FAQ</a> •
@@ -78,7 +78,7 @@ Note that the server MUST be running on **Python >= 3.5** with **Tensorflow >= 1
 
 :point_up: The client can be running on both Python 2 and 3 [for the following consideration](#q-can-i-run-it-in-python-2).
 
-<h2 align="center">Usage</h2>
+<h2 align="center">Getting Start</h2>
 
 #### 1. Download a Pre-trained BERT Model
 Download a model listed below, then uncompress the zip file into some folder, say `/tmp/english_L-12_H-768_A-12/`
@@ -165,9 +165,10 @@ Note that you only need `pip install -U bert-serving-client` in this case, the s
 > - [Broadcasting to multiple clients](#broadcasting-to-multiple-clients)
 
 
-<h2 align="center">Server and Client Configurations</h2>
+<h2 align="center">Server and Client API</h2>
 <p align="right"><a href="#bert-as-service"><sup>▴ Back to top</sup></a></p>
 
+The best way to look up server and client API is [reading the documentation at here](https://bert-as-service.readthedocs.io/).
 
 ### Server-side configs
 

@@ -50,8 +50,7 @@ List of pretrained BERT models released by Google AI:
 .. note:: As an optional step, you can also fine-tune the model on your downstream task.
 
 
-.. _start-server:
-
+.. _start_server:
 Start the BERT service
 ----------------------
 

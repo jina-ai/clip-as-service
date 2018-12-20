@@ -13,7 +13,7 @@ to start a BertServer first, please check :ref:`start-server`.
 
 
 .. toctree::
-:maxdepth: 1
+   :maxdepth: 1
 
    simple-search
    fine-tune

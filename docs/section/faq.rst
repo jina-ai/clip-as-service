@@ -240,7 +240,6 @@ what the BERT model actually receives after tokenization:
    bc.encode(['hey you', 'whats up?', '你好么？', '我 还 可以'])
 
 
-.. highlight:: text
 .. code:: text
 
    tokens: [CLS] hey you [SEP]

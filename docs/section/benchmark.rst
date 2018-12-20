@@ -113,7 +113,7 @@ Speed wrt. ``num_client``
 ``num_client`` represents the number of concurrent clients connected to
 the server at the same time.
 
-.. image::../../.github/num_clients.png
+.. image:: ../../.github/num_clients.png
 
 ============== ===== ===== =====
 ``num_client`` 1 GPU 2 GPU 4 GPU
@@ -142,7 +142,7 @@ client is larger than ``max_batch_size``, the server will split it into
 small batches so that each of them is less or equal than
 ``max_batch_size`` before sending it to workers.
 
-.. image::../../.github/max_batch_size.png
+.. image:: ../../.github/max_batch_size.png
 
 ================== ===== ===== =====
 ``max_batch_size`` 1 GPU 2 GPU 4 GPU
