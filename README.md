@@ -11,6 +11,10 @@
       <img src="https://img.shields.io/pypi/v/bert-serving-server.svg?colorB=brightgreen"
            alt="Pypi package">
     </a>
+  <a href="https://bert-as-service.readthedocs.io/">
+      <img src="https://readthedocs.org/projects/bert-as-service/badge/?version=latest"
+           alt="ReadTheDoc">
+    </a>
   <a href="https://github.com/hanxiao/bert-as-service/releases">
       <img src="https://img.shields.io/github/release/hanxiao/bert-as-service.svg"
            alt="GitHub release">
@@ -32,9 +36,9 @@
   <a href="#highlights">Highlights</a> •
   <a href="#what-is-it">What is it</a> •
   <a href="#install">Install</a> •
-  <a href="#usage">Usage</a> •
-  <a href="#server-and-client-configurations">Configuration</a> •
-  <a href="#book-tutorial">Tutorial</a> •
+  <a href="#getting-start">Getting Start</a> •
+  <a href="#server-and-client-api">API</a> •
+  <a href="#book-tutorial">Tutorials</a> •
   <a href="#speech_balloon-faq">FAQ</a> •
   <a href="#zap-benchmark">Benchmark</a>
   
@@ -78,7 +82,7 @@ Note that the server MUST be running on **Python >= 3.5** with **Tensorflow >= 1
 
 :point_up: The client can be running on both Python 2 and 3 [for the following consideration](#q-can-i-run-it-in-python-2).
 
-<h2 align="center">Usage</h2>
+<h2 align="center">Getting Start</h2>
 
 #### 1. Download a Pre-trained BERT Model
 Download a model listed below, then uncompress the zip file into some folder, say `/tmp/english_L-12_H-768_A-12/`
@@ -153,7 +157,7 @@ bc.encode(['First do it', 'then do it right', 'then do it better'])
 
 Note that you only need `pip install -U bert-serving-client` in this case, the server side is not required.
 
-> :bulb: **Want to learn more? Checkout our tutorial:**
+> :bulb: **Want to learn more? Checkout our tutorials:**
 > - [Building a QA semantic search engine in 3 min.](#building-a-qa-semantic-search-engine-in-3-minutes)
 > - [Serving a fine-tuned BERT model](#serving-a-fine-tuned-bert-model)
 > - [Getting ELMo-like contextual word embedding](#getting-elmo-like-contextual-word-embedding)
@@ -165,11 +169,14 @@ Note that you only need `pip install -U bert-serving-client` in this case, the s
 > - [Broadcasting to multiple clients](#broadcasting-to-multiple-clients)
 
 
-<h2 align="center">Server and Client Configurations</h2>
+<h2 align="center">Server and Client API</h2>
 <p align="right"><a href="#bert-as-service"><sup>▴ Back to top</sup></a></p>
 
+[![ReadTheDoc](https://readthedocs.org/projects/bert-as-service/badge/?version=latest&style=for-the-badge)](http://bert-as-service.readthedocs.io)
 
-### Server-side configs
+The best way to learn `bert-as-service` API is [reading the documentation](http://bert-as-service.readthedocs.io).
+
+### Server API
 
 Server-side is a CLI `bert-serving-start`, you can get the latest usage via:
 ```bash
@@ -195,9 +202,11 @@ bert-serving-start --help
 | `xla` | bool | False | enable [XLA compiler](https://www.tensorflow.org/xla/jit) for graph optimization (*experimental!*) |
 | `device_map` | list | `[]` | specify the list of GPU device ids that will be used (id starts from 0)|
 
-### Client-side configs
+### Client API
 
-Client-side is Python class `BertClient`, which accepts arguments as follows:
+Detailed explanation of client API [can be found in the documentation](https://bert-as-service.readthedocs.io/en/add-doc/source/client.html#api-documentation).
+
+Client-side provides a Python class called `BertClient`, which accepts arguments as follows:
 
 | Argument | Type | Default | Description |
 |----------------------|------|-----------|-------------------------------------------------------------------------------|
@@ -226,6 +235,8 @@ A `BertClient` implements the following methods and properties:
 
 <h2 align="center">:book: Tutorial</h2>
 <p align="right"><a href="#bert-as-service"><sup>▴ Back to top</sup></a></p>
+
+[![ReadTheDoc](https://readthedocs.org/projects/bert-as-service/badge/?version=latest&style=for-the-badge)](https://bert-as-service.readthedocs.io/en/latest/section/faq.html)
 
 The full list of examples can be found in [`example/`](example). You can run each via `python example/example-k.py`. Most of examples require you to start a BertServer first, please follow [the instruction here](#2-start-the-bert-service). Note that although `BertClient` works universally on both Python 2.x and 3.x, examples are only tested on Python 3.6.
 
@@ -542,6 +553,8 @@ for _ in range(3):
 <h2 align="center">:speech_balloon: FAQ</h2>
 <p align="right"><a href="#bert-as-service"><sup>▴ Back to top</sup></a></p>
 
+[![ReadTheDoc](https://readthedocs.org/projects/bert-as-service/badge/?version=latest&style=for-the-badge)](http://bert-as-service.readthedocs.io)
+
 ##### **Q:** Where is the BERT code come from?
 
 **A:** [BERT code of this repo](server/bert_serving/server/bert/) is forked from the [original BERT repo](https://github.com/google-research/bert) with necessary modification, [especially in extract_features.py](server/bert_serving/server/bert/extract_features.py).
@@ -773,6 +786,8 @@ Note, `device_map` is ignored when running on CPU.
 
 <h2 align="center">:zap: Benchmark</h2>
 <p align="right"><a href="#bert-as-service"><sup>▴ Back to top</sup></a></p>
+
+[![ReadTheDoc](https://readthedocs.org/projects/bert-as-service/badge/?version=latest&style=for-the-badge)](https://bert-as-service.readthedocs.io/en/latest/section/benchmark.html)
 
 The primary goal of benchmarking is to test the scalability and the speed of this service, which is crucial for using it in a dev/prod environment. Benchmark was done on Tesla M40 24GB, experiments were repeated 10 times and the average value is reported.
 
