@@ -299,7 +299,7 @@ class BertWorker(Process):
         self.worker_address = worker_address_list
         self.num_concurrent_socket = len(self.worker_address)
         self.sink_address = sink_address
-        self.prefetch_factor = 10
+        self.prefetch_size = args.prefetch_size if self.device_id > 0 else 0  # set to zero for CPU-worker
         self.gpu_memory_fraction = args.gpu_memory_fraction
         self.model_dir = args.model_dir
         self.verbose = args.verbose
@@ -403,6 +403,6 @@ class BertWorker(Process):
                     'client_id': (),
                     'input_ids': (None, self.max_seq_len),
                     'input_mask': (None, self.max_seq_len),
-                    'input_type_ids': (None, self.max_seq_len)}).prefetch(self.prefetch_factor))
+                    'input_type_ids': (None, self.max_seq_len)}).prefetch(self.prefetch_size))
 
         return input_fn

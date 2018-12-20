@@ -84,6 +84,9 @@ def get_args_parser():
                         help='specify the list of GPU device ids that will be used (id starts from 0).'
                              'If num_worker > len(device_map), then device will be reused; '
                              'if num_worker < len(device_map), then device_map[:num_worker] will be used')
+    group3.add_argument('-prefetch_size', type=int, default=10,
+                        help='the number of batches to prefetch on each worker. When running on a CPU-only machine, '
+                             'this is set to 0 for comparability')
 
     parser.add_argument('-verbose', action='store_true', default=False,
                         help='turn on tensorflow logging for debug')
