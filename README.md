@@ -11,6 +11,10 @@
       <img src="https://img.shields.io/pypi/v/bert-serving-server.svg?colorB=brightgreen"
            alt="Pypi package">
     </a>
+  <a href="https://bert-as-service.readthedocs.io/">
+      <img src="https://readthedocs.org/projects/tensorpack/badge/?version=latest"
+           alt="ReadTheDoc">
+    </a>
   <a href="https://github.com/hanxiao/bert-as-service/releases">
       <img src="https://img.shields.io/github/release/hanxiao/bert-as-service.svg"
            alt="GitHub release">
