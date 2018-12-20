@@ -69,7 +69,7 @@ class BertClient:
         :param show_server_config: whether to show server configs when first connected
         :param identity: the UUID of this client
         :param check_version: check if server has the same version as client, raise AttributeError if not the same
-        :param check_version: check if server `max_seq_len` is less than the sentence length before sent
+        :param check_length: check if server `max_seq_len` is less than the sentence length before sent
         :param timeout: set the timeout (milliseconds) for receive operation on the client
         """
 

@@ -1,5 +1,5 @@
-BertClient Package
-==================
+Using BertClient
+================
 
 .. contents:: :local:
 
@@ -16,7 +16,7 @@ The best way to install the client is via pip. Note that the client can be insta
 
 .. note:: The client can be running on both Python 2 and 3.
 
-API documentation
+Client-side API
 -----------------
 
 .. automodule:: client

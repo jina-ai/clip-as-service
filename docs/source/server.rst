@@ -1,5 +1,5 @@
-BertServer Package
-==================
+Using BertServer
+================
 
 .. contents:: :local:
 
@@ -25,8 +25,8 @@ Once installed, you can use the command line interface to start a bert server:
 
     bert-serving-server -model_dir /uncased_bert_model -num_worker 4
 
-Server-side configs
--------------------
+Server-side API
+---------------
 
 Server-side is a CLI ``bert-serving-start``, you can get the latest
 usage via:
