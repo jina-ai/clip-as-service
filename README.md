@@ -12,7 +12,7 @@
            alt="Pypi package">
     </a>
   <a href="https://bert-as-service.readthedocs.io/">
-      <img src="https://readthedocs.org/projects/tensorpack/badge/?version=latest"
+      <img src="https://readthedocs.org/projects/bert-as-service/badge/?version=latest"
            alt="ReadTheDoc">
     </a>
   <a href="https://github.com/hanxiao/bert-as-service/releases">
@@ -172,9 +172,10 @@ Note that you only need `pip install -U bert-serving-client` in this case, the s
 <h2 align="center">Server and Client API</h2>
 <p align="right"><a href="#bert-as-service"><sup>▴ Back to top</sup></a></p>
 
-The best way to look up server and client API is [reading the documentation at here](https://bert-as-service.readthedocs.io/).
+The best way to learn `bert-as-service` API is reading the documentation. Click this  [![ReadTheDoc](https://readthedocs.org/projects/bert-as-service/badge/?version=latest&style=for-the-badge)](http://bert-as-service.readthedocs.io)
 
-### Server-side API
+
+### Server API
 
 Server-side is a CLI `bert-serving-start`, you can get the latest usage via:
 ```bash
@@ -200,11 +201,11 @@ bert-serving-start --help
 | `xla` | bool | False | enable [XLA compiler](https://www.tensorflow.org/xla/jit) for graph optimization (*experimental!*) |
 | `device_map` | list | `[]` | specify the list of GPU device ids that will be used (id starts from 0)|
 
-### Client-side API
+### Client API
 
-More detailed explanation of client API [can be found in the documentation](https://bert-as-service.readthedocs.io/en/add-doc/source/client.html#api-documentation).
+Detailed explanation of client API [can be found in the documentation](https://bert-as-service.readthedocs.io/en/add-doc/source/client.html#api-documentation).
 
-Client-side is Python class `BertClient`, which accepts arguments as follows:
+Client-side provides a Python class called `BertClient`, which accepts arguments as follows:
 
 | Argument | Type | Default | Description |
 |----------------------|------|-----------|-------------------------------------------------------------------------------|
