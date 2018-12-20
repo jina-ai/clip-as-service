@@ -186,7 +186,7 @@ bert-serving-start --help
 | Argument | Type | Default | Description |
 |--------------------|------|-------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `model_dir` | str | *Required* | folder path of the pre-trained BERT model. |
-| `tuned_model_dir`| str |` `| folder path of a fine-tuned BERT model. |
+| `tuned_model_dir`| str |(Optional)| folder path of a fine-tuned BERT model. |
 | `ckpt_name`| str | `bert_model.ckpt` | filename of the checkpoint file. |
 | `config_name`| str | `bert_config.json` | filename of the JSON config file for BERT model. | 
 | `max_seq_len` | int | `25` | maximum length of sequence, longer sequence will be trimmed on the right side. |
