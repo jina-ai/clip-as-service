@@ -114,7 +114,7 @@ class BertServer(threading.Thread):
             process.start()
 
         rand_backend_socket = None
-        num_req = defaultdict(int)
+        server_status = ServerStatistic()
         while True:
             try:
                 request = frontend.recv_multipart()
@@ -123,10 +123,10 @@ class BertServer(threading.Thread):
                 self.logger.error('\n'.join('field %d: %s' % (idx, k) for idx, k in enumerate(request)))
             else:
                 client, msg, req_id, msg_len = request
+                server_status.update(request)
                 if msg == ServerCommand.terminate:
                     break
                 elif msg == ServerCommand.show_config:
-                    num_req['config'] += 1
                     self.logger.info('new config request\treq id: %d\tclient: %s' % (int(req_id), client))
                     status_runtime = {'client': client.decode('ascii'),
                                       'num_process': len(self.processes),
@@ -134,8 +134,7 @@ class BertServer(threading.Thread):
                                       'worker -> sink': addr_sink,
                                       'ventilator <-> sink': addr_front2sink,
                                       'server_current_time': str(datetime.now()),
-                                      'num_config_request': num_req['config'],
-                                      'num_data_request': num_req['data'],
+                                      'statistic': server_status.value,
                                       'device_map': device_map,
                                       'num_concurrent_socket': self.num_concurrent_socket}
 
@@ -143,7 +142,6 @@ class BertServer(threading.Thread):
                                                                      **self.status_args,
                                                                      **self.status_static}), req_id])
                 else:
-                    num_req['data'] += 1
                     self.logger.info('new encode request\treq id: %d\tsize: %d\tclient: %s' %
                                      (int(req_id), int(msg_len), client))
                     # register a new job at sink
@@ -265,9 +263,7 @@ class BertSink(Process):
                 # check if there are finished jobs, send it back to workers
                 finished = [(k, v) for k, v in pending_result.items() if pending_checksum[k] == job_checksum[k]]
                 for job_info, tmp in finished:
-                    self.logger.info(
-                        'send back\tsize: %d\tjob id:%s\t' % (
-                            job_checksum[job_info], job_info))
+                    self.logger.info('send back\tsize: %d\tjob id:%s\t' % (job_checksum[job_info], job_info))
                     # re-sort to the original order
                     tmp = [x[0] for x in sorted(tmp, key=lambda x: int(x[1]))]
                     client_addr, req_id = job_info.split(b'#')
@@ -407,3 +403,55 @@ class BertWorker(Process):
                     'input_type_ids': (None, self.max_seq_len)}).prefetch(self.prefetch_size))
 
         return input_fn
+
+
+class ServerStatistic:
+    def __init__(self):
+        self._hist_client = defaultdict(int)
+        self._hist_msg_len = defaultdict(int)
+        self._num_data_req = 0
+        self._num_sys_req = 0
+        self._last_req_time = time.perf_counter()
+        self._last_two_req_interval = []
+        self._num_last_two_req = 200
+
+    def update(self, request):
+
+        client, msg, req_id, msg_len = request
+        self._hist_client[client] += 1
+        self._hist_msg_len[int(msg_len)] += 1
+        if msg != ServerCommand.terminate and msg != ServerCommand.show_config:
+            self._num_data_req += 1
+        else:
+            self._num_sys_req += 1
+
+        tmp = time.perf_counter()
+        if len(self._last_two_req_interval) < self._num_last_two_req:
+            self._last_two_req_interval.append(tmp - self._last_req_time)
+        else:
+            self._last_two_req_interval.pop(0)
+        self._last_req_time = tmp
+
+    @property
+    def value(self):
+        def get_min_max_avg(name, stat):
+            return {
+                'avg_%s' % name: sum(stat) / len(stat),
+                'min_%s' % name: min(stat),
+                'max_%s' % name: max(stat),
+                'num_one_%s' % name: sum(stat == 1),
+                'num_min_%s' % name: sum(stat == min(stat)),
+                'num_max_%s' % name: sum(stat == max(stat)),
+            }
+
+        parts = [{
+            'num_data_request': self._num_data_req,
+            'num_sys_request': self._num_sys_req,
+            'num_total_request': self._num_data_req + self._num_sys_req,
+            'num_total_client': len(self._hist_client)},
+            get_min_max_avg('request_per_client', self._hist_client.values()),
+            get_min_max_avg('size_per_request', self._hist_msg_len.values()),
+            get_min_max_avg('last_two_interval', self._last_two_req_interval)
+        ]
+
+        return {k: v for d in parts for k, v in d.items()}
