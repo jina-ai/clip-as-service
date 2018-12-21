@@ -239,7 +239,7 @@ what the BERT model actually receives after tokenization:
 
    bc.encode(['hey you', 'whats up?', '你好么？', '我 还 可以'])
 
-
+.. highlight:: text
 .. code:: text
 
    tokens: [CLS] hey you [SEP]
@@ -257,6 +257,7 @@ what the BERT model actually receives after tokenization:
    tokens: [CLS] 我 还 可 以 [SEP]
    input_ids: 101 2769 6820 1377 809 102 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
    input_mask: 1 1 1 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+
 
 That means the word embedding is actually the character embedding for
 Chinese-BERT.

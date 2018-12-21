@@ -118,6 +118,10 @@ class BertServer(threading.Thread):
         while True:
             try:
                 request = frontend.recv_multipart()
+            except ValueError:
+                self.logger.error('received a wrongly-formatted request (expected 4 frames, got %d)' % len(request))
+                self.logger.error('\n'.join('field %d: %s' % (idx, k) for idx, k in enumerate(request)))
+            else:
                 client, msg, req_id, msg_len = request
                 if msg == ServerCommand.terminate:
                     break
@@ -161,9 +165,6 @@ class BertServer(threading.Thread):
                             push_new_job(partial_job_id, jsonapi.dumps(job), len(job))
                     else:
                         push_new_job(job_id, msg, int(msg_len))
-            except ValueError:
-                self.logger.error('received a wrongly-formatted request (expected 4 frames, got %d)' % len(request))
-                self.logger.error('\n'.join('field %d: %s' % (idx, k) for idx, k in enumerate(request)))
 
         self.logger.info('terminated!')
 

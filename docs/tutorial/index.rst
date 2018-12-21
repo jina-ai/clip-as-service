@@ -5,7 +5,7 @@ Tutorials
 
 The full list of examples `can be found in here`_. You can run
 each via ``python example/example-k.py``. Most of examples require you
-to start a BertServer first, please check :ref:`start-server`.
+to start a BertServer first.
 
 .. note:: Although ``BertClient`` works universally on both Python 2.x and 3.x, examples are only tested on Python 3.6.
 

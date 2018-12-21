@@ -42,8 +42,8 @@ def get_args_parser():
     group1.add_argument('-tuned_model_dir', type=str,
                         help='directory of a fine-tuned BERT model')
     group1.add_argument('-ckpt_name', type=str, default='bert_model.ckpt',
-                        help='filename of the checkpoint file. By default it is "bert_model.ckpt", but '
-                             'for a fine-tuned model the name could be different.')
+                        help='filename of the checkpoint file. By default it is "bert_model.ckpt", but \
+                             for a fine-tuned model the name could be different.')
     group1.add_argument('-config_name', type=str, default='bert_config.json',
                         help='filename of the JSON config file for BERT model.')
 
@@ -52,8 +52,8 @@ def get_args_parser():
     group2.add_argument('-max_seq_len', type=int, default=25,
                         help='maximum length of a sequence')
     group2.add_argument('-pooling_layer', type=int, nargs='+', default=[-2],
-                        help='the encoder layer(s) that receives pooling. '
-                             'Give a list in order to concatenate several layers into one')
+                        help='the encoder layer(s) that receives pooling. \
+                        Give a list in order to concatenate several layers into one')
     group2.add_argument('-pooling_strategy', type=PoolingStrategy.from_string,
                         default=PoolingStrategy.REDUCE_MEAN, choices=list(PoolingStrategy),
                         help='the pooling strategy for generating encoding vectors')
@@ -77,16 +77,16 @@ def get_args_parser():
     group3.add_argument('-xla', action='store_true', default=False,
                         help='enable XLA compiler (experimental)')
     group3.add_argument('-gpu_memory_fraction', type=float, default=0.5,
-                        help='determine the fraction of the overall amount of memory '
-                             'that each visible GPU should be allocated per worker. '
-                             'Should be in range [0.0, 1.0]')
+                        help='determine the fraction of the overall amount of memory \
+                        that each visible GPU should be allocated per worker. \
+                        Should be in range [0.0, 1.0]')
     group3.add_argument('-device_map', type=int, nargs='+', default=[],
-                        help='specify the list of GPU device ids that will be used (id starts from 0).'
-                             'If num_worker > len(device_map), then device will be reused; '
-                             'if num_worker < len(device_map), then device_map[:num_worker] will be used')
+                        help='specify the list of GPU device ids that will be used (id starts from 0). \
+                        If num_worker > len(device_map), then device will be reused; \
+                        if num_worker < len(device_map), then device_map[:num_worker] will be used')
     group3.add_argument('-prefetch_size', type=int, default=10,
-                        help='the number of batches to prefetch on each worker. When running on a CPU-only machine, '
-                             'this is set to 0 for comparability')
+                        help='the number of batches to prefetch on each worker. When running on a CPU-only machine, \
+                        this is set to 0 for comparability')
 
     parser.add_argument('-verbose', action='store_true', default=False,
                         help='turn on tensorflow logging for debug')

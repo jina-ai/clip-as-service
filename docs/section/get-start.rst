@@ -51,6 +51,7 @@ List of pretrained BERT models released by Google AI:
 
 
 .. _start_server:
+
 Start the BERT service
 ----------------------
 
