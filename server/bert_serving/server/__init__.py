@@ -16,6 +16,7 @@ import numpy as np
 import zmq
 import zmq.decorators as zmqd
 from termcolor import colored
+from zmq.eventloop.zmqstream import ZMQStream
 from zmq.utils import jsonapi
 
 from .helper import *
@@ -37,12 +38,12 @@ class BertServer(threading.Thread):
     def __init__(self, args):
         super().__init__()
         self.logger = set_logger(colored('VENTILATOR', 'magenta'), args.verbose)
-
         self.model_dir = args.model_dir
         self.max_seq_len = args.max_seq_len
         self.num_worker = args.num_worker
         self.max_batch_size = args.max_batch_size
         self.num_concurrent_socket = max(8, args.num_worker * 2)  # optimize concurrency for multi-clients
+        self.rand_backend_socket = None
         self.port = args.port
         self.args = args
         self.status_args = {k: (v if k != 'pooling_strategy' else v.value) for k, v in sorted(vars(args).items())}
@@ -88,39 +89,18 @@ class BertServer(threading.Thread):
 
         def push_new_job(_job_id, _json_msg, _msg_len):
             # backend_socks[0] is always at the highest priority
-            _sock = backend_socks[0] if _msg_len <= self.args.priority_batch_size else rand_backend_socket
+            _sock = backend_socks[0] if _msg_len <= self.args.priority_batch_size else self.rand_backend_socket
             _sock.send_multipart([_job_id, _json_msg])
 
-        # bind all sockets
-        self.logger.info('bind all sockets')
-        frontend.bind('tcp://*:%d' % self.port)
-        addr_front2sink = auto_bind(sink)
-        addr_backend_list = [auto_bind(b) for b in backend_socks]
-        self.logger.info('open %d ventilator-worker sockets' % len(addr_backend_list))
-
-        # start the sink process
-        self.logger.info('start the sink')
-        proc_sink = BertSink(self.args, addr_front2sink)
-        self.processes.append(proc_sink)
-        proc_sink.start()
-        addr_sink = sink.recv().decode('ascii')
-
-        # start the backend processes
-        device_map = self._get_device_map()
-        for idx, device_id in enumerate(device_map):
-            process = BertWorker(idx, self.args, addr_backend_list, addr_sink, device_id,
-                                 self.graph_path)
-            self.processes.append(process)
-            process.start()
-
-        rand_backend_socket = None
-        num_req = defaultdict(int)
-        while True:
+        def frontend_on_recv(request):
             try:
-                request = frontend.recv_multipart()
                 client, msg, req_id, msg_len = request
+            except ValueError:
+                self.logger.error('received a wrongly-formatted request (expected 4 frames, got %d)' % len(request))
+                self.logger.error('\n'.join('field %d: %s' % (idx, k) for idx, k in enumerate(request)))
+            else:
                 if msg == ServerCommand.terminate:
-                    break
+                    frontend_stream.close()
                 elif msg == ServerCommand.show_config:
                     num_req['config'] += 1
                     self.logger.info('new config request\treq id: %d\tclient: %s' % (int(req_id), client))
@@ -148,7 +128,8 @@ class BertServer(threading.Thread):
                     # renew the backend socket to prevent large job queueing up
                     # [0] is reserved for high priority job
                     # last used backennd shouldn't be selected either as it may be queued up already
-                    rand_backend_socket = random.choice([b for b in backend_socks[1:] if b != rand_backend_socket])
+                    self.rand_backend_socket = random.choice(
+                        [b for b in backend_socks[1:] if b != self.rand_backend_socket])
 
                     # push a new job, note super large job will be pushed to one socket only,
                     # leaving other sockets free
@@ -161,9 +142,33 @@ class BertServer(threading.Thread):
                             push_new_job(partial_job_id, jsonapi.dumps(job), len(job))
                     else:
                         push_new_job(job_id, msg, int(msg_len))
-            except ValueError:
-                self.logger.error('received a wrongly-formatted request (expected 4 frames, got %d)' % len(request))
-                self.logger.error('\n'.join('field %d: %s' % (idx, k) for idx, k in enumerate(request)))
+
+        # bind all sockets
+        self.logger.info('bind all sockets')
+        frontend.bind('tcp://*:%d' % self.port)
+        addr_front2sink = auto_bind(sink)
+        addr_backend_list = [auto_bind(b) for b in backend_socks]
+        self.logger.info('open %d ventilator-worker sockets' % len(addr_backend_list))
+
+        # start the sink process
+        self.logger.info('start the sink')
+        proc_sink = BertSink(self.args, addr_front2sink)
+        self.processes.append(proc_sink)
+        proc_sink.start()
+        addr_sink = sink.recv().decode('ascii')
+
+        # start the backend processes
+        device_map = self._get_device_map()
+        for idx, device_id in enumerate(device_map):
+            process = BertWorker(idx, self.args, addr_backend_list, addr_sink, device_id,
+                                 self.graph_path)
+            self.processes.append(process)
+            process.start()
+
+        num_req = defaultdict(int)
+
+        frontend_stream = ZMQStream(frontend)
+        frontend_stream.on_recv(frontend_on_recv)
 
         self.logger.info('terminated!')
 
