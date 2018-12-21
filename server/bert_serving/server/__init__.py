@@ -435,13 +435,16 @@ class ServerStatistic:
     @property
     def value(self):
         def get_min_max_avg(name, stat):
-            return {
-                'avg_%s' % name: sum(stat) / len(stat),
-                'min_%s' % name: min(stat),
-                'max_%s' % name: max(stat),
-                'num_min_%s' % name: sum(v == min(stat) for v in stat),
-                'num_max_%s' % name: sum(v == max(stat) for v in stat),
-            }
+            if len(stat) > 0:
+                return {
+                    'avg_%s' % name: sum(stat) / len(stat),
+                    'min_%s' % name: min(stat),
+                    'max_%s' % name: max(stat),
+                    'num_min_%s' % name: sum(v == min(stat) for v in stat),
+                    'num_max_%s' % name: sum(v == max(stat) for v in stat),
+                }
+            else:
+                return {}
 
         parts = [{
             'num_data_request': self._num_data_req,
