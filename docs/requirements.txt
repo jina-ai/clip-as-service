@@ -3,3 +3,4 @@ numpy
 pyzmq
 tensorflow
 GPUtil
+sphinx-argparse
