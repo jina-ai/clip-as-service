@@ -1,7 +1,7 @@
 import json
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
-from client.bert_serving.client import BertClient
+from ..client import BertClient
 
 
 class BertMonitor(BaseHTTPRequestHandler, BertClient):
