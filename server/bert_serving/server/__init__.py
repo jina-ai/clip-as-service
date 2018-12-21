@@ -439,9 +439,8 @@ class ServerStatistic:
                 'avg_%s' % name: sum(stat) / len(stat),
                 'min_%s' % name: min(stat),
                 'max_%s' % name: max(stat),
-                'num_one_%s' % name: sum(stat == 1),
-                'num_min_%s' % name: sum(stat == min(stat)),
-                'num_max_%s' % name: sum(stat == max(stat)),
+                'num_min_%s' % name: sum(v == min(stat) for v in stat),
+                'num_max_%s' % name: sum(v == max(stat) for v in stat),
             }
 
         parts = [{
