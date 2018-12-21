@@ -3,11 +3,16 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 
 from bert_serving.client import BertClient
 
+ip = 'localhost'
+port = 4000
+port_out = 4001
+
 
 class BertMonitor(BaseHTTPRequestHandler, BertClient):
-    def __init__(self, request, client_address, server, ip='localhost', port=5555, port_out=5556):
-        BaseHTTPRequestHandler.__init__(self, request, client_address, server)
-        BertClient.__init__(self, ip, port, port_out, check_version=True, show_server_config=True)
+
+    def __init__(self, request, client_address, server):
+        super().__init__(request, client_address, server)
+        self.bc = BertClient(port=4000, port_out=4001, check_version=True, show_server_config=True)
 
     def _set_headers(self):
         self.send_response(200)
@@ -19,7 +24,7 @@ class BertMonitor(BaseHTTPRequestHandler, BertClient):
 
     def do_GET(self):
         self._set_headers()
-        self.wfile.write(json.dumps(self.server_status))
+        self.wfile.write(json.dumps(self.bc.server_status))
 
 
 def run(server_class=HTTPServer, handler_class=BertMonitor, port=8531):
