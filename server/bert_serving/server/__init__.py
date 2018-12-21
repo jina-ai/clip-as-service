@@ -449,7 +449,7 @@ class ServerStatistic:
             'num_total_request': self._num_data_req + self._num_sys_req,
             'num_total_client': len(self._hist_client)},
             get_min_max_avg('request_per_client', self._hist_client.values()),
-            get_min_max_avg('size_per_request', self._hist_msg_len.values()),
+            get_min_max_avg('size_per_request', self._hist_msg_len.keys()),
             get_min_max_avg('last_two_interval', self._last_two_req_interval)
         ]
 
