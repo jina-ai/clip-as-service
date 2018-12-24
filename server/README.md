@@ -168,6 +168,7 @@ Note that you only need `pip install -U bert-serving-client` in this case, the s
 > - [Saving and loading with TFRecord data](#saving-and-loading-with-tfrecord-data)
 > - [Asynchronous encoding](#asynchronous-encoding)
 > - [Broadcasting to multiple clients](#broadcasting-to-multiple-clients)
+> - [Monitoring the service status in a dashboard](#monitoring-the-service-status-in-a-dashboard)
 
 
 <h2 align="center">Server and Client API</h2>
@@ -253,6 +254,7 @@ The full list of examples can be found in [`example/`](example). You can run eac
 > - [Saving and loading with TFRecord data](#saving-and-loading-with-tfrecord-data)
 > - [Asynchronous encoding](#asynchronous-encoding)
 > - [Broadcasting to multiple clients](#broadcasting-to-multiple-clients)
+> - [Monitoring the service status in a dashboard](#monitoring-the-service-status-in-a-dashboard)
 
 </details>
 
@@ -549,6 +551,23 @@ for j in range(2):
 for _ in range(3):
     bc.encode(lst_str)
 ```
+
+### Monitoring the service status in a dashboard
+
+> The complete example can [be found in plugin/dashboard/](plugin/dashboard).
+
+As a part of the infrastructure, one may also want to monitor the service status and show it in a dashboard. To do that, we can use:
+```python
+bc = BertClient(ip='server_ip')
+
+json.dumps(bc.server_status, ensure_ascii=False)
+```
+
+This gives the current status of the server including number of requests, number of clients etc. in JSON format. The only thing remained is to start a HTTP server for returning this JSON to the frontend that renders it.
+
+`plugin/dashboard/index.html` and `bindings.js` show a simple dashboard based on Bootstrap and Vue.js.
+
+<p align="center"><img src=".github/dashboard.png?raw=true"/></p>
 
 
 <h2 align="center">:speech_balloon: FAQ</h2>
