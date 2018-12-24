@@ -24,3 +24,4 @@ to start a BertServer first.
    tf-record
    async-encode
    broadcast
+   add-monitor

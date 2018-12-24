@@ -1,6 +1,7 @@
 import argparse
 import logging
 import os
+import sys
 import uuid
 
 import zmq
@@ -124,3 +125,11 @@ def auto_bind(socket):
 
         socket.bind('ipc://{}'.format(tmp_dir))
     return socket.getsockopt(zmq.LAST_ENDPOINT).decode('ascii')
+
+
+def get_run_args(parser_fn=get_args_parser, printed=True):
+    args = parser_fn().parse_args()
+    if printed:
+        param_str = '\n'.join(['%20s = %s' % (k, v) for k, v in sorted(vars(args).items())])
+        print('usage: %s\n%20s   %s\n%s\n%s\n' % (' '.join(sys.argv), 'ARG', 'VALUE', '_' * 50, param_str))
+    return args
