@@ -18,7 +18,7 @@ As a part of the infrastructure, one may also want to monitor the service status
    json.dumps(bc.server_status, ensure_ascii=False)
 
 
-This gives the current status of the server including number of requests, number of clients in JSON format, etc. The only thing remained is to start a HTTP server for returning this JSON to the frontend that renders it.
+This gives the current status of the server including number of requests, number of clients, etc. in JSON format. The only thing remained is to start a HTTP server for returning this JSON to the frontend that renders it.
 
 ``plugin/dashboard/index.html`` and ``bindings.js`` show a simple dashboard based on Bootstrap and Vue.js.
 
