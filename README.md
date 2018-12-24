@@ -564,7 +564,7 @@ json.dumps(bc.server_status, ensure_ascii=False)
 
 This gives the current status of the server including number of requests, number of clients etc. in JSON format. The only thing remained is to start a HTTP server for returning this JSON to the frontend that renders it.
 
-`plugin/dashboard/index.html` and `bindings.js` show a simple dashboard based on Bootstrap and Vue.js.
+`plugin/dashboard/index.html` shows a simple dashboard based on Bootstrap and Vue.js.
 
 <p align="center"><img src=".github/dashboard.png?raw=true"/></p>
 

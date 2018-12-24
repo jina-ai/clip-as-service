@@ -1,5 +1,5 @@
-Asynchronous encoding
-=====================
+Monitoring the service status in a dashboard
+============================================
 
 .. contents:: :local:
 
@@ -20,6 +20,6 @@ As a part of the infrastructure, one may also want to monitor the service status
 
 This gives the current status of the server including number of requests, number of clients, etc. in JSON format. The only thing remained is to start a HTTP server for returning this JSON to the frontend that renders it.
 
-``plugin/dashboard/index.html`` and ``bindings.js`` show a simple dashboard based on Bootstrap and Vue.js.
+``plugin/dashboard/index.html`` shows a simple dashboard based on Bootstrap and Vue.js.
 
 .. image:: ../../.github/dashboard.png
