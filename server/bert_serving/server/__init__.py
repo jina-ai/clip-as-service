@@ -62,7 +62,10 @@ class BertServer(threading.Thread):
             self.graph_path = pool.apply(optimize_graph, (self.args,))
         # from .graph import optimize_graph
         # self.graph_path = optimize_graph(self.args, self.logger)
-        self.logger.info('optimized graph is stored at: %s' % self.graph_path)
+        if self.graph_path:
+            self.logger.info('optimized graph is stored at: %s' % self.graph_path)
+        else:
+            raise FileNotFoundError('graph optimization fails and returns empty result')
 
     def close(self):
         self.logger.info('shutting down...')
