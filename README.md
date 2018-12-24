@@ -564,7 +564,7 @@ This gives the current status of the server including number of requests, number
 
 `plugin/dashboard/index.html` and `bindings.js` show a simple dashboard based on Bootstrap and Vue.js.
 
-![](.github/dashboard.png)
+<p align="center"><img src=".github/dashboard.png?raw=true"/></p>
 
 
 <h2 align="center">:speech_balloon: FAQ</h2>
