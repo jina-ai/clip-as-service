@@ -549,6 +549,23 @@ for _ in range(3):
     bc.encode(lst_str)
 ```
 
+### Monitoring the service status
+
+> The complete example can [be found in plugin/dashboard/](plugin/dashboard).
+
+As a part of the infrastructure, one may also want to monitor the service status and show it in a dashboard. To do that, we can use:
+```python
+bc = BertClient(ip='server_ip')
+
+json.dumps(bc.server_status, ensure_ascii=False)
+```
+
+This gives the current status of the server including number of requests, number of clients in JSON format, etc. The only thing remained is to start a HTTP server for returning this JSON to the frontend that renders it.
+
+`plugin/dashboard/index.html` and `bindings.js` show a simple dashboard based on Bootstrap and Vue.js.
+
+![](.github/a3486574.png)
+
 
 <h2 align="center">:speech_balloon: FAQ</h2>
 <p align="right"><a href="#bert-as-service"><sup>▴ Back to top</sup></a></p>
