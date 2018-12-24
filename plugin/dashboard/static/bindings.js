@@ -103,4 +103,4 @@ const vm = new Vue({
 setInterval(function () {
     vm.refreshDatabase();
     console.log('update database!')
-}, 5 * 1000);
+}, 60 * 1000);
