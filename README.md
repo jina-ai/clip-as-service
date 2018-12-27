@@ -135,7 +135,7 @@ from bert_serving.client import BertClient
 bc = BertClient()
 bc.encode(['First do it', 'then do it right', 'then do it better'])
 ```
-It will return a `ndarray`, in which each row is the fixed representation of a sentence. You can also let it return a pure python object with type `List[List[float]]`.
+It will return a `ndarray` (or `List[List[float]]` if you wish), in which each row is the fixed representation of a sentence. Having thousands sentences? Just `encode`! *Don't even bother to batch*, the server will take care of it.
 
 As a feature of BERT, you may get encodes of a pair of sentences by concatenating them with ` ||| `, e.g.
 ```python
@@ -635,6 +635,11 @@ Intuitively, `pooling_layer=-1` is close to the training output, so it may be bi
 ##### **Q:** Could I use other pooling techniques?
 
 **A:** For sure. But if you introduce new `tf.variables` to the graph, then you need to train those variables before using the model. You may also want to check [some pooling techniques I mentioned in my blog post](https://hanxiao.github.io/2018/06/24/4-Encoding-Blocks-You-Need-to-Know-Besides-LSTM-RNN-in-Tensorflow/#pooling-block).
+
+##### **Q:** Do I need to batch the data before `encode()`?
+
+No, not at all. Just do `encode` and let the server handles the rest. If the batch is too large, the server will do batching automatically and it is more efficient than doing it by yourself. No matter how many sentences you have, 10K or 100K, as long as you can hold it in client's memory, just send it to the server. Please also read [the benchmark on the client batch size](https://github.com/hanxiao/bert-as-service#speed-wrt-client_batch_size).
+
 
 ##### **Q:** Can I start multiple clients and send requests to one server simultaneously?
 
