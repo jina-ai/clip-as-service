@@ -29,7 +29,7 @@
 
     <div class="container-fluid" style="margin-top: 30px">
         <div class="card-deck">
-            <div class="card text-center text-white bg-info mb-3" v-for="tt in top_deck">
+            <div class="card text-center text-white bg-success mb-3" v-for="tt in first_deck">
                 <h5 class="card-header">{{tt.text}}</h5>
                 <div class="card-body">
                     <p class="card-text">{{tt.value}}</p>
@@ -37,7 +37,7 @@
             </div>
         </div>
         <div class="card-deck">
-            <div class="card text-center text-white bg-success mb-3" v-for="tt in second_deck">
+            <div class="card text-center text-white bg-info mb-3" v-for="tt in second_deck">
                 <h5 class="card-header">{{tt.text}}</h5>
                 <div class="card-body">
                     <p class="card-text">{{tt.value}}</p>
@@ -46,11 +46,15 @@
         </div>
         <div class="card-deck">
             <div class="card text-center mb-3">
-                <h5 class="card-header">Request in last 60 mins</h5>
+                <h5 class="card-header">Requests in last 60 mins</h5>
                 <div class="card-body">
                     <chartjs-line :labels="hist_num_data_request.label.slice(-60)"
                                   :data="hist_num_data_request.value.slice(-60)"
-                                  :option="lineOption"
+                                  :datalabel="''"
+                                  :fill="true"
+                                  :backgroundcolor="'#e83e8c45'"
+                                  :bordercolor="'#e83e8c'"
+                                  :height="100"
                                   :bind="true"></chartjs-line>
                 </div>
             </div>
@@ -59,7 +63,39 @@
                 <div class="card-body">
                     <chartjs-line :labels="hist_num_client.label.slice(-60)"
                                   :data="hist_num_client.value.slice(-60)"
-                                  :option="lineOption"
+                                  :datalabel="''"
+                                  :fill="true"
+                                  :backgroundcolor="'#e83e8c45'"
+                                  :bordercolor="'#e83e8c'"
+                                  :height="100"
+                                  :bind="true"></chartjs-line>
+                </div>
+            </div>
+        </div>
+        <div class="card-deck">
+            <div class="card text-center mb-3">
+                <h5 class="card-header">Requests in last 24 hours</h5>
+                <div class="card-body">
+                    <chartjs-line :labels="hist_num_data_request.label.slice(-1440)"
+                                  :data="hist_num_data_request.value.slice(-1440)"
+                                  :datalabel="''"
+                                  :fill="true"
+                                  :backgroundcolor="'#fd7e1445'"
+                                  :bordercolor="'#fd7e14'"
+                                  :height="100"
+                                  :bind="true"></chartjs-line>
+                </div>
+            </div>
+            <div class="card text-center mb-3">
+                <h5 class="card-header">Clients in last 24 hours</h5>
+                <div class="card-body">
+                    <chartjs-line :labels="hist_num_client.label.slice(-1440)"
+                                  :data="hist_num_client.value.slice(-1440)"
+                                  :datalabel="''"
+                                  :fill="true"
+                                  :backgroundcolor="'#fd7e1445'"
+                                  :bordercolor="'#fd7e14'"
+                                  :height="100"
                                   :bind="true"></chartjs-line>
                 </div>
             </div>

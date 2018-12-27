@@ -135,6 +135,5 @@ def optimize_graph(args, logger=None):
         with tf.gfile.GFile(tmp_file, 'wb') as f:
             f.write(tmp_g.SerializeToString())
         return tmp_file
-    except Exception as e:
-        logger.error('fail to optimize the graph!')
-        logger.error(e)
+    except Exception:
+        logger.error('fail to optimize the graph!', exc_info=True)
