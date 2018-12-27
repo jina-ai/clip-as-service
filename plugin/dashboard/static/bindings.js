@@ -9,25 +9,14 @@ const vm = new Vue({
         top_deck: [],
         second_deck: [],
         hist_num_data_request: {
-            'last': 0,
+            'last': -1,
             'value': [],
             'label': []
         },
         hist_num_client: {
-            'last': 0,
+            'last': -1,
             'value': [],
             'label': []
-        },
-        lineOption: {
-            label: '',
-            responsive: true,
-            maintainAspectRatio: true,
-            fill: true,
-            title: {
-                display: false,
-                position: 'bottom',
-                text: ''
-            }
         }
     },
     mounted: function () {
@@ -60,27 +49,29 @@ const vm = new Vue({
                 success: function (data) {
                     console.log('Success');
                     vm.results = JSON.parse(data);
-                    vm.top_deck = [];
+                    vm.first_deck = [];
                     vm.second_deck = [];
-                    // add to top deck
-                    vm.addToDeck('Server version', vm.results.server_version, vm.top_deck);
-                    vm.addToDeck('Running onn', vm.results.cpu ? 'CPU' : 'GPU', vm.top_deck);
-                    vm.addToDeck('Uptime', vm.runningTime, vm.top_deck);
-                    vm.addToDeck('Workers', vm.results.num_worker, vm.top_deck);
-                    vm.addToDeck('Num clients', vm.results.statistic.num_total_client, vm.top_deck);
+                    vm.third_deck = [];
+                    // add to top deck, high priority
+                    vm.addToDeck('Data Req.', vm.results.statistic.num_data_request, vm.first_deck);
+                    vm.addToDeck('Max RPS', (1 / vm.results.statistic.min_last_two_interval), vm.first_deck);
+                    vm.addToDeck('Max Req./Client', vm.results.statistic.max_request_per_client, vm.first_deck);
+                    vm.addToDeck('Num clients', vm.results.statistic.num_total_client, vm.first_deck);
 
-                    // add to second deck
-                    vm.addToDeck('Data Req.', vm.results.statistic.num_data_request, vm.second_deck);
+                    // other dynamic stat to the second deck
                     vm.addToDeck('Sys Req.', vm.results.statistic.num_sys_request, vm.second_deck);
-                    vm.addToDeck('Min Req. interval', moment.duration(vm.results.statistic.min_last_two_interval, 'seconds').humanize(), vm.second_deck);
-                    vm.addToDeck('Max Req. interval', moment.duration(vm.results.statistic.max_last_two_interval, 'seconds').humanize(), vm.second_deck);
-                    vm.addToDeck('Avg Req. interval', moment.duration(vm.results.statistic.avg_last_two_interval, 'seconds').humanize(), vm.second_deck);
+                    vm.addToDeck('Avg RPS', (1 / vm.results.statistic.avg_last_two_interval), vm.second_deck);
                     vm.addToDeck('Min Req./Client', vm.results.statistic.min_request_per_client, vm.second_deck);
-                    vm.addToDeck('Max Req./Client', vm.results.statistic.max_request_per_client, vm.second_deck);
                     vm.addToDeck('Avg Req./Client', vm.results.statistic.avg_request_per_client, vm.second_deck);
+
+                    // mostly constant stat to the third deck
+                    vm.addToDeck('Server version', vm.results.server_version, vm.second_deck);
+                    vm.addToDeck('Running on', vm.results.cpu ? 'CPU' : 'GPU', vm.second_deck);
+                    vm.addToDeck('Uptime', vm.runningTime, vm.second_deck);
+                    vm.addToDeck('Workers', vm.results.num_worker, vm.second_deck);
                     vm.addToDeck('Max seq len', vm.results.max_seq_len, vm.second_deck);
 
-                    vm.addNewTimeData(vm.hist_num_data_request, vm.results.statistic.num_data_request, false);
+                    vm.addNewTimeData(vm.hist_num_data_request, vm.results.statistic.num_data_request, true);
                     vm.addNewTimeData(vm.hist_num_client, vm.results.statistic.num_total_client, false);
                 },
                 complete: function () {
@@ -88,13 +79,18 @@ const vm = new Vue({
                 }
             });
         },
-        addToDeck: function (text, value, deck) {
-            deck.push({'text': text, 'value': value})
+        addToDeck: function (text, value, deck, round) {
+            round = typeof round !== 'undefined' ? round : true;
+            round = (!isNaN(parseFloat(value)) && isFinite(value)) ? round : false;
+            deck.push({'text': text, 'value': round ? Math.round(value) : value})
         },
         addNewTimeData: function (ds, new_val, delta) {
-            ds.value.push(new_val - (delta ? ds.last : 0));
+            if (ds.last >= 0)
+                ds.value.push(new_val - (delta ? ds.last : 0));
+            else
+                ds.value.push(0);
             ds.last = new_val;
-            ds.label.push(moment().format('YY-MM-DD h:mm:ss'));
+            ds.label.push(moment().format('h:mm:ss'));
         }
     }
 });
