@@ -54,3 +54,7 @@ html {
     margin-bottom: 0;
     margin-left: 2px;
 }
+
+::-webkit-scrollbar {
+    display: none;
+}
