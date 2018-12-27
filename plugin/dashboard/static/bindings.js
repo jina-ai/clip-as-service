@@ -80,7 +80,7 @@ const vm = new Vue({
                     vm.addToDeck('Avg Req./Client', vm.results.statistic.avg_request_per_client, vm.second_deck);
                     vm.addToDeck('Max seq len', vm.results.max_seq_len, vm.second_deck);
 
-                    vm.addNewTimeData(vm.hist_num_data_request, vm.results.statistic.num_data_request, true);
+                    vm.addNewTimeData(vm.hist_num_data_request, vm.results.statistic.num_data_request, false);
                     vm.addNewTimeData(vm.hist_num_client, vm.results.statistic.num_total_client, false);
                 },
                 complete: function () {

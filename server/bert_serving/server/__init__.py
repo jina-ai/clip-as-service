@@ -123,7 +123,7 @@ class BertServer(threading.Thread):
                 request = frontend.recv_multipart()
             except ValueError:
                 self.logger.error('received a wrongly-formatted request (expected 4 frames, got %d)' % len(request))
-                self.logger.error('\n'.join('field %d: %s' % (idx, k) for idx, k in enumerate(request)))
+                self.logger.error('\n'.join('field %d: %s' % (idx, k) for idx, k in enumerate(request)), exc_info=True)
             else:
                 client, msg, req_id, msg_len = request
                 server_status.update(request)
@@ -234,7 +234,7 @@ class BertSink(Process):
 
         pending_checksum = defaultdict(int)
         pending_result = defaultdict(list)
-        job_checksum = {}
+        job_checksum = defaultdict(int)
 
         poller = zmq.Poller()
         poller.register(frontend, zmq.POLLIN)
