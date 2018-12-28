@@ -66,7 +66,7 @@
 - :hatching_chick: **Easy-to-use**: require only two lines of code to get sentence/token-level encodes.
 - :zap: **Fast**: 900 sentences/s on a single Tesla M40 24GB. Low latency, optimized for speed. See [benchmark](#zap-benchmark).
 - :octopus: **Scalable**: scale nicely and smoothly on multiple GPUs and multiple clients without worrying about concurrency. See [benchmark](#speed-wrt-num_client).
-- :bridge_at_night: **Reliable**: encode billion-level sentences without a break or OOM or any nasty issues.
+- :gem: **Reliable**: encode billion-level sentences without a break or OOM or any nasty exceptions.
 
 More features: asynchronous encoding; multicasting; mix GPU & CPU workloads; graph optimization; `tf.data` friendly; customized tokenizer; pooling strategy and layer; XLA support etc.
 
