@@ -66,7 +66,7 @@
 - :hatching_chick: **Easy-to-use**: require only two lines of code to get sentence/token-level encodes.
 - :zap: **Fast**: 900 sentences/s on a single Tesla M40 24GB. Low latency, optimized for speed. See [benchmark](#zap-benchmark).
 - :octopus: **Scalable**: scale nicely and smoothly on multiple GPUs and multiple clients without worrying about concurrency. See [benchmark](#speed-wrt-num_client).
-- :gem: **Reliable**: tested on multi-billion sentences, days of running without a break or OOM or any nasty exceptions.
+- :gem: **Reliable**: tested on multi-billion sentences; days of running without a break or OOM or any nasty exceptions.
 
 More features: asynchronous encoding; multicasting; mix GPU & CPU workloads; graph optimization; `tf.data` friendly; customized tokenizer; pooling strategy and layer; XLA support etc.
 
@@ -568,7 +568,6 @@ This gives the current status of the server including number of requests, number
 `plugin/dashboard/index.html` shows a simple dashboard based on Bootstrap and Vue.js.
 
 <p align="center"><img src=".github/dashboard.png?raw=true"/></p>
-
 
 <h2 align="center">:speech_balloon: FAQ</h2>
 <p align="right"><a href="#bert-as-service"><sup>▴ Back to top</sup></a></p>
