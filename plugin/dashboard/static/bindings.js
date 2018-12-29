@@ -8,7 +8,7 @@ const vm = new Vue({
         results: [],
         top_deck: [],
         second_deck: [],
-        hist_num_data_request: {
+        hist_num_request: {
             'last': -1,
             'value': [],
             'label': []
@@ -17,7 +17,8 @@ const vm = new Vue({
             'last': -1,
             'value': [],
             'label': []
-        }
+        },
+        max_num_points: 720
     },
     mounted: function () {
         this.$nextTick(function () {
@@ -33,6 +34,18 @@ const vm = new Vue({
         }
     },
     methods: {
+        histReqLabels: function (long) {
+            return this.hist_num_request.label.slice(-(long ? this.max_num_points : 60))
+        },
+        histReqValues: function (long) {
+            return this.hist_num_request.value.slice(-(long ? this.max_num_points : 60))
+        },
+        histClientLabels: function (long) {
+            return this.hist_num_client.label.slice(-(long ? this.max_num_points : 60))
+        },
+        histClientValues: function (long) {
+            return this.hist_num_client.value.slice(-(long ? this.max_num_points : 60))
+        },
         refreshDatabase: function () {
             $.ajax({
                 url: this.databaseUrl,
@@ -71,7 +84,7 @@ const vm = new Vue({
                     vm.addToDeck('Workers', vm.results.num_worker, vm.second_deck);
                     vm.addToDeck('Max seq len', vm.results.max_seq_len, vm.second_deck);
 
-                    vm.addNewTimeData(vm.hist_num_data_request, vm.results.statistic.num_data_request, true);
+                    vm.addNewTimeData(vm.hist_num_request, vm.results.statistic.num_data_request, true);
                     vm.addNewTimeData(vm.hist_num_client, vm.results.statistic.num_total_client, false);
                 },
                 complete: function () {
@@ -91,6 +104,10 @@ const vm = new Vue({
                 ds.value.push(0);
             ds.last = new_val;
             ds.label.push(moment().format('h:mm:ss'));
+            if (ds.label.length > vm.max_num_points) {
+                ds.label = ds.label.slice(-vm.max_num_points);
+                ds.value = ds.value.slice(-vm.max_num_points)
+            }
         }
     }
 });
