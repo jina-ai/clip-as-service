@@ -41,6 +41,7 @@
   <a href="#book-tutorial">Tutorials</a> •
   <a href="#speech_balloon-faq">FAQ</a> •
   <a href="#zap-benchmark">Benchmark</a>
+  <a href="https://hanxiao.github.io/2019/01/02/Serving-Google-BERT-in-Production-using-Tensorflow-and-ZeroMQ/" target="_blank">Blog</a>
   
 </p>
 
@@ -573,6 +574,10 @@ This gives the current status of the server including number of requests, number
 <p align="right"><a href="#bert-as-service"><sup>▴ Back to top</sup></a></p>
 
 [![ReadTheDoc](https://readthedocs.org/projects/bert-as-service/badge/?version=latest&style=for-the-badge)](https://bert-as-service.readthedocs.io/en/latest/section/faq.html)
+
+##### **Q:** Do you have a paper or other written explanation to introduce your model's details?
+
+The design philosophy and technical details can be found [in my blog post](https://hanxiao.github.io/2019/01/02/Serving-Google-BERT-in-Production-using-Tensorflow-and-ZeroMQ/).
 
 ##### **Q:** Where is the BERT code come from?
 
