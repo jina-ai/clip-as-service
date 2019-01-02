@@ -40,7 +40,7 @@
   <a href="#server-and-client-api">API</a> •
   <a href="#book-tutorial">Tutorials</a> •
   <a href="#speech_balloon-faq">FAQ</a> •
-  <a href="#zap-benchmark">Benchmark</a>
+  <a href="#zap-benchmark">Benchmark</a> •
   <a href="https://hanxiao.github.io/2019/01/02/Serving-Google-BERT-in-Production-using-Tensorflow-and-ZeroMQ/" target="_blank">Blog</a>
   
 </p>
