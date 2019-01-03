@@ -298,6 +298,7 @@ class BertWorker(Process):
         self.device_id = device_id
         self.logger = set_logger(colored('WORKER-%d' % self.worker_id, 'yellow'), args.verbose)
         self.max_seq_len = args.max_seq_len
+        self.mask_cls_sep = args.mask_cls_sep
         self.daemon = True
         self.exit_flag = multiprocessing.Event()
         self.worker_address = worker_address_list
