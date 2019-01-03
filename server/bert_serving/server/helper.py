@@ -58,6 +58,10 @@ def get_args_parser():
     group2.add_argument('-pooling_strategy', type=PoolingStrategy.from_string,
                         default=PoolingStrategy.REDUCE_MEAN, choices=list(PoolingStrategy),
                         help='the pooling strategy for generating encoding vectors')
+    group2.add_argument('-mask_cls_sep', action='store_true', default=False,
+                        help='masking the embedding on [CLS] and [SEP] with zero. \
+                        When pooling_strategy is in {CLS_TOKEN, FIRST_TOKEN, SEP_TOKEN, LAST_TOKEN} \
+                        then the embedding is preserved, otherwise the embedding is masked to zero before pooling')
 
     group3 = parser.add_argument_group('Serving Configs',
                                        'config how server utilizes GPU/CPU resources')
@@ -88,6 +92,7 @@ def get_args_parser():
     group3.add_argument('-prefetch_size', type=int, default=10,
                         help='the number of batches to prefetch on each worker. When running on a CPU-only machine, \
                         this is set to 0 for comparability')
+
 
     parser.add_argument('-verbose', action='store_true', default=False,
                         help='turn on tensorflow logging for debug')
