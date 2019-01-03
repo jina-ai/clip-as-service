@@ -41,7 +41,8 @@
   <a href="#server-and-client-api">API</a> •
   <a href="#book-tutorial">Tutorials</a> •
   <a href="#speech_balloon-faq">FAQ</a> •
-  <a href="#zap-benchmark">Benchmark</a>
+  <a href="#zap-benchmark">Benchmark</a> •
+  <a href="https://hanxiao.github.io/2019/01/02/Serving-Google-BERT-in-Production-using-Tensorflow-and-ZeroMQ/" target="_blank">Blog</a>
   
 </p>
 
@@ -67,6 +68,7 @@
 - :hatching_chick: **Easy-to-use**: require only two lines of code to get sentence/token-level encodes.
 - :zap: **Fast**: 900 sentences/s on a single Tesla M40 24GB. Low latency, optimized for speed. See [benchmark](#zap-benchmark).
 - :octopus: **Scalable**: scale nicely and smoothly on multiple GPUs and multiple clients without worrying about concurrency. See [benchmark](#speed-wrt-num_client).
+- :gem: **Reliable**: tested on multi-billion sentences; days of running without a break or OOM or any nasty exceptions.
 
 More features: asynchronous encoding; multicasting; mix GPU & CPU workloads; graph optimization; `tf.data` friendly; customized tokenizer; pooling strategy and layer; XLA support etc.
 
@@ -136,9 +138,9 @@ from bert_serving.client import BertClient
 bc = BertClient()
 bc.encode(['First do it', 'then do it right', 'then do it better'])
 ```
-It will return a `ndarray`, in which each row is the fixed representation of a sentence. You can also let it return a pure python object with type `List[List[float]]`.
+It will return a `ndarray` (or `List[List[float]]` if you wish), in which each row is a fixed-length vector representing a sentence. Having thousands of sentences? Just `encode`! *Don't even bother to batch*, the server will take care of it.
 
-As a feature of BERT, you may get encodes of a pair of sentences by concatenating them with ` ||| `, e.g.
+As a feature of BERT, you may get encodes of a pair of sentences by concatenating them with ` ||| ` (with whitespace before and after), e.g.
 ```python
 bc.encode(['First do it ||| then do it right'])
 ```
@@ -192,6 +194,7 @@ bert-serving-start --help
 | `ckpt_name`| str | `bert_model.ckpt` | filename of the checkpoint file. |
 | `config_name`| str | `bert_config.json` | filename of the JSON config file for BERT model. | 
 | `max_seq_len` | int | `25` | maximum length of sequence, longer sequence will be trimmed on the right side. |
+| `mask_cls_sep` | bool | False | masking the embedding on [CLS] and [SEP] with zero. |
 | `num_worker` | int | `1` | number of (GPU/CPU) worker runs BERT model, each works in a separate process. |
 | `max_batch_size` | int | `256` | maximum number of sequences handled by each worker, larger batch will be partitioned into small batches. |
 | `priority_batch_size` | int | `16` | batch smaller than this size will be labeled as high priority, and jumps forward in the job queue to get result faster |
@@ -569,11 +572,14 @@ This gives the current status of the server including number of requests, number
 
 <p align="center"><img src=".github/dashboard.png?raw=true"/></p>
 
-
 <h2 align="center">:speech_balloon: FAQ</h2>
 <p align="right"><a href="#bert-as-service"><sup>▴ Back to top</sup></a></p>
 
 [![ReadTheDoc](https://readthedocs.org/projects/bert-as-service/badge/?version=latest&style=for-the-badge)](https://bert-as-service.readthedocs.io/en/latest/section/faq.html)
+
+##### **Q:** Do you have a paper or other written explanation to introduce your model's details?
+
+The design philosophy and technical details can be found [in my blog post](https://hanxiao.github.io/2019/01/02/Serving-Google-BERT-in-Production-using-Tensorflow-and-ZeroMQ/).
 
 ##### **Q:** Where is the BERT code come from?
 
@@ -636,6 +642,11 @@ Intuitively, `pooling_layer=-1` is close to the training output, so it may be bi
 ##### **Q:** Could I use other pooling techniques?
 
 **A:** For sure. But if you introduce new `tf.variables` to the graph, then you need to train those variables before using the model. You may also want to check [some pooling techniques I mentioned in my blog post](https://hanxiao.github.io/2018/06/24/4-Encoding-Blocks-You-Need-to-Know-Besides-LSTM-RNN-in-Tensorflow/#pooling-block).
+
+##### **Q:** Do I need to batch the data before `encode()`?
+
+No, not at all. Just do `encode` and let the server handles the rest. If the batch is too large, the server will do batching automatically and it is more efficient than doing it by yourself. No matter how many sentences you have, 10K or 100K, as long as you can hold it in client's memory, just send it to the server. Please also read [the benchmark on the client batch size](https://github.com/hanxiao/bert-as-service#speed-wrt-client_batch_size).
+
 
 ##### **Q:** Can I start multiple clients and send requests to one server simultaneously?
 

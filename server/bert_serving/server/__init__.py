@@ -22,7 +22,7 @@ from .helper import *
 from .zmq_decor import multi_socket
 
 __all__ = ['__version__', 'BertServer']
-__version__ = '1.6.5'
+__version__ = '1.6.6'
 
 _tf_ver_ = check_tf_version()
 
