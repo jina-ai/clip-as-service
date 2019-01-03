@@ -389,7 +389,8 @@ class BertWorker(Process):
                         self.logger.info('new job\tsocket: %d\tsize: %d\tclient: %s' % (sock_idx, len(msg), client_id))
                         # check if msg is a list of list, if yes consider the input is already tokenized
                         is_tokenized = all(isinstance(el, list) for el in msg)
-                        tmp_f = list(convert_lst_to_features(msg, self.max_seq_len, tokenizer, is_tokenized))
+                        tmp_f = list(convert_lst_to_features(msg, self.max_seq_len, tokenizer, self.logger,
+                                                             is_tokenized, self.mask_cls_sep))
                         yield {
                             'client_id': client_id,
                             'input_ids': [f.input_ids for f in tmp_f],

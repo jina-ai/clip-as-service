@@ -38,7 +38,7 @@ class InputFeatures(object):
         self.input_type_ids = input_type_ids
 
 
-def convert_lst_to_features(lst_str, seq_length, tokenizer, is_tokenized=False, mask_cls_sep=False):
+def convert_lst_to_features(lst_str, seq_length, tokenizer, logger, is_tokenized=False, mask_cls_sep=False):
     """Loads a data file into a list of `InputBatch`s."""
 
     examples = read_tokenized_examples(lst_str) if is_tokenized else read_examples(lst_str)
@@ -101,13 +101,10 @@ def convert_lst_to_features(lst_str, seq_length, tokenizer, is_tokenized=False, 
         assert len(input_mask) == seq_length
         assert len(input_type_ids) == seq_length
 
-        # print("*** Example ***")
-        # print("unique_id: %s" % (example.unique_id))
-        # print("tokens: %s" % " ".join(
-        #     [tokenization.printable_text(x) for x in tokens]))
-        # print("input_ids: %s" % " ".join([str(x) for x in input_ids]))
-        # print("input_mask: %s" % " ".join([str(x) for x in input_mask]))
-        # print("input_type_ids: %s" % " ".join([str(x) for x in input_type_ids]))
+        logger.debug('tokens: %s' % ' '.join([tokenization.printable_text(x) for x in tokens]))
+        logger.debug('input_ids: %s' % ' '.join([str(x) for x in input_ids]))
+        logger.debug('input_mask: %s' % ' '.join([str(x) for x in input_mask]))
+        logger.debug('input_type_ids: %s' % ' '.join([str(x) for x in input_type_ids]))
 
         yield InputFeatures(
             # unique_id=example.unique_id,
