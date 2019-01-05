@@ -36,7 +36,7 @@
   <a href="#highlights">Highlights</a> •
   <a href="#what-is-it">What is it</a> •
   <a href="#install">Install</a> •
-  <a href="#getting-start">Getting Start</a> •
+  <a href="#getting-started">Getting Started</a> •
   <a href="#server-and-client-api">API</a> •
   <a href="#book-tutorial">Tutorials</a> •
   <a href="#speech_balloon-faq">FAQ</a> •
@@ -84,7 +84,7 @@ Note that the server MUST be running on **Python >= 3.5** with **Tensorflow >= 1
 
 :point_up: The client can be running on both Python 2 and 3 [for the following consideration](#q-can-i-run-it-in-python-2).
 
-<h2 align="center">Getting Start</h2>
+<h2 align="center">Getting Started</h2>
 
 #### 1. Download a Pre-trained BERT Model
 Download a model listed below, then uncompress the zip file into some folder, say `/tmp/english_L-12_H-768_A-12/`
