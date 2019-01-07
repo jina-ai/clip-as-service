@@ -75,12 +75,10 @@ class BertClient:
 
         self.context = zmq.Context()
         self.sender = self.context.socket(zmq.PUSH)
-        self.sender.setsockopt(zmq.LINGER, 0)
         self.identity = identity or str(uuid.uuid4()).encode('ascii')
         self.sender.connect('tcp://%s:%d' % (ip, port))
 
         self.receiver = self.context.socket(zmq.SUB)
-        self.receiver.setsockopt(zmq.LINGER, 0)
         self.receiver.setsockopt(zmq.SUBSCRIBE, self.identity)
         self.receiver.connect('tcp://%s:%d' % (ip, port_out))
 
@@ -122,6 +120,8 @@ class BertClient:
             then this is not necessary.
 
         """
+        self.sender.setsockopt(zmq.LINGER, 0)
+        self.receiver.setsockopt(zmq.LINGER, 0)
         self.sender.close()
         self.receiver.close()
         self.context.term()
