@@ -41,7 +41,7 @@ class BertClient:
 
         Create a BertClient that connects to a BertServer.
         Note, server must be ready at the moment you are calling this function.
-        If you are not sure whether the server is ready, then please set `check_version=False`
+        If you are not sure whether the server is ready, then please set `check_version=False` and `check_length=False`
 
         You can also use it as a context manager:
 
@@ -75,10 +75,12 @@ class BertClient:
 
         self.context = zmq.Context()
         self.sender = self.context.socket(zmq.PUSH)
+        self.sender.setsockopt(zmq.LINGER, 0)
         self.identity = identity or str(uuid.uuid4()).encode('ascii')
         self.sender.connect('tcp://%s:%d' % (ip, port))
 
         self.receiver = self.context.socket(zmq.SUB)
+        self.receiver.setsockopt(zmq.LINGER, 0)
         self.receiver.setsockopt(zmq.SUBSCRIBE, self.identity)
         self.receiver.connect('tcp://%s:%d' % (ip, port_out))
 
