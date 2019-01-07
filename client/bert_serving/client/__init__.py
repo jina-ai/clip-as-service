@@ -41,7 +41,7 @@ class BertClient:
 
         Create a BertClient that connects to a BertServer.
         Note, server must be ready at the moment you are calling this function.
-        If you are not sure whether the server is ready, then please set `check_version=False`
+        If you are not sure whether the server is ready, then please set `check_version=False` and `check_length=False`
 
         You can also use it as a context manager:
 
@@ -120,6 +120,8 @@ class BertClient:
             then this is not necessary.
 
         """
+        self.sender.setsockopt(zmq.LINGER, 0)
+        self.receiver.setsockopt(zmq.LINGER, 0)
         self.sender.close()
         self.receiver.close()
         self.context.term()
