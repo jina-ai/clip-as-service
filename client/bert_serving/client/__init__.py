@@ -170,9 +170,9 @@ class BertClient:
             if 'blocking' in kwargs and not kwargs['blocking']:
                 # override client timeout setting if `func` is called in non-blocking way
                 self.receiver.setsockopt(zmq.RCVTIMEO, -1)
-                return func(self, *args, **kwargs)
-            try:
+            else:
                 self.receiver.setsockopt(zmq.RCVTIMEO, self.timeout)
+            try:
                 return func(self, *args, **kwargs)
             except zmq.error.Again as _e:
                 t_e = TimeoutError(
@@ -312,7 +312,7 @@ class BertClient:
         def run():
             cnt = 0
             for texts in batch_generator:
-                self.encode(texts, blocking=False, is_tokenized=is_tokenized, timeout=False)
+                self.encode(texts, blocking=False, is_tokenized=is_tokenized)
                 cnt += 1
                 if max_num_batch and cnt == max_num_batch:
                     break
