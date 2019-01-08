@@ -165,7 +165,26 @@ class BertClient:
             'timeout': self.timeout
         }
 
+    def _timeout(func):
+        def arg_wrapper(self, *args, **kwargs):
+            try:
+                self.receiver.setsockopt(zmq.RCVTIMEO, self.timeout)
+                return func(self, *args, **kwargs)
+            except zmq.error.Again as _e:
+                t_e = TimeoutError(
+                    'no response from the server (with "timeout"=%d ms), '
+                    'is the server on-line? is network broken? are "port" and "port_out" correct?' % self.timeout)
+                if _py2:
+                    raise t_e
+                else:
+                    raise t_e from _e
+            finally:
+                self.receiver.setsockopt(zmq.RCVTIMEO, -1)
+
+        return arg_wrapper
+
     @property
+    @_timeout
     def server_status(self):
         """
             Get the current status of the server connected to this client
@@ -174,22 +193,11 @@ class BertClient:
         :rtype: dict[str, str]
 
         """
-        try:
-            self.receiver.setsockopt(zmq.RCVTIMEO, self.timeout)
-            self._send(b'SHOW_CONFIG')
-            return jsonapi.loads(self._recv().content[1])
-        except zmq.error.Again as _e:
-            t_e = TimeoutError(
-                'no response from the server (with "timeout"=%d ms), '
-                'is the server on-line? is network broken? are "port" and "port_out" correct?' % self.timeout)
-            if _py2:
-                raise t_e
-            else:
-                raise t_e from _e
-        finally:
-            self.receiver.setsockopt(zmq.RCVTIMEO, -1)
+        self.receiver.setsockopt(zmq.RCVTIMEO, self.timeout)
+        self._send(b'SHOW_CONFIG')
+        return jsonapi.loads(self._recv().content[1])
 
-    def encode(self, texts, blocking=True, is_tokenized=False):
+    def encode(self, texts, blocking=True, is_tokenized=False, timeout=False):
         """ Encode a list of strings to a list of vectors
 
         `texts` should be a list of strings, each of which represents a sentence.
@@ -213,10 +221,12 @@ class BertClient:
 
         :type is_tokenized: bool
         :type blocking: bool
+        :type timeout: bool
         :type texts: list[str] or list[list[str]]
         :param is_tokenized: whether the input texts is already tokenized
         :param texts: list of sentence to be encoded. Larger list for better efficiency.
         :param blocking: wait until the encoded result is returned from the server. If false, will immediately return.
+        :param timeout: throw a timeout error when the encoding takes longer than the predefined timeout.
         :return: encoded sentence/token-level embeddings, rows correspond to sentences
         :rtype: numpy.ndarray or list[list[float]]
 
