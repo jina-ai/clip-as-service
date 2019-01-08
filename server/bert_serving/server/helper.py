@@ -116,7 +116,7 @@ def import_tf(device_id=-1, verbose=False):
 
 def auto_bind(socket):
     if os.name == 'nt':  # for Windows
-        socket.bind_to_random_port('tcp://*')
+        socket.bind_to_random_port('tcp://127.0.0.1')
     else:
         # Get the location for tmp file for sockets
         try:
