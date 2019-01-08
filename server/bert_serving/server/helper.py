@@ -93,7 +93,6 @@ def get_args_parser():
                         help='the number of batches to prefetch on each worker. When running on a CPU-only machine, \
                         this is set to 0 for comparability')
 
-
     parser.add_argument('-verbose', action='store_true', default=False,
                         help='turn on tensorflow logging for debug')
     parser.add_argument('-version', action='version', version='%(prog)s ' + __version__)
@@ -117,7 +116,7 @@ def import_tf(device_id=-1, verbose=False):
 
 def auto_bind(socket):
     if os.name == 'nt':  # for Windows
-        socket.bind_to_random_port('tcp://*')
+        socket.bind_to_random_port('tcp://127.0.0.1')
     else:
         # Get the location for tmp file for sockets
         try:

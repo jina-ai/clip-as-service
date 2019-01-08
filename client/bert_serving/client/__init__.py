@@ -36,7 +36,7 @@ class BertClient:
     def __init__(self, ip='localhost', port=5555, port_out=5556,
                  output_fmt='ndarray', show_server_config=False,
                  identity=None, check_version=True, check_length=True,
-                 timeout=5000):
+                 timeout=60000):
         """ A client object connected to a BertServer
 
         Create a BertClient that connects to a BertServer.
@@ -165,7 +165,31 @@ class BertClient:
             'timeout': self.timeout
         }
 
+    def _timeout(func):
+        def arg_wrapper(self, *args, **kwargs):
+            if 'blocking' in kwargs and not kwargs['blocking']:
+                # override client timeout setting if `func` is called in non-blocking way
+                self.receiver.setsockopt(zmq.RCVTIMEO, -1)
+            else:
+                self.receiver.setsockopt(zmq.RCVTIMEO, self.timeout)
+            try:
+                return func(self, *args, **kwargs)
+            except zmq.error.Again as _e:
+                t_e = TimeoutError(
+                    'no response from the server (with "timeout"=%d ms), please check the following:'
+                    'is the server still online? is the network broken? are "port" and "port_out" correct? '
+                    'are you encoding a huge amount of data whereas the timeout is too small for that?' % self.timeout)
+                if _py2:
+                    raise t_e
+                else:
+                    raise t_e from _e
+            finally:
+                self.receiver.setsockopt(zmq.RCVTIMEO, -1)
+
+        return arg_wrapper
+
     @property
+    @_timeout
     def server_status(self):
         """
             Get the current status of the server connected to this client
@@ -174,21 +198,11 @@ class BertClient:
         :rtype: dict[str, str]
 
         """
-        try:
-            self.receiver.setsockopt(zmq.RCVTIMEO, self.timeout)
-            self._send(b'SHOW_CONFIG')
-            return jsonapi.loads(self._recv().content[1])
-        except zmq.error.Again as _e:
-            t_e = TimeoutError(
-                'no response from the server (with "timeout"=%d ms), '
-                'is the server on-line? is network broken? are "port" and "port_out" correct?' % self.timeout)
-            if _py2:
-                raise t_e
-            else:
-                raise t_e from _e
-        finally:
-            self.receiver.setsockopt(zmq.RCVTIMEO, -1)
+        self.receiver.setsockopt(zmq.RCVTIMEO, self.timeout)
+        self._send(b'SHOW_CONFIG')
+        return jsonapi.loads(self._recv().content[1])
 
+    @_timeout
     def encode(self, texts, blocking=True, is_tokenized=False):
         """ Encode a list of strings to a list of vectors
 
@@ -213,10 +227,12 @@ class BertClient:
 
         :type is_tokenized: bool
         :type blocking: bool
+        :type timeout: bool
         :type texts: list[str] or list[list[str]]
         :param is_tokenized: whether the input texts is already tokenized
         :param texts: list of sentence to be encoded. Larger list for better efficiency.
         :param blocking: wait until the encoded result is returned from the server. If false, will immediately return.
+        :param timeout: throw a timeout error when the encoding takes longer than the predefined timeout.
         :return: encoded sentence/token-level embeddings, rows correspond to sentences
         :rtype: numpy.ndarray or list[list[float]]
 

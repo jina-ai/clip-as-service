@@ -217,6 +217,7 @@ class BertSink(Process):
         self.exit_flag = multiprocessing.Event()
         self.logger = set_logger(colored('SINK', 'green'), args.verbose)
         self.front_sink_addr = front_sink_addr
+        self.verbose = args.verbose
 
     def close(self):
         self.logger.info('shutting down...')
@@ -247,7 +248,10 @@ class BertSink(Process):
         # send worker receiver address back to frontend
         frontend.send(receiver_addr.encode('ascii'))
 
-        self.logger.info('ready')
+        # Windows does not support logger in MP environment, thus get a new logger
+        # inside the process for better compability
+        logger = set_logger(colored('SINK', 'green'), self.verbose)
+        logger.info('ready')
 
         while not self.exit_flag.is_set():
             socks = dict(poller.poll())
@@ -263,14 +267,14 @@ class BertSink(Process):
                 partial_id = job_info[1] if len(job_info) == 2 else 0
                 pending_result[job_id].append((X, partial_id))
                 pending_checksum[job_id] += X.shape[0]
-                self.logger.info('collect job %s (%d/%d)' % (job_id,
-                                                             pending_checksum[job_id],
-                                                             job_checksum[job_id]))
+                logger.info('collect job %s (%d/%d)' % (job_id,
+                                                        pending_checksum[job_id],
+                                                        job_checksum[job_id]))
 
                 # check if there are finished jobs, send it back to workers
                 finished = [(k, v) for k, v in pending_result.items() if pending_checksum[k] == job_checksum[k]]
                 for job_info, tmp in finished:
-                    self.logger.info('send back\tsize: %d\tjob id:%s\t' % (job_checksum[job_info], job_info))
+                    logger.info('send back\tsize: %d\tjob id:%s\t' % (job_checksum[job_info], job_info))
                     # re-sort to the original order
                     tmp = [x[0] for x in sorted(tmp, key=lambda x: int(x[1]))]
                     client_addr, req_id = job_info.split(b'#')
@@ -284,10 +288,10 @@ class BertSink(Process):
                 if msg_type == ServerCommand.new_job:
                     job_info = client_addr + b'#' + req_id
                     job_checksum[job_info] = int(msg_info)
-                    self.logger.info('job register\tsize: %d\tjob id: %s' % (int(msg_info), job_info))
+                    logger.info('job register\tsize: %d\tjob id: %s' % (int(msg_info), job_info))
                 elif msg_type == ServerCommand.show_config:
                     time.sleep(0.1)  # dirty fix of slow-joiner: sleep so that client receiver can connect.
-                    self.logger.info('send config\tclient %s' % client_addr)
+                    logger.info('send config\tclient %s' % client_addr)
                     sender.send_multipart([client_addr, msg_info, req_id])
 
 
@@ -354,8 +358,12 @@ class BertWorker(Process):
     @zmqd.socket(zmq.PUSH)
     @multi_socket(zmq.PULL, num_socket='num_concurrent_socket')
     def _run(self, sink, *receivers):
-        self.logger.info('use device %s, load graph from %s' %
-                         ('cpu' if self.device_id < 0 else ('gpu: %d' % self.device_id), self.graph_path))
+        # Windows does not support logger in MP environment, thus get a new logger
+        # inside the process for better compatibility
+        logger = set_logger(colored('WORKER-%d' % self.worker_id, 'yellow'), self.verbose)
+
+        logger.info('use device %s, load graph from %s' %
+                    ('cpu' if self.device_id < 0 else ('gpu: %d' % self.device_id), self.graph_path))
 
         tf = import_tf(self.device_id, self.verbose)
         estimator = self.get_estimator(tf)
@@ -366,7 +374,7 @@ class BertWorker(Process):
         sink.connect(self.sink_address)
         for r in estimator.predict(self.input_fn_builder(receivers, tf), yield_single_examples=False):
             send_ndarray(sink, r['client_id'], r['encodes'])
-            self.logger.info('job done\tsize: %s\tclient: %s' % (r['encodes'].shape, r['client_id']))
+            logger.info('job done\tsize: %s\tclient: %s' % (r['encodes'].shape, r['client_id']))
 
     def input_fn_builder(self, socks, tf):
         from .bert.extract_features import convert_lst_to_features
@@ -374,11 +382,15 @@ class BertWorker(Process):
 
         def gen():
             tokenizer = FullTokenizer(vocab_file=os.path.join(self.model_dir, 'vocab.txt'))
+            # Windows does not support logger in MP environment, thus get a new logger
+            # inside the process for better compatibility
+            logger = set_logger(colored('WORKER-%d' % self.worker_id, 'yellow'), self.verbose)
+
             poller = zmq.Poller()
             for sock in socks:
                 poller.register(sock, zmq.POLLIN)
 
-            self.logger.info('ready and listening!')
+            logger.info('ready and listening!')
 
             while not self.exit_flag.is_set():
                 events = dict(poller.poll())
@@ -386,10 +398,10 @@ class BertWorker(Process):
                     if sock in events:
                         client_id, raw_msg = sock.recv_multipart()
                         msg = jsonapi.loads(raw_msg)
-                        self.logger.info('new job\tsocket: %d\tsize: %d\tclient: %s' % (sock_idx, len(msg), client_id))
+                        logger.info('new job\tsocket: %d\tsize: %d\tclient: %s' % (sock_idx, len(msg), client_id))
                         # check if msg is a list of list, if yes consider the input is already tokenized
                         is_tokenized = all(isinstance(el, list) for el in msg)
-                        tmp_f = list(convert_lst_to_features(msg, self.max_seq_len, tokenizer, self.logger,
+                        tmp_f = list(convert_lst_to_features(msg, self.max_seq_len, tokenizer, logger,
                                                              is_tokenized, self.mask_cls_sep))
                         yield {
                             'client_id': client_id,
