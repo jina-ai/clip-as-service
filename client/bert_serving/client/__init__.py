@@ -176,8 +176,9 @@ class BertClient:
                 return func(self, *args, **kwargs)
             except zmq.error.Again as _e:
                 t_e = TimeoutError(
-                    'no response from the server (with "timeout"=%d ms), '
-                    'is the server on-line? is network broken? are "port" and "port_out" correct?' % self.timeout)
+                    'no response from the server (with "timeout"=%d ms), please check the following:'
+                    'is the server still online? is the network broken? are "port" and "port_out" correct? '
+                    'are you encoding a huge amount of data whereas the timeout is too small for that?' % self.timeout)
                 if _py2:
                     raise t_e
                 else:
