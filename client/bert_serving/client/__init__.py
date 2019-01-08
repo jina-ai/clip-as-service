@@ -36,7 +36,7 @@ class BertClient:
     def __init__(self, ip='localhost', port=5555, port_out=5556,
                  output_fmt='ndarray', show_server_config=False,
                  identity=None, check_version=True, check_length=True,
-                 timeout=10000):
+                 timeout=60000):
         """ A client object connected to a BertServer
 
         Create a BertClient that connects to a BertServer.
