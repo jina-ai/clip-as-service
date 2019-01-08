@@ -167,6 +167,10 @@ class BertClient:
 
     def _timeout(func):
         def arg_wrapper(self, *args, **kwargs):
+            if 'blocking' in kwargs and not kwargs['blocking']:
+                # override client timeout setting if `func` is called in non-blocking way
+                self.receiver.setsockopt(zmq.RCVTIMEO, -1)
+                return func(self, *args, **kwargs)
             try:
                 self.receiver.setsockopt(zmq.RCVTIMEO, self.timeout)
                 return func(self, *args, **kwargs)
@@ -197,7 +201,8 @@ class BertClient:
         self._send(b'SHOW_CONFIG')
         return jsonapi.loads(self._recv().content[1])
 
-    def encode(self, texts, blocking=True, is_tokenized=False, timeout=False):
+    @_timeout
+    def encode(self, texts, blocking=True, is_tokenized=False):
         """ Encode a list of strings to a list of vectors
 
         `texts` should be a list of strings, each of which represents a sentence.
@@ -307,7 +312,7 @@ class BertClient:
         def run():
             cnt = 0
             for texts in batch_generator:
-                self.encode(texts, blocking=False, is_tokenized=is_tokenized)
+                self.encode(texts, blocking=False, is_tokenized=is_tokenized, timeout=False)
                 cnt += 1
                 if max_num_batch and cnt == max_num_batch:
                     break
