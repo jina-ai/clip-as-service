@@ -249,7 +249,7 @@ class BertClient:
                           'here is what you can do:\n'
                           '- disable the length-check by create a new "BertClient(check_length=False)" '
                           'when you just want to ignore this warning\n'
-                          '- or, start a new server with a larger "max_seq_len"' % self.length_limit, stacklevel=1)
+                          '- or, start a new server with a larger "max_seq_len"' % self.length_limit)
 
         texts = _unicode(texts)
         self._send(jsonapi.dumps(texts), len(texts))
