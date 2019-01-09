@@ -6,6 +6,7 @@ import sys
 import threading
 import time
 import uuid
+import warnings
 from collections import namedtuple
 
 import numpy as np
@@ -36,7 +37,7 @@ class BertClient:
     def __init__(self, ip='localhost', port=5555, port_out=5556,
                  output_fmt='ndarray', show_server_config=False,
                  identity=None, check_version=True, check_length=True,
-                 timeout=60000):
+                 timeout=-1):
         """ A client object connected to a BertServer
 
         Create a BertClient that connects to a BertServer.
@@ -70,7 +71,7 @@ class BertClient:
         :param identity: the UUID of this client
         :param check_version: check if server has the same version as client, raise AttributeError if not the same
         :param check_length: check if server `max_seq_len` is less than the sentence length before sent
-        :param timeout: set the timeout (milliseconds) for receive operation on the client
+        :param timeout: set the timeout (milliseconds) for receive operation on the client, -1 means no timeout and wait until result returns
         """
 
         self.context = zmq.Context()
@@ -243,12 +244,12 @@ class BertClient:
             self._check_input_lst_str(texts)
 
         if self.length_limit and not self._check_length(texts, self.length_limit, is_tokenized):
-            print('some of your sentences have more tokens than "max_seq_len=%d" set on the server, '
-                  'as consequence you may get less-accurate or truncated embeddings.\n'
-                  'here is what you can do:\n'
-                  '- disable the length-check by create a new "BertClient(check_length=False)" '
-                  'when you just want to ignore this warning\n'
-                  '- or, start a new server with a larger "max_seq_len"' % self.length_limit)
+            warnings.warn('some of your sentences have more tokens than "max_seq_len=%d" set on the server, '
+                          'as consequence you may get less-accurate or truncated embeddings.\n'
+                          'here is what you can do:\n'
+                          '- disable the length-check by create a new "BertClient(check_length=False)" '
+                          'when you just want to ignore this warning\n'
+                          '- or, start a new server with a larger "max_seq_len"' % self.length_limit)
 
         texts = _unicode(texts)
         self._send(jsonapi.dumps(texts), len(texts))
