@@ -40,6 +40,9 @@ class NTLogger:
 
     def error(self, msg, **kwargs):
         print('E:%s:%s' % (self.context, msg), flush=True)
+        
+    def warning(self, msg, **kwargs):
+        print('W:%s:%s' % (self.context, msg), flush=True)
 
 
 def send_ndarray(src, dest, X, req_id=b'', flags=0, copy=True, track=False):
