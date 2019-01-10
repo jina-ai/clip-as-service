@@ -11,8 +11,7 @@ __all__ = ['set_logger', 'send_ndarray', 'get_args_parser', 'check_tf_version', 
 
 
 def set_logger(context, verbose=False):
-    if os.name == 'nt':  # for Windows
-        return NTLogger(context, verbose)
+    return NTLogger(context, verbose)
 
     logger = logging.getLogger(context)
     logger.setLevel(logging.DEBUG if verbose else logging.INFO)
