@@ -11,7 +11,8 @@ __all__ = ['set_logger', 'send_ndarray', 'get_args_parser', 'check_tf_version', 
 
 
 def set_logger(context, verbose=False):
-    return NTLogger(context, verbose)
+    if os.name == 'nt':  # for Windows
+        return NTLogger(context, verbose)
 
     logger = logging.getLogger(context)
     logger.setLevel(logging.DEBUG if verbose else logging.INFO)
@@ -40,7 +41,7 @@ class NTLogger:
 
     def error(self, msg, **kwargs):
         print('E:%s:%s' % (self.context, msg), flush=True)
-        
+
     def warning(self, msg, **kwargs):
         print('W:%s:%s' % (self.context, msg), flush=True)
 

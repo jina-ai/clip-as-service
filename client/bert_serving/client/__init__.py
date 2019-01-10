@@ -248,7 +248,7 @@ class BertClient:
                           'as consequence you may get less-accurate or truncated embeddings.\n'
                           'here is what you can do:\n'
                           '- disable the length-check by create a new "BertClient(check_length=False)" '
-                          'when you just want to ignore this warning\n'
+                          'when you do not want to display this warning\n'
                           '- or, start a new server with a larger "max_seq_len"' % self.length_limit)
 
         texts = _unicode(texts)
