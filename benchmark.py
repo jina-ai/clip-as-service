@@ -34,7 +34,8 @@ common = {
     'ckpt_name': 'bert_model.ckpt',
     'tuned_model_dir': None,
     'mask_cls_sep': False,
-    'device_map': []
+    'device_map': [],
+    'priority_batch_size': 16
 }
 
 args = namedtuple('args_nt', ','.join(common.keys()))
