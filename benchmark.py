@@ -14,7 +14,7 @@ PORT = 7779
 PORT_OUT = 7780
 
 common = {
-    'model_dir': '/data/cips/data/lab/data/model/chinese_L-12_H-768_A-12',
+    'model_dir': '/data/cips/save/chinese_L-12_H-768_A-12',
     'num_worker': 2,
     'num_repeat': 5,
     'port': PORT,
@@ -28,7 +28,14 @@ common = {
     'gpu_memory_fraction': 0.5,
     'prefetch_size': 10,
     'xla': False,
-    'cpu': False
+    'cpu': False,
+    'verbose': False,
+    'config_name': 'bert_config.json',
+    'ckpt_name': 'bert_model.ckpt',
+    'tuned_model_dir': None,
+    'mask_cls_sep': False,
+    'device_map': [],
+    'priority_batch_size': 16
 }
 
 args = namedtuple('args_nt', ','.join(common.keys()))
@@ -52,7 +59,7 @@ class BenchmarkClient(threading.Thread):
 
     def run(self):
         time_all = []
-        bc = BertClient(port=PORT, port_out=PORT_OUT, show_server_config=False, check_version=False)
+        bc = BertClient(port=PORT, port_out=PORT_OUT, show_server_config=False, check_version=False, check_length=False)
         for _ in range(self.num_repeat):
             start_t = time.perf_counter()
             bc.encode(self.batch)

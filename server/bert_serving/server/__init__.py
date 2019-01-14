@@ -441,12 +441,12 @@ class ServerStatistic:
     def update(self, request):
         client, msg, req_id, msg_len = request
         self._hist_client[client] += 1
-        self._hist_msg_len[int(msg_len)] += 1
-        self._num_total_seq += int(msg_len)
         if ServerCommand.is_valid(msg):
             self._num_sys_req += 1
             # do not count for system request, as they are mainly for heartbeats
         else:
+            self._hist_msg_len[int(msg_len)] += 1
+            self._num_total_seq += int(msg_len)
             self._num_data_req += 1
             tmp = time.perf_counter()
             self._client_last_active_time[client] = tmp
