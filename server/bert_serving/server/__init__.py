@@ -125,11 +125,11 @@ class BertServer(threading.Thread):
         while True:
             try:
                 request = frontend.recv_multipart()
+                client, msg, req_id, msg_len = request
             except ValueError:
                 self.logger.error('received a wrongly-formatted request (expected 4 frames, got %d)' % len(request))
                 self.logger.error('\n'.join('field %d: %s' % (idx, k) for idx, k in enumerate(request)), exc_info=True)
             else:
-                client, msg, req_id, msg_len = request
                 server_status.update(request)
                 if msg == ServerCommand.terminate:
                     break
