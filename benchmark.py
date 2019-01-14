@@ -28,7 +28,8 @@ common = {
     'gpu_memory_fraction': 0.5,
     'prefetch_size': 10,
     'xla': False,
-    'cpu': False
+    'cpu': False,
+    'verbose': False
 }
 
 args = namedtuple('args_nt', ','.join(common.keys()))
