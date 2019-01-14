@@ -69,6 +69,8 @@ def get_args_parser():
                              for a fine-tuned model the name could be different.')
     group1.add_argument('-config_name', type=str, default='bert_config.json',
                         help='filename of the JSON config file for BERT model.')
+    group1.add_argument('-graph_tmp_dir', type=str, default=None,
+                        help='path to graph temp file')
 
     group2 = parser.add_argument_group('BERT Parameters',
                                        'config how BERT model and pooling works')
