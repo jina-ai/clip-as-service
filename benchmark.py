@@ -14,7 +14,7 @@ PORT = 7779
 PORT_OUT = 7780
 
 common = {
-    'model_dir': '/data/cips/data/lab/data/model/chinese_L-12_H-768_A-12',
+    'model_dir': '/data/cips/save/chinese_L-12_H-768_A-12',
     'num_worker': 2,
     'num_repeat': 5,
     'port': PORT,
