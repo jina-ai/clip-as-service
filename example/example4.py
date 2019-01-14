@@ -20,7 +20,7 @@ from bert_serving.client import BertClient
 
 os.environ['CUDA_VISIBLE_DEVICES'] = str(GPUtil.getFirstAvailable())
 
-train_fp = ['/data/cips/data/lab/data/dataset/final_all_data/exercise_contest/data_train.json']
+train_fp = ['/data/cips/data/larry-autoencoder/cail_0518']
 batch_size = 256
 num_parallel_calls = 4
 num_concurrent_clients = 10  # should be greater than `num_parallel_calls`
