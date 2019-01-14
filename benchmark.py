@@ -29,7 +29,11 @@ common = {
     'prefetch_size': 10,
     'xla': False,
     'cpu': False,
-    'verbose': False
+    'verbose': False,
+    'config_name': 'bert_config.json',
+    'ckpt_name': 'bert_model.ckpt',
+    'tuned_model_dir': None,
+    'mask_cls_sep': False,
 }
 
 args = namedtuple('args_nt', ','.join(common.keys()))
