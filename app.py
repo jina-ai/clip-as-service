@@ -39,14 +39,12 @@ def get_encodes(x):
     features = bc_client.encode(text)
     # after use, put it back
     bc_clients.append(bc_client)
-    labels = [0 for _ in text]
-    return features, labels
+    return features
 
 
 data_node = (tf.data.TextLineDataset(train_fp).batch(batch_size)
-             .map(lambda x: tf.py_func(get_encodes, [x], [tf.float32, tf.int64], name='bert_client'),
+             .map(lambda x: tf.py_func(get_encodes, [x], [tf.float32], name='bert_client'),
                   num_parallel_calls=num_parallel_calls)
-             .map(lambda x, y: {'feature': x, 'label': y})
              .make_one_shot_iterator().get_next())
 
 quantizer = BaseQuantizer()
