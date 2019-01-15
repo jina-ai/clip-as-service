@@ -4,12 +4,11 @@ from plugin.quantizer.nn import get_var
 
 
 class BaseQuantizer:
-    def __init__(self, bits=4, learning_rate=1e-3, init_min_val=-12, init_max_val=20):
+    def __init__(self, bits, num_dim, learning_rate=1e-3, init_min_val=-12, init_max_val=20):
         num_centroids = 2 ** bits
 
         self.ph_x = tf.placeholder(tf.float32, shape=[None, None], name='original_input')
         batch_size = tf.shape(self.ph_x)[0]
-        num_dim = tf.shape(self.ph_x)[1]
         self.centroids = get_var('centroids', [num_centroids, num_dim],
                                  initializer_fn=tf.initializers.random_uniform(init_min_val, init_max_val))
 

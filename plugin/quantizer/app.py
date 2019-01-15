@@ -15,6 +15,7 @@ train_fp = ['/data/cips/data/larry-autoencoder/cail_0518/data_train.json']
 dev_fp = ['/data/cips/data/larry-autoencoder/cail_0518/data_valid.json']
 num_parallel_calls = 4
 num_concurrent_clients = 10  # should be greater than `num_parallel_calls`
+num_bits = 4
 
 bc_clients = [BertClient(port=5500, port_out=5501) for _ in range(num_concurrent_clients)]
 
@@ -55,21 +56,22 @@ def get_config():
     return config
 
 
-def plot_graph():
+def plot_graph(font_size=16):
     plt.close()
     fig = plt.figure()
-    plt.rcParams['figure.figsize'] = [18, 7]
+    plt.rcParams['figure.figsize'] = [21, 16]
     plt.plot(hist_centroids, 'ro-', markersize=10, linewidth=1, alpha=0.5)
     plt.tight_layout()
-    plt.xlabel('iterations')
-    plt.ylabel('feature value')
+    plt.xlabel('iterations', fontsize=font_size)
+    plt.ylabel('feature value', fontsize=font_size)
     plt.grid(True)
 
-    xticks(range(len(hist_iters)), [str(v) for v in hist_iters])
+    xticks(range(len(hist_iters)), [str(v) for v in hist_iters], fontsize=font_size)
+    plt.title('Quantization with %d bits, i.e. %d centroids' % (num_bits, 2 ** num_bits), fontsize=font_size)
     plt.show()
 
 
-quantizer = BaseQuantizer(learning_rate=0.01)
+quantizer = BaseQuantizer(bits=num_bits, learning_rate=0.01)
 
 sess = tf.Session(config=get_config())
 sess.run(tf.global_variables_initializer())
