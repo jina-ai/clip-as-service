@@ -49,7 +49,12 @@ data_node = (tf.data.TextLineDataset(train_fp).batch(batch_size)
 quantizer = BaseQuantizer()
 train_op = quantizer.train_op
 
-with tf.Session() as sess:
+config = tf.ConfigProto(device_count={'GPU': 1})
+config.gpu_options.allow_growth = True
+config.gpu_options.per_process_gpu_memory_fraction = 0.5
+config.log_device_placement = True
+
+with tf.Session(config=config) as sess:
     sess.run(tf.global_variables_initializer())
     cnt, num_samples, start_t = 0, 0, time.perf_counter()
     while True:
