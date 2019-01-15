@@ -43,7 +43,7 @@ def get_encodes(x):
 
 
 data_node = (tf.data.TextLineDataset(train_fp).batch(batch_size)
-             .map(lambda x: tf.py_func(get_encodes, [x], [tf.float32], name='bert_client'),
+             .map(lambda x: tf.py_func(get_encodes, [x], tf.float32, name='bert_client'),
                   num_parallel_calls=num_parallel_calls)
              .make_one_shot_iterator().get_next())
 
