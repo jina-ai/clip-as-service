@@ -14,7 +14,9 @@ class BaseQuantizer:
                             [self.batch_size, 1, self.num_dim])
 
         dist = tf.abs(x - centroids)
+        self.dist_shape = tf.shape(dist)
         self.quant_x = tf.argmin(dist, axis=1, output_type=tf.int32)
+        self.quant_x_shape = tf.shape(self.quant_x)
         self.recover_x = tf.nn.embedding_lookup(centroids, self.quant_x)
         self.loss = tf.reduce_mean(tf.squared_difference(self.ph_x, self.recover_x))
 
