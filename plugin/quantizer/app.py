@@ -18,7 +18,7 @@ import GPUtil
 import tensorflow as tf
 from bert_serving.client import BertClient
 
-from .base_quantizer import BaseQuantizer
+from plugin.quantizer.base_quantizer import BaseQuantizer
 
 os.environ['CUDA_VISIBLE_DEVICES'] = str(GPUtil.getFirstAvailable())
 
