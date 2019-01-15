@@ -22,3 +22,13 @@ class BaseQuantizer:
 
         optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate, beta1=0.8, beta2=0.999, epsilon=1e-7)
         self.train_op = optimizer.minimize(self.loss)
+
+        self.statistic = {
+            'x_min': tf.reduce_min(self.ph_x),
+            'x_max': tf.reduce_max(self.ph_x),
+            'x_mean': tf.reduce_mean(self.ph_x),
+            'qx_min': tf.reduce_min(self.recover_x),
+            'qx_max': tf.reduce_max(self.recover_x),
+            'qx_mean': tf.reduce_mean(self.recover_x),
+            'uniq_q': tf.unique_with_counts(self.quant_x)
+        }

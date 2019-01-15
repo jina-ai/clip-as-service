@@ -22,7 +22,7 @@ from plugin.quantizer.base_quantizer import BaseQuantizer
 os.environ['CUDA_VISIBLE_DEVICES'] = str(0)
 
 train_fp = ['/data/cips/data/larry-autoencoder/cail_0518/data_train.json']
-batch_size = 256
+batch_size = 1024
 num_parallel_calls = 4
 num_concurrent_clients = 10  # should be greater than `num_parallel_calls`
 
@@ -59,6 +59,8 @@ with tf.Session(config=config) as sess:
     cnt, num_samples, start_t = 0, 0, time.perf_counter()
     while True:
         x = sess.run(data_node)
-        loss, _ = sess.run([quantizer.loss, quantizer.train_op], feed_dict={quantizer.ph_x: x})
+        loss, stat, _ = sess.run([quantizer.loss, quantizer.statistic, quantizer.train_op],
+                                 feed_dict={quantizer.ph_x: x})
         cnt += 1
-        print('%10d: %.5f' % (cnt, loss))
+        stat_str = {'%5s %.3f' % (k, v) for k, v in stat.items()}
+        print('%10d: %.5f %s' % (cnt, loss, stat_str))
