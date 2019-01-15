@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-from plugin.quantizer.nn import get_var
+from .nn import get_var
 
 
 class BaseQuantizer:
