@@ -30,5 +30,5 @@ class BaseQuantizer:
             'qx_min': tf.reduce_min(self.recover_x),
             'qx_max': tf.reduce_max(self.recover_x),
             'qx_mean': tf.reduce_mean(self.recover_x),
-            'uniq_q': tf.size(tf.unique(tf.reshape(self.quant_x, -1))[0])
+            'uniq_q': tf.size(tf.unique(tf.reshape(self.quant_x, [-1]))[0])
         }
