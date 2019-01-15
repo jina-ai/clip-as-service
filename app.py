@@ -46,13 +46,13 @@ def get_encodes(x):
     return features
 
 
-def get_ds(fp, batch_size=1024):
-    return (tf.data.TextLineDataset(fp).batch(batch_size)
-            .map(lambda x: tf.py_func(get_encodes, [x], tf.float32, name='bert_client'),
-                 num_parallel_calls=num_parallel_calls)
-            .shuffle(5)
-            .prefetch(5)
-            .make_one_shot_iterator().get_next())
+def get_ds(fp, batch_size=1024, shuffle=False):
+    ds = (tf.data.TextLineDataset(fp).batch(batch_size)
+          .map(lambda x: tf.py_func(get_encodes, [x], tf.float32, name='bert_client'),
+               num_parallel_calls=num_parallel_calls))
+    if shuffle:
+        ds = ds.shuffle(5)
+    return ds.prefetch(5).make_one_shot_iterator().get_next()
 
 
 def get_config():
@@ -68,7 +68,7 @@ with tf.Session(config=get_config()) as sess:
     sess.run(tf.global_variables_initializer())
     epoch, iter = 0, 0
 
-    train_ds = get_ds(train_fp)
+    train_ds = get_ds(train_fp, shuffle=True)
     while True:
         try:
             x = sess.run(train_ds)
@@ -85,4 +85,4 @@ with tf.Session(config=get_config()) as sess:
             stat_str = ' '.join('%5s %.3f' % (k, v) for k, v in sorted(stat.items()))
             print('[V]%3d-%10d: %.5f %s' % (epoch, iter, loss, stat_str))
             # reset train ds
-            train_ds = get_ds(train_fp)
+            train_ds = get_ds(train_fp, shuffle=True)
