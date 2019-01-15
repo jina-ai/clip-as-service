@@ -27,7 +27,7 @@ batch_size = 256
 num_parallel_calls = 4
 num_concurrent_clients = 10  # should be greater than `num_parallel_calls`
 
-bc_clients = [BertClient(show_server_config=False) for _ in range(num_concurrent_clients)]
+bc_clients = [BertClient(port=5500, port_out=5501) for _ in range(num_concurrent_clients)]
 
 
 def get_encodes(x):
