@@ -29,13 +29,13 @@ num_concurrent_clients = 10  # should be greater than `num_parallel_calls`
 bc_clients = [BertClient(port=5500, port_out=5501) for _ in range(num_concurrent_clients)]
 
 
-def get_encodes(x):
+def get_encodes(x, shuffle=False):
     # x is `batch_size` of lines, each of which is a json object
     samples = [json.loads(l) for l in x]
     texts = []
     for s in samples:
         t = s['fact']
-        s_idx = random.randint(0, len(t) - 1)
+        s_idx = random.randint(0, len(t) - 1) if shuffle else 0
         texts.append(t[s_idx: (s_idx + 40)])
     # get a client from available clients
     bc_client = bc_clients.pop()
@@ -46,8 +46,9 @@ def get_encodes(x):
 
 
 def get_ds(fp, batch_size=1024, shuffle=False, only_head=False):
+    _get_encodes = lambda x: get_encodes(x, shuffle)
     ds = (tf.data.TextLineDataset(fp).batch(batch_size)
-          .map(lambda x: tf.py_func(get_encodes, [x], tf.float32, name='bert_client'),
+          .map(lambda x: tf.py_func(_get_encodes, [x], tf.float32, name='bert_client'),
                num_parallel_calls=num_parallel_calls))
     if shuffle:
         ds = ds.apply(tf.contrib.data.shuffle_and_repeat(10))
