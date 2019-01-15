@@ -25,14 +25,14 @@ class BaseQuantizer:
         self.train_op = optimizer.minimize(self.loss)
 
         self.statistic = {
-            'x_min': tf.reduce_min(self.ph_x),
-            'x_max': tf.reduce_max(self.ph_x),
-            'x_avg': tf.reduce_mean(self.ph_x),
-            'rx_min': tf.reduce_min(self.recover_x),
-            'rx_max': tf.reduce_max(self.recover_x),
-            'rx_avg': tf.reduce_mean(self.recover_x),
-            'uniq': tf.size(tf.unique(tf.reshape(self.quant_x, [-1]))[0]),
-            'd_max': tf.reduce_max(recover_dist),
-            'd_min': tf.reduce_min(recover_dist),
-            'd_avg': tf.reduce_mean(recover_dist)
+            'x_m': tf.reduce_min(self.ph_x),
+            'x_M': tf.reduce_max(self.ph_x),
+            'x_a': tf.reduce_mean(self.ph_x),
+            'rx_m': tf.reduce_min(self.recover_x),
+            'rx_M': tf.reduce_max(self.recover_x),
+            'rx_a': tf.reduce_mean(self.recover_x),
+            '|D|': tf.size(tf.unique(tf.reshape(self.quant_x, [-1]))[0]),
+            'd_m': tf.reduce_min(recover_dist),
+            'd_M': tf.reduce_max(recover_dist),
+            'd_a': tf.reduce_mean(recover_dist)
         }
