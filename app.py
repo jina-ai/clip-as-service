@@ -62,5 +62,5 @@ with tf.Session(config=config) as sess:
         loss, stat, _ = sess.run([quantizer.loss, quantizer.statistic, quantizer.train_op],
                                  feed_dict={quantizer.ph_x: x})
         cnt += 1
-        stat_str = {'%5s %.3f' % (k, v) for k, v in stat.items()}
+        stat_str = ' '.join('%5s %.3f' % (k, v) for k, v in sorted(stat.items()))
         print('%10d: %.5f %s' % (cnt, loss, stat_str))
