@@ -19,7 +19,7 @@ class BaseQuantizer:
         self.quant_x = tf.argmin(dist, axis=1, output_type=tf.int32)
         self.recover_x = tf.nn.embedding_lookup(self.centroids, self.quant_x)
         self.loss = tf.reduce_mean(tf.squared_difference(self.ph_x, self.recover_x))
-        recover_dist = tf.abs(self.ph_x, self.recover_x)
+        recover_dist = tf.abs(self.ph_x - self.recover_x)
 
         optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate, beta1=0.8, beta2=0.999, epsilon=1e-7)
         self.train_op = optimizer.minimize(self.loss)
