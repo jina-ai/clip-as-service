@@ -84,12 +84,6 @@ hist_val_loss = []
 hist_iters = []
 
 while True:
-    x = sess.run(train_ds)
-    loss, stat, _ = sess.run([quantizer.loss, quantizer.statistic, quantizer.train_op],
-                             feed_dict={quantizer.ph_x: x})
-    iter += 1
-    stat_str = ' '.join('%5s %.3f' % (k, v) for k, v in sorted(stat.items()))
-    print('[T]%5d: %.5f %s' % (iter, loss, stat_str))
     if iter % iter_per_save == 0:
         loss, stat, centroids = sess.run([quantizer.loss, quantizer.statistic, quantizer.centroids],
                                          feed_dict={quantizer.ph_x: dev_x})
@@ -98,3 +92,9 @@ while True:
         hist_centroids.append(sorted(centroids))
         hist_val_loss.append(loss)
         hist_iters.append(iter)
+    x = sess.run(train_ds)
+    loss, stat, _ = sess.run([quantizer.loss, quantizer.statistic, quantizer.train_op],
+                             feed_dict={quantizer.ph_x: x})
+    iter += 1
+    stat_str = ' '.join('%5s %.3f' % (k, v) for k, v in sorted(stat.items()))
+    print('[T]%5d: %.5f %s' % (iter, loss, stat_str))
