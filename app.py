@@ -59,8 +59,6 @@ with tf.Session(config=config) as sess:
     cnt, num_samples, start_t = 0, 0, time.perf_counter()
     while True:
         x = sess.run(data_node)
-        t1, t2 = sess.run([quantizer.dist_shape, quantizer.quant_x_shape], feed_dict={quantizer.ph_x: x})
-        print(t1)
-        print(t2)
-        # cnt += 1
-        # print('%10d: %.5f' % (cnt, loss))
+        _, loss = sess.run([quantizer.loss, quantizer.train_op], feed_dict={quantizer.ph_x: x})
+        cnt += 1
+        print('%10d: %.5f' % (cnt, loss))

@@ -11,13 +11,13 @@ class BaseQuantizer:
         self.num_dim = tf.shape(self.ph_x)[1]
         tiled_x = tf.tile(tf.expand_dims(self.ph_x, axis=1), [1, num_centroids, 1])
         tiled_centroids = tf.tile(tf.expand_dims(tf.expand_dims(self.centroids, axis=0), axis=2),
-                            [self.batch_size, 1, self.num_dim])
+                                  [self.batch_size, 1, self.num_dim])
 
         dist = tf.abs(tiled_x - tiled_centroids)
-        self.dist_shape = tf.shape(dist)
+        # self.dist_shape = tf.shape(dist)
         self.quant_x = tf.argmin(dist, axis=1, output_type=tf.int32)
         self.recover_x = tf.nn.embedding_lookup(self.centroids, self.quant_x)
-        self.quant_x_shape = tf.shape(self.recover_x)
+        # self.quant_x_shape = tf.shape(self.recover_x)
         self.loss = tf.reduce_mean(tf.squared_difference(self.ph_x, self.recover_x))
 
         optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate, beta1=0.8, beta2=0.999, epsilon=1e-7)
