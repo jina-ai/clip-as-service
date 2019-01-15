@@ -1,19 +1,11 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-# Han Xiao <artex.xh@gmail.com> <https://hanxiao.github.io>
-
-# NOTE: First install bert-as-service via
-# $
-# $ pip install bert-serving-server
-# $ pip install bert-serving-client
-# $
-
 import json
 import os
 import random
 
 import tensorflow as tf
 from bert_serving.client import BertClient
+from matplotlib import pyplot as plt
+from matplotlib.pyplot import xticks
 
 from plugin.quantizer.base_quantizer import BaseQuantizer
 
@@ -49,7 +41,7 @@ def get_ds(fp, batch_size=1024, shuffle=False, only_head=False):
           .map(lambda x: tf.py_func(_get_encodes, [x], tf.float32, name='bert_client'),
                num_parallel_calls=num_parallel_calls))
     if shuffle:
-        ds = ds.apply(tf.contrib.data.shuffle_and_repeat(10))
+        ds = ds.apply(tf.contrib.data.shuffle_and_repeat(5))
     if only_head:
         ds = ds.take(1).repeat(-1)
     return ds.prefetch(5).make_one_shot_iterator().get_next()
@@ -63,22 +55,46 @@ def get_config():
     return config
 
 
-quantizer = BaseQuantizer()
-with tf.Session(config=get_config()) as sess:
-    sess.run(tf.global_variables_initializer())
-    iter, iter_per_save = 0, 100
+def plot_graph():
+    plt.close()
+    fig = plt.figure()
+    plt.rcParams['figure.figsize'] = [18, 7]
+    plt.plot(hist_centroids, 'ro-', markersize=10, linewidth=1, alpha=0.5)
+    plt.tight_layout()
+    plt.xlabel('iterations')
+    plt.ylabel('feature value')
+    plt.grid(True)
 
-    train_ds = get_ds(train_fp, shuffle=True)
-    while True:
-        x = sess.run(train_ds)
-        loss, stat, _ = sess.run([quantizer.loss, quantizer.statistic, quantizer.train_op],
-                                 feed_dict={quantizer.ph_x: x})
-        iter += 1
+    xticks(range(len(hist_iters)), [str(v) for v in hist_iters])
+    plt.show()
+
+
+quantizer = BaseQuantizer(learning_rate=0.01)
+
+sess = tf.Session(config=get_config())
+sess.run(tf.global_variables_initializer())
+iter, iter_per_save = 0, 100
+
+train_ds = get_ds(train_fp, shuffle=True)
+dev_ds = get_ds(dev_fp)
+dev_x = sess.run(dev_ds)
+
+hist_centroids = []
+hist_val_loss = []
+hist_iters = []
+
+while True:
+    x = sess.run(train_ds)
+    loss, stat, _ = sess.run([quantizer.loss, quantizer.statistic, quantizer.train_op],
+                             feed_dict={quantizer.ph_x: x})
+    iter += 1
+    stat_str = ' '.join('%5s %.3f' % (k, v) for k, v in sorted(stat.items()))
+    print('[T]%5d: %.5f %s' % (iter, loss, stat_str))
+    if iter % iter_per_save == 0:
+        loss, stat, centroids = sess.run([quantizer.loss, quantizer.statistic, quantizer.centroids],
+                                         feed_dict={quantizer.ph_x: dev_x})
         stat_str = ' '.join('%5s %.3f' % (k, v) for k, v in sorted(stat.items()))
-        print('[T]%10d: %.5f %s' % (iter, loss, stat_str))
-        if iter % iter_per_save == 0:
-            dev_ds = get_ds(dev_fp)
-            x = sess.run(dev_ds)
-            loss, stat = sess.run([quantizer.loss, quantizer.statistic], feed_dict={quantizer.ph_x: x})
-            stat_str = ' '.join('%5s %.3f' % (k, v) for k, v in sorted(stat.items()))
-            print('[V]%10d: %.5f %s' % (iter, loss, stat_str))
+        print('[V]%5d: %.5f %s' % (iter, loss, stat_str))
+        hist_centroids.append(sorted(centroids))
+        hist_val_loss.append(loss)
+        hist_iters.append(iter)
