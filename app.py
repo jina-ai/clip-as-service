@@ -44,8 +44,8 @@ def get_encodes(x):
 ds = (tf.data.TextLineDataset(train_fp).batch(batch_size)
       .map(lambda x: tf.py_func(get_encodes, [x], tf.float32, name='bert_client'),
            num_parallel_calls=num_parallel_calls))
-ds = tf.contrib.data.shuffle_and_repeat(ds)
-data_node = (ds.prefetch(5).make_one_shot_iterator().get_next())
+data_node = (ds.apply(tf.contrib.data.shuffle_and_repeat(5))
+             .prefetch(5).make_one_shot_iterator().get_next())
 
 quantizer = BaseQuantizer()
 train_op = quantizer.train_op
