@@ -16,7 +16,6 @@ import random
 
 import tensorflow as tf
 from bert_serving.client import BertClient
-from tensorflow.python.framework.errors_impl import OutOfRangeError
 
 from plugin.quantizer.base_quantizer import BaseQuantizer
 
@@ -46,12 +45,14 @@ def get_encodes(x):
     return features
 
 
-def get_ds(fp, batch_size=1024, shuffle=False):
+def get_ds(fp, batch_size=1024, shuffle=False, only_head=False):
     ds = (tf.data.TextLineDataset(fp).batch(batch_size)
           .map(lambda x: tf.py_func(get_encodes, [x], tf.float32, name='bert_client'),
                num_parallel_calls=num_parallel_calls))
     if shuffle:
-        ds = ds.shuffle(5)
+        ds = ds.apply(tf.contrib.data.shuffle_and_repeat(10))
+    if only_head:
+        ds = ds.take(1).repeat(-1)
     return ds.prefetch(5).make_one_shot_iterator().get_next()
 
 
@@ -66,23 +67,19 @@ def get_config():
 quantizer = BaseQuantizer()
 with tf.Session(config=get_config()) as sess:
     sess.run(tf.global_variables_initializer())
-    epoch, iter = 0, 0
+    iter, iter_per_save = 0, 100
 
     train_ds = get_ds(train_fp, shuffle=True)
     while True:
-        try:
-            x = sess.run(train_ds)
-            loss, stat, _ = sess.run([quantizer.loss, quantizer.statistic, quantizer.train_op],
-                                     feed_dict={quantizer.ph_x: x})
-            iter += 1
-            stat_str = ' '.join('%5s %.3f' % (k, v) for k, v in sorted(stat.items()))
-            print('[T]%10d: %.5f %s' % (iter, loss, stat_str))
-        except OutOfRangeError:
-            epoch += 1
+        x = sess.run(train_ds)
+        loss, stat, _ = sess.run([quantizer.loss, quantizer.statistic, quantizer.train_op],
+                                 feed_dict={quantizer.ph_x: x})
+        iter += 1
+        stat_str = ' '.join('%5s %.3f' % (k, v) for k, v in sorted(stat.items()))
+        print('[T]%10d: %.5f %s' % (iter, loss, stat_str))
+        if iter % iter_per_save == 0:
             dev_ds = get_ds(dev_fp)
             x = sess.run(dev_ds)
             loss, stat = sess.run([quantizer.loss, quantizer.statistic], feed_dict={quantizer.ph_x: x})
             stat_str = ' '.join('%5s %.3f' % (k, v) for k, v in sorted(stat.items()))
-            print('[V]%3d-%10d: %.5f %s' % (epoch, iter, loss, stat_str))
-            # reset train ds
-            train_ds = get_ds(train_fp, shuffle=True)
+            print('[V]%10d: %.5f %s' % (iter, loss, stat_str))
