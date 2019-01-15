@@ -8,8 +8,6 @@
 # $ pip install bert-serving-client
 # $
 
-# using BertClient inside tf.data API
-
 import json
 import os
 import random
