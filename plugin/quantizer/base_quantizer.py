@@ -9,14 +9,14 @@ class BaseQuantizer:
         self.ph_x = tf.placeholder(tf.float32, shape=[None, None], name='original_input')
         self.batch_size = tf.shape(self.ph_x)[0]
         self.num_dim = tf.shape(self.ph_x)[1]
-        x = tf.tile(tf.expand_dims(self.ph_x, axis=1), [1, num_centroids, 1])
-        centroids = tf.tile(tf.expand_dims(tf.expand_dims(self.centroids, axis=0), axis=2),
+        tiled_x = tf.tile(tf.expand_dims(self.ph_x, axis=1), [1, num_centroids, 1])
+        tiled_centroids = tf.tile(tf.expand_dims(tf.expand_dims(self.centroids, axis=0), axis=2),
                             [self.batch_size, 1, self.num_dim])
 
-        dist = tf.abs(x - centroids)
+        dist = tf.abs(tiled_x - tiled_centroids)
         self.dist_shape = tf.shape(dist)
         self.quant_x = tf.argmin(dist, axis=1, output_type=tf.int32)
-        self.recover_x = tf.nn.embedding_lookup(centroids, self.quant_x)
+        self.recover_x = tf.nn.embedding_lookup(self.centroids, self.quant_x)
         self.quant_x_shape = tf.shape(self.recover_x)
         self.loss = tf.reduce_mean(tf.squared_difference(self.ph_x, self.recover_x))
 
