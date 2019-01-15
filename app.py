@@ -14,13 +14,12 @@ import json
 import os
 import time
 
-import GPUtil
 import tensorflow as tf
 from bert_serving.client import BertClient
 
 from plugin.quantizer.base_quantizer import BaseQuantizer
 
-os.environ['CUDA_VISIBLE_DEVICES'] = str(GPUtil.getFirstAvailable())
+os.environ['CUDA_VISIBLE_DEVICES'] = str(0)
 
 train_fp = ['/data/cips/data/larry-autoencoder/cail_0518/data_train.json']
 batch_size = 256
