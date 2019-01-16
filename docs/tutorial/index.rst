@@ -25,3 +25,4 @@ to start a BertServer first.
    async-encode
    broadcast
    add-monitor
+   http-server
