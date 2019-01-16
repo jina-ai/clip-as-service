@@ -171,8 +171,8 @@ def get_run_args(parser_fn=get_args_parser, printed=True):
 class BertRequestHandler(SimpleHTTPRequestHandler):
     protocol_version = 'HTTP/1.1'
 
-    def _set_headers(self):
-        self.send_response(200)
+    def _set_headers(self, code=200):
+        self.send_response(code)
         self.send_header('Content-type', 'application/json')
         self.send_header('Access-Control-Allow-Origin', self.server.args.cors)
         self.end_headers()
@@ -181,15 +181,14 @@ class BertRequestHandler(SimpleHTTPRequestHandler):
         self._set_headers()
 
     def do_GET(self):
-        self._set_headers()
         if self.path == '/status':
             self.server.logger.info('checking server status')
-            self._return_dict_as_json(self.server.bc.server_status)
+            self._response_dict(self.server.bc.server_status, code=200)
         if self.path == '/terminate':
             self.server.logger.info('shutting down HTTP server')
             self.server.shutdown()
             self.server.logger.info('you can no longer make HTTP request to this server')
-            self._return_singleton_msg('you can no longer make HTTP request to this server')
+            self._response_msg('you can no longer make HTTP request to this server', code=200)
 
     def do_POST(self):
         try:
@@ -200,11 +199,11 @@ class BertRequestHandler(SimpleHTTPRequestHandler):
                 post_body = self.rfile.read(content_len)
                 data = jsonapi.loads(post_body)
                 result = self.server.bc.encode(data['texts'])
-                self._return_dict_as_json({'id': data['id'], 'result': result})
+                self._response_dict({'id': data['id'], 'result': result}, code=410)
             else:
                 raise TypeError('"Content-Length" or "Content-Type" are wrong')
         except Exception as e:
-            self._return_singleton_msg(str(e), msg_type=e.__class__.__name__)
+            self._response_msg(str(e), msg_type=e.__class__.__name__, code=400)
             self.server.logger.error('error when handling HTTP request', exc_info=True)
 
     def log_message(self, format, *args):
@@ -212,10 +211,11 @@ class BertRequestHandler(SimpleHTTPRequestHandler):
                                                 self.log_date_time_string(),
                                                 format % args))
 
-    def _return_dict_as_json(self, x):
+    def _response_dict(self, x, code=200):
+        self._set_headers(code)
         self.wfile.write(jsonapi.dumps(x, ensure_ascii=False))
         self.wfile.flush()
         self.server.logger.info('send result back')
 
-    def _return_singleton_msg(self, msg, msg_type=RuntimeError.__class__.__name__):
-        self._return_dict_as_json({'type': msg_type, 'message': msg})
+    def _response_msg(self, msg, msg_type=RuntimeError.__class__.__name__, code=200):
+        self._response_dict({'type': msg_type, 'message': msg})
