@@ -188,7 +188,7 @@ class BertRequestHandler(SimpleHTTPRequestHandler):
             self.server.logger.info('shutting down HTTP server')
             self.server.shutdown()
             self.server.logger.info('you can no longer make HTTP request to this server')
-            self._response_msg('you can no longer make HTTP request to this server', code=200)
+            self._response_msg('you can no longer make HTTP request to this server', code=410)
 
     def do_POST(self):
         try:
@@ -199,7 +199,7 @@ class BertRequestHandler(SimpleHTTPRequestHandler):
                 post_body = self.rfile.read(content_len)
                 data = jsonapi.loads(post_body)
                 result = self.server.bc.encode(data['texts'])
-                self._response_dict({'id': data['id'], 'result': result}, code=410)
+                self._response_dict({'id': data['id'], 'result': result}, code=200)
             else:
                 raise TypeError('"Content-Length" or "Content-Type" are wrong')
         except Exception as e:
