@@ -514,8 +514,13 @@ class BertHTTPProxy(Process):
                               'then remove "-http_port" from the command line.')
         else:
             server = HTTPServer(('', self.args.http_port), BertRequestHandler)
-            server.logger = set_logger(colored('PROXY', 'grey'))
+            server.logger = set_logger(colored('PROXY', 'red'))
             server.bc = BertClient(port=self.args.port, port_out=self.args.port_out)
             server.args = self.args
             server.logger.info('listen to HTTP requests on %d' % self.args.http_port)
-            server.serve_forever()
+            try:
+                server.serve_forever()
+            except KeyboardInterrupt:
+                pass
+            finally:
+                server.server_close()
