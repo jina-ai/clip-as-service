@@ -585,24 +585,32 @@ bert-serving-start -model_dir=/YOUR_MODEL -http_port 8125
 
 Your server is now listening HTTP and TCP requests at port `8125` simultaneously!
 
-To send a HTTP request, simply package it in JSON format
+To send a HTTP request, first package payload in JSON as following:
 ```json
 {
-"id": 123,
-"texts": ["hello world", "good day!"],
-"is_tokenized": false
+    "id": 123,
+    "texts": ["hello world", "good day!"],
+    "is_tokenized": false
 }
 ```
+, where `id` is a unique identifier helping you to synchronize the results; `is_tokenized` follows the meaning in [`BertClient` API](https://bert-as-service.readthedocs.io/en/latest/source/client.html#client.BertClient.encode_async) and `false` by default.
 
-Then call the server via:
+Then simply call the server via HTTP POST:
 ```bash
-curl -v -X POST \
-  http://xx.xx.xx.xx:8125/encode \
+curl -X POST http://xx.xx.xx.xx:8125/encode \
   -H 'content-type: application/json' \
   -d '{"id": 123,"texts": ["hello world"], "is_tokenized": false}'
 ```
+, which returns a JSON:
+```json
+{
+    "id": 123,
+    "results": [[768 float-list], [768 float-list]],
+    "status": 200
+}
+```
 
-One may also config CORS to restrict the public access of the server by specifying `-cors` when starting `bert-serving-start`, by default it is `*`, meaning public accessible.
+Finally, one may also config CORS to restrict the public access of the server by specifying `-cors` when starting `bert-serving-start`. By default `-cors=*`, meaning the server is public accessible.
 
 
 <p align="center"><img src=".github/dashboard.png?raw=true"/></p>
