@@ -189,6 +189,6 @@ class BertRequestHandler(BaseHTTPRequestHandler):
             self.server.shutdown()
 
     def log_message(self, format, *args):
-        self.server.info('%s - - [%s] %s' % (self.address_string(),
-                                             self.log_date_time_string(),
-                                             format % args))
+        self.server.logger.info('%s - - [%s] %s' % (self.address_string(),
+                                                    self.log_date_time_string(),
+                                                    format % args))
