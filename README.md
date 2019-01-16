@@ -569,6 +569,42 @@ This gives the current status of the server including number of requests, number
 
 `plugin/dashboard/index.html` shows a simple dashboard based on Bootstrap and Vue.js.
 
+### Using `bert-as-service` to serve HTTP requests in JSON
+
+Besides calling `bert-as-service` from Python, one can also call it via HTTP request in JSON. It is quite useful especially when low transport layer is prohibited. Behind the scene, `bert-as-service` spawns a Flask server in a separate process and then reuse a `BertClient` instance as a proxy to communicate with the ventilator.
+
+To enable this feature, we need to first install some Python dependencies:
+```bash
+pip install -U bert-serving-client flask flask-compress flask-cors flask-json
+```
+
+Then simply start the server with:
+```bash
+bert-serving-start -model_dir=/YOUR_MODEL -http_port 8125
+```
+
+Your server is now listening HTTP and TCP requests at port `8125` simultaneously!
+
+To send a HTTP request, simply package it in JSON format
+```json
+{
+"id": 123,
+"texts": ["hello world", "good day!"],
+"is_tokenized": false
+}
+```
+
+Then call the server via:
+```bash
+curl -v -X POST \
+  http://xx.xx.xx.xx:8125/encode \
+  -H 'content-type: application/json' \
+  -d '{"id": 123,"texts": ["hello world"], "is_tokenized": false}'
+```
+
+One may also config CORS to restrict the public access of the server by specifying `-cors` when starting `bert-serving-start`, by default it is `*`, meaning public accessible.
+
+
 <p align="center"><img src=".github/dashboard.png?raw=true"/></p>
 
 <h2 align="center">:speech_balloon: FAQ</h2>

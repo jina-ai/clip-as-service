@@ -24,8 +24,9 @@ class BertHTTPProxy(Process):
             from flask_cors import CORS
             from flask_json import FlaskJSON, as_json, JsonError
         except ImportError:
-            raise ImportError('flask or its dependencies are not fully installed.'
-                              'Please use "pip install -U flask flask-compress flask-cors" to install it.')
+            raise ImportError('Flask or its dependencies are not fully installed, '
+                              'they are required for serving HTTP requests.'
+                              'Please use "pip install -U flask flask-compress flask-cors flask-json" to install it.')
 
         bc = BertClient(port=self.args.port, port_out=self.args.port_out, output_fmt='list')
         app = Flask(__name__)
@@ -43,8 +44,10 @@ class BertHTTPProxy(Process):
             data = request.form if request.form else request.json
             try:
                 logger.info('new request from %s' % request.remote_addr)
-                return {'id': data['id'],
-                        'result': bc.encode(data['texts'], is_tokenized=data.get('is_tokenized', False))}
+                return {
+                    'id': data['id'],
+                    'result': bc.encode(data['texts'],
+                                        is_tokenized=bool(data['is_tokenized']) if 'is_tokenized' in data else False)}
             except Exception as e:
                 logger.error('error when handling HTTP request', exc_info=True)
                 raise JsonError(description=str(e), type=str(type(e).__name__))
