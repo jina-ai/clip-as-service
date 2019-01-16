@@ -3,7 +3,6 @@ import logging
 import os
 import sys
 import uuid
-from http.server import SimpleHTTPRequestHandler
 
 import zmq
 from zmq.utils import jsonapi
@@ -166,57 +165,3 @@ def get_run_args(parser_fn=get_args_parser, printed=True):
         param_str = '\n'.join(['%20s = %s' % (k, v) for k, v in sorted(vars(args).items())])
         print('usage: %s\n%20s   %s\n%s\n%s\n' % (' '.join(sys.argv), 'ARG', 'VALUE', '_' * 50, param_str))
     return args
-
-
-class BertRequestHandler(SimpleHTTPRequestHandler):
-    protocol_version = 'HTTP/1.1'
-
-    def _set_headers(self, code=200):
-        self.send_response(code)
-        self.send_header('Content-type', 'application/json')
-        self.send_header('Access-Control-Allow-Origin', self.server.args.cors)
-        self.end_headers()
-
-    def do_HEAD(self):
-        self._set_headers()
-
-    def do_GET(self):
-        if self.path == '/status':
-            self.server.logger.info('checking server status')
-            self._response_dict(self.server.bc.server_status, code=200)
-        if self.path == '/terminate':
-            self.server.logger.info('shutting down HTTP server')
-            self.server.shutdown()
-            self.server.logger.info('you can no longer make HTTP request to this server')
-            self._response_msg('you can no longer make HTTP request to this server', code=410)
-
-    def do_POST(self):
-        try:
-            self.server.logger.info('new request [%s] %s' % (self.log_date_time_string(), self.client_address))
-            content_len = int(self.headers.get('Content-Length', 0))
-            content_type = self.headers.get('Content-Type', 'application/json')
-            if content_len and content_type == 'application/json':
-                post_body = self.rfile.read(content_len)
-                data = jsonapi.loads(post_body)
-                result = self.server.bc.encode(data['texts'])
-                self._response_dict({'id': data['id'], 'result': result}, code=200)
-            else:
-                raise TypeError('"Content-Length" or "Content-Type" are wrong')
-        except Exception as e:
-            self._response_msg(str(e), msg_type=e.__class__.__name__, code=400)
-            self.server.logger.error('error when handling HTTP request', exc_info=True)
-
-    def log_message(self, format, *args):
-        self.server.logger.info('%s [%s] %s' % (self.address_string(),
-                                                self.log_date_time_string(),
-                                                format % args))
-
-    def _response_dict(self, x, code=200):
-        self._set_headers(code)
-        self.wfile.write(jsonapi.dumps(x, ensure_ascii=False))
-        self.wfile.close()
-        self.rfile.close()
-        self.server.logger.info('send result back')
-
-    def _response_msg(self, msg, msg_type=RuntimeError.__class__.__name__, code=200):
-        self._response_dict({'type': msg_type, 'message': msg})

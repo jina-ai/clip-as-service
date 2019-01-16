@@ -9,7 +9,6 @@ import threading
 import time
 from collections import defaultdict
 from datetime import datetime
-from http.server import HTTPServer
 from multiprocessing import Process
 from multiprocessing.pool import Pool
 
@@ -20,6 +19,7 @@ from termcolor import colored
 from zmq.utils import jsonapi
 
 from .helper import *
+from .http import BertHTTPProxy
 from .zmq_decor import multi_socket
 
 __all__ = ['__version__', 'BertServer']
@@ -497,30 +497,3 @@ class ServerStatistic:
         ]
 
         return {k: v for d in parts for k, v in d.items()}
-
-
-class BertHTTPProxy(Process):
-    def __init__(self, args):
-        super().__init__()
-        self.args = args
-
-    def run(self):
-        try:
-            from bert_serving.client import BertClient
-        except ImportError:
-            raise ImportError('BertClient module is not available, it is required for serving HTTP requests.'
-                              'Please try "pip install -U bert-serving-client" to install it.'
-                              'If you do not want to use it as an HTTP server, '
-                              'then remove "-http_port" from the command line.')
-        else:
-            server = HTTPServer(('', self.args.http_port), BertRequestHandler)
-            server.logger = set_logger(colored('PROXY', 'red'))
-            server.bc = BertClient(port=self.args.port, port_out=self.args.port_out, output_fmt='list')
-            server.args = self.args
-            server.logger.info('listening HTTP requests on %s:%s' % (server.server_name, server.server_port))
-            try:
-                server.serve_forever()
-            except KeyboardInterrupt:
-                pass
-            finally:
-                server.server_close()
