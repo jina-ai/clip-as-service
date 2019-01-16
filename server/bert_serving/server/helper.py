@@ -214,7 +214,8 @@ class BertRequestHandler(SimpleHTTPRequestHandler):
     def _response_dict(self, x, code=200):
         self._set_headers(code)
         self.wfile.write(jsonapi.dumps(x, ensure_ascii=False))
-        self.finish()
+        self.wfile.close()
+        self.rfile.close()
         self.server.logger.info('send result back')
 
     def _response_msg(self, msg, msg_type=RuntimeError.__class__.__name__, code=200):
