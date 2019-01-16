@@ -169,6 +169,8 @@ def get_run_args(parser_fn=get_args_parser, printed=True):
 
 
 class BertRequestHandler(SimpleHTTPRequestHandler):
+    protocol_version = 'HTTP/1.1'
+
     def _set_headers(self):
         self.send_response(200)
         self.send_header('Content-type', 'application/json')
