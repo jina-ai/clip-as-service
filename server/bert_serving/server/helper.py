@@ -187,3 +187,8 @@ class BertRequestHandler(BaseHTTPRequestHandler):
         if self.path == '/terminate':
             self.server.logger.info('shutting down HTTP server')
             self.server.shutdown()
+
+    def log_message(self, format, *args):
+        self.server.info('%s - - [%s] %s' % (self.address_string(),
+                                             self.log_date_time_string(),
+                                             format % args))
