@@ -157,7 +157,7 @@ bc = BertClient(ip='xx.xx.xx.xx')  # ip address of the GPU machine
 bc.encode(['First do it', 'then do it right', 'then do it better'])
 ```
 
-Note that you only need `pip install -U bert-serving-client` in this case, the server side is not required. You may also [call the service via HTTP requests](#using-bert-as-service-to-serve-http-requests-in-json)
+Note that you only need `pip install -U bert-serving-client` in this case, the server side is not required. You may also [call the service via HTTP requests.](#using-bert-as-service-to-serve-http-requests-in-json)
 
 > :bulb: **Want to learn more? Checkout our tutorials:**
 > - [Building a QA semantic search engine in 3 min.](#building-a-qa-semantic-search-engine-in-3-minutes)
