@@ -181,6 +181,7 @@ class BertRequestHandler(SimpleHTTPRequestHandler):
         self._set_headers()
 
     def do_GET(self):
+        self._set_headers(200)
         if self.path == '/status':
             self.server.logger.info('checking server status')
             self._response_dict(self.server.bc.server_status, code=200)
@@ -212,7 +213,7 @@ class BertRequestHandler(SimpleHTTPRequestHandler):
                                                 format % args))
 
     def _response_dict(self, x, code=200):
-        self._set_headers(code)
+
         self.wfile.write(jsonapi.dumps(x, ensure_ascii=False))
         self.wfile.flush()
         self.server.logger.info('send result back')
