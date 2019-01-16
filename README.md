@@ -69,7 +69,7 @@
 - :octopus: **Scalable**: scale nicely and smoothly on multiple GPUs and multiple clients without worrying about concurrency. See [benchmark](#speed-wrt-num_client).
 - :gem: **Reliable**: tested on multi-billion sentences; days of running without a break or OOM or any nasty exceptions.
 
-More features: asynchronous encoding; multicasting; mix GPU & CPU workloads; graph optimization; `tf.data` friendly; customized tokenizer; pooling strategy and layer; XLA support etc.
+More features: async encoding; multicasting; mix GPU-CPU workloads; optimized graph; `tf.data` friendly; customized tokenizer; flexible pooling strategy; XLA support; build-in HTTP server; dashboard etc.
 
 
 <h2 align="center">Install</h2>
@@ -578,7 +578,7 @@ This gives the current status of the server including number of requests, number
 
 Besides calling `bert-as-service` from Python, one can also call it via HTTP request in JSON. It is quite useful especially when low transport layer is prohibited. Behind the scene, `bert-as-service` spawns a Flask server in a separate process and then reuse a `BertClient` instance as a proxy to communicate with the ventilator.
 
-To enable this feature, we need to first install some Python dependencies:
+To enable the build-in HTTP server, we need to first install some Python dependencies:
 ```bash
 pip install -U bert-serving-client flask flask-compress flask-cors flask-json
 ```
@@ -588,9 +588,9 @@ Then simply start the server with:
 bert-serving-start -model_dir=/YOUR_MODEL -http_port 8125
 ```
 
-Your server is now listening HTTP and TCP requests at port `8125` simultaneously!
+Done! Your server is now listening HTTP and TCP requests at port `8125` simultaneously!
 
-To send a HTTP request, first package payload in JSON as following:
+Now to send a HTTP request, first prepare the payload in JSON as following:
 ```json
 {
     "id": 123,
