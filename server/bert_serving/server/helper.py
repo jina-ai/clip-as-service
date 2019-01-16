@@ -4,7 +4,7 @@ import logging
 import os
 import sys
 import uuid
-from http.server import BaseHTTPRequestHandler
+from http.server import SimpleHTTPRequestHandler
 
 import zmq
 from zmq.utils import jsonapi
@@ -169,7 +169,7 @@ def get_run_args(parser_fn=get_args_parser, printed=True):
     return args
 
 
-class BertRequestHandler(BaseHTTPRequestHandler):
+class BertRequestHandler(SimpleHTTPRequestHandler):
     def _set_headers(self):
         self.send_response(200)
         self.send_header('Content-type', 'application/json')
@@ -198,17 +198,18 @@ class BertRequestHandler(BaseHTTPRequestHandler):
                 post_body = self.rfile.read(content_len)
                 data = json.loads(post_body)
                 result = self.server.bc.encode(data['texts'])
-                self.wfile.write(json.dumps({'id': data['id'], 'result': result}, ensure_ascii=False).encode('utf-8'))
+                self._return_dict_as_json({'id': data['id'], 'result': result})
+                self.server.logger.info('send result back to')
             else:
                 raise TypeError('"Content-Length" or "Content-Type" are wrong')
         except Exception as e:
             self._return_singleton_msg(str(e), msg_type=e.__class__.__name__)
-            self.server.logger.error('error when processing HTTP request', exc_info=True)
+            self.server.logger.error('error when handling HTTP request', exc_info=True)
 
     def log_message(self, format, *args):
-        self.server.logger.info('%s - - [%s] %s' % (self.address_string(),
-                                                    self.log_date_time_string(),
-                                                    format % args))
+        self.server.logger.info('%s [%s] %s' % (self.address_string(),
+                                                self.log_date_time_string(),
+                                                format % args))
 
     def _return_dict_as_json(self, x):
         self.wfile.write(json.dumps(x, ensure_ascii=False).encode('utf-8'))
