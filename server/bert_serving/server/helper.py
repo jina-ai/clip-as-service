@@ -211,7 +211,7 @@ class BertRequestHandler(SimpleHTTPRequestHandler):
                                                 format % args))
 
     def _return_dict_as_json(self, x):
-        self.wfile.write(jsonapi.dumps(x, ensure_ascii=False).encode('utf-8'))
+        self.wfile.write(jsonapi.dumps(x, ensure_ascii=False))
         self.wfile.flush()
         self.server.logger.info('send result back')
 
