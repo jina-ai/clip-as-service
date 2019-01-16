@@ -23,7 +23,7 @@ from .http import BertHTTPProxy
 from .zmq_decor import multi_socket
 
 __all__ = ['__version__', 'BertServer']
-__version__ = '1.7.1'
+__version__ = '1.7.2'
 
 _tf_ver_ = check_tf_version()
 
