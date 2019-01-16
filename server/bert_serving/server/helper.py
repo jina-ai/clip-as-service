@@ -7,7 +7,8 @@ import uuid
 import zmq
 from zmq.utils import jsonapi
 
-__all__ = ['set_logger', 'send_ndarray', 'get_args_parser', 'check_tf_version', 'auto_bind', 'import_tf']
+__all__ = ['set_logger', 'send_ndarray', 'get_args_parser',
+           'check_tf_version', 'auto_bind', 'import_tf']
 
 
 def set_logger(context, verbose=False):
@@ -93,7 +94,10 @@ def get_args_parser():
                         help='server port for receiving data from client')
     group3.add_argument('-port_out', '-port_result', type=int, default=5556,
                         help='server port for sending result to client')
-
+    group3.add_argument('-http_port', type=int, default=None,
+                        help='server port for receiving HTTP requests')
+    group3.add_argument('-cors', type=str, default='*',
+                        help='setting "Access-Control-Allow-Origin" for HTTP requests')
     group3.add_argument('-num_worker', type=int, default=1,
                         help='number of server instances')
     group3.add_argument('-max_batch_size', type=int, default=256,

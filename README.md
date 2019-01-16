@@ -69,7 +69,7 @@
 - :octopus: **Scalable**: scale nicely and smoothly on multiple GPUs and multiple clients without worrying about concurrency. See [benchmark](#speed-wrt-num_client).
 - :gem: **Reliable**: tested on multi-billion sentences; days of running without a break or OOM or any nasty exceptions.
 
-More features: asynchronous encoding; multicasting; mix GPU & CPU workloads; graph optimization; `tf.data` friendly; customized tokenizer; pooling strategy and layer; XLA support etc.
+More features: async encoding; multicasting; mix GPU-CPU workloads; optimized graph; `tf.data` friendly; customized tokenizer; flexible pooling strategy; XLA support; build-in HTTP server; dashboard etc.
 
 
 <h2 align="center">Install</h2>
@@ -170,6 +170,7 @@ Note that you only need `pip install -U bert-serving-client` in this case, the s
 > - [Asynchronous encoding](#asynchronous-encoding)
 > - [Broadcasting to multiple clients](#broadcasting-to-multiple-clients)
 > - [Monitoring the service status in a dashboard](#monitoring-the-service-status-in-a-dashboard)
+> - [Using `bert-as-service` to serve HTTP requests in JSON](#using-bert-as-service-to-serve-http-requests-in-json)
 
 
 <h2 align="center">Server and Client API</h2>
@@ -177,10 +178,11 @@ Note that you only need `pip install -U bert-serving-client` in this case, the s
 
 [![ReadTheDoc](https://readthedocs.org/projects/bert-as-service/badge/?version=latest&style=for-the-badge)](http://bert-as-service.readthedocs.io)
 
-The best way to learn `bert-as-service` API is [reading the documentation](http://bert-as-service.readthedocs.io).
+The best way to learn `bert-as-service` **latest API** is [reading the documentation](http://bert-as-service.readthedocs.io).
 
 ### Server API
 
+[The latest server-side API documentation is available at here.](https://bert-as-service.readthedocs.io/en/latest/source/server.html#server-side-api)
 Server-side is a CLI `bert-serving-start`, you can get the latest usage via:
 ```bash
 bert-serving-start --help
@@ -191,7 +193,8 @@ bert-serving-start --help
 | `model_dir` | str | *Required* | folder path of the pre-trained BERT model. |
 | `tuned_model_dir`| str |(Optional)| folder path of a fine-tuned BERT model. |
 | `ckpt_name`| str | `bert_model.ckpt` | filename of the checkpoint file. |
-| `config_name`| str | `bert_config.json` | filename of the JSON config file for BERT model. | 
+| `config_name`| str | `bert_config.json` | filename of the JSON config file for BERT model. |
+| `graph_tmp_dir` | str | None | path to graph temp file |  
 | `max_seq_len` | int | `25` | maximum length of sequence, longer sequence will be trimmed on the right side. |
 | `mask_cls_sep` | bool | False | masking the embedding on [CLS] and [SEP] with zero. |
 | `num_worker` | int | `1` | number of (GPU/CPU) worker runs BERT model, each works in a separate process. |
@@ -199,6 +202,8 @@ bert-serving-start --help
 | `priority_batch_size` | int | `16` | batch smaller than this size will be labeled as high priority, and jumps forward in the job queue to get result faster |
 | `port` | int | `5555` | port for pushing data from client to server |
 | `port_out` | int | `5556`| port for publishing results from server to client |
+| `http_port` | int | None | server port for receiving HTTP requests |
+| `cors` | str | `*` | setting "Access-Control-Allow-Origin" for HTTP requests |
 | `pooling_strategy` | str | `REDUCE_MEAN` | the pooling strategy for generating encoding vectors, valid values are `NONE`, `REDUCE_MEAN`, `REDUCE_MAX`, `REDUCE_MEAN_MAX`, `CLS_TOKEN`, `FIRST_TOKEN`, `SEP_TOKEN`, `LAST_TOKEN`. Explanation of these strategies [can be found here](#q-what-are-the-available-pooling-strategies). To get encoding for each token in the sequence, please set this to `NONE`.|
 | `pooling_layer` | list | `[-2]` | the encoding layer that pooling operates on, where `-1` means the last layer, `-2` means the second-to-last, `[-1, -2]` means concatenating the result of last two layers, etc.|
 | `gpu_memory_fraction` | float | `0.5` | the fraction of the overall amount of memory that each GPU should be allocated per worker |
@@ -208,9 +213,7 @@ bert-serving-start --help
 
 ### Client API
 
-Detailed explanation of client API [can be found in the documentation](https://bert-as-service.readthedocs.io/en/add-doc/source/client.html#api-documentation).
-
-Client-side provides a Python class called `BertClient`, which accepts arguments as follows:
+[The latest client-side API documentation is available at here.](https://bert-as-service.readthedocs.io/en/latest/source/client.html#module-client) Client-side provides a Python class called `BertClient`, which accepts arguments as follows:
 
 | Argument | Type | Default | Description |
 |----------------------|------|-----------|-------------------------------------------------------------------------------|
@@ -221,7 +224,7 @@ Client-side provides a Python class called `BertClient`, which accepts arguments
 | `show_server_config` | bool | `False` | whether to show server configs when first connected |
 | `check_version` | bool | `True` | whether to force client and server to have the same version |
 | `identity` | str | `None` | a UUID that identifies the client, useful in multi-casting |
-| `timeout` | int | `5000` | set the timeout (milliseconds) for receive operation on the client |
+| `timeout` | int | `-1` | set the timeout (milliseconds) for receive operation on the client |
 
 A `BertClient` implements the following methods and properties:
 
@@ -234,7 +237,6 @@ A `BertClient` implements the following methods and properties:
 |`.close()`|Gracefully close the connection between the client and the server|
 |`.status`|Get the client status in JSON format|
 |`.server_status`|Get the server status in JSON format|
-
 
 
 <h2 align="center">:book: Tutorial</h2>
@@ -257,6 +259,7 @@ The full list of examples can be found in [`example/`](example). You can run eac
 > - [Asynchronous encoding](#asynchronous-encoding)
 > - [Broadcasting to multiple clients](#broadcasting-to-multiple-clients)
 > - [Monitoring the service status in a dashboard](#monitoring-the-service-status-in-a-dashboard)
+> - [Using `bert-as-service` to serve HTTP requests in JSON](#using-bert-as-service-to-serve-http-requests-in-json)
 
 </details>
 
@@ -570,6 +573,50 @@ This gives the current status of the server including number of requests, number
 `plugin/dashboard/index.html` shows a simple dashboard based on Bootstrap and Vue.js.
 
 <p align="center"><img src=".github/dashboard.png?raw=true"/></p>
+
+### Using `bert-as-service` to serve HTTP requests in JSON
+
+Besides calling `bert-as-service` from Python, one can also call it via HTTP request in JSON. It is quite useful especially when low transport layer is prohibited. Behind the scene, `bert-as-service` spawns a Flask server in a separate process and then reuse a `BertClient` instance as a proxy to communicate with the ventilator.
+
+To enable the build-in HTTP server, we need to first install some Python dependencies:
+```bash
+pip install -U bert-serving-client flask flask-compress flask-cors flask-json
+```
+
+Then simply start the server with:
+```bash
+bert-serving-start -model_dir=/YOUR_MODEL -http_port 8125
+```
+
+Done! Your server is now listening HTTP and TCP requests at port `8125` simultaneously!
+
+Now to send a HTTP request, first prepare the payload in JSON as following:
+```json
+{
+    "id": 123,
+    "texts": ["hello world", "good day!"],
+    "is_tokenized": false
+}
+```
+, where `id` is a unique identifier helping you to synchronize the results; `is_tokenized` follows the meaning in [`BertClient` API](https://bert-as-service.readthedocs.io/en/latest/source/client.html#client.BertClient.encode_async) and `false` by default.
+
+Then simply call the server via HTTP POST request. You can use javascript or whatever, here is an example using `curl`:
+```bash
+curl -X POST http://xx.xx.xx.xx:8125/encode \
+  -H 'content-type: application/json' \
+  -d '{"id": 123,"texts": ["hello world"], "is_tokenized": false}'
+```
+, which returns a JSON:
+```json
+{
+    "id": 123,
+    "results": [[768 float-list], [768 float-list]],
+    "status": 200
+}
+```
+
+Finally, one may also config CORS to restrict the public access of the server by specifying `-cors` when starting `bert-serving-start`. By default `-cors=*`, meaning the server is public accessible.
+
 
 <h2 align="center">:speech_balloon: FAQ</h2>
 <p align="right"><a href="#bert-as-service"><sup>▴ Back to top</sup></a></p>

@@ -19,6 +19,7 @@ from termcolor import colored
 from zmq.utils import jsonapi
 
 from .helper import *
+from .http import BertHTTPProxy
 from .zmq_decor import multi_socket
 
 __all__ = ['__version__', 'BertServer']
@@ -119,6 +120,13 @@ class BertServer(threading.Thread):
                                  self.graph_path)
             self.processes.append(process)
             process.start()
+
+        # start the http-service process
+        if self.args.http_port:
+            self.logger.info('start http proxy')
+            proc_proxy = BertHTTPProxy(self.args)
+            self.processes.append(proc_proxy)
+            proc_proxy.start()
 
         rand_backend_socket = None
         server_status = ServerStatistic()
