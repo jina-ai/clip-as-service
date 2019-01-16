@@ -190,6 +190,13 @@ class BertRequestHandler(BaseHTTPRequestHandler):
             self.server.logger.info('you can no longer make HTTP request to this server')
             self.wfile.write(b'OK')
 
+    def do_POST(self):
+        id = int(self.headers.get('id'))
+        texts = self.headers.get('texts')
+        data = json.loads(texts)
+        print('%d:%s' % (id, data))
+        self.wfile.write(b'OK')
+
     def log_message(self, format, *args):
         self.server.logger.info('%s - - [%s] %s' % (self.address_string(),
                                                     self.log_date_time_string(),
