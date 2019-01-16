@@ -96,6 +96,8 @@ def get_args_parser():
                         help='server port for sending result to client')
     group3.add_argument('-http_port', type=int, default=None,
                         help='server port for receiving HTTP requests')
+    group3.add_argument('-http_max_connect', type=int, default=10,
+                        help='maximum number of concurrent HTTP connections')
     group3.add_argument('-cors', type=str, default='*',
                         help='setting "Access-Control-Allow-Origin" for HTTP requests')
     group3.add_argument('-num_worker', type=int, default=1,
