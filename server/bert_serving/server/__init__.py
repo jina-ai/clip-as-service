@@ -517,7 +517,7 @@ class BertHTTPProxy(Process):
             server.logger = set_logger(colored('PROXY', 'red'))
             server.bc = BertClient(port=self.args.port, port_out=self.args.port_out, output_fmt='list')
             server.args = self.args
-            server.logger.info('listening HTTP requests on %s' % server.server_address)
+            server.logger.info('listening HTTP requests on %s:%s' % (server.server_name, server.server_port))
             try:
                 server.serve_forever()
             except KeyboardInterrupt:
