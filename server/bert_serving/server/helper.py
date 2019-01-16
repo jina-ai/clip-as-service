@@ -199,7 +199,7 @@ class BertRequestHandler(SimpleHTTPRequestHandler):
                 data = json.loads(post_body)
                 result = self.server.bc.encode(data['texts'])
                 self._return_dict_as_json({'id': data['id'], 'result': result})
-                self.server.logger.info('send result back to %s' % self.address_string())
+                self.server.logger.info('send result back')
             else:
                 raise TypeError('"Content-Length" or "Content-Type" are wrong')
         except Exception as e:
