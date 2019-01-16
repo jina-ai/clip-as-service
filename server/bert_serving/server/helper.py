@@ -1,13 +1,16 @@
 import argparse
+import json
 import logging
 import os
 import sys
 import uuid
+from http.server import BaseHTTPRequestHandler
 
 import zmq
 from zmq.utils import jsonapi
 
-__all__ = ['set_logger', 'send_ndarray', 'get_args_parser', 'check_tf_version', 'auto_bind', 'import_tf']
+__all__ = ['set_logger', 'send_ndarray', 'get_args_parser',
+           'check_tf_version', 'auto_bind', 'import_tf', 'BertRequestHandler']
 
 
 def set_logger(context, verbose=False):
@@ -93,7 +96,10 @@ def get_args_parser():
                         help='server port for receiving data from client')
     group3.add_argument('-port_out', '-port_result', type=int, default=5556,
                         help='server port for sending result to client')
-
+    group3.add_argument('-http_port', type=int, default=None,
+                        help='server port for receiving HTTP requests')
+    group3.add_argument('-cors', type=str, default='*',
+                        help='setting "Access-Control-Allow-Origin" for HTTP requests')
     group3.add_argument('-num_worker', type=int, default=1,
                         help='number of server instances')
     group3.add_argument('-max_batch_size', type=int, default=256,
@@ -161,3 +167,23 @@ def get_run_args(parser_fn=get_args_parser, printed=True):
         param_str = '\n'.join(['%20s = %s' % (k, v) for k, v in sorted(vars(args).items())])
         print('usage: %s\n%20s   %s\n%s\n%s\n' % (' '.join(sys.argv), 'ARG', 'VALUE', '_' * 50, param_str))
     return args
+
+
+class BertRequestHandler(BaseHTTPRequestHandler):
+    def _set_headers(self):
+        self.send_response(200)
+        self.send_header('Content-type', 'application/json')
+        self.send_header('Access-Control-Allow-Origin', self.server.args.cors)
+        self.end_headers()
+
+    def do_HEAD(self):
+        self._set_headers()
+
+    def do_GET(self):
+        self._set_headers()
+        if self.path == '/status':
+            self.server.logger.info('checking server status')
+            self.wfile.write(json.dumps(self.server.bc.server_status, ensure_ascii=False).encode('utf-8'))
+        if self.path == '/terminate':
+            self.server.logger.info('shutting down HTTP server')
+            self.server.shutdown()

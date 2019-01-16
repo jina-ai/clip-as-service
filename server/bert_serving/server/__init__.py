@@ -9,6 +9,7 @@ import threading
 import time
 from collections import defaultdict
 from datetime import datetime
+from http.server import HTTPServer
 from multiprocessing import Process
 from multiprocessing.pool import Pool
 
@@ -119,6 +120,13 @@ class BertServer(threading.Thread):
                                  self.graph_path)
             self.processes.append(process)
             process.start()
+
+        # start the http-service process
+        if self.args.http_port:
+            self.logger.info('start http proxy')
+            proc_proxy = BertHTTPProxy(self.args)
+            self.processes.append(proc_proxy)
+            proc_proxy.start()
 
         rand_backend_socket = None
         server_status = ServerStatistic()
@@ -489,3 +497,25 @@ class ServerStatistic:
         ]
 
         return {k: v for d in parts for k, v in d.items()}
+
+
+class BertHTTPProxy(Process):
+    def __init__(self, args):
+        super().__init__(args)
+        self.args = args
+
+    def run(self):
+        try:
+            from bert_serving.client import BertClient
+        except ImportError:
+            raise ImportError('BertClient module is not available, it is required for serving HTTP requests.'
+                              'Please try "pip install -U bert-serving-client" to install it.'
+                              'If you do not want to use it as an HTTP server, '
+                              'then remove "-http_port" from the command line.')
+        else:
+            server = HTTPServer(('', self.args.http_port), BertRequestHandler)
+            server.logger = set_logger(colored('PROXY', 'grey'))
+            server.bc = BertClient(port=self.args.port, port_out=self.args.port_out)
+            server.args = self.args
+            server.logger.info('listen to HTTP requests on %d' % self.args.http_port)
+            server.serve_forever()
