@@ -190,8 +190,8 @@ class BertRequestHandler(SimpleHTTPRequestHandler):
             self._return_singleton_msg('you can no longer make HTTP request to this server')
 
     def do_POST(self):
-        self.server.logger.info('new request [%s] %s' % self.log_date_time_string())
         try:
+            self.server.logger.info('new request [%s] %s' % (self.log_date_time_string(), self.client_address))
             content_len = int(self.headers.get('Content-Length', 0))
             content_type = self.headers.get('Content-Type', 'application/json')
             if content_len and content_type == 'application/json':
