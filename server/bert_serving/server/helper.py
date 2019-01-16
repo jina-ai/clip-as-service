@@ -191,10 +191,14 @@ class BertRequestHandler(BaseHTTPRequestHandler):
             self.wfile.write(b'OK')
 
     def do_POST(self):
-        id = int(self.headers.get('id'))
-        texts = self.headers.get('texts')
-        data = json.loads(texts)
-        print('%d:%s' % (id, data))
+        content_len = int(self.headers.get('Content-Length', 0))
+        content_type = self.headers.get('Content-Type', 'application/json')
+        if content_len and content_type == 'application/json':
+            post_body = self.rfile.read(content_len)
+            data = json.loads(post_body)
+            print('%d:%s' % (data['id'], data['texts']))
+        else:
+            self.server.logger.warning('"Content-Length" or "Content-Type" are wrong')
         self.wfile.write(b'OK')
 
     def log_message(self, format, *args):
