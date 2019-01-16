@@ -1,5 +1,4 @@
 import argparse
-import json
 import logging
 import os
 import sys
@@ -191,15 +190,15 @@ class BertRequestHandler(SimpleHTTPRequestHandler):
             self._return_singleton_msg('you can no longer make HTTP request to this server')
 
     def do_POST(self):
+        self.server.logger.info('new request [%s] %s' % self.log_date_time_string())
         try:
             content_len = int(self.headers.get('Content-Length', 0))
             content_type = self.headers.get('Content-Type', 'application/json')
             if content_len and content_type == 'application/json':
                 post_body = self.rfile.read(content_len)
-                data = json.loads(post_body)
+                data = jsonapi.loads(post_body)
                 result = self.server.bc.encode(data['texts'])
                 self._return_dict_as_json({'id': data['id'], 'result': result})
-                self.server.logger.info('send result back')
             else:
                 raise TypeError('"Content-Length" or "Content-Type" are wrong')
         except Exception as e:
@@ -212,8 +211,9 @@ class BertRequestHandler(SimpleHTTPRequestHandler):
                                                 format % args))
 
     def _return_dict_as_json(self, x):
-        self.wfile.write(json.dumps(x, ensure_ascii=False).encode('utf-8'))
+        self.wfile.write(jsonapi.dumps(x, ensure_ascii=False).encode('utf-8'))
         self.wfile.flush()
+        self.server.logger.info('send result back')
 
     def _return_singleton_msg(self, msg, msg_type=RuntimeError.__class__.__name__):
         self._return_dict_as_json({'type': msg_type, 'message': msg})
