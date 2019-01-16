@@ -213,9 +213,7 @@ bert-serving-start --help
 
 ### Client API
 
-[The latest client-side API documentation is available at here.](https://bert-as-service.readthedocs.io/en/latest/source/client.html#module-client)
-
-Client-side provides a Python class called `BertClient`, which accepts arguments as follows:
+[The latest client-side API documentation is available at here.](https://bert-as-service.readthedocs.io/en/latest/source/client.html#module-client) Client-side provides a Python class called `BertClient`, which accepts arguments as follows:
 
 | Argument | Type | Default | Description |
 |----------------------|------|-----------|-------------------------------------------------------------------------------|
@@ -602,7 +600,7 @@ To send a HTTP request, first package payload in JSON as following:
 ```
 , where `id` is a unique identifier helping you to synchronize the results; `is_tokenized` follows the meaning in [`BertClient` API](https://bert-as-service.readthedocs.io/en/latest/source/client.html#client.BertClient.encode_async) and `false` by default.
 
-Then simply call the server via HTTP POST:
+Then simply call the server via HTTP POST request. You can use javascript or whatever, here is an example using `curl`:
 ```bash
 curl -X POST http://xx.xx.xx.xx:8125/encode \
   -H 'content-type: application/json' \
