@@ -157,7 +157,7 @@ bc = BertClient(ip='xx.xx.xx.xx')  # ip address of the GPU machine
 bc.encode(['First do it', 'then do it right', 'then do it better'])
 ```
 
-Note that you only need `pip install -U bert-serving-client` in this case, the server side is not required.
+Note that you only need `pip install -U bert-serving-client` in this case, the server side is not required. You may also [call the service via HTTP requests](#using-bert-as-service-to-serve-http-requests-in-json)
 
 > :bulb: **Want to learn more? Checkout our tutorials:**
 > - [Building a QA semantic search engine in 3 min.](#building-a-qa-semantic-search-engine-in-3-minutes)
@@ -578,9 +578,9 @@ This gives the current status of the server including number of requests, number
 
 Besides calling `bert-as-service` from Python, one can also call it via HTTP request in JSON. It is quite useful especially when low transport layer is prohibited. Behind the scene, `bert-as-service` spawns a Flask server in a separate process and then reuse a `BertClient` instance as a proxy to communicate with the ventilator.
 
-To enable the build-in HTTP server, we need to first install some Python dependencies:
+To enable the build-in HTTP server, we need to first (re)install the server with some extra Python dependencies:
 ```bash
-pip install -U bert-serving-client flask flask-compress flask-cors flask-json
+pip install -U bert-serving-server[http]
 ```
 
 Then simply start the server with:
@@ -590,7 +590,7 @@ bert-serving-start -model_dir=/YOUR_MODEL -http_port 8125
 
 Done! Your server is now listening HTTP and TCP requests at port `8125` simultaneously!
 
-Now to send a HTTP request, first prepare the payload in JSON as following:
+To send a HTTP request, first prepare the payload in JSON as following:
 ```json
 {
     "id": 123,
