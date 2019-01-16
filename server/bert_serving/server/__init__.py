@@ -515,7 +515,7 @@ class BertHTTPProxy(Process):
         else:
             server = HTTPServer(('', self.args.http_port), BertRequestHandler)
             server.logger = set_logger(colored('PROXY', 'red'))
-            server.bc = BertClient(port=self.args.port, port_out=self.args.port_out)
+            server.bc = BertClient(port=self.args.port, port_out=self.args.port_out, output_fmt='list')
             server.args = self.args
             server.logger.info('listening HTTP requests on http://127.0.0.1:%d' % self.args.http_port)
             try:

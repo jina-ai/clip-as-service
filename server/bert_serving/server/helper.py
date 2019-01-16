@@ -183,25 +183,35 @@ class BertRequestHandler(BaseHTTPRequestHandler):
         self._set_headers()
         if self.path == '/status':
             self.server.logger.info('checking server status')
-            self.wfile.write(json.dumps(self.server.bc.server_status, ensure_ascii=False).encode('utf-8'))
+            self._return_dict_as_json(self.server.bc.server_status)
         if self.path == '/terminate':
             self.server.logger.info('shutting down HTTP server')
             self.server.shutdown()
             self.server.logger.info('you can no longer make HTTP request to this server')
-            self.wfile.write(b'OK')
+            self._return_singleton_msg('you can no longer make HTTP request to this server')
 
     def do_POST(self):
-        content_len = int(self.headers.get('Content-Length', 0))
-        content_type = self.headers.get('Content-Type', 'application/json')
-        if content_len and content_type == 'application/json':
-            post_body = self.rfile.read(content_len)
-            data = json.loads(post_body)
-            print('%d:%s' % (data['id'], data['texts']))
-        else:
-            self.server.logger.warning('"Content-Length" or "Content-Type" are wrong')
-        self.wfile.write(b'OK')
+        try:
+            content_len = int(self.headers.get('Content-Length', 0))
+            content_type = self.headers.get('Content-Type', 'application/json')
+            if content_len and content_type == 'application/json':
+                post_body = self.rfile.read(content_len)
+                data = json.loads(post_body)
+                result = self.server.bc.encode(data['texts'])
+                self.wfile.write(json.dumps({'id': data['id'], 'result': result}, ensure_ascii=False).encode('utf-8'))
+            else:
+                raise TypeError('"Content-Length" or "Content-Type" are wrong')
+        except Exception as e:
+            self._return_singleton_msg(str(e), msg_type=e.__class__.__name__)
+            self.server.logger.error('error when processing HTTP request', exc_info=True)
 
     def log_message(self, format, *args):
         self.server.logger.info('%s - - [%s] %s' % (self.address_string(),
                                                     self.log_date_time_string(),
                                                     format % args))
+
+    def _return_dict_as_json(self, x):
+        self.wfile.write(json.dumps(x, ensure_ascii=False).encode('utf-8'))
+
+    def _return_singleton_msg(self, msg, msg_type=RuntimeError.__class__.__name__):
+        self._return_dict_as_json({'type': msg_type, 'message': msg})
