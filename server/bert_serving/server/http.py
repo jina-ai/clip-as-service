@@ -23,9 +23,9 @@ class BertHTTPProxy(Process):
                               'Please use "pip install -U bert-serving-server[http]" to install it.')
 
         # support up to 10 concurrent HTTP requests
-        bert_client = ConcurrentBertClient(max_concurrency=self.args.http_max_connect,
-                                           port=self.args.port, port_out=self.args.port_out,
-                                           output_fmt='list')
+        bc = ConcurrentBertClient(max_concurrency=self.args.http_max_connect,
+                                  port=self.args.port, port_out=self.args.port_out,
+                                  output_fmt='list')
         app = Flask(__name__)
         logger = set_logger(colored('PROXY', 'red'))
 
@@ -33,8 +33,7 @@ class BertHTTPProxy(Process):
         @as_json
         def get_all_categories():
             logger.info('return server status')
-            with bert_client as bc:
-                return bc.server_status
+            return bc.server_status
 
         @app.route('/encode', methods=['POST'])
         @as_json
@@ -42,10 +41,7 @@ class BertHTTPProxy(Process):
             data = request.form if request.form else request.json
             try:
                 logger.info('new request from %s' % request.remote_addr)
-                with bert_client as bc:
-                    return {
-                        'id': data['id'],
-                        'result': bc.encode()}
+                return {'id': data['id'], 'result': bc.encode(data['texts'])}
 
             except Exception as e:
                 logger.error('error when handling HTTP request', exc_info=True)
