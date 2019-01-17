@@ -372,3 +372,58 @@ class BertClient:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
+
+
+class ConcurrentBertClient(BertClient):
+    def __init__(self, max_concurrency=10, **kwargs):
+        try:
+            from bert_serving.client import BertClient
+        except ImportError:
+            raise ImportError('BertClient module is not available, it is required for serving HTTP requests.'
+                              'Please use "pip install -U bert-serving-client" to install it.'
+                              'If you do not want to use it as an HTTP server, '
+                              'then remove "-http_port" from the command line.')
+
+        self.available_bc = [BertClient(**kwargs) for _ in range(max_concurrency)]
+        self.hanging_bc = []
+        self.max_concurrency = max_concurrency
+
+    def close(self):
+        for bc in self.available_bc:
+            bc.close()
+        for bc in self.hanging_bc:
+            bc.close()
+
+    def _concurrent(func):
+        def arg_wrapper(self, *args, **kwargs):
+            try:
+                bc = self.available_bc.pop()
+                self.hanging_bc.append(bc)
+                r = getattr(bc, func.__name__)(bc, *args, **kwargs)
+                if self.hanging_bc:
+                    bc = self.hanging_bc.pop()
+                self.available_bc.append(bc)
+                return r
+            except IndexError:
+                raise RuntimeError('Too many concurrent connections!'
+                                   'Try to increase the value of "max_concurrency", '
+                                   'currently =%d' % self.max_concurrency)
+
+        return arg_wrapper
+
+    @_concurrent
+    def encode(self, **kwargs):
+        pass
+
+    @_concurrent
+    def server_status(self):
+        pass
+
+    def fetch(self, **kwargs):
+        raise NotImplementedError('Async encoding of "ConcurrentBertClient" is not implemented yet')
+
+    def fetch_all(self, **kwargs):
+        raise NotImplementedError('Async encoding of "ConcurrentBertClient" is not implemented yet')
+
+    def encode_async(self, **kwargs):
+        raise NotImplementedError('Async encoding of "ConcurrentBertClient" is not implemented yet')
