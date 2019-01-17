@@ -29,15 +29,19 @@ class BertHTTPProxy(Process):
         app = Flask(__name__)
         logger = set_logger(colored('PROXY', 'red'))
 
-        @app.route('/status', methods=['GET'])
+        @app.route('/status/server', methods=['GET'])
         @as_json
-        def get_all_categories():
-            logger.info('return server status')
+        def get_server_status():
             return bc.server_status
+
+        @app.route('/status/client', methods=['GET'])
+        @as_json
+        def get_client_status():
+            return bc.status
 
         @app.route('/encode', methods=['POST'])
         @as_json
-        def _update_product():
+        def encode_query():
             data = request.form if request.form else request.json
             try:
                 logger.info('new request from %s' % request.remote_addr)
