@@ -399,7 +399,7 @@ class ConcurrentBertClient(BertClient):
             try:
                 bc = self.available_bc.pop()
                 self.hanging_bc.append(bc)
-                r = getattr(bc, func.__name__)(bc, *args, **kwargs)
+                r = getattr(bc, func.__name__)(*args, **kwargs)
                 if self.hanging_bc:
                     bc = self.hanging_bc.pop()
                 self.available_bc.append(bc)
