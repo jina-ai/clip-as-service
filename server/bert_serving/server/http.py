@@ -23,7 +23,7 @@ class BertHTTPProxy(Process):
                               'Please use "pip install -U bert-serving-server[http]" to install it.')
 
         # support up to 10 concurrent HTTP requests
-        bert_client = ConcurrentBertClient(num_concurrent=self.args.http_max_connect,
+        bert_client = ConcurrentBertClient(max_concurrency=self.args.http_max_connect,
                                            port=self.args.port, port_out=self.args.port_out,
                                            output_fmt='list')
         app = Flask(__name__)
