@@ -400,7 +400,7 @@ class ConcurrentBertClient(BertClient):
                 bc = self.available_bc.pop()
                 self.hanging_bc.append(bc)
                 f = getattr(bc, func.__name__)
-                r = f if isinstance(type(f), property) else f(*args, **kwargs)
+                r = f if isinstance(type(f), dict) else f(*args, **kwargs)
                 if self.hanging_bc:
                     bc = self.hanging_bc.pop()
                 self.available_bc.append(bc)
