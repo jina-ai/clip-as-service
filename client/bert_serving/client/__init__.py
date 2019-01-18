@@ -376,6 +376,16 @@ class BertClient:
 
 class ConcurrentBertClient(BertClient):
     def __init__(self, max_concurrency=10, **kwargs):
+        """ A thread-safe client object connected to a BertServer
+
+        Create a BertClient that connects to a BertServer.
+        Note, server must be ready at the moment you are calling this function.
+        If you are not sure whether the server is ready, then please set `check_version=False` and `check_length=False`
+
+        :type max_concurrency: int
+        :param max_concurrency: the maximum number of concurrent connections allowed
+
+        """
         try:
             from bert_serving.client import BertClient
         except ImportError:

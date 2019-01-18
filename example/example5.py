@@ -16,7 +16,7 @@ import random
 
 import GPUtil
 import tensorflow as tf
-from bert_serving.client import BertClient
+from bert_serving.client import ConcurrentBertClient
 from tensorflow.python.estimator.canned.dnn import DNNClassifier
 from tensorflow.python.estimator.run_config import RunConfig
 from tensorflow.python.estimator.training import TrainSpec, EvalSpec, train_and_evaluate
@@ -31,7 +31,7 @@ batch_size = 128
 num_parallel_calls = 4
 num_concurrent_clients = num_parallel_calls * 2  # should be at least greater than `num_parallel_calls`
 
-bc_clients = [BertClient(show_server_config=False, port=5557, port_out=5558) for _ in range(num_concurrent_clients)]
+bc = ConcurrentBertClient(port=5557, port_out=5558)
 
 # hardcoded law_ids
 laws = [184, 336, 314, 351, 224, 132, 158, 128, 223, 308, 341, 349, 382, 238, 369, 248, 266, 313, 127, 340, 288, 172,
@@ -51,11 +51,7 @@ def get_encodes(x):
     # x is `batch_size` of lines, each of which is a json object
     samples = [json.loads(l) for l in x]
     text = [s['fact'][:50] + s['fact'][-50:] for s in samples]
-    # get a client from available clients
-    bc_client = bc_clients.pop()
-    features = bc_client.encode(text)
-    # after use, put it back
-    bc_clients.append(bc_client)
+    features = bc.encode(text)
     # randomly choose a label
     labels = [[str(random.choice(s['meta']['relevant_articles']))] for s in samples]
     return features, labels
