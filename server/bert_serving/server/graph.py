@@ -113,7 +113,7 @@ def optimize_graph(args, logger=None):
                     raise NotImplementedError()
 
             output_tensors = [tf.cast(pooled,
-                                      tf.float16 if args.use_fp16 else tf.float32,
+                                      tf.float16 if args.fp16 else tf.float32,
                                       'final_encodes')]
             tmp_g = tf.get_default_graph().as_graph_def()
 
