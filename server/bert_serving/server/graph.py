@@ -232,7 +232,8 @@ def convert_variables_to_constants(sess,
         patch_dtype(input_node, 'SrcT', output_node)
         patch_dtype(input_node, 'Tparams', output_node)
 
-        if 'value' in output_node.attr and (output_node.attr['value'].tensor.dtype == types_pb2.DT_FLOAT):
+        if use_fp16 and ('value' in output_node.attr) and (
+                output_node.attr['value'].tensor.dtype == types_pb2.DT_FLOAT):
             # hard-coded value need to be converted as well
             output_node.attr['value'].CopyFrom(attr_value_pb2.AttrValue(
                 tensor=tensor_util.make_tensor_proto(
