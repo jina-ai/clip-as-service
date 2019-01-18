@@ -61,6 +61,10 @@ javascript or whatever, here is an example using ``curl``:
        "status": 200
    }
 
+
+To get the server's status and client's status, you can send GET requests at
+``/status/server`` and ``/status/client``, respectively.
+
 Finally, one may also config CORS to restrict the public access of the
 server by specifying ``-cors`` when starting ``bert-serving-start``. By
 default ``-cors=*``, meaning the server is public accessible.
