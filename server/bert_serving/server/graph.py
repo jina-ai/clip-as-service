@@ -134,13 +134,13 @@ def optimize_graph(args, logger=None):
                 [dtype.as_datatype_enum for dtype in dtypes],
                 False)
 
-            # for n in tmp_g.node:
-            #     if 'embeddings' in n.name:
-            #         print('---')
-            #         print(n.name)
-            #         print(n.op)
-            #         print(n.attr['dtype'])
-            #         print(str(n.attr['value'])[:100])
+            for n in tmp_g.node:
+                if 'embedding_lookup' in n.name:
+                    print('---')
+                    print(n.name)
+                    print(n.op)
+                    print(n.attr['dtype'])
+                    print(str(n.attr['value'])[:100])
         tmp_file = tempfile.NamedTemporaryFile('w', delete=False, dir=args.graph_tmp_dir).name
         logger.info('write graph to a tmp file: %s' % tmp_file)
         with tf.gfile.GFile(tmp_file, 'wb') as f:
