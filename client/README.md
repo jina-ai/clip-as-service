@@ -601,7 +601,7 @@ To send a HTTP request, first prepare the payload in JSON as following:
 ```
 , where `id` is a unique identifier helping you to synchronize the results; `is_tokenized` follows the meaning in [`BertClient` API](https://bert-as-service.readthedocs.io/en/latest/source/client.html#client.BertClient.encode_async) and `false` by default.
 
-Then simply call the server via HTTP POST request. You can use javascript or whatever, here is an example using `curl`:
+Then simply call the server at `/encode` via HTTP POST request. You can use javascript or whatever, here is an example using `curl`:
 ```bash
 curl -X POST http://xx.xx.xx.xx:8125/encode \
   -H 'content-type: application/json' \
@@ -615,6 +615,8 @@ curl -X POST http://xx.xx.xx.xx:8125/encode \
     "status": 200
 }
 ```
+
+To get the server's status and client's status, you can send GET requests at `/status/server` and `/status/client`, respectively.
 
 Finally, one may also config CORS to restrict the public access of the server by specifying `-cors` when starting `bert-serving-start`. By default `-cors=*`, meaning the server is public accessible.
 
