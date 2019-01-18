@@ -191,16 +191,15 @@ def convert_variables_to_constants(sess,
             print('1st %s\t%s' % (input_node.attr["dtype"], input_node.name))
             print(type(dtype))
             print(type(dtype.type))
-            print(vars(dtype))
-            print(types_pb2.DT_HALF)
-            print(as_dtype(types_pb2.DT_HALF))
-            print(type(as_dtype(types_pb2.DT_HALF)))
+            fp16_type = attr_value_pb2.AttrValue(type=types_pb2.DT_HALF)
+            print(type(fp16_type))
+            print(type(fp16_type.type))
 
             output_node.attr["dtype"].CopyFrom(dtype)
             output_node.attr["value"].CopyFrom(
                 attr_value_pb2.AttrValue(
                     tensor=tensor_util.make_tensor_proto(
-                        data, dtype=dtype.type, shape=data.shape)))
+                        data, dtype=types_pb2.DT_HALF if use_fp16 else dtype.type, shape=data.shape)))
             how_many_converted += 1
         elif input_node.op == "ReadVariableOp" and (
                 input_node.input[0] in found_variables):
