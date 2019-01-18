@@ -70,7 +70,7 @@
 - :octopus: **Scalable**: scale nicely and smoothly on multiple GPUs and multiple clients without worrying about concurrency. See [benchmark](#speed-wrt-num_client).
 - :gem: **Reliable**: tested on multi-billion sentences; days of running without a break or OOM or any nasty exceptions.
 
-More features: async encoding; multicasting; mix GPU-CPU workloads; optimized graph; `tf.data` friendly; customized tokenizer; flexible pooling strategy; XLA support; build-in HTTP server; dashboard etc.
+More features: async encoding; multicasting; mix GPU-CPU workloads; optimized graph; `tf.data` friendly; customized tokenizer; flexible pooling strategy; XLA & FP16 support; build-in HTTP server; dashboard etc.
 
 
 <h2 align="center">Install</h2>
@@ -210,6 +210,7 @@ bert-serving-start --help
 | `gpu_memory_fraction` | float | `0.5` | the fraction of the overall amount of memory that each GPU should be allocated per worker |
 | `cpu` | bool | False | run on CPU instead of GPU |
 | `xla` | bool | False | enable [XLA compiler](https://www.tensorflow.org/xla/jit) for graph optimization (*experimental!*) |
+| `fp16` | bool | False | use float16 precision (experimental) |
 | `device_map` | list | `[]` | specify the list of GPU device ids that will be used (id starts from 0)|
 
 ### Client API
@@ -401,9 +402,10 @@ The [`tf.data`](https://www.tensorflow.org/guide/datasets) API enables you to bu
 ```python
 batch_size = 256
 num_parallel_calls = 4
+num_clients = num_parallel_calls * 2  # should be at least greater than `num_parallel_calls`
 
-# start a thead-safe client to support num_parallel_calls in tf.data API
-bc = ConcurrentBertClient(num_parallel_calls)
+# start a pool of clients
+bc_clients = [BertClient(show_server_config=False) for _ in range(num_clients)]
 
 
 def get_encodes(x):
@@ -411,7 +413,11 @@ def get_encodes(x):
     samples = [json.loads(l) for l in x]
     text = [s['raw_text'] for s in samples]  # List[List[str]]
     labels = [s['label'] for s in samples]  # List[str]
-    features = bc.encode(text)
+    # get a client from available clients
+    bc_client = bc_clients.pop()
+    features = bc_client.encode(text)
+    # after use, put it back
+    bc_clients.append(bc_client)
     return features, labels
 
 

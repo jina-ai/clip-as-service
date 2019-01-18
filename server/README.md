@@ -70,7 +70,7 @@
 - :octopus: **Scalable**: scale nicely and smoothly on multiple GPUs and multiple clients without worrying about concurrency. See [benchmark](#speed-wrt-num_client).
 - :gem: **Reliable**: tested on multi-billion sentences; days of running without a break or OOM or any nasty exceptions.
 
-More features: async encoding; multicasting; mix GPU-CPU workloads; optimized graph; `tf.data` friendly; customized tokenizer; flexible pooling strategy; XLA support; build-in HTTP server; dashboard etc.
+More features: async encoding; multicasting; mix GPU-CPU workloads; optimized graph; `tf.data` friendly; customized tokenizer; flexible pooling strategy; XLA & FP16 support; build-in HTTP server; dashboard etc.
 
 
 <h2 align="center">Install</h2>
@@ -210,6 +210,7 @@ bert-serving-start --help
 | `gpu_memory_fraction` | float | `0.5` | the fraction of the overall amount of memory that each GPU should be allocated per worker |
 | `cpu` | bool | False | run on CPU instead of GPU |
 | `xla` | bool | False | enable [XLA compiler](https://www.tensorflow.org/xla/jit) for graph optimization (*experimental!*) |
+| `fp16` | bool | False | use float16 precision (experimental) |
 | `device_map` | list | `[]` | specify the list of GPU device ids that will be used (id starts from 0)|
 
 ### Client API
