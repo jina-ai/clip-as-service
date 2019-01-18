@@ -153,6 +153,11 @@ def convert_variables_to_constants(sess,
     from tensorflow.core.framework import types_pb2
     from tensorflow.python.framework import tensor_util
 
+    if use_fp16:
+        logger.warning('fp16 is turned on! '
+                       'Note that not all CPU and GPU support fast fp16 instructions, '
+                       'worst case you will have degraded performance!')
+
     inference_graph = extract_sub_graph(input_graph_def, output_node_names)
 
     variable_names = []
