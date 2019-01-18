@@ -181,26 +181,23 @@ def convert_variables_to_constants(sess,
     how_many_converted = 0
     for input_node in inference_graph.node:
         output_node = node_def_pb2.NodeDef()
+        need_convert = False
         if input_node.name in found_variables:
             output_node.op = "Const"
             output_node.name = input_node.name
             dtype = input_node.attr["dtype"]
             data = found_variables[input_node.name]
 
-            print('1st %s\t%s' % (input_node.attr["dtype"], input_node.name))
-            if dtype.type == types_pb2.DT_FLOAT:
-                print('convert!')
-            print(type(dtype))
-            print(type(dtype.type))
-            fp16_type = attr_value_pb2.AttrValue(type=types_pb2.DT_HALF)
-            print(type(fp16_type))
-            print(type(fp16_type.type))
+            print(type(data))
+            if use_fp16 and dtype.type == types_pb2.DT_FLOAT:
+                need_convert = True
 
-            output_node.attr["dtype"].CopyFrom(dtype)
+            output_node.attr["dtype"].CopyFrom(
+                attr_value_pb2.AttrValue(type=types_pb2.DT_HALF) if need_convert else dtype)
             output_node.attr["value"].CopyFrom(
                 attr_value_pb2.AttrValue(
                     tensor=tensor_util.make_tensor_proto(
-                        data, dtype=types_pb2.DT_HALF if use_fp16 else dtype.type, shape=data.shape)))
+                        data, dtype=types_pb2.DT_HALF if need_convert else dtype.type, shape=data.shape)))
             how_many_converted += 1
         elif input_node.op == "ReadVariableOp" and (
                 input_node.input[0] in found_variables):
