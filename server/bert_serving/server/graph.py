@@ -90,7 +90,7 @@ def optimize_graph(args, logger=None):
                     all_layers = [model.all_encoder_layers[l] for l in args.pooling_layer]
                     encoder_layer = tf.concat(all_layers, -1)
 
-                input_mask = tf.cast(input_mask, tf.float16 if args.fp16 else tf.float32)
+                input_mask = tf.cast(input_mask, tf.float32)
                 if args.pooling_strategy == PoolingStrategy.REDUCE_MEAN:
                     pooled = masked_reduce_mean(encoder_layer, input_mask)
                 elif args.pooling_strategy == PoolingStrategy.REDUCE_MAX:
@@ -103,7 +103,7 @@ def optimize_graph(args, logger=None):
                     pooled = tf.squeeze(encoder_layer[:, 0:1, :], axis=1)
                 elif args.pooling_strategy == PoolingStrategy.LAST_TOKEN or \
                         args.pooling_strategy == PoolingStrategy.SEP_TOKEN:
-                    seq_len = tf.cast(tf.reduce_sum(input_mask, axis=1), tf.float16 if args.fp16 else tf.float32)
+                    seq_len = tf.cast(tf.reduce_sum(input_mask, axis=1), tf.int32)
                     rng = tf.range(0, tf.shape(seq_len)[0])
                     indexes = tf.stack([rng, seq_len - 1], 1)
                     pooled = tf.gather_nd(encoder_layer, indexes)
@@ -236,7 +236,7 @@ def convert_variables_to_constants(sess,
         patch_dtype(input_node, 'dtype', output_node)
         patch_dtype(input_node, 'T', output_node)
         patch_dtype(input_node, 'DstT', output_node)
-        # patch_dtype(input_node, 'SrcT', output_node)
+        patch_dtype(input_node, 'SrcT', output_node)
         patch_dtype(input_node, 'Tparams', output_node)
 
         output_graph_def.node.extend([output_node])
