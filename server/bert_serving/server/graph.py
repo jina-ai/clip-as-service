@@ -133,7 +133,8 @@ def optimize_graph(args, logger=None):
                 False)
 
             for n in tmp_g.node:
-                print('* %s | %s ' % (n.name, n.attr["dtype"]))
+                if 'embeddings' in n.name:
+                    print(n)
         tmp_file = tempfile.NamedTemporaryFile('w', delete=False, dir=args.graph_tmp_dir).name
         logger.info('write graph to a tmp file: %s' % tmp_file)
         with tf.gfile.GFile(tmp_file, 'wb') as f:
