@@ -193,6 +193,7 @@ def convert_variables_to_constants(sess,
             print(type(dtype.type))
             print(types_pb2.DT_HALF)
             print(as_dtype(types_pb2.DT_HALF))
+            print(type(as_dtype(types_pb2.DT_HALF)))
 
             output_node.attr["dtype"].CopyFrom(dtype)
             output_node.attr["value"].CopyFrom(
