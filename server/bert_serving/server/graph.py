@@ -166,8 +166,7 @@ def convert_variables_to_constants(sess,
     from tensorflow.python.framework import tensor_util
 
     def patch_dtype(input_node, field_name, output_node):
-        dtype = input_node.attr[field_name]
-        if use_fp16 and dtype.type == types_pb2.DT_FLOAT:
+        if use_fp16 and (field_name in input_node.attr) and (input_node.attr[field_name].type == types_pb2.DT_FLOAT):
             output_node.attr[field_name].CopyFrom(attr_value_pb2.AttrValue(type=types_pb2.DT_HALF))
 
     if use_fp16:
@@ -234,11 +233,10 @@ def convert_variables_to_constants(sess,
             # mostly op nodes
             output_node.CopyFrom(input_node)
 
-        if 'dtype' in input_node.attr:
-            patch_dtype(input_node, 'dtype', output_node)
-
-        if 'T' in input_node.attr:
-            patch_dtype(input_node, 'T', output_node)
+        patch_dtype(input_node, 'dtype', output_node)
+        patch_dtype(input_node, 'T', output_node)
+        patch_dtype(input_node, 'DstT', output_node)
+        patch_dtype(input_node, 'SrcT', output_node)
 
         # fix embedding lookup
         if input_node.op in {'GatherV2', 'GatherNd'}:
