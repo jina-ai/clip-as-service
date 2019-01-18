@@ -244,6 +244,10 @@ def convert_variables_to_constants(sess,
         if input_node.op in {'Identity', 'Reshape'}:
             patch_dtype(input_node, 'T', output_node)
 
+        if 'Shape_1' in input_node.name:
+            print(input_node)
+            input()
+
         output_graph_def.node.extend([output_node])
 
     output_graph_def.library.CopyFrom(inference_graph.library)
