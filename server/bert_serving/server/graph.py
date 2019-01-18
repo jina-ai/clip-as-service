@@ -239,6 +239,8 @@ def convert_variables_to_constants(sess,
         patch_dtype(input_node, 'SrcT', output_node)
         patch_dtype(input_node, 'Tparams', output_node)
 
+        print(output_node)
+
         output_graph_def.node.extend([output_node])
 
     output_graph_def.library.CopyFrom(inference_graph.library)
