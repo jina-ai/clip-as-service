@@ -189,7 +189,7 @@ def convert_variables_to_constants(sess,
 
             print('1st %s\t%s' % (input_node.attr["dtype"], input_node.name))
 
-            if isinstance(input_node.attr["dtype"], DT_FLOAT):
+            if input_node.attr["dtype"] == DT_FLOAT:
                 print('convert!')
             output_node.attr["dtype"].CopyFrom(dtype)
 
