@@ -138,7 +138,7 @@ def optimize_graph(args, logger=None):
                     print(n.name)
                     print(n.op)
                     print(n.attr['dtype'])
-                    print(n.attr['value'].tensor['dtype'])
+                    print(n.attr['value']['tensor']['dtype'])
         tmp_file = tempfile.NamedTemporaryFile('w', delete=False, dir=args.graph_tmp_dir).name
         logger.info('write graph to a tmp file: %s' % tmp_file)
         with tf.gfile.GFile(tmp_file, 'wb') as f:
