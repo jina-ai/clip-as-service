@@ -217,7 +217,7 @@ def convert_variables_to_constants(sess,
             else:
                 output_node.attr["dtype"].CopyFrom(dtype)
                 output_node.attr["value"].CopyFrom(attr_value_pb2.AttrValue(
-                    tensor=tensor_util.make_tensor_proto(0, dtype=dtype.type,
+                    tensor=tensor_util.make_tensor_proto(data, dtype=dtype.type,
                                                          shape=data.shape)))
             how_many_converted += 1
         elif input_node.op == "ReadVariableOp" and (input_node.input[0] in found_variables):
@@ -237,15 +237,10 @@ def convert_variables_to_constants(sess,
         patch_dtype(input_node, 'T', output_node)
         patch_dtype(input_node, 'DstT', output_node)
         patch_dtype(input_node, 'SrcT', output_node)
-
-        # fix embedding lookup
-        if input_node.op in {'GatherV2', 'GatherNd'}:
-            patch_dtype(input_node, 'Tparams', output_node)
-
-        # if input_node.op in {'Identity', 'Reshape', 'Shape', 'OneHot', 'MatMul'}:
-        #     patch_dtype(input_node, 'T', output_node)
+        patch_dtype(input_node, 'Tparams', output_node)
 
         output_graph_def.node.extend([output_node])
+
     output_graph_def.library.CopyFrom(inference_graph.library)
     logger.info("Converted %d variables to const ops.", how_many_converted)
     return output_graph_def

@@ -339,7 +339,6 @@ class BertWorker(Process):
                 graph_def = tf.GraphDef()
                 graph_def.ParseFromString(f.read())
 
-            print(graph_def)
             input_names = ['input_ids', 'input_mask', 'input_type_ids']
 
             output = tf.import_graph_def(graph_def,
