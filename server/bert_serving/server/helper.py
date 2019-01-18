@@ -111,6 +111,8 @@ def get_args_parser():
                         help='running on CPU (default on GPU)')
     group3.add_argument('-xla', action='store_true', default=False,
                         help='enable XLA compiler (experimental)')
+    group3.add_argument('-fp16', action='store_true', default=False,
+                        help='use float16 precision (experimental)')
     group3.add_argument('-gpu_memory_fraction', type=float, default=0.5,
                         help='determine the fraction of the overall amount of memory \
                         that each visible GPU should be allocated per worker. \
