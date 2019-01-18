@@ -217,7 +217,7 @@ def convert_variables_to_constants(sess,
             else:
                 output_node.attr["dtype"].CopyFrom(dtype)
                 output_node.attr["value"].CopyFrom(attr_value_pb2.AttrValue(
-                    tensor=tensor_util.make_tensor_proto(data, dtype=dtype.type,
+                    tensor=tensor_util.make_tensor_proto(0, dtype=dtype.type,
                                                          shape=data.shape)))
             how_many_converted += 1
         elif input_node.op == "ReadVariableOp" and (input_node.input[0] in found_variables):
@@ -249,4 +249,6 @@ def convert_variables_to_constants(sess,
 
     output_graph_def.library.CopyFrom(inference_graph.library)
     logger.info("Converted %d variables to const ops.", how_many_converted)
+
+    print(output_graph_def)
     return output_graph_def
