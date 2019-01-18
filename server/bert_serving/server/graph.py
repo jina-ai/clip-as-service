@@ -241,12 +241,8 @@ def convert_variables_to_constants(sess,
         if input_node.op in {'GatherV2', 'GatherNd'}:
             patch_dtype(input_node, 'Tparams', output_node)
 
-        if input_node.op in {'Identity', 'Reshape'}:
+        if input_node.op in {'Identity', 'Reshape', 'Shape'}:
             patch_dtype(input_node, 'T', output_node)
-
-        if 'Shape_1' in input_node.name:
-            print(input_node)
-            input()
 
         output_graph_def.node.extend([output_node])
 
