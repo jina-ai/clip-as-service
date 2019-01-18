@@ -187,7 +187,6 @@ def convert_variables_to_constants(sess,
             data = found_variables[input_node.name]
 
             print(dtype)
-            print(data)
             output_node.attr["dtype"].CopyFrom(dtype)
 
             output_node.attr["value"].CopyFrom(
@@ -198,7 +197,7 @@ def convert_variables_to_constants(sess,
         elif input_node.op == "ReadVariableOp" and (
                 input_node.input[0] in found_variables):
 
-            print('ReadVariableOp %s' % input_node)
+            print('ReadVariableOp')
 
             output_node.op = "Identity"
             output_node.name = input_node.name
@@ -207,7 +206,7 @@ def convert_variables_to_constants(sess,
             if "_class" in input_node.attr:
                 output_node.attr["_class"].CopyFrom(input_node.attr["_class"])
         else:
-            print('final branch %s' % input_node)
+            print('final branch')
             output_node.CopyFrom(input_node)
         output_graph_def.node.extend([output_node])
 
