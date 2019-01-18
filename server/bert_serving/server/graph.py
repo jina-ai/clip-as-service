@@ -121,7 +121,7 @@ def optimize_graph(args, logger=None):
             logger.info('load parameters from checkpoint...')
             sess.run(tf.global_variables_initializer())
             logger.info('freeze...')
-            tmp_g = tf.graph_util.convert_variables_to_constants(sess, tmp_g, [n.name[:-2] for n in output_tensors])
+            tmp_g = convert_variables_to_constants(sess, tmp_g, [n.name[:-2] for n in output_tensors], logger)
             dtypes = [n.dtype for n in input_tensors]
             logger.info('optimize...')
             tmp_g = optimize_for_inference(
@@ -137,3 +137,80 @@ def optimize_graph(args, logger=None):
         return tmp_file
     except Exception:
         logger.error('fail to optimize the graph!', exc_info=True)
+
+
+def convert_variables_to_constants(sess,
+                                   input_graph_def,
+                                   output_node_names,
+                                   logger,
+                                   variable_names_whitelist=None,
+                                   variable_names_blacklist=None,
+                                   use_fp16=False):
+    from tensorflow.python.framework.graph_util_impl import extract_sub_graph
+    from tensorflow.core.framework import graph_pb2
+    from tensorflow.core.framework import node_def_pb2
+    from tensorflow.core.framework import attr_value_pb2
+    from tensorflow.python.framework import tensor_util
+
+    inference_graph = extract_sub_graph(input_graph_def, output_node_names)
+
+    variable_names = []
+    variable_dict_names = []
+    for node in inference_graph.node:
+        if node.op in ["Variable", "VariableV2", "VarHandleOp"]:
+            variable_name = node.name
+            if ((variable_names_whitelist is not None and
+                 variable_name not in variable_names_whitelist) or
+                    (variable_names_blacklist is not None and
+                     variable_name in variable_names_blacklist)):
+                continue
+            variable_dict_names.append(variable_name)
+            if node.op == "VarHandleOp":
+                variable_names.append(variable_name + "/Read/ReadVariableOp:0")
+            else:
+                variable_names.append(variable_name + ":0")
+    if variable_names:
+        returned_variables = sess.run(variable_names)
+    else:
+        returned_variables = []
+    found_variables = dict(zip(variable_dict_names, returned_variables))
+    logger.info("Froze %d variables.", len(returned_variables))
+
+    output_graph_def = graph_pb2.GraphDef()
+    how_many_converted = 0
+    for input_node in inference_graph.node:
+        output_node = node_def_pb2.NodeDef()
+        if input_node.name in found_variables:
+            output_node.op = "Const"
+            output_node.name = input_node.name
+            dtype = input_node.attr["dtype"]
+            data = found_variables[input_node.name]
+
+            print(dtype)
+            print(data)
+            output_node.attr["dtype"].CopyFrom(dtype)
+
+            output_node.attr["value"].CopyFrom(
+                attr_value_pb2.AttrValue(
+                    tensor=tensor_util.make_tensor_proto(
+                        data, dtype=dtype.type, shape=data.shape)))
+            how_many_converted += 1
+        elif input_node.op == "ReadVariableOp" and (
+                input_node.input[0] in found_variables):
+
+            print('ReadVariableOp %s' % input_node)
+
+            output_node.op = "Identity"
+            output_node.name = input_node.name
+            output_node.input.extend([input_node.input[0]])
+            output_node.attr["T"].CopyFrom(input_node.attr["dtype"])
+            if "_class" in input_node.attr:
+                output_node.attr["_class"].CopyFrom(input_node.attr["_class"])
+        else:
+            print('final branch %s' % input_node)
+            output_node.CopyFrom(input_node)
+        output_graph_def.node.extend([output_node])
+
+    output_graph_def.library.CopyFrom(inference_graph.library)
+    logger.info("Converted %d variables to const ops.", how_many_converted)
+    return output_graph_def
