@@ -135,13 +135,6 @@ def optimize_graph(args, logger=None):
             tmp_g = convert_variables_to_constants(sess, tmp_g, [n.name[:-2] for n in output_tensors], logger,
                                                    use_fp16=args.fp16)
 
-            # for n in tmp_g.node:
-            #     if 'embedding_lookup' in n.name:
-            #         print('---')
-            #         print(n.name)
-            #         print(n.op)
-            #         print(n.attr['dtype'])
-            #         print(str(n.attr['value'])[:100])
         tmp_file = tempfile.NamedTemporaryFile('w', delete=False, dir=args.graph_tmp_dir).name
         logger.info('write graph to a tmp file: %s' % tmp_file)
         with tf.gfile.GFile(tmp_file, 'wb') as f:
@@ -245,9 +238,6 @@ def convert_variables_to_constants(sess,
                 tensor=tensor_util.make_tensor_proto(
                     output_node.attr['value'].tensor.float_val[0],
                     dtype=types_pb2.DT_HALF)))
-
-        a = str(output_node)
-        print(a[:1000])
 
         output_graph_def.node.extend([output_node])
 
