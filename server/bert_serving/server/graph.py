@@ -152,6 +152,7 @@ def convert_variables_to_constants(sess,
     from tensorflow.core.framework import attr_value_pb2
     from tensorflow.core.framework import types_pb2
     from tensorflow.python.framework import tensor_util
+    from tensorflow import as_dtype
 
     inference_graph = extract_sub_graph(input_graph_def, output_node_names)
 
@@ -190,7 +191,8 @@ def convert_variables_to_constants(sess,
             print('1st %s\t%s' % (input_node.attr["dtype"], input_node.name))
             print(type(dtype))
             print(type(dtype.type))
-            print(types_pb2.DT_FLOAT)
+            print(types_pb2.DT_HALF)
+            print(as_dtype(types_pb2.DT_HALF))
 
             output_node.attr["dtype"].CopyFrom(dtype)
             output_node.attr["value"].CopyFrom(
