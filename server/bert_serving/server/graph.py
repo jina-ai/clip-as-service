@@ -188,7 +188,6 @@ def convert_variables_to_constants(sess,
             dtype = input_node.attr["dtype"]
             data = found_variables[input_node.name]
 
-            print(type(data))
             if use_fp16 and dtype.type == types_pb2.DT_FLOAT:
                 need_convert = True
 
@@ -197,7 +196,9 @@ def convert_variables_to_constants(sess,
             output_node.attr["value"].CopyFrom(
                 attr_value_pb2.AttrValue(
                     tensor=tensor_util.make_tensor_proto(
-                        data, dtype=types_pb2.DT_HALF if need_convert else dtype.type, shape=data.shape)))
+                        data.astype('float16') if need_convert else data,
+                        dtype=types_pb2.DT_HALF if need_convert else dtype.type,
+                        shape=data.shape)))
             how_many_converted += 1
         elif input_node.op == "ReadVariableOp" and (
                 input_node.input[0] in found_variables):
