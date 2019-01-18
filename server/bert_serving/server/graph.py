@@ -132,13 +132,13 @@ def optimize_graph(args, logger=None):
                 [dtype.as_datatype_enum for dtype in dtypes],
                 False)
 
-            for n in tmp_g.node:
-                if 'embeddings' in n.name:
-                    print('---')
-                    print(n.name)
-                    print(n.op)
-                    print(n.attr['dtype'])
-                    print(str(n.attr['value'])[:100])
+            # for n in tmp_g.node:
+            #     if 'embeddings' in n.name:
+            #         print('---')
+            #         print(n.name)
+            #         print(n.op)
+            #         print(n.attr['dtype'])
+            #         print(str(n.attr['value'])[:100])
         tmp_file = tempfile.NamedTemporaryFile('w', delete=False, dir=args.graph_tmp_dir).name
         logger.info('write graph to a tmp file: %s' % tmp_file)
         with tf.gfile.GFile(tmp_file, 'wb') as f:
@@ -195,7 +195,6 @@ def convert_variables_to_constants(sess,
     how_many_converted = 0
     for input_node in inference_graph.node:
         output_node = node_def_pb2.NodeDef()
-        need_convert = False
         if input_node.name in found_variables:
             output_node.op = "Const"
             output_node.name = input_node.name
@@ -214,13 +213,11 @@ def convert_variables_to_constants(sess,
                                                              shape=data.shape)))
             else:
                 output_node.attr["dtype"].CopyFrom(dtype)
-                output_node.attr["value"].CopyFrom(
-                    attr_value_pb2.AttrValue(
-                        tensor=tensor_util.make_tensor_proto(data, dtype=dtype.type,
-                                                             shape=data.shape)))
+                output_node.attr["value"].CopyFrom(attr_value_pb2.AttrValue(
+                    tensor=tensor_util.make_tensor_proto(data, dtype=dtype.type,
+                                                         shape=data.shape)))
             how_many_converted += 1
-        elif input_node.op == "ReadVariableOp" and (
-                input_node.input[0] in found_variables):
+        elif input_node.op == "ReadVariableOp" and (input_node.input[0] in found_variables):
             # placeholder nodes
             # print('- %s | %s ' % (input_node.name, input_node.attr["dtype"]))
             output_node.op = "Identity"
