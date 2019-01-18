@@ -200,9 +200,9 @@ def convert_variables_to_constants(sess,
             if use_fp16 and dtype.type == types_pb2.DT_FLOAT:
                 new_dtype = attr_value_pb2.AttrValue()
                 new_dtype.CopyFrom(dtype)
+                new_dtype.type = types_pb2.DT_HALF
+                print(dtype)
                 print(new_dtype)
-                print(type(new_dtype))
-                new_dtype.type.CopyFrom(types_pb2.DT_HALF)
                 output_node.attr["dtype"].CopyFrom(new_dtype)
                 output_node.attr["value"].CopyFrom(
                     attr_value_pb2.AttrValue(
