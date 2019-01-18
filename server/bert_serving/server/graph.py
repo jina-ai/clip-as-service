@@ -198,16 +198,21 @@ def convert_variables_to_constants(sess,
             data = found_variables[input_node.name]
 
             if use_fp16 and dtype.type == types_pb2.DT_FLOAT:
-                need_convert = True
-
-            output_node.attr["dtype"].CopyFrom(
-                attr_value_pb2.AttrValue(type=types_pb2.DT_HALF) if need_convert else dtype)
-            output_node.attr["value"].CopyFrom(
-                attr_value_pb2.AttrValue(
-                    tensor=tensor_util.make_tensor_proto(
-                        data.astype('float16') if need_convert else data,
-                        dtype=types_pb2.DT_HALF if need_convert else dtype.type,
-                        shape=data.shape)))
+                new_dtype = attr_value_pb2.AttrValue()
+                new_dtype.CopyFrom(dtype)
+                new_dtype.type.CopyFrom(types_pb2.DT_HALF)
+                output_node.attr["dtype"].CopyFrom(new_dtype)
+                output_node.attr["value"].CopyFrom(
+                    attr_value_pb2.AttrValue(
+                        tensor=tensor_util.make_tensor_proto(data.astype('float16'),
+                                                             dtype=types_pb2.DT_HALF,
+                                                             shape=data.shape)))
+            else:
+                output_node.attr["dtype"].CopyFrom(dtype)
+                output_node.attr["value"].CopyFrom(
+                    attr_value_pb2.AttrValue(
+                        tensor=tensor_util.make_tensor_proto(data, dtype=dtype.type,
+                                                             shape=data.shape)))
             how_many_converted += 1
         elif input_node.op == "ReadVariableOp" and (
                 input_node.input[0] in found_variables):
@@ -224,10 +229,10 @@ def convert_variables_to_constants(sess,
             output_node.CopyFrom(input_node)
             dtype = input_node.attr["dtype"]
             if use_fp16 and dtype.type == types_pb2.DT_FLOAT:
-                print('< %s | %s ' % (input_node.name, input_node.attr["dtype"]))
-                output_node.attr["dtype"].CopyFrom(
-                    attr_value_pb2.AttrValue(type=types_pb2.DT_HALF))
-                print('> %s | %s ' % (output_node.name, output_node.attr["dtype"]))
+                new_dtype = attr_value_pb2.AttrValue()
+                new_dtype.CopyFrom(dtype)
+                new_dtype.type.CopyFrom(types_pb2.DT_HALF)
+                output_node.attr["dtype"].CopyFrom(new_dtype)
         output_graph_def.node.extend([output_node])
 
     output_graph_def.library.CopyFrom(inference_graph.library)
