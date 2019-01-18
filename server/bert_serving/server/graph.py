@@ -112,9 +112,9 @@ def optimize_graph(args, logger=None):
                 else:
                     raise NotImplementedError()
 
-            pooled = tf.identity(pooled, 'final_encodes')
-
-            output_tensors = [pooled]
+            output_tensors = [tf.cast(pooled,
+                                      tf.float16 if args.use_fp16 else tf.float32,
+                                      'final_encodes')]
             tmp_g = tf.get_default_graph().as_graph_def()
 
         with tf.Session(config=config) as sess:
@@ -131,7 +131,6 @@ def optimize_graph(args, logger=None):
                 [n.name[:-2] for n in output_tensors],
                 [dtype.as_datatype_enum for dtype in dtypes],
                 False)
-            print(tmp_g)
         tmp_file = tempfile.NamedTemporaryFile('w', delete=False, dir=args.graph_tmp_dir).name
         logger.info('write graph to a tmp file: %s' % tmp_file)
         with tf.gfile.GFile(tmp_file, 'wb') as f:
