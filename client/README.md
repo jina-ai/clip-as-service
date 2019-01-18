@@ -401,10 +401,9 @@ The [`tf.data`](https://www.tensorflow.org/guide/datasets) API enables you to bu
 ```python
 batch_size = 256
 num_parallel_calls = 4
-num_clients = num_parallel_calls * 2  # should be at least greater than `num_parallel_calls`
 
-# start a pool of clients
-bc_clients = [BertClient(show_server_config=False) for _ in range(num_clients)]
+# start a thead-safe client to support num_parallel_calls in tf.data API
+bc = ConcurrentBertClient(num_parallel_calls)
 
 
 def get_encodes(x):
@@ -412,11 +411,7 @@ def get_encodes(x):
     samples = [json.loads(l) for l in x]
     text = [s['raw_text'] for s in samples]  # List[List[str]]
     labels = [s['label'] for s in samples]  # List[str]
-    # get a client from available clients
-    bc_client = bc_clients.pop()
-    features = bc_client.encode(text)
-    # after use, put it back
-    bc_clients.append(bc_client)
+    features = bc.encode(text)
     return features, labels
 
 

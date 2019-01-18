@@ -376,6 +376,16 @@ class BertClient:
 
 class ConcurrentBertClient(BertClient):
     def __init__(self, max_concurrency=10, **kwargs):
+        """ A thread-safe client object connected to a BertServer
+
+        Create a BertClient that connects to a BertServer.
+        Note, server must be ready at the moment you are calling this function.
+        If you are not sure whether the server is ready, then please set `check_version=False` and `check_length=False`
+
+        :type max_concurrency: int
+        :param max_concurrency: the maximum number of concurrent connections allowed
+
+        """
         try:
             from bert_serving.client import BertClient
         except ImportError:
@@ -385,24 +395,18 @@ class ConcurrentBertClient(BertClient):
                               'then remove "-http_port" from the command line.')
 
         self.available_bc = [BertClient(**kwargs) for _ in range(max_concurrency)]
-        self.hanging_bc = []
         self.max_concurrency = max_concurrency
 
     def close(self):
         for bc in self.available_bc:
-            bc.close()
-        for bc in self.hanging_bc:
             bc.close()
 
     def _concurrent(func):
         def arg_wrapper(self, *args, **kwargs):
             try:
                 bc = self.available_bc.pop()
-                self.hanging_bc.append(bc)
                 f = getattr(bc, func.__name__)
                 r = f if isinstance(f, dict) else f(*args, **kwargs)
-                if self.hanging_bc:
-                    bc = self.hanging_bc.pop()
                 self.available_bc.append(bc)
                 return r
             except IndexError:
