@@ -151,6 +151,7 @@ def convert_variables_to_constants(sess,
     from tensorflow.core.framework import node_def_pb2
     from tensorflow.core.framework import attr_value_pb2
     from tensorflow.python.framework import tensor_util
+    from tensorflow.core.framework.types_pb2 import DT_FLOAT
 
     inference_graph = extract_sub_graph(input_graph_def, output_node_names)
 
@@ -187,6 +188,9 @@ def convert_variables_to_constants(sess,
             data = found_variables[input_node.name]
 
             print('1st %s\t%s' % (input_node.attr["dtype"], input_node.name))
+
+            if isinstance(input_node.attr["dtype"], DT_FLOAT):
+                print('convert!')
             output_node.attr["dtype"].CopyFrom(dtype)
 
             output_node.attr["value"].CopyFrom(
@@ -196,9 +200,7 @@ def convert_variables_to_constants(sess,
             how_many_converted += 1
         elif input_node.op == "ReadVariableOp" and (
                 input_node.input[0] in found_variables):
-
-            print('2nd %s\t%s' % (input_node.attr["dtype"], input_node.name))
-
+            # placeholder nodes
             output_node.op = "Identity"
             output_node.name = input_node.name
             output_node.input.extend([input_node.input[0]])
@@ -206,7 +208,7 @@ def convert_variables_to_constants(sess,
             if "_class" in input_node.attr:
                 output_node.attr["_class"].CopyFrom(input_node.attr["_class"])
         else:
-            print('3rd %s\t%s' % (input_node.attr["dtype"], input_node.name))
+            # mostly op nodes
             output_node.CopyFrom(input_node)
         output_graph_def.node.extend([output_node])
 
