@@ -204,10 +204,6 @@ def convert_variables_to_constants(sess,
             data = found_variables[input_node.name]
 
             if use_fp16 and dtype.type == types_pb2.DT_FLOAT:
-                new_dtype = attr_value_pb2.AttrValue()
-                new_dtype.CopyFrom(dtype)
-                new_dtype.type = types_pb2.DT_HALF
-                output_node.attr["dtype"].CopyFrom(new_dtype)
                 output_node.attr["value"].CopyFrom(
                     attr_value_pb2.AttrValue(
                         tensor=tensor_util.make_tensor_proto(data.astype('float16'),
@@ -231,6 +227,8 @@ def convert_variables_to_constants(sess,
         else:
             # mostly op nodes
             output_node.CopyFrom(input_node)
+
+        if "dtype" in input_node.attr:
             dtype = input_node.attr["dtype"]
             if use_fp16 and dtype.type == types_pb2.DT_FLOAT:
                 new_dtype = attr_value_pb2.AttrValue()
