@@ -125,14 +125,14 @@ def optimize_graph(args, logger=None):
             logger.info('freeze...')
             tmp_g = convert_variables_to_constants(sess, tmp_g, [n.name[:-2] for n in output_tensors], logger,
                                                    use_fp16=args.fp16)
-            dtypes = [n.dtype for n in input_tensors]
-            logger.info('optimize...')
-            tmp_g = optimize_for_inference(
-                tmp_g,
-                [n.name[:-2] for n in input_tensors],
-                [n.name[:-2] for n in output_tensors],
-                [dtype.as_datatype_enum for dtype in dtypes],
-                False)
+            # dtypes = [n.dtype for n in input_tensors]
+            # logger.info('optimize...')
+            # tmp_g = optimize_for_inference(
+            #     tmp_g,
+            #     [n.name[:-2] for n in input_tensors],
+            #     [n.name[:-2] for n in output_tensors],
+            #     [dtype.as_datatype_enum for dtype in dtypes],
+            #     False)
 
             # for n in tmp_g.node:
             #     if 'embedding_lookup' in n.name:
