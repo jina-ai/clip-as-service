@@ -150,8 +150,8 @@ def convert_variables_to_constants(sess,
     from tensorflow.core.framework import graph_pb2
     from tensorflow.core.framework import node_def_pb2
     from tensorflow.core.framework import attr_value_pb2
+    from tensorflow.core.framework import types_pb2
     from tensorflow.python.framework import tensor_util
-    from tensorflow.core.framework.types_pb2 import DT_FLOAT
 
     inference_graph = extract_sub_graph(input_graph_def, output_node_names)
 
@@ -189,10 +189,10 @@ def convert_variables_to_constants(sess,
 
             print('1st %s\t%s' % (input_node.attr["dtype"], input_node.name))
             print(type(dtype))
-            if input_node.attr["dtype"] == DT_FLOAT:
-                print('convert!')
-            output_node.attr["dtype"].CopyFrom(dtype)
+            print(type(dtype.type))
+            print(types_pb2.DT_FLOAT)
 
+            output_node.attr["dtype"].CopyFrom(dtype)
             output_node.attr["value"].CopyFrom(
                 attr_value_pb2.AttrValue(
                     tensor=tensor_util.make_tensor_proto(
