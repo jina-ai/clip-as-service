@@ -236,7 +236,7 @@ def convert_variables_to_constants(sess,
         patch_dtype(input_node, 'dtype', output_node)
         patch_dtype(input_node, 'T', output_node)
         patch_dtype(input_node, 'DstT', output_node)
-        patch_dtype(input_node, 'SrcT', output_node)
+        # patch_dtype(input_node, 'SrcT', output_node)
         patch_dtype(input_node, 'Tparams', output_node)
 
         output_graph_def.node.extend([output_node])
