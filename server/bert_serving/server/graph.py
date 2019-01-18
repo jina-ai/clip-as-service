@@ -237,12 +237,15 @@ def convert_variables_to_constants(sess,
         if 'dtype' in input_node.attr:
             patch_dtype(input_node, 'dtype', output_node)
 
+        if 'T' in input_node.attr:
+            patch_dtype(input_node, 'T', output_node)
+
         # fix embedding lookup
         if input_node.op in {'GatherV2', 'GatherNd'}:
             patch_dtype(input_node, 'Tparams', output_node)
 
-        if input_node.op in {'Identity', 'Reshape', 'Shape', 'OneHot', 'MatMul'}:
-            patch_dtype(input_node, 'T', output_node)
+        # if input_node.op in {'Identity', 'Reshape', 'Shape', 'OneHot', 'MatMul'}:
+        #     patch_dtype(input_node, 'T', output_node)
 
         output_graph_def.node.extend([output_node])
 
