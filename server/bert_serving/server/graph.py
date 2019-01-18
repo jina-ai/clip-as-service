@@ -191,6 +191,7 @@ def convert_variables_to_constants(sess,
             print('1st %s\t%s' % (input_node.attr["dtype"], input_node.name))
             print(type(dtype))
             print(type(dtype.type))
+            print(vars(dtype))
             print(types_pb2.DT_HALF)
             print(as_dtype(types_pb2.DT_HALF))
             print(type(as_dtype(types_pb2.DT_HALF)))
