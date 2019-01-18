@@ -239,7 +239,8 @@ def convert_variables_to_constants(sess,
         patch_dtype(input_node, 'SrcT', output_node)
         patch_dtype(input_node, 'Tparams', output_node)
 
-        print(output_node)
+        a = str(output_node)
+        print(a[:1000])
 
         output_graph_def.node.extend([output_node])
 
