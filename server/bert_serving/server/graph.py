@@ -209,7 +209,7 @@ def convert_variables_to_constants(sess,
         elif input_node.op == "ReadVariableOp" and (
                 input_node.input[0] in found_variables):
             # placeholder nodes
-            print('- %s | %s ' % (input_node.name, input_node.attr["dtype"]))
+            # print('- %s | %s ' % (input_node.name, input_node.attr["dtype"]))
             output_node.op = "Identity"
             output_node.name = input_node.name
             output_node.input.extend([input_node.input[0]])
@@ -218,8 +218,10 @@ def convert_variables_to_constants(sess,
                 output_node.attr["_class"].CopyFrom(input_node.attr["_class"])
         else:
             # mostly op nodes
-            print('* %s | %s ' % (input_node.name, input_node.attr["dtype"]))
+            # print('* %s | %s ' % (input_node.name, input_node.attr["dtype"]))
             output_node.CopyFrom(input_node)
+            output_node.attr["dtype"].CopyFrom(
+                attr_value_pb2.AttrValue(type=types_pb2.DT_HALF) if need_convert else dtype)
         output_graph_def.node.extend([output_node])
 
     output_graph_def.library.CopyFrom(inference_graph.library)
