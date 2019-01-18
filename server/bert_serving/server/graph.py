@@ -223,10 +223,8 @@ def convert_variables_to_constants(sess,
 
             dtype = input_node.attr["dtype"]
             if use_fp16 and dtype.type == types_pb2.DT_FLOAT:
-                need_convert = True
-
-            output_node.attr["dtype"].CopyFrom(
-                attr_value_pb2.AttrValue(type=types_pb2.DT_HALF) if need_convert else dtype)
+                output_node.attr["dtype"].CopyFrom(
+                    attr_value_pb2.AttrValue(type=types_pb2.DT_HALF))
         output_graph_def.node.extend([output_node])
 
     output_graph_def.library.CopyFrom(inference_graph.library)
