@@ -181,7 +181,7 @@ def convert_variables_to_constants(sess,
     else:
         returned_variables = []
     found_variables = dict(zip(variable_dict_names, returned_variables))
-    logger.info("Froze %d variables.", len(returned_variables))
+    logger.info("freezing %d variables...", len(returned_variables))
 
     output_graph_def = graph_pb2.GraphDef()
     how_many_converted = 0
@@ -218,13 +218,14 @@ def convert_variables_to_constants(sess,
                 output_node.attr["_class"].CopyFrom(input_node.attr["_class"])
         else:
             # mostly op nodes
-            # print('* %s | %s ' % (input_node.name, input_node.attr["dtype"]))
+            print('< %s | %s ' % (input_node.name, input_node.attr["dtype"]))
             output_node.CopyFrom(input_node)
 
             dtype = input_node.attr["dtype"]
             if use_fp16 and dtype.type == types_pb2.DT_FLOAT:
                 output_node.attr["dtype"].CopyFrom(
                     attr_value_pb2.AttrValue(type=types_pb2.DT_HALF))
+            print('> %s | %s ' % (output_node.name, output_node.attr["dtype"]))
         output_graph_def.node.extend([output_node])
 
     output_graph_def.library.CopyFrom(inference_graph.library)
