@@ -244,7 +244,7 @@ def convert_variables_to_constants(sess,
         if input_node.name.endswith('embedding_lookup/Identity') and input_node.input.endswith('embedding_lookup'):
             patch_dtype(input_node, 'T', output_node)
 
-        if input_node.name.endswith('Reshape') and input_node.input.endswith('embedding_lookup/Identity'):
+        if input_node.name.op == 'Reshape':
             patch_dtype(input_node, 'T', output_node)
 
         output_graph_def.node.extend([output_node])
