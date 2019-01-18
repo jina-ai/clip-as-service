@@ -165,6 +165,11 @@ def convert_variables_to_constants(sess,
     from tensorflow.core.framework import types_pb2
     from tensorflow.python.framework import tensor_util
 
+    def patch_dtype(input_node, field_name, output_node):
+        dtype = input_node.attr[field_name]
+        if use_fp16 and dtype.type == types_pb2.DT_FLOAT:
+            output_node.attr[field_name].CopyFrom(attr_value_pb2.AttrValue(type=types_pb2.DT_HALF))
+
     if use_fp16:
         logger.warning('fp16 is turned on! '
                        'Note that not all CPU and GPU support fast fp16 instructions, '
@@ -230,12 +235,15 @@ def convert_variables_to_constants(sess,
             output_node.CopyFrom(input_node)
 
         if "dtype" in input_node.attr:
-            dtype = input_node.attr["dtype"]
-            if use_fp16 and dtype.type == types_pb2.DT_FLOAT:
-                new_dtype = attr_value_pb2.AttrValue()
-                new_dtype.CopyFrom(dtype)
-                new_dtype.type = types_pb2.DT_HALF
-                output_node.attr["dtype"].CopyFrom(new_dtype)
+            patch_dtype(input_node, 'dtype', output_node)
+
+        # fix embedding lookup
+        if input_node.name.endswith('embedding_lookup') and input_node.op == 'GatherV2':
+            patch_dtype(input_node, 'Tparams', output_node)
+
+        if input_node.name.endswith('embedding_lookup/Identity') and input_node.input == 'embedding_lookup':
+            patch_dtype(input_node, 'T', output_node)
+
         output_graph_def.node.extend([output_node])
 
     output_graph_def.library.CopyFrom(inference_graph.library)
