@@ -217,7 +217,7 @@ def convert_variables_to_constants(sess,
             else:
                 output_node.attr["dtype"].CopyFrom(dtype)
                 output_node.attr["value"].CopyFrom(attr_value_pb2.AttrValue(
-                    tensor=tensor_util.make_tensor_proto(0, dtype=dtype.type,
+                    tensor=tensor_util.make_tensor_proto(data, dtype=dtype.type,
                                                          shape=data.shape)))
             how_many_converted += 1
         elif input_node.op == "ReadVariableOp" and (input_node.input[0] in found_variables):
@@ -240,8 +240,9 @@ def convert_variables_to_constants(sess,
         patch_dtype(input_node, 'Tparams', output_node)
 
         if 'value' in output_node.attr and (output_node.attr['value'].tensor.dtype == types_pb2.DT_FLOAT):
+            data = output_node.attr['value'].tensor.float_val
             # hard-coded value need to be converted
-            output_node.attr["value"].CopyFrom(
+            output_node.attr['value'].CopyFrom(
                 attr_value_pb2.AttrValue(
                     tensor=tensor_util.make_tensor_proto(data.astype('float16'),
                                                          dtype=types_pb2.DT_HALF,
