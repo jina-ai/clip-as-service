@@ -16,6 +16,7 @@ MODEL_DIR = '/data/cips/save/chinese_L-12_H-768_A-12'
 common = vars(get_args_parser().parse_args(['-model_dir', MODEL_DIR, '-port', str(PORT), '-port_out', str(PORT_OUT)]))
 common['num_worker'] = 2  # set num workers
 common['num_repeat'] = 5  # set num repeats per experiment
+common['num_client'] = 1  # set number of concurrent clients, will be override later
 
 args = namedtuple('args_nt', ','.join(common.keys()))
 globals()[args.__name__] = args
