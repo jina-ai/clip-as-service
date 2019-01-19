@@ -6,37 +6,17 @@ import time
 from collections import namedtuple
 
 from bert_serving.client import BertClient
-from bert_serving.server import BertServer
-from bert_serving.server.graph import PoolingStrategy
+from bert_serving.server import BertServer, get_args_parser
 from numpy import mean
 
 PORT = 7779
 PORT_OUT = 7780
+MODEL_DIR = '/data/cips/save/chinese_L-12_H-768_A-12'
 
-common = {
-    'model_dir': '/data/cips/save/chinese_L-12_H-768_A-12',
-    'num_worker': 2,
-    'num_repeat': 5,
-    'port': PORT,
-    'port_out': PORT_OUT,
-    'max_seq_len': 40,
-    'client_batch_size': 2048,
-    'max_batch_size': 256,
-    'num_client': 1,
-    'pooling_strategy': PoolingStrategy.REDUCE_MEAN,
-    'pooling_layer': [-2],
-    'gpu_memory_fraction': 0.5,
-    'prefetch_size': 10,
-    'xla': False,
-    'cpu': False,
-    'verbose': False,
-    'config_name': 'bert_config.json',
-    'ckpt_name': 'bert_model.ckpt',
-    'tuned_model_dir': None,
-    'mask_cls_sep': False,
-    'device_map': [],
-    'priority_batch_size': 16
-}
+common = vars(get_args_parser().parse_args(['-model_dir', MODEL_DIR, '-port', str(PORT), '-port_out', str(PORT_OUT)]))
+common['num_worker'] = 2  # set num workers
+common['num_repeat'] = 5  # set num repeats per experiment
+common['num_client'] = 1  # set number of concurrent clients, will be override later
 
 args = namedtuple('args_nt', ','.join(common.keys()))
 globals()[args.__name__] = args

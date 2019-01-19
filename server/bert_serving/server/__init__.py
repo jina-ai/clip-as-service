@@ -321,6 +321,7 @@ class BertWorker(Process):
         self.model_dir = args.model_dir
         self.verbose = args.verbose
         self.graph_path = graph_path
+        self.use_fp16 = args.fp16
 
     def close(self):
         self.logger.info('shutting down...')
@@ -373,7 +374,7 @@ class BertWorker(Process):
         logger.info('use device %s, load graph from %s' %
                     ('cpu' if self.device_id < 0 else ('gpu: %d' % self.device_id), self.graph_path))
 
-        tf = import_tf(self.device_id, self.verbose)
+        tf = import_tf(self.device_id, self.verbose, use_fp16=self.use_fp16)
         estimator = self.get_estimator(tf)
 
         for sock, addr in zip(receivers, self.worker_address):
