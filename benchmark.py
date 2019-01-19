@@ -19,6 +19,9 @@ common = {
     'num_repeat': 5,
     'port': PORT,
     'port_out': PORT_OUT,
+    'http_port': None,
+    'http_max_connect': '10',
+    'cors': '*',
     'max_seq_len': 40,
     'client_batch_size': 2048,
     'max_batch_size': 256,
@@ -35,7 +38,8 @@ common = {
     'tuned_model_dir': None,
     'mask_cls_sep': False,
     'device_map': [],
-    'priority_batch_size': 16
+    'priority_batch_size': 16,
+    'fp16': False
 }
 
 args = namedtuple('args_nt', ','.join(common.keys()))

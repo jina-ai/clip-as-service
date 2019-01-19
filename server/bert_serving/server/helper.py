@@ -138,9 +138,11 @@ def check_tf_version():
     return tf_ver
 
 
-def import_tf(device_id=-1, verbose=False):
+def import_tf(device_id=-1, verbose=False, use_fp16=False):
     os.environ['CUDA_VISIBLE_DEVICES'] = '-1' if device_id < 0 else str(device_id)
     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '0' if verbose else '3'
+    os.environ['TF_FP16_MATMUL_USE_FP32_COMPUTE'] = '0' if use_fp16 else '1'
+    os.environ['TF_FP16_CONV_USE_FP32_COMPUTE'] = '0' if use_fp16 else '1'
     import tensorflow as tf
     tf.logging.set_verbosity(tf.logging.DEBUG if verbose else tf.logging.ERROR)
     return tf
