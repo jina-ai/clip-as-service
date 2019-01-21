@@ -66,7 +66,7 @@ class PiecewiseQuantizer:
         tiled_centroids = tf.tile(tf.expand_dims(self.centroids, axis=0), [batch_size, 1, 1, 1])
 
         # B x num_bytes x num_centroids
-        dist = tf.reduce_mean(tf.squared_difference(tiled_x - tiled_centroids), axis=-1)
+        dist = tf.reduce_mean(tf.squared_difference(tiled_x, tiled_centroids), axis=-1)
 
         # select the minimum dist centroid
         # B x num_bytes
