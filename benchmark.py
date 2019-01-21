@@ -53,7 +53,7 @@ class BenchmarkClient(threading.Thread):
 if __name__ == '__main__':
 
     experiments = {
-        'client_batch_size': [1, 4, 16, 64, 256, 1024, 4096],
+        'client_batch_size': [1, 4, 16, 64, 256, 1024, 4096, 8192, 16384],
         'max_batch_size': [32, 64, 128, 256, 512, 1024],
         'max_seq_len': [16, 32, 64, 128, 256, 512],
         'num_client': [1, 2, 4, 8, 16, 32, 64, 128],
