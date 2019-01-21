@@ -50,25 +50,31 @@ def create_float_feature(values):
 
 
 def run(args):
+    def encode_write():
+        with TimeContext('encoded %d lines' % (num_examples + len(buffer))):
+            for vec in bc.encode(buffer):
+                features = {'features': create_float_feature(vec)}
+                tf_example = tf.train.Example(features=tf.train.Features(feature=features))
+                writer.write(tf_example.SerializeToString())
+            buffer.clear()
+
+    num_examples = 0
     with open(args.in_file) as fp, tf.python_io.TFRecordWriter(args.out_file) as writer:
         bc = BertClient(args.ip, args.port, args.port_out)
         buffer = []
-        num_examples = 0
         for v in fp:
             if v.strip():
                 buffer.append(v.strip())
 
             if len(buffer) > args.batch_size:
+                encode_write()
                 num_examples += len(buffer)
-                with TimeContext('encoded %d lines' % num_examples):
-                    for vec in bc.encode(buffer):
-                        features = {'features': create_float_feature(vec)}
-                        tf_example = tf.train.Example(features=tf.train.Features(feature=features))
-                        writer.write(tf_example.SerializeToString())
-                    buffer.clear()
 
             if num_examples >= args.max_num_line:
                 break
+
+        if buffer and num_examples + len(buffer) < args.max_num_line:
+            encode_write()
 
 
 if __name__ == '__main__':
