@@ -11,12 +11,14 @@ from numpy import mean
 
 PORT = 7779
 PORT_OUT = 7780
-MODEL_DIR = sys.argv[1]
+MODEL_DIR = sys.argv[2]
 
 common = vars(get_args_parser().parse_args(['-model_dir', MODEL_DIR, '-port', str(PORT), '-port_out', str(PORT_OUT)]))
-common['num_worker'] = 2  # set num workers
+common['max_batch_size'] = 512
+common['max_seq_len'] = 32
+common['num_worker'] = sys.argv[1]  # set num workers
 common['num_repeat'] = 10  # set num repeats per experiment
-common['num_client'] = 1  # set number of concurrent clients, will be override later
+common['num_client'] = 1  # set number of concurrent clients, will be overrided later
 
 args = namedtuple('args_nt', ','.join(common.keys()))
 globals()[args.__name__] = args
@@ -44,16 +46,16 @@ class BenchmarkClient(threading.Thread):
             start_t = time.perf_counter()
             bc.encode(self.batch)
             time_all.append(time.perf_counter() - start_t)
-        self.avg_time = mean(time_all[1:])  # first one is often slow due to cold-start/warm-up effect
+        self.avg_time = mean(time_all[2:])  # first one is often slow due to cold-start/warm-up effect
 
 
 if __name__ == '__main__':
 
     experiments = {
-        'client_batch_size': [1, 4, 8, 16, 64, 256, 512, 1024, 2048, 4096],
-        'max_batch_size': [32, 64, 128, 256, 512],
-        'max_seq_len': [20, 40, 80, 160, 320],
-        'num_client': [2, 4, 8, 16, 32],
+        'client_batch_size': [1, 4, 16, 64, 256, 1024, 4096],
+        'max_batch_size': [32, 64, 128, 256, 512, 1024],
+        'max_seq_len': [16, 32, 64, 128, 256, 512],
+        'num_client': [1, 2, 4, 8, 16, 32, 64, 128],
         'pooling_layer': [[-j] for j in range(1, 13)]
     }
 
