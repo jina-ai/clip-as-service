@@ -19,6 +19,7 @@ common['max_seq_len'] = 32
 common['num_worker'] = int(sys.argv[1])  # set num workers
 common['num_repeat'] = 10  # set num repeats per experiment
 common['num_client'] = 1  # set number of concurrent clients, will be overrided later
+common['fp16'] = bool(sys.argv[3])
 
 args = namedtuple('args_nt', ','.join(common.keys()))
 globals()[args.__name__] = args
@@ -59,7 +60,7 @@ if __name__ == '__main__':
         'pooling_layer': [[-j] for j in range(1, 13)]
     }
 
-    fp = open('benchmark-%d.result' % common['num_worker'], 'w')
+    fp = open('benchmark-%d-fp16-%s.result' % (common['num_worker'], common['fp16']), 'w')
     for var_name, var_lst in experiments.items():
         # set common args
         for k, v in common.items():
@@ -73,7 +74,7 @@ if __name__ == '__main__':
             server.start()
 
             # sleep until server is ready
-            time.sleep(15)
+            time.sleep(30)
             all_clients = [BenchmarkClient() for _ in range(args.num_client)]
 
             tprint('num_client: %d' % len(all_clients))
