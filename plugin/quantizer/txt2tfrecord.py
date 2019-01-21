@@ -50,7 +50,7 @@ def create_float_feature(values):
 
 
 def run(args):
-    with open(args.in_file) as fp, open(args.out_file) as writer:
+    with open(args.in_file) as fp, tf.python_io.TFRecordWriter(args.out_file) as writer:
         bc = BertClient(args.ip, args.port, args.port_out)
         buffer = []
         num_examples = 0
