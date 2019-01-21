@@ -19,7 +19,7 @@ common['max_seq_len'] = 32
 common['num_worker'] = int(sys.argv[1])  # set num workers
 common['num_repeat'] = 10  # set num repeats per experiment
 common['num_client'] = 1  # set number of concurrent clients, will be overrided later
-common['fp16'] = bool(sys.argv[3])
+common['fp16'] = int(sys.argv[3]) > 0
 
 args = namedtuple('args_nt', ','.join(common.keys()))
 globals()[args.__name__] = args
