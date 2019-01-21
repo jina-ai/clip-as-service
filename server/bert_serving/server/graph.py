@@ -132,7 +132,7 @@ def optimize_graph(args, logger=None):
                 False)
 
             logger.info('freeze...')
-            tmp_g = convert_variables_to_constants(sess, tmp_g, [n.name[:-2] for n in output_tensors], logger,
+            tmp_g = convert_variables_to_constants(sess, tmp_g, [n.name[:-2] for n in output_tensors],
                                                    use_fp16=args.fp16)
 
         tmp_file = tempfile.NamedTemporaryFile('w', delete=False, dir=args.graph_tmp_dir).name
@@ -147,10 +147,9 @@ def optimize_graph(args, logger=None):
 def convert_variables_to_constants(sess,
                                    input_graph_def,
                                    output_node_names,
-                                   logger,
                                    variable_names_whitelist=None,
                                    variable_names_blacklist=None,
-                                   use_fp16=False):
+                                   use_fp16=False, logger=None):
     from tensorflow.python.framework.graph_util_impl import extract_sub_graph
     from tensorflow.core.framework import graph_pb2
     from tensorflow.core.framework import node_def_pb2
@@ -161,6 +160,9 @@ def convert_variables_to_constants(sess,
     def patch_dtype(input_node, field_name, output_node):
         if use_fp16 and (field_name in input_node.attr) and (input_node.attr[field_name].type == types_pb2.DT_FLOAT):
             output_node.attr[field_name].CopyFrom(attr_value_pb2.AttrValue(type=types_pb2.DT_HALF))
+
+    if not logger:
+        logger = set_logger(colored('GRAPHOPT', 'cyan'))
 
     if use_fp16:
         logger.warning('fp16 is turned on! '
