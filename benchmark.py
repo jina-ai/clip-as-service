@@ -11,11 +11,11 @@ from numpy import mean
 
 PORT = 7779
 PORT_OUT = 7780
-MODEL_DIR = '/data/cips/save/chinese_L-12_H-768_A-12'
+MODEL_DIR = sys.argv[1]
 
 common = vars(get_args_parser().parse_args(['-model_dir', MODEL_DIR, '-port', str(PORT), '-port_out', str(PORT_OUT)]))
 common['num_worker'] = 2  # set num workers
-common['num_repeat'] = 5  # set num repeats per experiment
+common['num_repeat'] = 10  # set num repeats per experiment
 common['num_client'] = 1  # set number of concurrent clients, will be override later
 
 args = namedtuple('args_nt', ','.join(common.keys()))
@@ -44,8 +44,7 @@ class BenchmarkClient(threading.Thread):
             start_t = time.perf_counter()
             bc.encode(self.batch)
             time_all.append(time.perf_counter() - start_t)
-        print(time_all)
-        self.avg_time = mean(time_all)
+        self.avg_time = mean(time_all[1:])  # first one is often slow due to cold-start/warm-up effect
 
 
 if __name__ == '__main__':
