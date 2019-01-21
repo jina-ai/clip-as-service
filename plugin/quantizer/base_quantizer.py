@@ -70,7 +70,7 @@ class PiecewiseQuantizer:
 
         # select the minimum dist centroid
         # B x num_bytes
-        self.quant_x = tf.argmin(dist, axis=-1, output_type=tf.uint8)
+        self.quant_x = tf.cast(tf.argmin(dist, axis=-1), tf.uint8)
         quant_loss = tf.reduce_min(dist, axis=-1)
 
         # loss
