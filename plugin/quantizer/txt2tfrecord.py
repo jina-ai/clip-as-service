@@ -54,7 +54,7 @@ def run(args):
         bc = BertClient(args.ip, args.port, args.port_out)
         buffer = []
         num_examples = 0
-        for v in enumerate(fp):
+        for v in fp:
             if v.strip():
                 buffer.append(v.strip())
 
