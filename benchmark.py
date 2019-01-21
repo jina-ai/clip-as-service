@@ -16,7 +16,7 @@ MODEL_DIR = sys.argv[2]
 common = vars(get_args_parser().parse_args(['-model_dir', MODEL_DIR, '-port', str(PORT), '-port_out', str(PORT_OUT)]))
 common['max_batch_size'] = 512
 common['max_seq_len'] = 32
-common['num_worker'] = sys.argv[1]  # set num workers
+common['num_worker'] = int(sys.argv[1])  # set num workers
 common['num_repeat'] = 10  # set num repeats per experiment
 common['num_client'] = 1  # set number of concurrent clients, will be overrided later
 
