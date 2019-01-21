@@ -2,17 +2,30 @@
 # -*- coding: utf-8 -*-
 import argparse
 import os
+import time
 
 import GPUtil
 from bert_serving.server.helper import get_run_args
-
-from toy11 import TimeContext
+from termcolor import colored
 
 os.environ['CUDA_VISIBLE_DEVICES'] = str(GPUtil.getFirstAvailable()[0])
 import tensorflow as tf
 
 tf.logging.set_verbosity(tf.logging.INFO)
 from bert_serving.client import BertClient
+
+
+class TimeContext:
+    def __init__(self, msg):
+        self._msg = msg
+
+    def __enter__(self):
+        self.start = time.perf_counter()
+        print(self._msg, end=' ...\t', flush=True)
+
+    def __exit__(self, typ, value, traceback):
+        self.duration = time.perf_counter() - self.start
+        print(colored('    [%3.0f secs]' % self.duration, 'green'), flush=True)
 
 
 def get_args_parser():
