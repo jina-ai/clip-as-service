@@ -35,7 +35,7 @@ def run_benchmark(args):
     from bert_serving.server import BertServer
 
     # load vocabulary
-    with open(args.client_vocab_source, encoding='utf8') as fp:
+    with open(args.client_vocab_file, encoding='utf8') as fp:
         vocab = list(set(vv for v in fp for vv in v.strip().split()))
     print('vocabulary size: %d' % len(vocab))
 
