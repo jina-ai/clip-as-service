@@ -1,3 +1,4 @@
+import argparse
 import random
 import string
 import sys
@@ -7,19 +8,52 @@ from collections import namedtuple
 
 from bert_serving.client import BertClient
 from bert_serving.server import BertServer, get_args_parser
+from bert_serving.server.helper import get_run_args
 from numpy import mean
 
-PORT = 7779
-PORT_OUT = 7780
-MODEL_DIR = sys.argv[2]
 
-common = vars(get_args_parser().parse_args(['-model_dir', MODEL_DIR, '-port', str(PORT), '-port_out', str(PORT_OUT)]))
-common['max_batch_size'] = 512
-common['max_seq_len'] = 32
-common['num_worker'] = int(sys.argv[1])  # set num workers
-common['num_repeat'] = 10  # set num repeats per experiment
-common['num_client'] = 1  # set number of concurrent clients, will be overrided later
-common['fp16'] = int(sys.argv[3]) > 0
+def get_benchmark_parser():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-model_dir', type=str, required=True,
+                        help='BERT model dir')
+    parser.add_argument('-port', type=int, default=7779,
+                        help='port of the bert server')
+    parser.add_argument('-port_out', type=int, default=7780,
+                        help='output port of the bert server')
+    parser.add_argument('-num_worker', type=int, default=1,
+                        help='number of workers')
+    parser.add_argument('-num_repeat', type=int, default=10,
+                        help='number of repeats per experiment (must >2), '
+                             'as the first two results are omitted for warm-up effect')
+    parser.add_argument('-fp16', action='store_true', default=False,
+                        help='use float16 precision (experimental)')
+    parser.add_argument('-default_max_batch_size', type=int, default=512,
+                        help='default value for maximum number of sequences handled by each worker')
+    parser.add_argument('-default_max_seq_len', type=int, default=32,
+                        help='default value for maximum length of a sequence')
+    parser.add_argument('-default_num_client', type=int, default=1,
+                        help='default value for number of concurrent clients')
+    parser.add_argument('-default_client_batch_size', type=int, default=4096,
+                        help='default value for client batch size')
+    parser.add_argument('-test_client_batch_size', type=int, nargs='+', default=[1, 16, 256, 4096])
+    parser.add_argument('-test_max_batch_size', type=int, nargs='+', default=[8, 32, 128, 512])
+    parser.add_argument('-test_max_seq_len', type=int, nargs='+', default=[32, 64, 128, 256, 512])
+    parser.add_argument('-test_num_client', type=int, nargs='+', default=[1, 4, 16, 64])
+    parser.add_argument('-test_pooling_layer', type=int, nargs='+', default=[[-j] for j in range(1, 13)])
+
+    parser.add_argument('-wait_till_ready', type=int, default=30,
+                        help='seconds to wait until server is ready to serve')
+    return parser
+
+
+common_1 = vars(get_args_parser().parse_args(['-model_dir', '']))
+common_2 = vars(get_run_args(get_benchmark_parser))
+common = {k: v for k, v in common_1.items()}
+for k, v in common_2.items():
+    common[k] = v
+
+param_str = '\n'.join(['%20s = %s' % (k, v) for k, v in sorted(vars(common).items())])
+print('%20s   %s\n%s\n%s\n' % ('ARG', 'VALUE', '_' * 50, param_str))
 
 args = namedtuple('args_nt', ','.join(common.keys()))
 globals()[args.__name__] = args
@@ -42,7 +76,8 @@ class BenchmarkClient(threading.Thread):
 
     def run(self):
         time_all = []
-        bc = BertClient(port=PORT, port_out=PORT_OUT, show_server_config=False, check_version=False, check_length=False)
+        bc = BertClient(port=args.port, port_out=args.port_out,
+                        show_server_config=False, check_version=False, check_length=False)
         for _ in range(self.num_repeat):
             start_t = time.perf_counter()
             bc.encode(self.batch)
@@ -52,15 +87,10 @@ class BenchmarkClient(threading.Thread):
 
 if __name__ == '__main__':
 
-    experiments = {
-        'client_batch_size': [1, 4, 16, 64, 256, 1024, 4096, 8192, 16384],
-        'max_batch_size': [32, 64, 128, 256, 512, 1024],
-        'max_seq_len': [16, 32, 64, 128, 256, 512],
-        'num_client': [1, 2, 4, 8, 16, 32, 64, 128],
-        'pooling_layer': [[-j] for j in range(1, 13)]
-    }
+    experiments = {k: common['test_%s' % k] for k in
+                   ['client_batch_size', 'max_batch_size', 'max_seq_len', 'num_client', 'pooling_layer']}
 
-    fp = open('benchmark-%d-fp16-%s.result' % (common['num_worker'], common['fp16']), 'w')
+    fp = open('benchmark-%d-fp16-%s.result' % (args.num_worker, args.fp16), 'w')
     for var_name, var_lst in experiments.items():
         # set common args
         for k, v in common.items():
@@ -74,7 +104,7 @@ if __name__ == '__main__':
             server.start()
 
             # sleep until server is ready
-            time.sleep(30)
+            time.sleep(args.wait_till_ready)
             all_clients = [BenchmarkClient() for _ in range(args.num_client)]
 
             tprint('num_client: %d' % len(all_clients))
@@ -102,4 +132,5 @@ if __name__ == '__main__':
         for i, j in zip(var_lst, avg_speed):
             fp.write('|%s|%d|\n' % (i, j))
             fp.flush()
+        fp.write('\n')
     fp.close()
