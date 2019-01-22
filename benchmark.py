@@ -60,16 +60,12 @@ for k, v in vars(get_run_args(get_benchmark_parser)).items():
 param_str = '\n'.join(['%20s = %s' % (k, v) for k, v in sorted(common.items())])
 tprint('%20s   %s\n%s\n%s\n' % ('ARG', 'VALUE', '_' * 50, param_str))
 
-with open(common['client_text_source'], encoding='utf8') as fp:
-    vocab = list(set(vv for v in fp for vv in v.strip().split()))
-tprint('vocabulary size: %d' % len(vocab))
-
 args = namedtuple('args_nt', ','.join(common.keys()))
 globals()[args.__name__] = args
 
 
 class BenchmarkClient(threading.Thread):
-    def __init__(self):
+    def __init__(self, vocab):
         super().__init__()
         self.batch = [' '.join(random.choices(vocab, k=args.max_seq_len)) for _ in range(args.client_batch_size)]
         self.num_repeat = args.num_repeat
@@ -87,6 +83,10 @@ class BenchmarkClient(threading.Thread):
 
 
 if __name__ == '__main__':
+    with open(args.client_vocab_source, encoding='utf8') as fp:
+        vocab = list(set(vv for v in fp for vv in v.strip().split()))
+    tprint('vocabulary size: %d' % len(vocab))
+
     experiments = {k: common['test_%s' % k] for k in
                    ['client_batch_size', 'max_batch_size', 'max_seq_len', 'num_client', 'pooling_layer']}
 
@@ -106,7 +106,7 @@ if __name__ == '__main__':
             time.sleep(args.wait_till_ready)
 
             # sleep until server is ready
-            all_clients = [BenchmarkClient() for _ in range(args.num_client)]
+            all_clients = [BenchmarkClient(vocab) for _ in range(args.num_client)]
             for bc in all_clients:
                 bc.start()
 
