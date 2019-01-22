@@ -72,7 +72,7 @@ if __name__ == '__main__':
         cargs = deepcopy(args)
         exp_vars = vars(args)['test_%s' % exp_name]
         avg_speed = []
-        fp.write('speed wrt. %s\n' % exp_name)
+        fp.write('\n%s\tsamples/s\n' % exp_name)
         for cvar in exp_vars:
             # override exp args
             setattr(cargs, exp_name, cvar)
