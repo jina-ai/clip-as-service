@@ -1,6 +1,5 @@
 import argparse
 import random
-import string
 import sys
 import threading
 import time
@@ -10,6 +9,11 @@ from bert_serving.client import BertClient
 from bert_serving.server import BertServer, get_args_parser
 from bert_serving.server.helper import get_run_args
 from numpy import mean
+
+
+def tprint(msg):
+    sys.stdout.write(msg + '\n')
+    sys.stdout.flush()
 
 
 def get_benchmark_parser():
@@ -27,6 +31,7 @@ def get_benchmark_parser():
                              'as the first two results are omitted for warm-up effect')
     parser.add_argument('-fp16', action='store_true', default=False,
                         help='use float16 precision (experimental)')
+
     parser.add_argument('-default_max_batch_size', type=int, default=512,
                         help='default value for maximum number of sequences handled by each worker')
     parser.add_argument('-default_max_seq_len', type=int, default=32,
@@ -43,50 +48,45 @@ def get_benchmark_parser():
 
     parser.add_argument('-wait_till_ready', type=int, default=30,
                         help='seconds to wait until server is ready to serve')
+    parser.add_argument('-client_vocab_source', type=str, default='README.md',
+                        help='file path for building client vocabulary')
     return parser
 
 
-common_1 = vars(get_args_parser().parse_args(['-model_dir', '']))
-common_2 = vars(get_run_args(get_benchmark_parser))
-common = {k: v for k, v in common_1.items()}
-for k, v in common_2.items():
+common = vars(get_args_parser().parse_args(['-model_dir', '']))
+for k, v in vars(get_run_args(get_benchmark_parser)).items():
     common[k] = v
 
 param_str = '\n'.join(['%20s = %s' % (k, v) for k, v in sorted(vars(common).items())])
-print('%20s   %s\n%s\n%s\n' % ('ARG', 'VALUE', '_' * 50, param_str))
+tprint('%20s   %s\n%s\n%s\n' % ('ARG', 'VALUE', '_' * 50, param_str))
+
+with open(common['client_text_source'], encoding='utf8') as fp:
+    vocab = list(set(vv for v in fp for vv in v.strip().split()))
+tprint('vocabulary size: %d' % len(vocab))
 
 args = namedtuple('args_nt', ','.join(common.keys()))
 globals()[args.__name__] = args
 
 
-def tprint(msg):
-    """like print, but won't get newlines confused with multiple threads"""
-    sys.stdout.write(msg + '\n')
-    sys.stdout.flush()
-
-
 class BenchmarkClient(threading.Thread):
     def __init__(self):
         super().__init__()
-        self.batch = [''.join(random.choices(string.ascii_uppercase + string.digits,
-                                             k=args.max_seq_len)) for _ in range(args.client_batch_size)]
-
+        self.batch = [' '.join(random.choices(vocab, k=args.max_seq_len)) for _ in range(args.client_batch_size)]
         self.num_repeat = args.num_repeat
         self.avg_time = 0
 
     def run(self):
-        time_all = []
-        bc = BertClient(port=args.port, port_out=args.port_out,
-                        show_server_config=False, check_version=False, check_length=False)
-        for _ in range(self.num_repeat):
-            start_t = time.perf_counter()
-            bc.encode(self.batch)
-            time_all.append(time.perf_counter() - start_t)
-        self.avg_time = mean(time_all[2:])  # first one is often slow due to cold-start/warm-up effect
+        with BertClient(port=args.port, port_out=args.port_out,
+                        show_server_config=False, check_version=False, check_length=False) as bc:
+            time_all = []
+            for _ in range(self.num_repeat):
+                start_t = time.perf_counter()
+                bc.encode(self.batch)
+                time_all.append(time.perf_counter() - start_t)
+            self.avg_time = mean(time_all[2:])  # first one is often slow due to cold-start/warm-up effect
 
 
 if __name__ == '__main__':
-
     experiments = {k: common['test_%s' % k] for k in
                    ['client_batch_size', 'max_batch_size', 'max_seq_len', 'num_client', 'pooling_layer']}
 
