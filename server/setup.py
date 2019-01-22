@@ -38,8 +38,9 @@ setup(
         'Operating System :: OS Independent',
         'Topic :: Scientific/Engineering :: Artificial Intelligence',
     ),
-    scripts=[
-        'bin/bert-serving-start',
-    ],
+    entry_points={
+        'console_scripts': ['bert-serving-start=bert_serving.server.cli.main',
+                            'bert-serving-benchmark=bert_serving.server.cli.benchmark'],
+    },
     keywords='bert nlp tensorflow machine learning sentence encoding embedding serving',
 )
