@@ -45,9 +45,14 @@ def optimize_graph(args, logger=None):
 
         config_fp = os.path.join(args.model_dir, args.config_name)
         init_checkpoint = os.path.join(args.tuned_model_dir or args.model_dir, args.ckpt_name)
+        if args.fp16:
+            logger.warning('fp16 is turned on! '
+                           'Note that not all CPU GPU support fast fp16 instructions, '
+                           'worst case you will have degraded performance!')
         logger.info('model config: %s' % config_fp)
         logger.info(
-            'checkpoint%s: %s' % (' (override by fine-tuned model)' if args.tuned_model_dir else '', init_checkpoint))
+            'checkpoint%s: %s' % (
+            ' (override by the fine-tuned model)' if args.tuned_model_dir else '', init_checkpoint))
         with tf.gfile.GFile(config_fp, 'r') as f:
             bert_config = modeling.BertConfig.from_dict(json.load(f))
 
@@ -121,6 +126,7 @@ def optimize_graph(args, logger=None):
 
         with tf.Session(config=config) as sess:
             logger.info('load parameters from checkpoint...')
+
             sess.run(tf.global_variables_initializer())
             dtypes = [n.dtype for n in input_tensors]
             logger.info('optimize...')
@@ -149,7 +155,7 @@ def convert_variables_to_constants(sess,
                                    output_node_names,
                                    variable_names_whitelist=None,
                                    variable_names_blacklist=None,
-                                   use_fp16=False, logger=None):
+                                   use_fp16=False):
     from tensorflow.python.framework.graph_util_impl import extract_sub_graph
     from tensorflow.core.framework import graph_pb2
     from tensorflow.core.framework import node_def_pb2
@@ -160,14 +166,6 @@ def convert_variables_to_constants(sess,
     def patch_dtype(input_node, field_name, output_node):
         if use_fp16 and (field_name in input_node.attr) and (input_node.attr[field_name].type == types_pb2.DT_FLOAT):
             output_node.attr[field_name].CopyFrom(attr_value_pb2.AttrValue(type=types_pb2.DT_HALF))
-
-    if not logger:
-        logger = set_logger(colored('GRAPHOPT', 'cyan'))
-
-    if use_fp16:
-        logger.warning('fp16 is turned on! '
-                       'Note that not all CPU and GPU support fast fp16 instructions, '
-                       'worst case you will have degraded performance!')
 
     inference_graph = extract_sub_graph(input_graph_def, output_node_names)
 
@@ -191,7 +189,6 @@ def convert_variables_to_constants(sess,
     else:
         returned_variables = []
     found_variables = dict(zip(variable_dict_names, returned_variables))
-    logger.info("freezing %d variables...", len(returned_variables))
 
     output_graph_def = graph_pb2.GraphDef()
     how_many_converted = 0
@@ -245,5 +242,4 @@ def convert_variables_to_constants(sess,
         output_graph_def.node.extend([output_node])
 
     output_graph_def.library.CopyFrom(inference_graph.library)
-    logger.info("Converted %d variables to const ops.", how_many_converted)
     return output_graph_def

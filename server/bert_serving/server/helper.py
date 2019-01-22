@@ -171,3 +171,27 @@ def get_run_args(parser_fn=get_args_parser, printed=True):
         param_str = '\n'.join(['%20s = %s' % (k, v) for k, v in sorted(vars(args).items())])
         print('usage: %s\n%20s   %s\n%s\n%s\n' % (' '.join(sys.argv), 'ARG', 'VALUE', '_' * 50, param_str))
     return args
+
+
+def get_benchmark_parser():
+    parser = get_args_parser()
+
+    parser.set_defaults(max_batch_size=512, max_seq_len=32, num_client=1, client_batch_size=4096, pooling_layer=[-2])
+
+    group = parser.add_argument_group('Benchmark parameters',
+                                      'config the experiments of the benchmark')
+
+    group.add_argument('-test_client_batch_size', type=int, nargs='+', default=[1, 16, 256, 4096])
+    group.add_argument('-test_max_batch_size', type=int, nargs='+', default=[8, 32, 128, 512])
+    group.add_argument('-test_max_seq_len', type=int, nargs='+', default=[32, 64, 128, 256, 512])
+    group.add_argument('-test_num_client', type=int, nargs='+', default=[1, 4, 16, 64])
+    group.add_argument('-test_pooling_layer', type=int, nargs='+', default=[[-j] for j in range(1, 13)])
+
+    group.add_argument('-wait_till_ready', type=int, default=30,
+                       help='seconds to wait until server is ready to serve')
+    group.add_argument('-client_vocab_file', type=str, default='README.md',
+                       help='file path for building client vocabulary')
+    group.add_argument('-num_repeat', type=int, default=10,
+                       help='number of repeats per experiment (must >2), '
+                            'as the first two results are omitted for warm-up effect')
+    return parser
