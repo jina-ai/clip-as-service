@@ -90,47 +90,41 @@ if __name__ == '__main__':
     experiments = {k: common['test_%s' % k] for k in
                    ['client_batch_size', 'max_batch_size', 'max_seq_len', 'num_client', 'pooling_layer']}
 
-    fp = open('benchmark-%d-fp16-%s.result' % (args.num_worker, args.fp16), 'w')
+    fp = open('benchmark-%d%s.result' % (args.num_worker, '-fp16' if args.fp16 else ''), 'w')
     for var_name, var_lst in experiments.items():
         # set common args
         for k, v in common.items():
             setattr(args, k, v)
 
         avg_speed = []
-        for var in var_lst:
+        fp.write('speed wrt. %s\n' % var_name)
+        for cvar in var_lst:
             # override exp args
-            setattr(args, var_name, var)
+            setattr(args, var_name, cvar)
             server = BertServer(args)
             server.start()
+            time.sleep(args.wait_till_ready)
 
             # sleep until server is ready
-            time.sleep(args.wait_till_ready)
             all_clients = [BenchmarkClient() for _ in range(args.num_client)]
-
-            tprint('num_client: %d' % len(all_clients))
             for bc in all_clients:
                 bc.start()
 
-            all_thread_speed = []
+            clients_speed = []
             for bc in all_clients:
                 bc.join()
-                cur_speed = args.client_batch_size / bc.avg_time
-                all_thread_speed.append(cur_speed)
-
-            max_speed = int(max(all_thread_speed))
-            min_speed = int(min(all_thread_speed))
-            t_avg_speed = int(mean(all_thread_speed))
-
-            tprint('%s: %s\t%.3f\t%d/s' % (var_name, var, bc.avg_time, t_avg_speed))
-            tprint('max speed: %d\t min speed: %d' % (max_speed, min_speed))
-            avg_speed.append(t_avg_speed)
+                clients_speed.append(args.client_batch_size / bc.avg_time)
             server.close()
 
-        fp.write('#### Speed wrt. `%s`\n\n' % var_name)
-        fp.write('|`%s`|seqs/s|\n' % var_name)
-        fp.write('|---|---|\n')
-        for i, j in zip(var_lst, avg_speed):
-            fp.write('|%s|%d|\n' % (i, j))
+            max_speed, min_speed, cavg_speed = int(max(clients_speed)), int(min(clients_speed)), int(
+                mean(clients_speed))
+
+            tprint('avg speed: %d\tmax speed: %d\tmin speed: %d' % (cavg_speed, max_speed, min_speed))
+            fp.write('%s\t%d\n' % (cvar, cavg_speed))
             fp.flush()
-        fp.write('\n')
+            avg_speed.append(cavg_speed)
+
+        # for plotting
+        fp.write('%s\n%s\n' % (var_lst, avg_speed))
+        fp.flush()
     fp.close()
