@@ -718,7 +718,7 @@ No, not at all. Just do `encode` and let the server handles the rest. If the bat
 
 **A:** Yes. See [Benchmark](#zap-benchmark).
 
-To reproduce the results, please run [`python benchmark.py`](benchmark.py).
+To reproduce the results, please run [`python benchmark.py`](server/bert_serving/server/cli/bert-serving-benchmark.py).
 
 ##### **Q:** What is backend based on?
 
