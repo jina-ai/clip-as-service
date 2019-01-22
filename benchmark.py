@@ -70,9 +70,6 @@ if __name__ == '__main__':
     for exp_name in experiments:
         # set common args
         cargs = deepcopy(args)
-        # set default value
-        for v in experiments:
-            setattr(cargs, v, vars(args)['default_%s' % v])
         exp_vars = vars(args)['test_%s' % exp_name]
         avg_speed = []
         fp.write('speed wrt. %s\n' % exp_name)
