@@ -57,7 +57,7 @@ common = vars(get_args_parser().parse_args(['-model_dir', '']))
 for k, v in vars(get_run_args(get_benchmark_parser)).items():
     common[k] = v
 
-param_str = '\n'.join(['%20s = %s' % (k, v) for k, v in sorted(vars(common).items())])
+param_str = '\n'.join(['%20s = %s' % (k, v) for k, v in sorted(common.items())])
 tprint('%20s   %s\n%s\n%s\n' % ('ARG', 'VALUE', '_' * 50, param_str))
 
 with open(common['client_text_source'], encoding='utf8') as fp:
