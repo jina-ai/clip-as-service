@@ -40,3 +40,17 @@ usage via:
 .. argparse::
    :ref: server.helper.get_args_parser
    :prog: bert-serving-server
+
+
+Server-side Benchmark
+---------------------
+
+If you want to benchmark the speed, you may use:
+
+.. code:: bash
+
+   bert-serving-benchmark --help
+
+.. argparse::
+   :ref: server.helper.get_benchmark_parser
+   :prog: bert-serving-benchmark
