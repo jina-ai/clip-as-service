@@ -52,9 +52,11 @@ class BenchmarkClient(threading.Thread):
         self.batch = [' '.join(random.choices(vocab, k=cargs.max_seq_len)) for _ in range(cargs.client_batch_size)]
         self.num_repeat = cargs.num_repeat
         self.avg_time = 0
+        self.port = cargs.port
+        self.port_out = cargs.port_out
 
     def run(self):
-        with BertClient(port=cargs.port, port_out=cargs.port_out,
+        with BertClient(port=self.port, port_out=self.port_out,
                         show_server_config=False, check_version=False, check_length=False) as bc:
             time_all = []
             for _ in range(self.num_repeat):
