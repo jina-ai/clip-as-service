@@ -18,19 +18,10 @@ def tprint(msg):
 def get_benchmark_parser():
     parser = get_args_parser()
 
+    parser.set_defaults(max_batch_size=512, max_seq_len=32, num_client=1, client_batch_size=4096, pooling_layer=[-2])
+
     group = parser.add_argument_group('Benchmark parameters',
                                       'config the experiments of the benchmark')
-
-    group.add_argument('-default_max_batch_size', type=int, default=512,
-                       help='default value for maximum number of sequences handled by each worker')
-    group.add_argument('-default_max_seq_len', type=int, default=32,
-                       help='default value for maximum length of a sequence')
-    group.add_argument('-default_num_client', type=int, default=1,
-                       help='default value for number of concurrent clients')
-    group.add_argument('-default_client_batch_size', type=int, default=4096,
-                       help='default value for client batch size')
-    group.add_argument('-default_pooling_layer', type=int, default=-2,
-                       help='default value for pooling layer')
 
     group.add_argument('-test_client_batch_size', type=int, nargs='+', default=[1, 16, 256, 4096])
     group.add_argument('-test_max_batch_size', type=int, nargs='+', default=[8, 32, 128, 512])
