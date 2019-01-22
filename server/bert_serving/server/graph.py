@@ -51,7 +51,8 @@ def optimize_graph(args, logger=None):
                            'worst case you will have degraded performance!')
         logger.info('model config: %s' % config_fp)
         logger.info(
-            'checkpoint%s: %s' % (' (override by fine-tuned model)' if args.tuned_model_dir else '', init_checkpoint))
+            'checkpoint%s: %s' % (
+            ' (override by the fine-tuned model)' if args.tuned_model_dir else '', init_checkpoint))
         with tf.gfile.GFile(config_fp, 'r') as f:
             bert_config = modeling.BertConfig.from_dict(json.load(f))
 
