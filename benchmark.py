@@ -90,6 +90,7 @@ if __name__ == '__main__':
     experiments = {k: common['test_%s' % k] for k in
                    ['client_batch_size', 'max_batch_size', 'max_seq_len', 'num_client', 'pooling_layer']}
 
+    print(args)
     fp = open('benchmark-%d%s.result' % (args.num_worker, '-fp16' if args.fp16 else ''), 'w')
     for var_name, var_lst in experiments.items():
         # set common args
