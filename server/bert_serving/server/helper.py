@@ -189,7 +189,7 @@ def get_benchmark_parser():
 
     group.add_argument('-wait_till_ready', type=int, default=30,
                        help='seconds to wait until server is ready to serve')
-    group.add_argument('-client_vocab_source', type=str, default='README.md',
+    group.add_argument('-client_vocab_file', type=argparse.FileType('r'), default='README.md',
                        help='file path for building client vocabulary')
     group.add_argument('-num_repeat', type=int, default=10,
                        help='number of repeats per experiment (must >2), '
