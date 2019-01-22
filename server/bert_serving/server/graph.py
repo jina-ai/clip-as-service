@@ -45,9 +45,9 @@ def optimize_graph(args, logger=None):
 
         config_fp = os.path.join(args.model_dir, args.config_name)
         init_checkpoint = os.path.join(args.tuned_model_dir or args.model_dir, args.ckpt_name)
-        if args.use_fp16:
+        if args.fp16:
             logger.warning('fp16 is turned on! '
-                           'Note that not all CPU and GPU support fast fp16 instructions, '
+                           'Note that not all CPU GPU support fast fp16 instructions, '
                            'worst case you will have degraded performance!')
         logger.info('model config: %s' % config_fp)
         logger.info(
