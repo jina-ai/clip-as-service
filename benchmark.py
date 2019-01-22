@@ -47,8 +47,8 @@ tprint('vocabulary size: %d' % len(vocab))
 
 
 class BenchmarkClient(threading.Thread):
-    def __init__(self):
-        super().__init__(cargs)
+    def __init__(self, cargs):
+        super().__init__()
         self.batch = [' '.join(random.choices(vocab, k=cargs.max_seq_len)) for _ in range(cargs.client_batch_size)]
         self.num_repeat = cargs.num_repeat
         self.avg_time = 0
