@@ -28,5 +28,5 @@ if __name__ == '__main__':
         c_num_tokens = num_tokens * (2 ** j)
         bc.encode(tmp)
         time_t = time.time() - start_t
-        print('encoding %10d sentences [%3.3fs]\t%4d samples/s\t%6d tokens/s' %
+        print('encoding %10d sentences\t%.2fs\t%4d samples/s\t%6d tokens/s' %
               (len(tmp), time_t, int(len(tmp) / time_t), int(c_num_tokens / time_t)))
