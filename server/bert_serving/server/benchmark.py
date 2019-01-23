@@ -40,6 +40,7 @@ def run_benchmark(args):
     print('vocabulary size: %d' % len(vocab))
 
     all_exp_names = [k.replace('test_', '') for k in vars(args).keys() if k.startswith('test_')]
+    print(all_exp_names)
     fp = open('benchmark-%d%s.result' % (args.num_worker, '-fp16' if args.fp16 else ''), 'w')
     for exp_name in all_exp_names:
         # set common args
