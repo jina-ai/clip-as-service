@@ -995,3 +995,18 @@ As one can observe, 1 clients 1 GPU = 381 seqs/s, 2 clients 2 GPU 402 seqs/s, 4 
 | [-11]           | 1523  | 2737  | 4752  |
 | [-12]           | 1568  | 2985  | 5303  |
 
+
+#### Speed wrt. `-fp16` and `-xla`
+
+`bert-as-service` supports two additional optimizations: half-precision and XLA, which can be turned on by adding `-fp16` and `-xla` to `bert-serving-start`, respectively. To enable these two options, you have to meet the following requirements:
+
+- your GPU supports FP16 instructions;
+- your Tensorflow is self-compiled with XLA and `-march=native`;
+- your CUDA and cudnn are not too old.
+
+On Tesla V100 with `tensorflow=1.13.0-rc0` it gives:
+
+<img src=".github/fp16-xla.svg?raw=true" width="600">
+
+
+
