@@ -41,14 +41,14 @@ def run_benchmark(args):
 
     # select those non-empty test cases
     all_exp_names = [k.replace('test_', '') for k, v in vars(args).items() if k.startswith('test_') and v]
-    fp = open('benchmark-%d%s.result' % (args.num_worker, '-fp16' if args.fp16 else ''), 'w')
+    fw = open('benchmark-%d%s.result' % (args.num_worker, '-fp16' if args.fp16 else ''), 'w')
     for exp_name in all_exp_names:
         # set common args
         cargs = deepcopy(args)
         exp_vars = vars(args)['test_%s' % exp_name]
         avg_speed = []
-        fp.write('\n|`%s`\t|samples/s|\n' % exp_name)
-        fp.write('\n|---|---|\n')
+        fw.write('\n|`%s`\t|samples/s|\n' % exp_name)
+        fw.write('|---|---|\n')
         for cvar in exp_vars:
             # override exp args
             setattr(cargs, exp_name, cvar)
@@ -71,10 +71,10 @@ def run_benchmark(args):
                 mean(clients_speed))
 
             print('avg speed: %d\tmax speed: %d\tmin speed: %d' % (cavg_speed, max_speed, min_speed), flush=True)
-            fp.write('|%s\t|%d|\n' % (cvar, cavg_speed))
+            fw.write('|%s\t|%d|\n' % (cvar, cavg_speed))
             avg_speed.append(cavg_speed)
 
         # for plotting
-        fp.write('\n%s\n%s\n' % (exp_vars, avg_speed))
-        fp.flush()
-    fp.close()
+        fw.write('\n%s\n%s\n' % (exp_vars, avg_speed))
+        fw.flush()
+    fw.close()
