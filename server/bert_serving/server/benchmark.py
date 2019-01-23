@@ -48,8 +48,6 @@ def run_benchmark(args):
         exp_vars = vars(args)['test_%s' % exp_name]
         avg_speed = []
 
-        print('\n|`%s`\t|samples/s|\n' % exp_name, file=fw)
-        print('|---|---|\n', file=fw)
         for cvar in exp_vars:
             # override exp args
             setattr(cargs, exp_name, cvar)
@@ -72,9 +70,12 @@ def run_benchmark(args):
                 mean(clients_speed))
 
             print('avg speed: %d\tmax speed: %d\tmin speed: %d' % (cavg_speed, max_speed, min_speed), flush=True)
-            print('|%s\t|%d|\n' % (cvar, cavg_speed), file=fw)
+
             avg_speed.append(cavg_speed)
 
-        # for plotting
-        print('\n%s\n%s\n' % (exp_vars, avg_speed), file=fw)
+        print('\n|`%s`\t|samples/s|\n|---|---|' % exp_name, file=fw)
+        for cvar, cavg_speed in zip(exp_vars, avg_speed):
+            print('|%s\t|%d|' % (cvar, cavg_speed), file=fw)
+        # for additional plotting
+        print('\n%s = %s\n%s = %s' % (exp_name, exp_vars, 'speed', avg_speed), file=fw)
     fw.close()
