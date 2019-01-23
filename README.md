@@ -1008,5 +1008,7 @@ On Tesla V100 with `tensorflow=1.13.0-rc0` it gives:
 
 <img src=".github/fp16-xla.svg?raw=true" width="600">
 
+To reproduce the result, please run `python example/example1.py`.
+
 
 
