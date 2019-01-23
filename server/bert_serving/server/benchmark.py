@@ -47,6 +47,7 @@ def run_benchmark(args):
         cargs = deepcopy(args)
         exp_vars = vars(args)['test_%s' % exp_name]
         avg_speed = []
+        print('________________________________________________________________________________')
         fw.write('\n|`%s`\t|samples/s|\n' % exp_name)
         fw.write('|---|---|\n')
         for cvar in exp_vars:
