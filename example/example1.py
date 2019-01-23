@@ -22,11 +22,11 @@ if __name__ == '__main__':
         data = [v for v in fp if v.strip()][:512]
         num_tokens = sum(len([vv for vv in v.split() if vv.strip()]) for v in data)
 
-    for j in range(8):
+    for j in range(10):
         start_t = time.time()
         tmp = data * (2 ** j)
         c_num_tokens = num_tokens * (2 ** j)
         bc.encode(tmp)
         time_t = time.time() - start_t
-        print('encoding %d sentences in %.2fs, speed: %d samples/s ~ %d tokens/s' %
+        print('encoding %10d sentences [%3.3fs]\t%4d samples/s\t%6d tokens/s' %
               (len(tmp), time_t, int(len(tmp) / time_t), int(c_num_tokens / time_t)))
