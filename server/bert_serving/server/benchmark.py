@@ -21,7 +21,7 @@ class BenchmarkClient(threading.Thread):
             raise ImportError('BertClient module is not available, it is required for benchmarking.'
                               'Please use "pip install -U bert-serving-client" to install it.')
         with BertClient(port=self.port, port_out=self.port_out,
-                        show_server_config=False, check_version=False, check_length=False) as bc:
+                        show_server_config=True, check_version=False, check_length=False) as bc:
             time_all = []
             for _ in range(self.num_repeat):
                 start_t = time.perf_counter()
@@ -39,14 +39,15 @@ def run_benchmark(args):
         vocab = list(set(vv for v in fp for vv in v.strip().split()))
     print('vocabulary size: %d' % len(vocab))
 
-    all_exp_names = [k.replace('test_', '') for k in vars(args).keys() if k.startswith('test_')]
-    fp = open('benchmark-%d%s.result' % (args.num_worker, '-fp16' if args.fp16 else ''), 'w')
+    # select those non-empty test cases
+    all_exp_names = [k.replace('test_', '') for k, v in vars(args).items() if k.startswith('test_') and v]
+
     for exp_name in all_exp_names:
         # set common args
         cargs = deepcopy(args)
         exp_vars = vars(args)['test_%s' % exp_name]
         avg_speed = []
-        fp.write('\n%s\tsamples/s\n' % exp_name)
+
         for cvar in exp_vars:
             # override exp args
             setattr(cargs, exp_name, cvar)
@@ -69,11 +70,12 @@ def run_benchmark(args):
                 mean(clients_speed))
 
             print('avg speed: %d\tmax speed: %d\tmin speed: %d' % (cavg_speed, max_speed, min_speed), flush=True)
-            fp.write('%s\t%d\n' % (cvar, cavg_speed))
-            fp.flush()
+
             avg_speed.append(cavg_speed)
 
-        # for plotting
-        fp.write('%s\n%s\n' % (exp_vars, avg_speed))
-        fp.flush()
-    fp.close()
+        with open('benchmark-%d%s.result' % (args.num_worker, '-fp16' if args.fp16 else ''), 'a') as fw:
+            print('\n|`%s`\t|samples/s|\n|---|---|' % exp_name, file=fw)
+            for cvar, cavg_speed in zip(exp_vars, avg_speed):
+                print('|%s\t|%d|' % (cvar, cavg_speed), file=fw)
+            # for additional plotting
+            print('\n%s = %s\n%s = %s' % (exp_name, exp_vars, 'speed', avg_speed), file=fw)

@@ -16,14 +16,18 @@ import time
 from bert_serving.client import BertClient
 
 if __name__ == '__main__':
-    bc = BertClient(port=int(sys.argv[1]), port_out=int(sys.argv[2]))
+    bc = BertClient(port=int(sys.argv[1]), port_out=int(sys.argv[2]), show_server_config=True)
     # encode a list of strings
     with open('README.md') as fp:
-        data = [v for v in fp if v.strip()]
+        data = [v for v in fp if v.strip()][:512]
+        num_tokens = sum(len([vv for vv in v.split() if vv.strip()]) for v in data)
 
-    for j in range(1, 200, 10):
+    bc.encode(data)  # warm-up GPU
+    for j in range(10):
         start_t = time.time()
-        tmp = data * j
+        tmp = data * (2 ** j)
+        c_num_tokens = num_tokens * (2 ** j)
         bc.encode(tmp)
         time_t = time.time() - start_t
-        print('encoding %d strs in %.2fs, speed: %d/s' % (len(tmp), time_t, int(len(tmp) / time_t)))
+        print('encoding %10d sentences\t%.2fs\t%4d samples/s\t%6d tokens/s' %
+              (len(tmp), time_t, int(len(tmp) / time_t), int(c_num_tokens / time_t)))

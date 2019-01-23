@@ -176,16 +176,15 @@ def get_run_args(parser_fn=get_args_parser, printed=True):
 def get_benchmark_parser():
     parser = get_args_parser()
 
-    parser.set_defaults(max_batch_size=256, max_seq_len=32, num_client=1, client_batch_size=4096, pooling_layer=[-2])
+    parser.set_defaults(num_client=1, client_batch_size=4096)
 
-    group = parser.add_argument_group('Benchmark parameters',
-                                      'config the experiments of the benchmark')
+    group = parser.add_argument_group('Benchmark parameters', 'config the experiments of the benchmark')
 
-    group.add_argument('-test_client_batch_size', type=int, nargs='+', default=[1, 16, 256, 4096])
-    group.add_argument('-test_max_batch_size', type=int, nargs='+', default=[8, 32, 128, 512])
-    group.add_argument('-test_max_seq_len', type=int, nargs='+', default=[32, 64, 128, 256])
-    group.add_argument('-test_num_client', type=int, nargs='+', default=[1, 4, 16, 64])
-    group.add_argument('-test_pooling_layer', type=int, nargs='+', default=[[-j] for j in range(1, 13)])
+    group.add_argument('-test_client_batch_size', type=int, nargs='*', default=[1, 16, 256, 4096])
+    group.add_argument('-test_max_batch_size', type=int, nargs='*', default=[8, 32, 128, 512])
+    group.add_argument('-test_max_seq_len', type=int, nargs='*', default=[32, 64, 128, 256])
+    group.add_argument('-test_num_client', type=int, nargs='*', default=[1, 4, 16, 64])
+    group.add_argument('-test_pooling_layer', type=int, nargs='*', default=[[-j] for j in range(1, 13)])
 
     group.add_argument('-wait_till_ready', type=int, default=30,
                        help='seconds to wait until server is ready to serve')
