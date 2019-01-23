@@ -1008,7 +1008,4 @@ On Tesla V100 with `tensorflow=1.13.0-rc0` it gives:
 
 <img src=".github/fp16-xla.svg" width="600">
 
-To reproduce the result, please run `python example/example1.py`.
-
-
-
+FP16 achieves ~1.4x speedup (round-trip) comparing to the FP32 counterpart. To reproduce the result, please run `python example/example1.py`.
