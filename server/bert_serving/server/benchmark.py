@@ -41,7 +41,7 @@ def run_benchmark(args):
 
     # select those non-empty test cases
     all_exp_names = [k.replace('test_', '') for k, v in vars(args).items() if k.startswith('test_') and v]
-
+    print(all_exp_names)
     fp = open('benchmark-%d%s.result' % (args.num_worker, '-fp16' if args.fp16 else ''), 'w')
     for exp_name in all_exp_names:
         # set common args
