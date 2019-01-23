@@ -48,7 +48,7 @@ def run_benchmark(args):
         exp_vars = vars(args)['test_%s' % exp_name]
         avg_speed = []
         fp.write('\n|`%s`\t|samples/s|\n' % exp_name)
-        fp.write('\n|---|---|\n' % exp_name)
+        fp.write('\n|---|---|\n')
         for cvar in exp_vars:
             # override exp args
             setattr(cargs, exp_name, cvar)
