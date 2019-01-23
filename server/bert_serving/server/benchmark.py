@@ -41,7 +41,7 @@ def run_benchmark(args):
 
     # select those non-empty test cases
     all_exp_names = [k.replace('test_', '') for k, v in vars(args).items() if k.startswith('test_') and v]
-    fw = open('benchmark-%d%s.result' % (args.num_worker, '-fp16' if args.fp16 else ''), 'w')
+
     for exp_name in all_exp_names:
         # set common args
         cargs = deepcopy(args)
@@ -73,9 +73,9 @@ def run_benchmark(args):
 
             avg_speed.append(cavg_speed)
 
-        print('\n|`%s`\t|samples/s|\n|---|---|' % exp_name, file=fw)
-        for cvar, cavg_speed in zip(exp_vars, avg_speed):
-            print('|%s\t|%d|' % (cvar, cavg_speed), file=fw)
-        # for additional plotting
-        print('\n%s = %s\n%s = %s' % (exp_name, exp_vars, 'speed', avg_speed), file=fw)
-    fw.close()
+        with open('benchmark-%d%s.result' % (args.num_worker, '-fp16' if args.fp16 else ''), 'a') as fw:
+            print('\n|`%s`\t|samples/s|\n|---|---|' % exp_name, file=fw)
+            for cvar, cavg_speed in zip(exp_vars, avg_speed):
+                print('|%s\t|%d|' % (cvar, cavg_speed), file=fw)
+            # for additional plotting
+            print('\n%s = %s\n%s = %s' % (exp_name, exp_vars, 'speed', avg_speed), file=fw)
