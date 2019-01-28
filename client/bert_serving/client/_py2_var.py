@@ -1,3 +1,5 @@
+__all__ = ['_py2', '_str', '_buffer', '_unicode']
+
 _py2 = True
 _str = basestring
 _buffer = buffer
