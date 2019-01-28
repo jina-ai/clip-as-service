@@ -19,16 +19,9 @@ __all__ = ['__version__', 'BertClient']
 __version__ = '1.7.8'
 
 if sys.version_info >= (3, 0):
-    _py2 = False
-    _str = str
-    _buffer = memoryview
-    _unicode = lambda x: x
+    from ._py3_var import *
 else:
-    # make it compatible for py2
-    _py2 = True
-    _str = basestring
-    _buffer = buffer
-    _unicode = lambda x: [BertClient._force_to_unicode(y) for y in x]
+    from ._py2_var import *
 
 Response = namedtuple('Response', ['id', 'content'])
 
@@ -183,7 +176,7 @@ class BertClient:
                 if _py2:
                     raise t_e
                 else:
-                    raise t_e from _e
+                    _raise(t_e, _e)
             finally:
                 self.receiver.setsockopt(zmq.RCVTIMEO, -1)
 
@@ -251,7 +244,6 @@ class BertClient:
                           'when you do not want to display this warning\n'
                           '- or, start a new server with a larger "max_seq_len"' % self.length_limit)
 
-        texts = _unicode(texts)
         self._send(jsonapi.dumps(texts), len(texts))
         return self._recv_ndarray().content if blocking else None
 
@@ -345,6 +337,8 @@ class BertClient:
             if not s.strip():
                 raise ValueError(
                     'all elements in the list must be non-empty string, but element %d is %s' % (idx, repr(s)))
+            if _py2:
+                texts[idx] = _unicode(texts[idx])
 
     @staticmethod
     def _check_input_lst_lst_str(texts):
@@ -355,10 +349,6 @@ class BertClient:
                 '"texts" must be a non-empty list, but received %s with %d elements' % (type(texts), len(texts)))
         for s in texts:
             BertClient._check_input_lst_str(s)
-
-    @staticmethod
-    def _force_to_unicode(text):
-        return text if isinstance(text, unicode) else text.decode('utf-8')
 
     @staticmethod
     def _print_dict(x, title=None):
