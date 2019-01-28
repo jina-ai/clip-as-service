@@ -69,7 +69,7 @@
 - :octopus: **Scalable**: scale nicely and smoothly on multiple GPUs and multiple clients without worrying about concurrency. See [benchmark](#speed-wrt-num_client).
 - :gem: **Reliable**: tested on multi-billion sentences; days of running without a break or OOM or any nasty exceptions.
 
-More features: async encoding; multicasting; mix GPU-CPU workloads; optimized graph; `tf.data` friendly; customized tokenizer; flexible pooling strategy; XLA & FP16 support; build-in HTTP server; dashboard etc.
+More features: [XLA & FP16 support](#speed-wrt--fp16-and--xla); mix GPU-CPU workloads; optimized graph; `tf.data` friendly; customized tokenizer; flexible pooling strategy; [build-in HTTP server](#using-bert-as-service-to-serve-http-requests-in-json) and dashboard; [async encoding](#asynchronous-encoding); [multicasting](#broadcasting-to-multiple-clients); etc.
 
 
 <h2 align="center">Install</h2>
