@@ -87,6 +87,7 @@ class BertClient:
         self.request_id = 0
         self.timeout = timeout
         self.pending_request = set()
+        self.pending_response = {}
 
         if output_fmt == 'ndarray':
             self.formatter = lambda x: x
@@ -135,14 +136,33 @@ class BertClient:
         self.pending_request.add(self.request_id)
         return self.request_id
 
-    def _recv(self):
-        response = self.receiver.recv_multipart()
-        request_id = int(response[-1])
-        self.pending_request.remove(request_id)
-        return _Response(request_id, response)
+    def _recv(self, wait_for_req_id=None):
+        try:
+            while True:
+                # a request has been returned and found in pending_response
+                if wait_for_req_id in self.pending_response:
+                    response = self.pending_response.pop(wait_for_req_id)
+                    self.pending_request.remove(wait_for_req_id)
+                    return _Response(wait_for_req_id, response)
 
-    def _recv_ndarray(self):
-        request_id, response = self._recv()
+                # receive a response
+                response = self.receiver.recv_multipart()
+                request_id = int(response[-1])
+
+                # if not wait for particular response then simply return
+                if not wait_for_req_id:
+                    self.pending_request.remove(request_id)
+                    return _Response(request_id, response)
+                elif wait_for_req_id != request_id:
+                    self.pending_response[request_id] = response
+        except:
+            pass
+        finally:
+            if wait_for_req_id:
+                self.pending_request.remove(wait_for_req_id)
+
+    def _recv_ndarray(self, wait_for_req_id=None):
+        request_id, response = self._recv(wait_for_req_id)
         arr_info, arr_val = jsonapi.loads(response[1]), response[2]
         X = np.frombuffer(_buffer(arr_val), dtype=str(arr_info['dtype']))
         return Response(request_id, self.formatter(X.reshape(arr_info['shape'])), arr_info.get('tokens', ''))
@@ -202,8 +222,8 @@ class BertClient:
         :rtype: dict[str, str]
 
         """
-        self._send(b'SHOW_CONFIG')
-        return jsonapi.loads(self._recv().content[1])
+        req_id = self._send(b'SHOW_CONFIG')
+        return jsonapi.loads(self._recv(req_id).content[1])
 
     @_timeout
     def encode(self, texts, blocking=True, is_tokenized=False, show_tokens=False):
@@ -255,10 +275,10 @@ class BertClient:
                           'when you do not want to display this warning\n'
                           '- or, start a new server with a larger "max_seq_len"' % self.length_limit)
 
-        self._send(jsonapi.dumps(texts), len(texts))
+        req_id = self._send(jsonapi.dumps(texts), len(texts))
         if not blocking:
             return None
-        r = self._recv_ndarray()
+        r = self._recv_ndarray(req_id)
         if self.token_info_available and show_tokens:
             return r.embedding, r.tokens
         else:
