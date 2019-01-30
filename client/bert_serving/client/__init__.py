@@ -148,6 +148,7 @@ class BertClient:
                 # receive a response
                 response = self.receiver.recv_multipart()
                 request_id = int(response[-1])
+                print('%d : %d' % (request_id, wait_for_req_id))
 
                 # if not wait for particular response then simply return
                 if not wait_for_req_id:
