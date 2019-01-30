@@ -254,7 +254,7 @@ class BertClient:
                           '- or, start a new server with a larger "max_seq_len"' % self.length_limit)
 
         self._send(jsonapi.dumps(texts), len(texts))
-        if blocking:
+        if not blocking:
             return None
         r = self._recv_ndarray()
         if self.token_info_available and show_tokens:
