@@ -288,7 +288,8 @@ class BertSink(Process):
                     token_info = jsonapi.loads(msg[1])
                     pending_tokens[job_id].append((token_info, partial_id))
                 else:
-                    logger.warning('received unknown message [%s]: %s' % (msg[3], msg))
+                    self.logger.error('received a wrongly-formatted request (expected 4 frames, got %d)' % len(msg))
+                    self.logger.error('\n'.join('field %d: %s' % (idx, k) for idx, k in enumerate(msg)), exc_info=True)
 
                 logger.info('collect job %s (%d/%d)' % (job_id,
                                                         pending_checksum[job_id],
