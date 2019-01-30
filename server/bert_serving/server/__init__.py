@@ -456,7 +456,7 @@ class BertWorker(Process):
                                                              is_tokenized, self.mask_cls_sep))
                         if self.show_tokens_to_client:
                             sink.send_multipart([client_id, jsonapi.dumps([f.tokens for f in tmp_f]),
-                                                 '', ServerCommand.send_token])
+                                                 b'', ServerCommand.send_token])
                         yield {
                             'client_id': client_id,
                             'input_ids': [f.input_ids for f in tmp_f],
