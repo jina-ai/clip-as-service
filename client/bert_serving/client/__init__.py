@@ -142,7 +142,6 @@ class BertClient:
                 # a request has been returned and found in pending_response
                 if wait_for_req_id in self.pending_response:
                     response = self.pending_response.pop(wait_for_req_id)
-                    self.pending_request.remove(wait_for_req_id)
                     return _Response(wait_for_req_id, response)
 
                 # receive a response
