@@ -151,7 +151,7 @@ class BertClient:
                 print('%d : %d' % (request_id, wait_for_req_id))
 
                 # if not wait for particular response then simply return
-                if not wait_for_req_id:
+                if not wait_for_req_id or (wait_for_req_id == request_id):
                     self.pending_request.remove(request_id)
                     return _Response(request_id, response)
                 elif wait_for_req_id != request_id:
