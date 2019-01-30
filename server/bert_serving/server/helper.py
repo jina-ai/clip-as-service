@@ -87,6 +87,8 @@ def get_args_parser():
                         help='masking the embedding on [CLS] and [SEP] with zero. \
                         When pooling_strategy is in {CLS_TOKEN, FIRST_TOKEN, SEP_TOKEN, LAST_TOKEN} \
                         then the embedding is preserved, otherwise the embedding is masked to zero before pooling')
+    group2.add_argument('-show_tokens_to_client', action='store_true', default=False,
+                        help='sending tokenization results to client')
 
     group3 = parser.add_argument_group('Serving Configs',
                                        'config how server utilizes GPU/CPU resources')

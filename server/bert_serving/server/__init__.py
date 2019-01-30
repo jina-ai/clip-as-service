@@ -32,6 +32,8 @@ class ServerCommand:
     terminate = b'TERMINATION'
     show_config = b'SHOW_CONFIG'
     new_job = b'REGISTER'
+    send_token = b'TOKENS'
+    send_embed = b'EMBEDDINGS'
 
     @staticmethod
     def is_valid(cmd):
@@ -189,7 +191,8 @@ class BertServer(threading.Thread):
             try:
                 import GPUtil
                 num_all_gpu = len(GPUtil.getGPUs())
-                avail_gpu = GPUtil.getAvailable(order='memory', limit=min(num_all_gpu, self.num_worker))
+                avail_gpu = GPUtil.getAvailable(order='memory', limit=min(num_all_gpu, self.num_worker),
+                                                maxMemory=0.9, maxLoad=0.9)
                 num_avail_gpu = len(avail_gpu)
 
                 if num_avail_gpu >= self.num_worker:
@@ -226,6 +229,7 @@ class BertSink(Process):
         self.logger = set_logger(colored('SINK', 'green'), args.verbose)
         self.front_sink_addr = front_sink_addr
         self.verbose = args.verbose
+        self.show_tokens_to_client = args.show_tokens_to_client
 
     def close(self):
         self.logger.info('shutting down...')
@@ -246,7 +250,8 @@ class BertSink(Process):
         sender.bind('tcp://*:%d' % self.port)
 
         pending_checksum = defaultdict(int)
-        pending_result = defaultdict(list)
+        pending_embed = defaultdict(list)
+        pending_tokens = defaultdict(list)
         job_checksum = defaultdict(int)
 
         poller = zmq.Poller()
@@ -266,30 +271,66 @@ class BertSink(Process):
             if socks.get(receiver) == zmq.POLLIN:
                 msg = receiver.recv_multipart()
                 job_id = msg[0]
-                # parsing the ndarray
-                arr_info, arr_val = jsonapi.loads(msg[1]), msg[2]
-                X = np.frombuffer(memoryview(arr_val), dtype=arr_info['dtype'])
-                X = X.reshape(arr_info['shape'])
+                # parsing job_id and partial_id
                 job_info = job_id.split(b'@')
                 job_id = job_info[0]
                 partial_id = job_info[1] if len(job_info) == 2 else 0
-                pending_result[job_id].append((X, partial_id))
-                pending_checksum[job_id] += X.shape[0]
+
+                if msg[3] == ServerCommand.send_embed:
+                    # parsing the ndarray
+                    arr_info, arr_val = jsonapi.loads(msg[1]), msg[2]
+                    X = np.frombuffer(memoryview(arr_val), dtype=arr_info['dtype'])
+                    X = X.reshape(arr_info['shape'])
+                    pending_embed[job_id].append((X, partial_id))
+                    pending_checksum[job_id] += X.shape[0]
+                elif msg[3] == ServerCommand.send_token:
+                    # parsing tokens
+                    token_info = jsonapi.loads(msg[1])
+                    pending_tokens[job_id].append((token_info, partial_id))
+                else:
+                    logger.warning('received unknown message [%s]: %s' % (msg[3], msg))
+
                 logger.info('collect job %s (%d/%d)' % (job_id,
                                                         pending_checksum[job_id],
                                                         job_checksum[job_id]))
 
-                # check if there are finished jobs, send it back to workers
-                finished = [(k, v) for k, v in pending_result.items() if pending_checksum[k] == job_checksum[k]]
-                for job_info, tmp in finished:
-                    logger.info('send back\tsize: %d\tjob id:%s\t' % (job_checksum[job_info], job_info))
-                    # re-sort to the original order
-                    tmp = [x[0] for x in sorted(tmp, key=lambda x: int(x[1]))]
-                    client_addr, req_id = job_info.split(b'#')
-                    send_ndarray(sender, client_addr, np.concatenate(tmp, axis=0), req_id)
-                    pending_result.pop(job_info)
-                    pending_checksum.pop(job_info)
-                    job_checksum.pop(job_info)
+                if self.show_tokens_to_client:
+                    # check if there are finished jobs, send it back to workers
+                    finished = [(k, v, pending_tokens[k]) for k, v in pending_embed.items() if
+                                pending_checksum[k] == job_checksum[k] and len(v) == len(pending_tokens[k])]
+                    for job_info, tmp_embed, tmp_tokens in finished:
+                        client_addr, req_id = job_info.split(b'#')
+
+                        # re-sort to the original order
+                        tmp_embed = [x[0] for x in sorted(tmp_embed, key=lambda x: int(x[1]))]
+                        tmp_tokens = [x[0] for x in sorted(tmp_tokens, key=lambda x: int(x[1]))]
+
+                        # concat the embedding and send back
+                        X = np.concatenate(tmp_embed, axis=0)
+                        md = dict(dtype=str(X.dtype), shape=X.shape, tokens=tmp_tokens)
+                        sender.send_multipart([client_addr, jsonapi.dumps(md), X, req_id])
+                        logger.info('send back\tsize: %d\tjob id:%s\t' % (job_checksum[job_info], job_info))
+
+                        # release the job
+                        pending_embed.pop(job_info)
+                        pending_checksum.pop(job_info)
+                        pending_tokens.pop(job_info)
+                        job_checksum.pop(job_info)
+                else:
+                    # check if there are finished jobs, send it back to workers
+                    finished = [(k, v) for k, v in pending_embed.items() if pending_checksum[k] == job_checksum[k]]
+                    for job_info, tmp_embed in finished:
+                        client_addr, req_id = job_info.split(b'#')
+
+                        # re-sort to the original order
+                        tmp_embed = [x[0] for x in sorted(tmp_embed, key=lambda x: int(x[1]))]
+                        send_ndarray(sender, client_addr, np.concatenate(tmp_embed, axis=0), req_id)
+                        logger.info('send back\tsize: %d\tjob id:%s\t' % (job_checksum[job_info], job_info))
+
+                        # release the job
+                        pending_embed.pop(job_info)
+                        pending_checksum.pop(job_info)
+                        job_checksum.pop(job_info)
 
             if socks.get(frontend) == zmq.POLLIN:
                 client_addr, msg_type, msg_info, req_id = frontend.recv_multipart()
@@ -322,6 +363,7 @@ class BertWorker(Process):
         self.verbose = args.verbose
         self.graph_path = graph_path
         self.use_fp16 = args.fp16
+        self.show_tokens_to_client = args.show_tokens_to_client
 
     def close(self):
         self.logger.info('shutting down...')
@@ -381,11 +423,11 @@ class BertWorker(Process):
             sock.connect(addr)
 
         sink.connect(self.sink_address)
-        for r in estimator.predict(self.input_fn_builder(receivers, tf), yield_single_examples=False):
-            send_ndarray(sink, r['client_id'], r['encodes'])
+        for r in estimator.predict(self.input_fn_builder(receivers, tf, sink), yield_single_examples=False):
+            send_ndarray(sink, r['client_id'], r['encodes'], ServerCommand.send_embed)
             logger.info('job done\tsize: %s\tclient: %s' % (r['encodes'].shape, r['client_id']))
 
-    def input_fn_builder(self, socks, tf):
+    def input_fn_builder(self, socks, tf, sink):
         from .bert.extract_features import convert_lst_to_features
         from .bert.tokenization import FullTokenizer
 
@@ -412,6 +454,9 @@ class BertWorker(Process):
                         is_tokenized = all(isinstance(el, list) for el in msg)
                         tmp_f = list(convert_lst_to_features(msg, self.max_seq_len, tokenizer, logger,
                                                              is_tokenized, self.mask_cls_sep))
+                        if self.show_tokens_to_client:
+                            sink.send_multipart([client_id, jsonapi.dumps([f.tokens for f in tmp_f]),
+                                                 '', ServerCommand.send_token])
                         yield {
                             'client_id': client_id,
                             'input_ids': [f.input_ids for f in tmp_f],
