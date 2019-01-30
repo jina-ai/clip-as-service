@@ -156,10 +156,11 @@ class BertClient:
                     return _Response(request_id, response)
                 elif wait_for_req_id != request_id:
                     self.pending_response[request_id] = response
+                    # wait for the next response
         except Exception as e:
             raise e
         finally:
-            if wait_for_req_id:
+            if wait_for_req_id in self.pending_request:
                 self.pending_request.remove(wait_for_req_id)
 
     def _recv_ndarray(self, wait_for_req_id=None):
