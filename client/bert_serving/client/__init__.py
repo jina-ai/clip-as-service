@@ -137,30 +137,10 @@ class BertClient:
         return self.request_id
 
     def _recv(self, wait_for_req_id=None):
-        try:
-            while True:
-                # a request has been returned and found in pending_response
-                if wait_for_req_id in self.pending_response:
-                    response = self.pending_response.pop(wait_for_req_id)
-                    return _Response(wait_for_req_id, response)
-
-                # receive a response
-                response = self.receiver.recv_multipart()
-                request_id = int(response[-1])
-                print('%d : %d' % (request_id, wait_for_req_id))
-
-                # if not wait for particular response then simply return
-                if not wait_for_req_id or (wait_for_req_id == request_id):
-                    self.pending_request.remove(request_id)
-                    return _Response(request_id, response)
-                elif wait_for_req_id != request_id:
-                    self.pending_response[request_id] = response
-                    # wait for the next response
-        except Exception as e:
-            raise e
-        finally:
-            if wait_for_req_id in self.pending_request:
-                self.pending_request.remove(wait_for_req_id)
+        response = self.receiver.recv_multipart()
+        request_id = int(response[-1])
+        self.pending_request.remove(request_id)
+        return _Response(request_id, response)
 
     def _recv_ndarray(self, wait_for_req_id=None):
         request_id, response = self._recv(wait_for_req_id)
