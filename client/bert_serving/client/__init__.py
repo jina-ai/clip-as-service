@@ -155,8 +155,8 @@ class BertClient:
                     return _Response(request_id, response)
                 elif wait_for_req_id != request_id:
                     self.pending_response[request_id] = response
-        except:
-            pass
+        except Exception as e:
+            raise e
         finally:
             if wait_for_req_id:
                 self.pending_request.remove(wait_for_req_id)
