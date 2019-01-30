@@ -307,7 +307,7 @@ class BertSink(Process):
 
                         # concat the embedding and send back
                         X = np.concatenate(tmp_embed, axis=0)
-                        md = dict(dtype=str(X.dtype), shape=X.shape, tokens=tmp_tokens)
+                        md = dict(dtype=str(X.dtype), shape=X.shape, tokens=[x for j in tmp_tokens for x in j])
                         sender.send_multipart([client_addr, jsonapi.dumps(md), X, req_id])
                         logger.info('send back\tsize: %d\tjob id:%s\t' % (job_checksum[job_info], job_info))
 
