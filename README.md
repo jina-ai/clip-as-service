@@ -182,7 +182,7 @@ The best way to learn `bert-as-service` **latest API** is [reading the documenta
 
 ### Server API
 
-[The latest server-side API documentation is available at here.](https://bert-as-service.readthedocs.io/en/latest/source/server.html#server-side-api)
+[Please always refer to the latest server-side API documented here.](https://bert-as-service.readthedocs.io/en/latest/source/server.html#server-side-api)
 Server-side is a CLI `bert-serving-start`, you can get the latest usage via:
 ```bash
 bert-serving-start --help
@@ -211,10 +211,11 @@ bert-serving-start --help
 | `xla` | bool | False | enable [XLA compiler](https://www.tensorflow.org/xla/jit) for graph optimization (*experimental!*) |
 | `fp16` | bool | False | use float16 precision (experimental) |
 | `device_map` | list | `[]` | specify the list of GPU device ids that will be used (id starts from 0)|
+| `show_tokens_to_client` | bool | False | sending tokenization results to client | 
 
 ### Client API
 
-[The latest client-side API documentation is available at here.](https://bert-as-service.readthedocs.io/en/latest/source/client.html#module-client) Client-side provides a Python class called `BertClient`, which accepts arguments as follows:
+[Please always refer to the latest client-side API documented here.](https://bert-as-service.readthedocs.io/en/latest/source/client.html#module-client) Client-side provides a Python class called `BertClient`, which accepts arguments as follows:
 
 | Argument | Type | Default | Description |
 |----------------------|------|-----------|-------------------------------------------------------------------------------|
@@ -389,7 +390,59 @@ This gives `[2, 25, 768]` tensor where the first `[1, 25, 768]` corresponds to t
 
 Note that there is no need to start a separate server for handling tokenized/untokenized sentences. The server can tell and handle both cases automatically.
 
-Beware that the pretrained BERT Chinese from Google is character-based, i.e. its vocabulary is made of single Chinese characters. Therefore it makes no sense if you use word-level segmentation algorithm to pre-process the data and feed to such model.
+Sometimes you want to know explicitly the tokenization performed on the server side to have better understanding of the embedding result. One such case is asking word embedding from the server (with `-pooling_strategy NONE`), one wants to tell which word is tokenized and which is unrecognized. You can get such result via:
+ 
+ 1. enabling `-show_tokens_to_client` on the server side;
+ 2. calling the server via `encode(..., show_tokens=True)`.
+ 
+For example, 
+
+```python
+bc.encode(['hello world!', 'thisis it'], show_tokens=True)
+```
+returns:
+
+```text
+(array([[[ 0.        , -0.        ,  0.        , ...,  0.        ,
+         -0.        , -0.        ],
+        [ 1.1100919 , -0.20474958,  0.9895898 , ...,  0.3873255 ,
+         -1.4093989 , -0.47620595],
+        ...,
+         -0.        , -0.        ]],
+
+       [[ 0.        , -0.        ,  0.        , ...,  0.        ,
+          0.        ,  0.        ],
+        [ 0.6293478 , -0.4088499 ,  0.6022662 , ...,  0.41740108,
+          1.214456  ,  1.2532915 ],
+        ...,
+          0.        ,  0.        ]]], dtype=float32), 
+          [['[CLS]', 'hello', 'world', '!', '[SEP]'], ['[CLS]', 'this', '##is', 'it', '[SEP]']])
+```
+
+whereas 
+```python
+bc.encode([['hello', 'world!'], ['thisis', 'it']], show_tokens=True, is_tokenized=True)
+```
+returns:
+
+```text
+(array([[[ 0.        , -0.        ,  0.        , ...,  0.        ,
+         -0.        ,  0.        ],
+        [ 1.1111546 , -0.56572634,  0.37183186, ...,  0.02397121,
+         -0.5445367 ,  1.1009651 ],
+        ...,
+         -0.        ,  0.        ]],
+
+       [[ 0.        ,  0.        ,  0.        , ...,  0.        ,
+         -0.        ,  0.        ],
+        [ 0.39262453,  0.3782491 ,  0.27096173, ...,  0.7122045 ,
+         -0.9874849 ,  0.9318679 ],
+        ...,
+         -0.        ,  0.        ]]], dtype=float32), 
+         [['[CLS]', 'hello', '[UNK]', '[SEP]'], ['[CLS]', '[UNK]', 'it', '[SEP]']])
+```
+
+Finally, beware that the pretrained BERT Chinese from Google is character-based, i.e. its vocabulary is made of single Chinese characters. Therefore it makes no sense if you use word-level segmentation algorithm to pre-process the data and feed to such model.
 
 
 ### Using `BertClient` with `tf.data` API
