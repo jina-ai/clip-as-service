@@ -130,9 +130,10 @@ class BertClient:
         self.context.term()
 
     def _send(self, msg, msg_len=0):
+        self.request_id += 1
         self.sender.send_multipart([self.identity, msg, b'%d' % self.request_id, b'%d' % msg_len])
         self.pending_request.add(self.request_id)
-        self.request_id += 1
+        return self.request_id
 
     def _recv(self):
         response = self.receiver.recv_multipart()
