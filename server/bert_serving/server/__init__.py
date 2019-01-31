@@ -300,6 +300,7 @@ class BertSink(Process):
                     sender.send_multipart([client_addr, x_info, x, req_id])
                     logger.info(f'send back\tsize: {tmp.checksum}\tjob id: {job_info}')
                     # release the job
+                    tmp.clear()
                     pending_jobs.pop(job_info)
 
             if socks.get(frontend) == zmq.POLLIN:
@@ -325,6 +326,12 @@ class SinkJob:
         self.progress_tokens = 0
         self.progress_embeds = 0
         self.with_tokens = with_tokens
+
+    def clear(self):
+        self._pending_embeds.clear()
+        self.tokens_ids.clear()
+        self.tokens.clear()
+        del self.final_ndarray
 
     def _insert(self, data, pid, data_lst, idx_lst):
         lo = 0
@@ -367,12 +374,11 @@ class SinkJob:
     @property
     def result(self):
         x = self.final_ndarray
-        with TimeContext('list.concat'):
-            x_info = {'dtype': str(x.dtype),
-                      'shape': x.shape,
-                      'tokens': list(chain.from_iterable(self.tokens)) if self.with_tokens else ''}
-        with TimeContext('json.dumps'):
-            x_info = jsonapi.dumps(x_info)
+        x_info = {'dtype': str(x.dtype),
+                  'shape': x.shape,
+                  'tokens': list(chain.from_iterable(self.tokens)) if self.with_tokens else ''}
+
+        x_info = jsonapi.dumps(x_info)
         return x, x_info
 
 
