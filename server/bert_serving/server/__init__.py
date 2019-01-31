@@ -296,8 +296,8 @@ class BertSink(Process):
                 finished = [(k, v) for k, v in pending_jobs.items() if v.is_done]
                 for job_info, tmp in finished:
                     client_addr, req_id = job_info.split(b'#')
-                    X, md = tmp.result
-                    sender.send_multipart([client_addr, jsonapi.dumps(md), X, req_id])
+                    x, x_info = tmp.result
+                    sender.send_multipart([client_addr, x_info, x, req_id])
                     logger.info(f'send back\tsize: {tmp.checksum}\tjob id: {job_info}')
                     # release the job
                     pending_jobs.pop(job_info)
@@ -355,10 +355,15 @@ class SinkJob:
 
     @property
     def result(self):
-        X = np.concatenate(self.embeds, axis=0)
-        return X, {'dtype': str(X.dtype),
-                   'shape': X.shape,
-                   'tokens': list(chain.from_iterable(self.tokens)) if self.with_tokens else ''}
+        with TimeContext('np.concat'):
+            x = np.concatenate(self.embeds, axis=0)
+        with TimeContext('list.concat'):
+            x_info = {'dtype': str(x.dtype),
+                      'shape': x.shape,
+                      'tokens': list(chain.from_iterable(self.tokens)) if self.with_tokens else ''}
+        with TimeContext('json.dumps'):
+            x_info = jsonapi.dumps(x_info)
+        return x, x_info
 
 
 class BertWorker(Process):
