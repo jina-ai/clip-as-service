@@ -390,59 +390,53 @@ This gives `[2, 25, 768]` tensor where the first `[1, 25, 768]` corresponds to t
 
 Note that there is no need to start a separate server for handling tokenized/untokenized sentences. The server can tell and handle both cases automatically.
 
-Sometimes you want to know explicitly the tokenization performed on the server side to have better understanding of the embedding result. One such case is asking word embedding from the server (with `-pooling_strategy NONE`), one wants to tell which word is tokenized and which is unrecognized. You can get such result via:
+Sometimes you want to know explicitly the tokenization performed on the server side to have better understanding of the embedding result. One such case is asking word embedding from the server (with `-pooling_strategy NONE`), one wants to tell which word is tokenized and which is unrecognized. You can get such information with the following steps:
  
  1. enabling `-show_tokens_to_client` on the server side;
  2. calling the server via `encode(..., show_tokens=True)`.
  
-For example, 
+For example, a basic usage like
 
 ```python
 bc.encode(['hello world!', 'thisis it'], show_tokens=True)
 ```
-returns:
+returns a tuple, where the first element is the embedding and the second is the tokenization result from the server:
 
 ```text
-(array([[[ 0.        , -0.        ,  0.        , ...,  0.        ,
-         -0.        , -0.        ],
-        [ 1.1100919 , -0.20474958,  0.9895898 , ...,  0.3873255 ,
-         -1.4093989 , -0.47620595],
-        ...,
-         -0.        , -0.        ]],
+(array([[[ 0.        , -0.        ,  0.        , ...,  0.        , -0.        , -0.        ],
+        [ 1.1100919 , -0.20474958,  0.9895898 , ...,  0.3873255  , -1.4093989 , -0.47620595],
+        ..., -0.        , -0.        ]],
 
-       [[ 0.        , -0.        ,  0.        , ...,  0.        ,
-          0.        ,  0.        ],
-        [ 0.6293478 , -0.4088499 ,  0.6022662 , ...,  0.41740108,
-          1.214456  ,  1.2532915 ],
-        ...,
-          0.        ,  0.        ]]], dtype=float32), 
+       [[ 0.        , -0.        ,  0.        , ...,  0.        , 0.        ,  0.        ],
+        [ 0.6293478 , -0.4088499 ,  0.6022662 , ...,  0.41740108, 1.214456  ,  1.2532915 ],
+        ..., 0.        ,  0.        ]]], dtype=float32),
+         
           [['[CLS]', 'hello', 'world', '!', '[SEP]'], ['[CLS]', 'this', '##is', 'it', '[SEP]']])
 ```
 
-whereas 
+When using your own tokenization, you may still want to check if the server respects your tokens. For example,  
 ```python
 bc.encode([['hello', 'world!'], ['thisis', 'it']], show_tokens=True, is_tokenized=True)
 ```
 returns:
 
 ```text
-(array([[[ 0.        , -0.        ,  0.        , ...,  0.        ,
-         -0.        ,  0.        ],
-        [ 1.1111546 , -0.56572634,  0.37183186, ...,  0.02397121,
-         -0.5445367 ,  1.1009651 ],
-        ...,
-         -0.        ,  0.        ]],
+(array([[[ 0.        , -0.        ,  0.        , ...,  0.       ,  -0.        ,  0.        ],
+        [ 1.1111546 , -0.56572634,  0.37183186, ...,  0.02397121,  -0.5445367 ,  1.1009651 ],
+        ..., -0.        ,  0.        ]],
 
-       [[ 0.        ,  0.        ,  0.        , ...,  0.        ,
-         -0.        ,  0.        ],
-        [ 0.39262453,  0.3782491 ,  0.27096173, ...,  0.7122045 ,
-         -0.9874849 ,  0.9318679 ],
-        ...,
-         -0.        ,  0.        ]]], dtype=float32), 
+       [[ 0.        ,  0.        ,  0.        , ...,  0.        ,  -0.        ,  0.        ],
+        [ 0.39262453,  0.3782491 ,  0.27096173, ...,  0.7122045 ,  -0.9874849 ,  0.9318679 ],
+        ..., -0.        ,  0.        ]]], dtype=float32),
+         
          [['[CLS]', 'hello', '[UNK]', '[SEP]'], ['[CLS]', '[UNK]', 'it', '[SEP]']])
 ```
 
+One can observe that `world!` and `thisis` are not recognized on the server, hence they are set to `[UNK]`.
+
 Finally, beware that the pretrained BERT Chinese from Google is character-based, i.e. its vocabulary is made of single Chinese characters. Therefore it makes no sense if you use word-level segmentation algorithm to pre-process the data and feed to such model.
+
+Extremely curious readers may notice that the first row in the above example is all-zero even though the tokenization result includes `[CLS]` (well done, detective!). The reason is that the tokenization result will **always** includes `[CLS]` and `[UNK]` regardless the setting of `-mask_cls_sep`. This could be useful when you want to align the tokens afterwards. Remember, `-mask_cls_sep` only masks `[CLS]` and `[SEP]` out of the computation. It doesn't affect the tokenization algorithm.
 
 
 ### Using `BertClient` with `tf.data` API
