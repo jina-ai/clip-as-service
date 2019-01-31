@@ -287,9 +287,9 @@ class BertSink(Process):
                     logger.error('\n'.join('field %d: %s' % (idx, k) for idx, k in enumerate(msg)), exc_info=True)
 
                 logger.info(f'collect {msg[3]} of {job_id} '
-                            f'({pending_jobs[job_id].progress_embeds}/'
-                            f'{pending_jobs[job_id].progress_tokens}/'
-                            f'{pending_jobs[job_id].checksum})')
+                            f'(E:{pending_jobs[job_id].progress_embeds}/'
+                            f'T:{pending_jobs[job_id].progress_tokens}/'
+                            f'A:{pending_jobs[job_id].checksum})')
 
                 # check if there are finished jobs, then send it back to workers
 
@@ -298,7 +298,7 @@ class BertSink(Process):
                     client_addr, req_id = job_info.split(b'#')
                     X, md = tmp.result
                     sender.send_multipart([client_addr, jsonapi.dumps(md), X, req_id])
-                    logger.info(f'send back\tsize: {len(tmp[ServerCmd.data_embed])}\tjob id: {job_info}')
+                    logger.info(f'send back\tsize: {tmp.checksum}\tjob id: {job_info}')
                     # release the job
                     pending_jobs.pop(job_info)
 
