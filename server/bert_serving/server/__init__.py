@@ -288,8 +288,8 @@ class BertSink(Process):
                     token_info = jsonapi.loads(msg[1])
                     pending_tokens[job_id].append((token_info, partial_id))
                 else:
-                    self.logger.error('received a wrongly-formatted request (expected 4 frames, got %d)' % len(msg))
-                    self.logger.error('\n'.join('field %d: %s' % (idx, k) for idx, k in enumerate(msg)), exc_info=True)
+                    logger.error('received a wrongly-formatted request (expected 4 frames, got %d)' % len(msg))
+                    logger.error('\n'.join('field %d: %s' % (idx, k) for idx, k in enumerate(msg)), exc_info=True)
 
                 logger.info('collect job %s (%d/%d)' % (job_id,
                                                         pending_checksum[job_id],
@@ -408,8 +408,9 @@ class BertWorker(Process):
         self._run()
 
     @zmqd.socket(zmq.PUSH)
+    @zmqd.socket(zmq.PUSH)
     @multi_socket(zmq.PULL, num_socket='num_concurrent_socket')
-    def _run(self, sink, *receivers):
+    def _run(self, sink_embed, sink_token, *receivers):
         # Windows does not support logger in MP environment, thus get a new logger
         # inside the process for better compatibility
         logger = set_logger(colored('WORKER-%d' % self.worker_id, 'yellow'), self.verbose)
@@ -423,9 +424,10 @@ class BertWorker(Process):
         for sock, addr in zip(receivers, self.worker_address):
             sock.connect(addr)
 
-        sink.connect(self.sink_address)
-        for r in estimator.predict(self.input_fn_builder(receivers, tf, sink), yield_single_examples=False):
-            send_ndarray(sink, r['client_id'], r['encodes'], ServerCommand.send_embed)
+        sink_embed.connect(self.sink_address)
+        sink_token.connect(self.sink_address)
+        for r in estimator.predict(self.input_fn_builder(receivers, tf, sink_token), yield_single_examples=False):
+            send_ndarray(sink_embed, r['client_id'], r['encodes'], ServerCommand.send_embed)
             logger.info('job done\tsize: %s\tclient: %s' % (r['encodes'].shape, r['client_id']))
 
     def input_fn_builder(self, socks, tf, sink):
