@@ -342,7 +342,7 @@ class SinkJob:
         self._insert(data, pid, self.embeds, self.embeds_ids)
         self.progress_embeds += progress
 
-    def add_tokens(self, data, pid, progress):
+    def add_token(self, data, pid, progress):
         self._insert(data, pid, self.tokens, self.tokens_ids)
         self.progress_tokens += progress
 
