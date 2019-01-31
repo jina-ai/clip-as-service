@@ -278,10 +278,10 @@ class BertSink(Process):
                     # parsing the ndarray
                     arr_info, arr_val = jsonapi.loads(msg[1]), msg[2]
                     x = np.frombuffer(memoryview(arr_val), dtype=arr_info['dtype']).reshape(arr_info['shape'])
-                    pending_jobs[job_id].add_embed(x, partial_id, x.shape[0])
+                    pending_jobs[job_id].add_embed(x, partial_id)
                 elif msg[3] == ServerCmd.data_token:
                     x = jsonapi.loads(msg[1])
-                    pending_jobs[job_id].add_token(x, partial_id, len(x))
+                    pending_jobs[job_id].add_token(x, partial_id)
                 else:
                     logger.error(f'received a wrongly-formatted request (expected 4 frames, got {len(msg)})')
                     logger.error('\n'.join('field %d: %s' % (idx, k) for idx, k in enumerate(msg)), exc_info=True)
@@ -321,7 +321,7 @@ class SinkJob:
         self.tokens = []
         self.tokens_ids = []
         self.checksum = 0
-        self.embeds_result = None
+        self.final_ndarray = None
         self.progress_tokens = 0
         self.progress_embeds = 0
         self.with_tokens = with_tokens
@@ -338,20 +338,22 @@ class SinkJob:
         idx_lst.insert(lo, pid)
         data_lst.insert(lo, data)
 
-    def add_embed(self, data, pid, progress):
+    def add_embed(self, data, pid):
+        progress = data.shape[0]
         if not self.checksum:
             self._pending_embeds.append((data, pid, progress))
         else:
-            if self.embeds_result is None:
-                self.embeds_result = np.empty([self.checksum] + list(data.shape[1:]), dtype=data.dtype)
-                self.embeds_result[pid: (pid + data.shape[0])] = data
-                self.progress_embeds += progress
+            if self.final_ndarray is None:
+                self.final_ndarray = np.empty([self.checksum] + list(data.shape[1:]), dtype=data.dtype)
+            self.final_ndarray[pid: (pid + data.shape[0])] = data
+            self.progress_embeds += progress
             while self._pending_embeds:
                 data, pid, progress = self._pending_embeds.pop()
-                self.embeds_result[pid: (pid + data.shape[0])] = data
+                self.final_ndarray[pid: (pid + data.shape[0])] = data
                 self.progress_embeds += progress
 
-    def add_token(self, data, pid, progress):
+    def add_token(self, data, pid):
+        progress = len(data)
         self._insert(data, pid, self.tokens, self.tokens_ids)
         self.progress_tokens += progress
 
@@ -364,7 +366,7 @@ class SinkJob:
 
     @property
     def result(self):
-        x = self.embeds_result
+        x = self.final_ndarray
         with TimeContext('list.concat'):
             x_info = {'dtype': str(x.dtype),
                       'shape': x.shape,
