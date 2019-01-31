@@ -250,10 +250,7 @@ class BertSink(Process):
         frontend.connect(self.front_sink_addr)
         sender.bind('tcp://*:%d' % self.port)
 
-        pending_checksum = defaultdict(int)
-        pending_embed = defaultdict(list)
-        pending_tokens = defaultdict(list)
-        job_checksum = defaultdict(int)
+        pending_job = {}
 
         poller = zmq.Poller()
         poller.register(frontend, zmq.POLLIN)
@@ -275,71 +272,48 @@ class BertSink(Process):
                 # parsing job_id and partial_id
                 job_info = job_id.split(b'@')
                 job_id = job_info[0]
-                partial_id = job_info[1] if len(job_info) == 2 else 0
+                partial_id = int(job_info[1]) if len(job_info) == 2 else 0
 
                 if msg[3] == ServerCommand.send_embed:
                     # parsing the ndarray
                     arr_info, arr_val = jsonapi.loads(msg[1]), msg[2]
                     X = np.frombuffer(memoryview(arr_val), dtype=arr_info['dtype'])
-                    X = X.reshape(arr_info['shape'])
-                    pending_embed[job_id].append((X, partial_id))
-                    pending_checksum[job_id] += X.shape[0]
+                    pending_job[job_id]['embeds'][partial_id] = X.reshape(arr_info['shape'])
                 elif msg[3] == ServerCommand.send_token:
                     # parsing tokens
                     token_info = jsonapi.loads(msg[1])
-                    pending_tokens[job_id].append((token_info, partial_id))
+                    pending_job[job_id]['tokens'][partial_id] = token_info
                 else:
                     logger.error('received a wrongly-formatted request (expected 4 frames, got %d)' % len(msg))
                     logger.error('\n'.join('field %d: %s' % (idx, k) for idx, k in enumerate(msg)), exc_info=True)
 
-                logger.info('collect job %s (%d/%d)' % (job_id,
-                                                        pending_checksum[job_id],
-                                                        job_checksum[job_id]))
+                logger.info('collect job %s (%d/%d)' % (job_id, partial_id, len(pending_job[job_id])))
 
-                if self.show_tokens_to_client:
-                    # check if there are finished jobs, send it back to workers
-                    finished = [(k, v, pending_tokens[k]) for k, v in pending_embed.items() if
-                                pending_checksum[k] == job_checksum[k] and len(v) == len(pending_tokens[k])]
-                    for job_info, tmp_embed, tmp_tokens in finished:
-                        client_addr, req_id = job_info.split(b'#')
+                # check if there are finished jobs, then send it back to workers
+                finished = [(k, v) for k, v in pending_job.items() if all(v)]
+                for job_info, tmp in finished:
+                    client_addr, req_id = job_info.split(b'#')
 
-                        # re-sort to the original order
-                        tmp_embed = [x[0] for x in sorted(tmp_embed, key=lambda x: int(x[1]))]
-                        tmp_tokens = (x[0] for x in sorted(tmp_tokens, key=lambda x: int(x[1])))
-                        tmp_tokens = list(chain.from_iterable(tmp_tokens))
+                    X = np.concatenate(tmp['embeds'], axis=0)
 
-                        # concat the embedding and send back
-                        X = np.concatenate(tmp_embed, axis=0)
-                        md = dict(dtype=str(X.dtype), shape=X.shape, tokens=tmp_tokens)
-                        sender.send_multipart([client_addr, jsonapi.dumps(md), X, req_id])
-                        logger.info('send back\tsize: %d\tjob id:%s\t' % (job_checksum[job_info], job_info))
+                    # concat the embedding and send back
+                    md = dict(dtype=str(X.dtype), shape=X.shape,
+                              tokens=list(chain.from_iterable(tmp['tokens']))
+                              if self.show_tokens_to_client else '')
+                    sender.send_multipart([client_addr, jsonapi.dumps(md), X, req_id])
+                    logger.info('send back\tsize: %d\tjob id:%s\t' % (pending_job[job_info], job_info))
 
-                        # release the job
-                        pending_embed.pop(job_info)
-                        pending_checksum.pop(job_info)
-                        pending_tokens.pop(job_info)
-                        job_checksum.pop(job_info)
-                else:
-                    # check if there are finished jobs, send it back to workers
-                    finished = [(k, v) for k, v in pending_embed.items() if pending_checksum[k] == job_checksum[k]]
-                    for job_info, tmp_embed in finished:
-                        client_addr, req_id = job_info.split(b'#')
-
-                        # re-sort to the original order
-                        tmp_embed = [x[0] for x in sorted(tmp_embed, key=lambda x: int(x[1]))]
-                        send_ndarray(sender, client_addr, np.concatenate(tmp_embed, axis=0), req_id)
-                        logger.info('send back\tsize: %d\tjob id:%s\t' % (job_checksum[job_info], job_info))
-
-                        # release the job
-                        pending_embed.pop(job_info)
-                        pending_checksum.pop(job_info)
-                        job_checksum.pop(job_info)
+                    # release the job
+                    pending_job.pop(job_info)
 
             if socks.get(frontend) == zmq.POLLIN:
                 client_addr, msg_type, msg_info, req_id = frontend.recv_multipart()
                 if msg_type == ServerCommand.new_job:
                     job_info = client_addr + b'#' + req_id
-                    job_checksum[job_info] = int(msg_info)
+                    num_sub_jobs = int(msg_info)
+                    # register a new job
+                    pending_job[job_info] = {'embeds': [[] for _ in range(num_sub_jobs)],
+                                             'tokens': [[] for _ in range(num_sub_jobs)]}
                     logger.info('job register\tsize: %d\tjob id: %s' % (int(msg_info), job_info))
                 elif msg_type == ServerCommand.show_config:
                     time.sleep(0.1)  # dirty fix of slow-joiner: sleep so that client receiver can connect.
