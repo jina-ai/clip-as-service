@@ -29,16 +29,16 @@ __version__ = '1.7.9'
 _tf_ver_ = check_tf_version()
 
 
-class ServerCommand:
+class ServerCmd:
     terminate = b'TERMINATION'
     show_config = b'SHOW_CONFIG'
     new_job = b'REGISTER'
-    send_token = b'TOKENS'
-    send_embed = b'EMBEDDINGS'
+    data_token = b'TOKENS'
+    data_embed = b'EMBEDDINGS'
 
     @staticmethod
     def is_valid(cmd):
-        return any(not k.startswith('__') and v == cmd for k, v in vars(ServerCommand).items())
+        return any(not k.startswith('__') and v == cmd for k, v in vars(ServerCmd).items())
 
 
 class BertServer(threading.Thread):
@@ -86,7 +86,7 @@ class BertServer(threading.Thread):
     @zmqd.socket(zmq.PUSH)
     def _send_close_signal(self, _, frontend):
         frontend.connect('tcp://localhost:%d' % self.port)
-        frontend.send_multipart([b'', ServerCommand.terminate, b'', b''])
+        frontend.send_multipart([b'', ServerCmd.terminate, b'', b''])
 
     def run(self):
         self._run()
@@ -142,9 +142,9 @@ class BertServer(threading.Thread):
                 self.logger.error('\n'.join('field %d: %s' % (idx, k) for idx, k in enumerate(request)), exc_info=True)
             else:
                 server_status.update(request)
-                if msg == ServerCommand.terminate:
+                if msg == ServerCmd.terminate:
                     break
-                elif msg == ServerCommand.show_config:
+                elif msg == ServerCmd.show_config:
                     self.logger.info('new config request\treq id: %d\tclient: %s' % (int(req_id), client))
                     status_runtime = {'client': client.decode('ascii'),
                                       'num_process': len(self.processes),
@@ -163,7 +163,7 @@ class BertServer(threading.Thread):
                     self.logger.info('new encode request\treq id: %d\tsize: %d\tclient: %s' %
                                      (int(req_id), int(msg_len), client))
                     # register a new job at sink
-                    sink.send_multipart([client, ServerCommand.new_job, msg_len, req_id])
+                    sink.send_multipart([client, ServerCmd.new_job, msg_len, req_id])
 
                     # renew the backend socket to prevent large job queueing up
                     # [0] is reserved for high priority job
@@ -274,31 +274,32 @@ class BertSink(Process):
                 job_id = job_info[0]
                 partial_id = int(job_info[1]) if len(job_info) == 2 else 0
 
-                if msg[3] == ServerCommand.send_embed:
+                if msg[3] == ServerCmd.data_embed:
                     # parsing the ndarray
                     arr_info, arr_val = jsonapi.loads(msg[1]), msg[2]
                     X = np.frombuffer(memoryview(arr_val), dtype=arr_info['dtype'])
-                    pending_job[job_id]['embeds'][partial_id] = X.reshape(arr_info['shape'])
-                elif msg[3] == ServerCommand.send_token:
+                    pending_job[job_id][msg[3]][partial_id] = X.reshape(arr_info['shape'])
+                elif msg[3] == ServerCmd.data_token:
                     # parsing tokens
                     token_info = jsonapi.loads(msg[1])
-                    pending_job[job_id]['tokens'][partial_id] = token_info
+                    pending_job[job_id][msg[3]][partial_id] = token_info
                 else:
                     logger.error('received a wrongly-formatted request (expected 4 frames, got %d)' % len(msg))
                     logger.error('\n'.join('field %d: %s' % (idx, k) for idx, k in enumerate(msg)), exc_info=True)
 
-                logger.info('collect job %s (%d/%d)' % (job_id, partial_id, len(pending_job[job_id])))
+                logger.info('collect job %s (%d/%d)' % (job_id, partial_id,
+                                                        len(pending_job[job_id][ServerCmd.data_embed])))
 
                 # check if there are finished jobs, then send it back to workers
                 finished = [(k, v) for k, v in pending_job.items() if all(v)]
                 for job_info, tmp in finished:
                     client_addr, req_id = job_info.split(b'#')
 
-                    X = np.concatenate(tmp['embeds'], axis=0)
+                    X = np.concatenate(tmp[ServerCmd.data_embed], axis=0)
 
                     # concat the embedding and send back
                     md = dict(dtype=str(X.dtype), shape=X.shape,
-                              tokens=list(chain.from_iterable(tmp['tokens']))
+                              tokens=list(chain.from_iterable(tmp[ServerCmd.data_token]))
                               if self.show_tokens_to_client else '')
                     sender.send_multipart([client_addr, jsonapi.dumps(md), X, req_id])
                     logger.info('send back\tsize: %d\tjob id:%s\t' % (pending_job[job_info], job_info))
@@ -308,14 +309,14 @@ class BertSink(Process):
 
             if socks.get(frontend) == zmq.POLLIN:
                 client_addr, msg_type, msg_info, req_id = frontend.recv_multipart()
-                if msg_type == ServerCommand.new_job:
+                if msg_type == ServerCmd.new_job:
                     job_info = client_addr + b'#' + req_id
                     num_sub_jobs = int(msg_info)
                     # register a new job
-                    pending_job[job_info] = {'embeds': [[] for _ in range(num_sub_jobs)],
-                                             'tokens': [[] for _ in range(num_sub_jobs)]}
+                    pending_job[job_info] = {ServerCmd.data_embed: [[] for _ in range(num_sub_jobs)],
+                                             ServerCmd.data_token: [[] for _ in range(num_sub_jobs)]}
                     logger.info('job register\tsize: %d\tjob id: %s' % (int(msg_info), job_info))
-                elif msg_type == ServerCommand.show_config:
+                elif msg_type == ServerCmd.show_config:
                     time.sleep(0.1)  # dirty fix of slow-joiner: sleep so that client receiver can connect.
                     logger.info('send config\tclient %s' % client_addr)
                     sender.send_multipart([client_addr, msg_info, req_id])
@@ -403,7 +404,7 @@ class BertWorker(Process):
         sink_embed.connect(self.sink_address)
         sink_token.connect(self.sink_address)
         for r in estimator.predict(self.input_fn_builder(receivers, tf, sink_token), yield_single_examples=False):
-            send_ndarray(sink_embed, r['client_id'], r['encodes'], ServerCommand.send_embed)
+            send_ndarray(sink_embed, r['client_id'], r['encodes'], ServerCmd.data_embed)
             logger.info('job done\tsize: %s\tclient: %s' % (r['encodes'].shape, r['client_id']))
 
     def input_fn_builder(self, socks, tf, sink):
@@ -435,7 +436,7 @@ class BertWorker(Process):
                                                              is_tokenized, self.mask_cls_sep))
                         if self.show_tokens_to_client:
                             sink.send_multipart([client_id, jsonapi.dumps([f.tokens for f in tmp_f]),
-                                                 b'', ServerCommand.send_token])
+                                                 b'', ServerCmd.data_token])
                         yield {
                             'client_id': client_id,
                             'input_ids': [f.input_ids for f in tmp_f],
@@ -474,7 +475,7 @@ class ServerStatistic:
     def update(self, request):
         client, msg, req_id, msg_len = request
         self._hist_client[client] += 1
-        if ServerCommand.is_valid(msg):
+        if ServerCmd.is_valid(msg):
             self._num_sys_req += 1
             # do not count for system request, as they are mainly for heartbeats
         else:
