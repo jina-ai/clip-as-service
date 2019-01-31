@@ -317,11 +317,11 @@ class BertSink(Process):
 
 class SinkJob:
     def __init__(self, with_tokens=False):
-        self.embeds = []
+        self._pending_embeds = []
         self.tokens = []
-        self.embeds_ids = []
         self.tokens_ids = []
         self.checksum = 0
+        self.embeds_result = None
         self.progress_tokens = 0
         self.progress_embeds = 0
         self.with_tokens = with_tokens
@@ -339,8 +339,17 @@ class SinkJob:
         data_lst.insert(lo, data)
 
     def add_embed(self, data, pid, progress):
-        self._insert(data, pid, self.embeds, self.embeds_ids)
-        self.progress_embeds += progress
+        if not self.checksum:
+            self._pending_embeds.append((data, pid, progress))
+        else:
+            if not self.embeds_result:
+                self.embeds_result = np.empty([self.checksum] + data.shape[1:], dtype=data.dtype)
+                self.embeds_result[pid: (pid + data.shape[0])] = data
+                self.progress_embeds += progress
+            while self._pending_embeds:
+                data, pid, progress = self._pending_embeds.pop()
+                self.embeds_result[pid: (pid + data.shape[0])] = data
+                self.progress_embeds += progress
 
     def add_token(self, data, pid, progress):
         self._insert(data, pid, self.tokens, self.tokens_ids)
@@ -355,8 +364,7 @@ class SinkJob:
 
     @property
     def result(self):
-        with TimeContext('np.concat'):
-            x = np.concatenate(self.embeds, axis=0)
+        x = self.embeds_result
         with TimeContext('list.concat'):
             x_info = {'dtype': str(x.dtype),
                       'shape': x.shape,
