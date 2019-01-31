@@ -290,6 +290,8 @@ class BertSink(Process):
 
                 # check if there are finished jobs, then send it back to workers
                 if self.show_tokens_to_client:
+                    for k, v in pending_job.items():
+                        print(v[ServerCmd.data_embed])
                     finished = [(k, v) for k, v in pending_job.items() if
                                 all(v[ServerCmd.data_embed]) and all(v[ServerCmd.data_token])]
                 else:
