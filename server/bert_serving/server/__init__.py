@@ -9,6 +9,7 @@ import threading
 import time
 from collections import defaultdict
 from datetime import datetime
+from itertools import chain
 from multiprocessing import Process
 from multiprocessing.pool import Pool
 
@@ -304,11 +305,12 @@ class BertSink(Process):
 
                         # re-sort to the original order
                         tmp_embed = [x[0] for x in sorted(tmp_embed, key=lambda x: int(x[1]))]
-                        tmp_tokens = [x[0] for x in sorted(tmp_tokens, key=lambda x: int(x[1]))]
+                        tmp_tokens = (x[0] for x in sorted(tmp_tokens, key=lambda x: int(x[1])))
+                        tmp_tokens = list(chain.from_iterable(tmp_tokens))
 
                         # concat the embedding and send back
                         X = np.concatenate(tmp_embed, axis=0)
-                        md = dict(dtype=str(X.dtype), shape=X.shape, tokens=[x for j in tmp_tokens for x in j])
+                        md = dict(dtype=str(X.dtype), shape=X.shape, tokens=tmp_tokens)
                         sender.send_multipart([client_addr, jsonapi.dumps(md), X, req_id])
                         logger.info('send back\tsize: %d\tjob id:%s\t' % (job_checksum[job_info], job_info))
 
