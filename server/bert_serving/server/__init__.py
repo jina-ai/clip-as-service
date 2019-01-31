@@ -342,7 +342,7 @@ class SinkJob:
         if not self.checksum:
             self._pending_embeds.append((data, pid, progress))
         else:
-            if not self.embeds_result:
+            if self.embeds_result is None:
                 self.embeds_result = np.empty([self.checksum] + list(data.shape[1:]), dtype=data.dtype)
                 self.embeds_result[pid: (pid + data.shape[0])] = data
                 self.progress_embeds += progress
