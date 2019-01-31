@@ -8,12 +8,13 @@ import time
 import uuid
 import warnings
 from collections import namedtuple
+from functools import wraps
 
 import numpy as np
 import zmq
 from zmq.utils import jsonapi
 
-__all__ = ['__version__', 'BertClient']
+__all__ = ['__version__', 'BertClient', 'ConcurrentBertClient']
 
 # in the future client version must match with server version
 __version__ = '1.8.0'
@@ -190,6 +191,7 @@ class BertClient:
         }
 
     def _timeout(func):
+        @wraps(func)
         def arg_wrapper(self, *args, **kwargs):
             if 'blocking' in kwargs and not kwargs['blocking']:
                 # override client timeout setting if `func` is called in non-blocking way
@@ -338,7 +340,7 @@ class BertClient:
         :param delay: delay in seconds and then run fetcher
         :param batch_generator: a generator that yields list[str] or list[list[str]] (for `is_tokenized=True`) every time
         :param max_num_batch: stop after encoding this number of batches
-        `**kwargs`: the rest parameters follow `encode()` method
+        :param `**kwargs`: the rest parameters please refer to `encode()`
         :return: a generator that yields encoded vectors in ndarray, where the request id can be used to determine the order
         :rtype: Iterator[tuple(int, numpy.ndarray)]
 
@@ -433,6 +435,7 @@ class ConcurrentBertClient(BertClient):
             bc.close()
 
     def _concurrent(func):
+        @wraps(func)
         def arg_wrapper(self, *args, **kwargs):
             try:
                 bc = self.available_bc.pop()
