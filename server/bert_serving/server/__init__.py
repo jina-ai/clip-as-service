@@ -290,7 +290,7 @@ class BertSink(Process):
                 logger.info(f'collect job {job_id} ({partial_id}/{len(pending_job[job_id][ServerCmd.data_embed])})')
 
                 # check if there are finished jobs, then send it back to workers
-                finished = [(k, v) for k, v in pending_job.items() if all(v)]
+                finished = [(k, v) for k, v in pending_job.items() if all(v[ServerCmd.data_embed])]
                 for job_info, tmp in finished:
                     client_addr, req_id = job_info.split(b'#')
 
