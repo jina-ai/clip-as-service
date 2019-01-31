@@ -277,20 +277,23 @@ class BertSink(Process):
                 if msg[3] == ServerCmd.data_embed:
                     # parsing the ndarray
                     arr_info, arr_val = jsonapi.loads(msg[1]), msg[2]
-                    X = np.frombuffer(memoryview(arr_val), dtype=arr_info['dtype'])
-                    pending_job[job_id][msg[3]][partial_id] = X.reshape(arr_info['shape'])
+                    pending_job[job_id][msg[3]][partial_id] = \
+                        np.frombuffer(memoryview(arr_val), dtype=arr_info['dtype']).reshape(arr_info['shape'])
                 elif msg[3] == ServerCmd.data_token:
-                    # parsing tokens
-                    token_info = jsonapi.loads(msg[1])
-                    pending_job[job_id][msg[3]][partial_id] = token_info
+                    pending_job[job_id][msg[3]][partial_id] = jsonapi.loads(msg[1])
                 else:
                     logger.error(f'received a wrongly-formatted request (expected 4 frames, got {len(msg)})')
                     logger.error('\n'.join('field %d: %s' % (idx, k) for idx, k in enumerate(msg)), exc_info=True)
 
-                logger.info(f'collect job {job_id} ({partial_id}/{len(pending_job[job_id][ServerCmd.data_embed])})')
+                logger.info(f'collect {msg[3]} of {job_id} '
+                            f'({partial_id}/{len(pending_job[job_id][ServerCmd.data_embed])})')
 
                 # check if there are finished jobs, then send it back to workers
-                finished = [(k, v) for k, v in pending_job.items() if all(v[ServerCmd.data_embed])]
+                if self.show_tokens_to_client:
+                    finished = [(k, v) for k, v in pending_job.items() if
+                                all(v[ServerCmd.data_embed]) and all(v[ServerCmd.data_token])]
+                else:
+                    finished = [(k, v) for k, v in pending_job.items() if all(v[ServerCmd.data_embed])]
                 for job_info, tmp in finished:
                     client_addr, req_id = job_info.split(b'#')
 
@@ -312,8 +315,8 @@ class BertSink(Process):
                     job_info = client_addr + b'#' + req_id
                     num_sub_jobs = int(msg_info)
                     # register a new job
-                    pending_job[job_info] = {ServerCmd.data_embed: [[] for _ in range(num_sub_jobs)],
-                                             ServerCmd.data_token: [[] for _ in range(num_sub_jobs)]}
+                    pending_job[job_info] = {ServerCmd.data_embed: [0 for _ in range(num_sub_jobs)],
+                                             ServerCmd.data_token: [0 for _ in range(num_sub_jobs)]}
                     logger.info('job register\tsize: %d\tjob id: %s' % (int(msg_info), job_info))
                 elif msg_type == ServerCmd.show_config:
                     time.sleep(0.1)  # dirty fix of slow-joiner: sleep so that client receiver can connect.
