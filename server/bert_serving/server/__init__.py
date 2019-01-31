@@ -302,7 +302,8 @@ class BertSink(Process):
                               tokens=list(chain.from_iterable(tmp[ServerCmd.data_token]))
                               if self.show_tokens_to_client else '')
                     sender.send_multipart([client_addr, jsonapi.dumps(md), X, req_id])
-                    logger.info('send back\tsize: %d\tjob id:%s\t' % (pending_job[job_info], job_info))
+                    logger.info(
+                        'send back\tsize: %d\tjob id:%s\t' % (len(pending_job[job_id][ServerCmd.data_embed]), job_info))
 
                     # release the job
                     pending_job.pop(job_info)
