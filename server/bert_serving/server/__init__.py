@@ -284,11 +284,10 @@ class BertSink(Process):
                     token_info = jsonapi.loads(msg[1])
                     pending_job[job_id][msg[3]][partial_id] = token_info
                 else:
-                    logger.error('received a wrongly-formatted request (expected 4 frames, got %d)' % len(msg))
+                    logger.error(f'received a wrongly-formatted request (expected 4 frames, got {len(msg)})')
                     logger.error('\n'.join('field %d: %s' % (idx, k) for idx, k in enumerate(msg)), exc_info=True)
 
-                logger.info('collect job %s (%d/%d)' % (job_id, partial_id,
-                                                        len(pending_job[job_id][ServerCmd.data_embed])))
+                logger.info(f'collect job {job_id} ({partial_id}/{len(pending_job[job_id][ServerCmd.data_embed])})')
 
                 # check if there are finished jobs, then send it back to workers
                 finished = [(k, v) for k, v in pending_job.items() if all(v)]
@@ -302,8 +301,7 @@ class BertSink(Process):
                               tokens=list(chain.from_iterable(tmp[ServerCmd.data_token]))
                               if self.show_tokens_to_client else '')
                     sender.send_multipart([client_addr, jsonapi.dumps(md), X, req_id])
-                    logger.info(
-                        'send back\tsize: %d\tjob id:%s\t' % (len(pending_job[job_id][ServerCmd.data_embed]), job_info))
+                    logger.info(f'send back\tsize: {len(tmp[ServerCmd.data_embed])}\tjob id: {job_info}')
 
                     # release the job
                     pending_job.pop(job_info)
