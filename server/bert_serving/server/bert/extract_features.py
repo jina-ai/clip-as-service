@@ -30,9 +30,9 @@ class InputExample(object):
 class InputFeatures(object):
     """A single set of features of data."""
 
-    def __init__(self, input_ids, input_mask, input_type_ids):
+    def __init__(self, tokens, input_ids, input_mask, input_type_ids):
         # self.unique_id = unique_id
-        # self.tokens = tokens
+        self.tokens = tokens
         self.input_ids = input_ids
         self.input_mask = input_mask
         self.input_type_ids = input_type_ids
@@ -108,7 +108,7 @@ def convert_lst_to_features(lst_str, seq_length, tokenizer, logger, is_tokenized
 
         yield InputFeatures(
             # unique_id=example.unique_id,
-            # tokens=tokens,
+            tokens=tokens,
             input_ids=input_ids,
             input_mask=input_mask,
             input_type_ids=input_type_ids)
