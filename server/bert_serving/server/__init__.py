@@ -7,6 +7,7 @@ import random
 import sys
 import threading
 import time
+import zlib
 from collections import defaultdict
 from datetime import datetime
 from itertools import chain
@@ -28,6 +29,8 @@ __version__ = '1.8.0'
 
 _tf_ver_ = check_tf_version()
 
+jsonapi.dump_z = lambda x: zlib.compress(jsonapi.dumps(x))
+jsonapi.load_z = lambda x: jsonapi.loads(zlib.decompress(x))
 
 class ServerCmd:
     terminate = b'TERMINATION'
@@ -132,7 +135,7 @@ class BertServer(threading.Thread):
             proc_proxy.start()
 
         rand_backend_socket = None
-        server_status = ServerStatistic()
+        server_status = ServerStatus()
         while True:
             try:
                 request = frontend.recv_multipart()
@@ -174,12 +177,14 @@ class BertServer(threading.Thread):
                     # leaving other sockets free
                     job_id = client + b'#' + req_id
                     if int(msg_len) > self.max_batch_size:
-                        seqs = jsonapi.loads(msg)
+                        # decompress the large batch
+                        seqs = jsonapi.load_z(msg)
                         job_gen = ((job_id + b'@%d' % i, seqs[i:(i + self.max_batch_size)]) for i in
                                    range(0, int(msg_len), self.max_batch_size))
                         for partial_job_id, job in job_gen:
-                            push_new_job(partial_job_id, jsonapi.dumps(job), len(job))
+                            push_new_job(partial_job_id, jsonapi.dump_z(job), len(job))
                     else:
+                        # for small batch we just pass the compressed data to the worker
                         push_new_job(job_id, msg, int(msg_len))
 
         self.logger.info('terminated!')
@@ -280,7 +285,7 @@ class BertSink(Process):
                     x = np.frombuffer(memoryview(arr_val), dtype=arr_info['dtype']).reshape(arr_info['shape'])
                     pending_jobs[job_id].add_embed(x, partial_id)
                 elif msg[3] == ServerCmd.data_token:
-                    x = jsonapi.loads(msg[1])
+                    x = jsonapi.load_z(msg[1])
                     pending_jobs[job_id].add_token(x, partial_id)
                 else:
                     logger.error(f'received a wrongly-formatted request (expected 4 frames, got {len(msg)})')
@@ -378,8 +383,8 @@ class SinkJob:
                   'shape': x.shape,
                   'tokens': list(chain.from_iterable(self.tokens)) if self.with_tokens else ''}
 
-        x_info = jsonapi.dumps(x_info)
-        return x, x_info
+        x_info = jsonapi.dump_z(x_info)
+        return zlib.compress(x), x_info
 
 
 class BertWorker(Process):
@@ -464,8 +469,9 @@ class BertWorker(Process):
         sink_embed.connect(self.sink_address)
         sink_token.connect(self.sink_address)
         for r in estimator.predict(self.input_fn_builder(receivers, tf, sink_token), yield_single_examples=False):
-            send_ndarray(sink_embed, r['client_id'], r['encodes'], ServerCmd.data_embed)
-            logger.info('job done\tsize: %s\tclient: %s' % (r['encodes'].shape, r['client_id']))
+            md = dict(dtype=str(r['encodes'].dtype), shape=r['encodes'].shape)
+            sink_embed.send_multipart([r['client_id'], jsonapi.dumps(md), r['encodes'], ServerCmd.data_embed])
+            logger.info('job done\tsize: %s\tclient: %s' % (md['shape'], r['client_id']))
 
     def input_fn_builder(self, socks, tf, sink):
         from .bert.extract_features import convert_lst_to_features
@@ -488,14 +494,14 @@ class BertWorker(Process):
                 for sock_idx, sock in enumerate(socks):
                     if sock in events:
                         client_id, raw_msg = sock.recv_multipart()
-                        msg = jsonapi.loads(raw_msg)
+                        msg = jsonapi.load_z(raw_msg)
                         logger.info('new job\tsocket: %d\tsize: %d\tclient: %s' % (sock_idx, len(msg), client_id))
                         # check if msg is a list of list, if yes consider the input is already tokenized
                         is_tokenized = all(isinstance(el, list) for el in msg)
                         tmp_f = list(convert_lst_to_features(msg, self.max_seq_len, tokenizer, logger,
                                                              is_tokenized, self.mask_cls_sep))
                         if self.show_tokens_to_client:
-                            sink.send_multipart([client_id, jsonapi.dumps([f.tokens for f in tmp_f]),
+                            sink.send_multipart([client_id, jsonapi.dump_z([f.tokens for f in tmp_f]),
                                                  b'', ServerCmd.data_token])
                         yield {
                             'client_id': client_id,
@@ -520,7 +526,7 @@ class BertWorker(Process):
         return input_fn
 
 
-class ServerStatistic:
+class ServerStatus:
     def __init__(self):
         self._hist_client = defaultdict(int)
         self._hist_msg_len = defaultdict(int)

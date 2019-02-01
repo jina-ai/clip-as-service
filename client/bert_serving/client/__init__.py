@@ -7,6 +7,7 @@ import threading
 import time
 import uuid
 import warnings
+import zlib
 from collections import namedtuple
 from functools import wraps
 
@@ -131,8 +132,10 @@ class BertClient:
         self.receiver.close()
         self.context.term()
 
-    def _send(self, msg, msg_len=0):
+    def _send(self, msg, msg_len=0, compress=False):
         self.request_id += 1
+        if compress:
+            msg = zlib.compress(msg)
         self.sender.send_multipart([self.identity, msg, b'%d' % self.request_id, b'%d' % msg_len])
         self.pending_request.add(self.request_id)
         return self.request_id
@@ -164,7 +167,7 @@ class BertClient:
 
     def _recv_ndarray(self, wait_for_req_id=None):
         request_id, response = self._recv(wait_for_req_id)
-        arr_info, arr_val = jsonapi.loads(response[1]), response[2]
+        arr_info, arr_val = jsonapi.loads(zlib.decompress(response[1])), zlib.decompress(response[2])
         X = np.frombuffer(_buffer(arr_val), dtype=str(arr_info['dtype']))
         return Response(request_id, self.formatter(X.reshape(arr_info['shape'])), arr_info.get('tokens', ''))
 
@@ -277,7 +280,7 @@ class BertClient:
                           'when you do not want to display this warning\n'
                           '- or, start a new server with a larger "max_seq_len"' % self.length_limit)
 
-        req_id = self._send(jsonapi.dumps(texts), len(texts))
+        req_id = self._send(jsonapi.dumps(texts), len(texts), compress=True)
         if not blocking:
             return None
         r = self._recv_ndarray(req_id)
