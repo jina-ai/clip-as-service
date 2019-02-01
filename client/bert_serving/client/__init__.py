@@ -13,6 +13,7 @@ from functools import wraps
 
 import numpy as np
 import zmq
+from bert_serving.server.helper import TimeContext
 from zmq.utils import jsonapi
 
 __all__ = ['__version__', 'BertClient', 'ConcurrentBertClient']
@@ -135,7 +136,8 @@ class BertClient:
     def _send(self, msg, msg_len=0, compress=False):
         self.request_id += 1
         if compress:
-            msg = zlib.compress(msg)
+            with TimeContext('compressing'):
+                msg = zlib.compress(msg)
         self.sender.send_multipart([self.identity, msg, b'%d' % self.request_id, b'%d' % msg_len])
         self.pending_request.add(self.request_id)
         return self.request_id
@@ -167,7 +169,7 @@ class BertClient:
 
     def _recv_ndarray(self, wait_for_req_id=None):
         request_id, response = self._recv(wait_for_req_id)
-        arr_info, arr_val = jsonapi.loads(zlib.decompress(response[1])), zlib.decompress(response[2])
+        arr_info, arr_val = jsonapi.loads(zlib.decompress(response[1])), response[2]
         X = np.frombuffer(_buffer(arr_val), dtype=str(arr_info['dtype']))
         return Response(request_id, self.formatter(X.reshape(arr_info['shape'])), arr_info.get('tokens', ''))
 

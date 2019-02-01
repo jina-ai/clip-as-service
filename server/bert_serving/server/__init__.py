@@ -385,8 +385,6 @@ class SinkJob:
 
         with TimeContext('compress tokens'):
             x_info = jsonapi.dump_z(x_info)
-        with TimeContext('compress data'):
-            x = zlib.compress(x)
         return x, x_info
 
 
@@ -496,8 +494,10 @@ class BertWorker(Process):
                 events = dict(poller.poll())
                 for sock_idx, sock in enumerate(socks):
                     if sock in events:
-                        client_id, raw_msg = sock.recv_multipart()
-                        msg = jsonapi.load_z(raw_msg)
+                        with TimeContext('receive'):
+                            client_id, raw_msg = sock.recv_multipart()
+                        with TimeContext('decompress and load'):
+                            msg = jsonapi.load_z(raw_msg)
                         logger.info('new job\tsocket: %d\tsize: %d\tclient: %s' % (sock_idx, len(msg), client_id))
                         # check if msg is a list of list, if yes consider the input is already tokenized
                         is_tokenized = all(isinstance(el, list) for el in msg)
