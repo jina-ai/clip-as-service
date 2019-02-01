@@ -383,8 +383,11 @@ class SinkJob:
                   'shape': x.shape,
                   'tokens': list(chain.from_iterable(self.tokens)) if self.with_tokens else ''}
 
-        x_info = jsonapi.dump_z(x_info)
-        return zlib.compress(x), x_info
+        with TimeContext('compress tokens'):
+            x_info = jsonapi.dump_z(x_info)
+        with TimeContext('compress data'):
+            x = zlib.compress(x)
+        return x, x_info
 
 
 class BertWorker(Process):
