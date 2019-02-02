@@ -286,6 +286,7 @@ class BertSink(Process):
                     logger.error('received a wrongly-formatted request (expected 4 frames, got %d)' % len(msg))
                     logger.error('\n'.join('field %d: %s' % (idx, k) for idx, k in enumerate(msg)), exc_info=True)
 
+                print(pending_jobs[job_id].checksum)
                 logger.info('collect %d of %s (E:%d/T:%d/A:%d)' % (msg[3], job_id,
                                                                    pending_jobs[job_id].progress_embeds,
                                                                    pending_jobs[job_id].progress_tokens,
