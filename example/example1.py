@@ -22,7 +22,7 @@ if __name__ == '__main__':
         data = [v for v in fp if v.strip()][:512]
         num_tokens = sum(len([vv for vv in v.split() if vv.strip()]) for v in data)
 
-    show_tokens = len(sys.argv > 3) and bool(sys.argv[3])
+    show_tokens = len(sys.argv) > 3 and bool(sys.argv[3])
     bc.encode(data)  # warm-up GPU
     for j in range(10):
         tmp = data * (2 ** j)
