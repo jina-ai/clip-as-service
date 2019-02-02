@@ -283,13 +283,13 @@ class BertSink(Process):
                     x = jsonapi.loads(msg[1])
                     pending_jobs[job_id].add_token(x, partial_id)
                 else:
-                    logger.error(f'received a wrongly-formatted request (expected 4 frames, got {len(msg)})')
+                    logger.error('received a wrongly-formatted request (expected 4 frames, got %d)' % len(msg))
                     logger.error('\n'.join('field %d: %s' % (idx, k) for idx, k in enumerate(msg)), exc_info=True)
 
-                logger.info(f'collect {msg[3]} of {job_id} '
-                            f'(E:{pending_jobs[job_id].progress_embeds}/'
-                            f'T:{pending_jobs[job_id].progress_tokens}/'
-                            f'A:{pending_jobs[job_id].checksum})')
+                logger.info('collect %s %s (E:%d/T:%d/A:%d)' % (msg[3], job_id,
+                                                                pending_jobs[job_id].progress_embeds,
+                                                                pending_jobs[job_id].progress_tokens,
+                                                                pending_jobs[job_id].checksum))
 
                 # check if there are finished jobs, then send it back to workers
 
@@ -298,7 +298,7 @@ class BertSink(Process):
                     client_addr, req_id = job_info.split(b'#')
                     x, x_info = tmp.result
                     sender.send_multipart([client_addr, x_info, x, req_id])
-                    logger.info(f'send back\tsize: {tmp.checksum}\tjob id: {job_info}')
+                    logger.info('send back\tsize: %d\tjob id: %s' % (tmp.checksum, job_info))
                     # release the job
                     tmp.clear()
                     pending_jobs.pop(job_info)
