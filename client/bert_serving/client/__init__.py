@@ -283,12 +283,12 @@ class BertClient:
         r = self._recv_ndarray(req_id)
         if self.token_info_available and show_tokens:
             return r.embedding, r.tokens
-        else:
+        elif not self.token_info_available and show_tokens:
             warnings.warn('"show_tokens=True", but the server does not support showing tokenization info to clients.\n'
                           'here is what you can do:\n'
                           '- start a new server with "bert-serving-start -show_tokens_to_client ..."\n'
                           '- or, use "encode(show_tokens=False)"')
-            return r.embedding
+        return r.embedding
 
     def fetch(self, delay=.0):
         """ Fetch the encoded vectors from server, use it with `encode(blocking=False)`
