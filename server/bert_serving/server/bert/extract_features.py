@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import re
-import warnings
 
 from . import tokenization
 
@@ -39,7 +38,8 @@ class InputFeatures(object):
         self.input_type_ids = input_type_ids
 
 
-def convert_lst_to_features(lst_str, max_seq_length, tokenizer, logger, is_tokenized=False, mask_cls_sep=False):
+def convert_lst_to_features(lst_str, max_seq_length, max_position_embeddings,
+                            tokenizer, logger, is_tokenized=False, mask_cls_sep=False):
     """Loads a data file into a list of `InputBatch`s."""
 
     examples = read_tokenized_examples(lst_str) if is_tokenized else read_examples(lst_str)
@@ -51,8 +51,11 @@ def convert_lst_to_features(lst_str, max_seq_length, tokenizer, logger, is_token
     # user did not specify a meaningful sequence length
     # override the sequence length by the maximum seq length of the current batch
     if max_seq_length is None or max_seq_length <= 0:
-        max_seq_length = max(len(ta) + len(tb) for ta, tb in all_tokens) + 3  # 3 account for maximum 3 special symbols
-        warnings.warn('"max_seq_length" is not defined, set it to %d according to the current batch.' % max_seq_length)
+        max_seq_length = min(max(len(ta) + len(tb) for ta, tb in all_tokens) + 3,
+                             max_position_embeddings)  # 3 account for maximum 3 special symbols
+        logger.warning('"max_seq_length" is not defined, and bert config json defines "max_position_embeddings"=%d'
+                       'hence set "max_seq_length"=%d according to the current batch.' % (
+                           max_position_embeddings, max_seq_length))
 
     for (tokens_a, tokens_b) in all_tokens:
         if tokens_b:

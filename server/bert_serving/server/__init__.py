@@ -67,7 +67,7 @@ class BertServer(threading.Thread):
         with Pool(processes=1) as pool:
             # optimize the graph, must be done in another process
             from .graph import optimize_graph
-            self.graph_path = pool.apply(optimize_graph, (self.args,))
+            self.graph_path, self.bert_config = pool.apply(optimize_graph, (self.args,))
         # from .graph import optimize_graph
         # self.graph_path = optimize_graph(self.args, self.logger)
         if self.graph_path:
@@ -120,7 +120,7 @@ class BertServer(threading.Thread):
         device_map = self._get_device_map()
         for idx, device_id in enumerate(device_map):
             process = BertWorker(idx, self.args, addr_backend_list, addr_sink, device_id,
-                                 self.graph_path)
+                                 self.graph_path, self.bert_config)
             self.processes.append(process)
             process.start()
 
@@ -383,7 +383,7 @@ class SinkJob:
 
 
 class BertWorker(Process):
-    def __init__(self, id, args, worker_address_list, sink_address, device_id, graph_path):
+    def __init__(self, id, args, worker_address_list, sink_address, device_id, graph_path, graph_config):
         super().__init__()
         self.worker_id = id
         self.device_id = device_id
@@ -400,6 +400,7 @@ class BertWorker(Process):
         self.model_dir = args.model_dir
         self.verbose = args.verbose
         self.graph_path = graph_path
+        self.bert_config = graph_config
         self.use_fp16 = args.fp16
         self.show_tokens_to_client = args.show_tokens_to_client
 
@@ -492,7 +493,9 @@ class BertWorker(Process):
                         logger.info('new job\tsocket: %d\tsize: %d\tclient: %s' % (sock_idx, len(msg), client_id))
                         # check if msg is a list of list, if yes consider the input is already tokenized
                         is_tokenized = all(isinstance(el, list) for el in msg)
-                        tmp_f = list(convert_lst_to_features(msg, self.max_seq_len, tokenizer, logger,
+                        tmp_f = list(convert_lst_to_features(msg, self.max_seq_len,
+                                                             self.bert_config.max_position_embeddings,
+                                                             tokenizer, logger,
                                                              is_tokenized, self.mask_cls_sep))
                         if self.show_tokens_to_client:
                             sink.send_multipart([client_id, jsonapi.dumps([f.tokens for f in tmp_f]),

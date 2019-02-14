@@ -145,7 +145,7 @@ def optimize_graph(args, logger=None):
         logger.info('write graph to a tmp file: %s' % tmp_file)
         with tf.gfile.GFile(tmp_file, 'wb') as f:
             f.write(tmp_g.SerializeToString())
-        return tmp_file
+        return tmp_file, bert_config
     except Exception:
         logger.error('fail to optimize the graph!', exc_info=True)
 
