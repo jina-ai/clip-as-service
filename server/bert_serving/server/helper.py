@@ -55,9 +55,9 @@ def send_ndarray(src, dest, X, req_id=b'', flags=0, copy=True, track=False):
     return src.send_multipart([dest, jsonapi.dumps(md), X, req_id], flags, copy=copy, track=track)
 
 
-def check_max_seq_length(value):
-    if value is None:
-        return value
+def check_max_seq_len(value):
+    if value is None or value.lower() == 'none':
+        return None
     try:
         ivalue = int(value)
         if ivalue <= 3:
@@ -90,7 +90,7 @@ def get_args_parser():
 
     group2 = parser.add_argument_group('BERT Parameters',
                                        'config how BERT model and pooling works')
-    group2.add_argument('-max_seq_len', type=check_max_seq_length, default=None,
+    group2.add_argument('-max_seq_len', type=check_max_seq_len, default=25,
                         help='maximum length of a sequence')
     group2.add_argument('-pooling_layer', type=int, nargs='+', default=[-2],
                         help='the encoder layer(s) that receives pooling. \
@@ -141,6 +141,8 @@ def get_args_parser():
     group3.add_argument('-prefetch_size', type=int, default=10,
                         help='the number of batches to prefetch on each worker. When running on a CPU-only machine, \
                         this is set to 0 for comparability')
+    group3.add_argument('-trim_ndarray', action='store_true', default=False,
+                        help='truncate the result ndarray to max sequence length before sending back to client')
 
     parser.add_argument('-verbose', action='store_true', default=False,
                         help='turn on tensorflow logging for debug')
