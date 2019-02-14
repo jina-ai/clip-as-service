@@ -356,6 +356,8 @@ class SinkJob:
 
     def add_embed(self, data, pid):
         def fill_data():
+            print(self.final_ndarray.shape)
+            print(data.shape)
             self.final_ndarray[pid: (pid + data.shape[0]), 0:data.shape[1]] = data
             self.progress_embeds += progress
             if data.shape[1] > self.max_effective_len:
