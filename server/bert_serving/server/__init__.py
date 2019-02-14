@@ -111,7 +111,7 @@ class BertServer(threading.Thread):
 
         # start the sink process
         self.logger.info('start the sink')
-        proc_sink = BertSink(self.args, addr_front2sink)
+        proc_sink = BertSink(self.args, addr_front2sink, self.bert_config)
         self.processes.append(proc_sink)
         proc_sink.start()
         addr_sink = sink.recv().decode('ascii')
@@ -223,7 +223,7 @@ class BertServer(threading.Thread):
 
 
 class BertSink(Process):
-    def __init__(self, args, front_sink_addr):
+    def __init__(self, args, front_sink_addr, bert_config):
         super().__init__()
         self.port = args.port_out
         self.exit_flag = multiprocessing.Event()
@@ -231,6 +231,8 @@ class BertSink(Process):
         self.front_sink_addr = front_sink_addr
         self.verbose = args.verbose
         self.show_tokens_to_client = args.show_tokens_to_client
+        self.max_seq_len = args.max_seq_len
+        self.max_position_embeddings = bert_config.max_position_embeddings
 
     def close(self):
         self.logger.info('shutting down...')
@@ -250,7 +252,8 @@ class BertSink(Process):
         frontend.connect(self.front_sink_addr)
         sender.bind('tcp://*:%d' % self.port)
 
-        pending_jobs = defaultdict(lambda: SinkJob(self.show_tokens_to_client))  # type: Dict[str, SinkJob]
+        pending_jobs = defaultdict(lambda: SinkJob(self.max_seq_len, self.max_position_embeddings,
+                                                   self.show_tokens_to_client))  # type: Dict[str, SinkJob]
 
         poller = zmq.Poller()
         poller.register(frontend, zmq.POLLIN)
@@ -317,7 +320,7 @@ class BertSink(Process):
 
 
 class SinkJob:
-    def __init__(self, with_tokens=False):
+    def __init__(self, max_seq_len, max_position_embeddings, with_tokens=False):
         self._pending_embeds = []
         self.tokens = []
         self.tokens_ids = []
@@ -326,6 +329,9 @@ class SinkJob:
         self.progress_tokens = 0
         self.progress_embeds = 0
         self.with_tokens = with_tokens
+        self.max_seq_len_unset = max_seq_len is None or max_seq_len <= 3
+        self.max_position_embeddings = max_position_embeddings
+        self.max_effective_len = 0
 
     def clear(self):
         self._pending_embeds.clear()
@@ -346,18 +352,27 @@ class SinkJob:
         data_lst.insert(lo, data)
 
     def add_embed(self, data, pid):
+        def fill_data():
+            self.final_ndarray[pid: (pid + data.shape[0]), 0:data.shape[1]] = data
+            self.progress_embeds += progress
+            if data.shape[1] > self.max_effective_len:
+                self.max_effective_len = data.shape[1]
+
         progress = data.shape[0]
         if not self.checksum:
             self._pending_embeds.append((data, pid, progress))
         else:
             if self.final_ndarray is None:
-                self.final_ndarray = np.empty([self.checksum] + list(data.shape[1:]), dtype=data.dtype)
-            self.final_ndarray[pid: (pid + data.shape[0])] = data
-            self.progress_embeds += progress
+                d_shape = list(data.shape[1:])
+                if self.max_seq_len_unset:
+                    # if not set max_seq_len, then we have no choice but set result ndarray to
+                    # [B, max_position_embeddings, (dim)] and truncate it at the end
+                    d_shape[0] = self.max_position_embeddings
+                self.final_ndarray = np.zeros([self.checksum] + d_shape, dtype=data.dtype)
+            fill_data()
             while self._pending_embeds:
                 data, pid, progress = self._pending_embeds.pop()
-                self.final_ndarray[pid: (pid + data.shape[0])] = data
-                self.progress_embeds += progress
+                fill_data()
 
     def add_token(self, data, pid):
         progress = len(data)

@@ -50,10 +50,11 @@ def convert_lst_to_features(lst_str, max_seq_length, max_position_embeddings,
 
     # user did not specify a meaningful sequence length
     # override the sequence length by the maximum seq length of the current batch
-    if max_seq_length is None or max_seq_length <= 0:
+    if max_seq_length is None or max_seq_length <= 3:
         max_seq_length = min(max(len(ta) + len(tb) for ta, tb in all_tokens) + 3,
                              max_position_embeddings)  # 3 account for maximum 3 special symbols
-        logger.warning('"max_seq_length" is not defined, and bert config json defines "max_position_embeddings"=%d'
+        logger.warning('"max_seq_length" is undefined or invalid, '
+                       'and bert config json defines "max_position_embeddings"=%d. '
                        'hence set "max_seq_length"=%d according to the current batch.' % (
                            max_position_embeddings, max_seq_length))
 
