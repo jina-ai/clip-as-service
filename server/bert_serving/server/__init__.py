@@ -329,7 +329,7 @@ class SinkJob:
         self.progress_tokens = 0
         self.progress_embeds = 0
         self.with_tokens = with_tokens
-        self.max_seq_len_unset = max_seq_len is None or max_seq_len <= 3
+        self.max_seq_len_unset = max_seq_len is None
         self.max_position_embeddings = max_position_embeddings
         self.max_effective_len = 0
 

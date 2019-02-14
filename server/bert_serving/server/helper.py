@@ -55,6 +55,19 @@ def send_ndarray(src, dest, X, req_id=b'', flags=0, copy=True, track=False):
     return src.send_multipart([dest, jsonapi.dumps(md), X, req_id], flags, copy=copy, track=track)
 
 
+def check_max_seq_length(value):
+    if value is None:
+        return value
+    try:
+        ivalue = int(value)
+        if ivalue <= 3:
+            raise argparse.ArgumentTypeError("%s is an invalid int value must be >3 "
+                                             "(account for maximum three special symbols in BERT model) or NONE" % value)
+    except TypeError:
+        raise argparse.ArgumentTypeError("%s is an invalid int value" % value)
+    return ivalue
+
+
 def get_args_parser():
     from . import __version__
     from .graph import PoolingStrategy
@@ -77,7 +90,7 @@ def get_args_parser():
 
     group2 = parser.add_argument_group('BERT Parameters',
                                        'config how BERT model and pooling works')
-    group2.add_argument('-max_seq_len', type=int, default=25,
+    group2.add_argument('-max_seq_len', type=check_max_seq_length, default=25,
                         help='maximum length of a sequence')
     group2.add_argument('-pooling_layer', type=int, nargs='+', default=[-2],
                         help='the encoder layer(s) that receives pooling. \

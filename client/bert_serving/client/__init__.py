@@ -269,7 +269,7 @@ class BertClient:
         else:
             self._check_input_lst_str(texts)
 
-        if self.length_limit is None or self.length_limit <= 3:
+        if self.length_limit is None:
             warnings.warn('server does not put a restriction on "max_seq_len", '
                           'it will determine "max_seq_len" dynamically according to the sequences in the batch. '
                           'you can restrict the sequence length on the client side for better efficiency')
