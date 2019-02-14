@@ -367,9 +367,9 @@ class SinkJob:
         else:
             if self.final_ndarray is None:
                 d_shape = list(data.shape[1:])
-                if self.max_seq_len_unset:
+                if self.max_seq_len_unset and len(d_shape) > 1:
                     # if not set max_seq_len, then we have no choice but set result ndarray to
-                    # [B, max_position_embeddings, (dim)] and truncate it at the end
+                    # [B, max_position_embeddings, dim] and truncate it at the end
                     d_shape[0] = self.max_position_embeddings
                 self.final_ndarray = np.zeros([self.checksum] + d_shape, dtype=data.dtype)
             fill_data()
