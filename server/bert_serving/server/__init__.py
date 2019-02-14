@@ -233,7 +233,7 @@ class BertSink(Process):
         self.show_tokens_to_client = args.show_tokens_to_client
         self.max_seq_len = args.max_seq_len
         self.max_position_embeddings = bert_config.max_position_embeddings
-        self.trim_ndarray = args.trim_ndarray
+        self.fixed_embed_length = args.fixed_embed_length
 
     def close(self):
         self.logger.info('shutting down...')
@@ -255,7 +255,7 @@ class BertSink(Process):
 
         pending_jobs = defaultdict(lambda: SinkJob(self.max_seq_len, self.max_position_embeddings,
                                                    self.show_tokens_to_client,
-                                                   self.trim_ndarray))  # type: Dict[str, SinkJob]
+                                                   self.fixed_embed_length))  # type: Dict[str, SinkJob]
 
         poller = zmq.Poller()
         poller.register(frontend, zmq.POLLIN)
@@ -322,7 +322,7 @@ class BertSink(Process):
 
 
 class SinkJob:
-    def __init__(self, max_seq_len, max_position_embeddings, with_tokens, trim_ndarray):
+    def __init__(self, max_seq_len, max_position_embeddings, with_tokens, fixed_embed_length):
         self._pending_embeds = []
         self.tokens = []
         self.tokens_ids = []
@@ -334,7 +334,7 @@ class SinkJob:
         self.max_seq_len_unset = max_seq_len is None
         self.max_position_embeddings = max_position_embeddings
         self.max_effective_len = 0
-        self.trim_ndarray = trim_ndarray
+        self.fixed_embed_length = fixed_embed_length
 
     def clear(self):
         self._pending_embeds.clear()
@@ -391,7 +391,7 @@ class SinkJob:
 
     @property
     def result(self):
-        if self.max_seq_len_unset and self.trim_ndarray:
+        if self.max_seq_len_unset and not self.fixed_embed_length:
             x = np.ascontiguousarray(self.final_ndarray[:, 0:self.max_effective_len])
         else:
             x = self.final_ndarray

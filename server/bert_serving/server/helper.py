@@ -141,8 +141,11 @@ def get_args_parser():
     group3.add_argument('-prefetch_size', type=int, default=10,
                         help='the number of batches to prefetch on each worker. When running on a CPU-only machine, \
                         this is set to 0 for comparability')
-    group3.add_argument('-trim_ndarray', action='store_true', default=False,
-                        help='truncate the result ndarray to max sequence length before sending back to client')
+    group3.add_argument('-fixed_embed_length', action='store_true', default=False,
+                        help='when "max_seq_len" is set to None, the server determines the "max_seq_len" according to '
+                             'the actual sequence lengths within each batch. When "pooling_strategy=NONE", '
+                             'this may cause two ".encode()" from the same client results in different sizes [B, T, D].'
+                             'Turn this on to fix the "T" in [B, T, D] to "max_position_embeddings" in bert json config.')
 
     parser.add_argument('-verbose', action='store_true', default=False,
                         help='turn on tensorflow logging for debug')
