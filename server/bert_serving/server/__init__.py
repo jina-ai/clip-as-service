@@ -392,6 +392,7 @@ class SinkJob:
     @property
     def result(self):
         if self.max_seq_len_unset and not self.fixed_embed_length:
+            print(self.max_effective_len)
             x = np.ascontiguousarray(self.final_ndarray[:, 0:self.max_effective_len])
         else:
             x = self.final_ndarray
