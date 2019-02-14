@@ -113,7 +113,10 @@ class BertClient:
                                          s_status['server_version'], self.status['client_version']))
 
             if check_length:
-                self.length_limit = int(s_status['max_seq_len'])
+                if s_status['max_seq_len'] is not None:
+                    self.length_limit = int(s_status['max_seq_len'])
+                else:
+                    self.length_limit = None
 
             if check_token_info:
                 self.token_info_available = bool(s_status['show_tokens_to_client'])
