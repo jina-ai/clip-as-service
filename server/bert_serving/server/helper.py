@@ -90,7 +90,7 @@ def get_args_parser():
 
     group2 = parser.add_argument_group('BERT Parameters',
                                        'config how BERT model and pooling works')
-    group2.add_argument('-max_seq_len', type=check_max_seq_length, default=25,
+    group2.add_argument('-max_seq_len', type=check_max_seq_length, default=None,
                         help='maximum length of a sequence')
     group2.add_argument('-pooling_layer', type=int, nargs='+', default=[-2],
                         help='the encoder layer(s) that receives pooling. \
