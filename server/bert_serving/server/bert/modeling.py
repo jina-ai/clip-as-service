@@ -469,7 +469,7 @@ def embedding_postprocessor(input_tensor,
     seq_length = input_shape[1]
     width = input_shape[2]
 
-    tf.Assert(tf.less_equal(seq_length, max_position_embeddings), [seq_length])
+    # tf.Assert(tf.less_equal(seq_length, max_position_embeddings), [seq_length])
     # if seq_length > max_position_embeddings:
     #     raise ValueError("The seq length (%d) cannot be greater than "
     #                      "`max_position_embeddings` (%d)" %

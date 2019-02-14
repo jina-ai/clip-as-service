@@ -52,7 +52,8 @@ def convert_lst_to_features(lst_str, max_seq_length, tokenizer, logger, is_token
     # override the sequence length by the maximum seq length of the current batch
     if max_seq_length is None or max_seq_length <= 0:
         max_seq_length = max(len(ta) + len(tb) for ta, tb in all_tokens) + 3  # 3 account for maximum 3 special symbols
-        warnings.warn('"max_seq_length" is not defined, set it to %d according to the current batch.' % max_seq_length)
+        warnings.warn('"max_seq_length" is not defined, set it to %d according to the current batch.' % max_seq_length,
+                      stacklevel=2)
 
     for (tokens_a, tokens_b) in all_tokens:
         if tokens_b:
