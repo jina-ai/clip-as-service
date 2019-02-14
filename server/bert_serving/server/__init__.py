@@ -513,9 +513,9 @@ class BertWorker(Process):
                               'client_id': tf.string},
                 output_shapes={
                     'client_id': (),
-                    'input_ids': (None, self.max_seq_len),
-                    'input_mask': (None, self.max_seq_len),
-                    'input_type_ids': (None, self.max_seq_len)}).prefetch(self.prefetch_size))
+                    'input_ids': (None, None),
+                    'input_mask': (None, None),
+                    'input_type_ids': (None, None)}).prefetch(self.prefetch_size))
 
         return input_fn
 

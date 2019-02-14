@@ -58,9 +58,9 @@ def optimize_graph(args, logger=None):
 
         logger.info('build graph...')
         # input placeholders, not sure if they are friendly to XLA
-        input_ids = tf.placeholder(tf.int32, (None, args.max_seq_len), 'input_ids')
-        input_mask = tf.placeholder(tf.int32, (None, args.max_seq_len), 'input_mask')
-        input_type_ids = tf.placeholder(tf.int32, (None, args.max_seq_len), 'input_type_ids')
+        input_ids = tf.placeholder(tf.int32, (None, None), 'input_ids')
+        input_mask = tf.placeholder(tf.int32, (None, None), 'input_mask')
+        input_type_ids = tf.placeholder(tf.int32, (None, None), 'input_type_ids')
 
         jit_scope = tf.contrib.compiler.jit.experimental_jit_scope if args.xla else contextlib.suppress
 
