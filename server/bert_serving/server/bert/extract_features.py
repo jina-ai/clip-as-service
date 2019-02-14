@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import re
+import warnings
 
 from . import tokenization
 
@@ -38,29 +39,31 @@ class InputFeatures(object):
         self.input_type_ids = input_type_ids
 
 
-def convert_lst_to_features(lst_str, seq_length, tokenizer, logger, is_tokenized=False, mask_cls_sep=False):
+def convert_lst_to_features(lst_str, max_seq_length, tokenizer, logger, is_tokenized=False, mask_cls_sep=False):
     """Loads a data file into a list of `InputBatch`s."""
 
     examples = read_tokenized_examples(lst_str) if is_tokenized else read_examples(lst_str)
 
     _tokenize = lambda x: tokenizer.mark_unk_tokens(x) if is_tokenized else tokenizer.tokenize(x)
 
-    for (ex_index, example) in enumerate(examples):
-        tokens_a = _tokenize(example.text_a)
+    all_tokens = [(_tokenize(ex.text_a), _tokenize(ex.text_b) if ex.text_b else []) for ex in examples]
 
-        tokens_b = None
-        if example.text_b:
-            tokens_b = _tokenize(example.text_b)
+    # user did not specify a meaningful sequence length
+    # override the sequence length by the maximum seq length of the current batch
+    if max_seq_length is None or max_seq_length <= 0:
+        max_seq_length = max(len(ta) + len(tb) for ta, tb in all_tokens) + 3  # 3 account for maximum 3 special symbols
+        warnings.warn('"max_seq_length" is not defined, set it to %d according to the current batch.' % max_seq_length)
 
+    for (tokens_a, tokens_b) in all_tokens:
         if tokens_b:
             # Modifies `tokens_a` and `tokens_b` in place so that the total
             # length is less than the specified length.
             # Account for [CLS], [SEP], [SEP] with "- 3"
-            _truncate_seq_pair(tokens_a, tokens_b, seq_length - 3)
+            _truncate_seq_pair(tokens_a, tokens_b, max_seq_length - 3)
         else:
             # Account for [CLS] and [SEP] with "- 2"
-            if len(tokens_a) > seq_length - 2:
-                tokens_a = tokens_a[0:(seq_length - 2)]
+            if len(tokens_a) > max_seq_length - 2:
+                tokens_a = tokens_a[0:(max_seq_length - 2)]
 
         # The convention in BERT is:
         # (a) For sequence pairs:
@@ -92,14 +95,14 @@ def convert_lst_to_features(lst_str, seq_length, tokenizer, logger, is_tokenized
         input_ids = tokenizer.convert_tokens_to_ids(tokens)
 
         # Zero-pad up to the sequence length. more pythonic
-        pad_len = seq_length - len(input_ids)
+        pad_len = max_seq_length - len(input_ids)
         input_ids += [0] * pad_len
         input_mask += [0] * pad_len
         input_type_ids += [0] * pad_len
 
-        assert len(input_ids) == seq_length
-        assert len(input_mask) == seq_length
-        assert len(input_type_ids) == seq_length
+        assert len(input_ids) == max_seq_length
+        assert len(input_mask) == max_seq_length
+        assert len(input_type_ids) == max_seq_length
 
         logger.debug('tokens: %s' % ' '.join([tokenization.printable_text(x) for x in tokens]))
         logger.debug('input_ids: %s' % ' '.join([str(x) for x in input_ids]))
