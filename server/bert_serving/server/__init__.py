@@ -388,7 +388,10 @@ class SinkJob:
 
     @property
     def result(self):
-        x = np.ascontiguousarray(self.final_ndarray[:, 0:self.max_effective_len])
+        if self.max_seq_len_unset:
+            x = np.ascontiguousarray(self.final_ndarray[:, 0:self.max_effective_len])
+        else:
+            x = self.final_ndarray
         x_info = {'dtype': str(x.dtype),
                   'shape': x.shape,
                   'tokens': list(chain.from_iterable(self.tokens)) if self.with_tokens else ''}
