@@ -113,7 +113,10 @@ class BertClient:
                                          s_status['server_version'], self.status['client_version']))
 
             if check_length:
-                self.length_limit = int(s_status['max_seq_len'])
+                if s_status['max_seq_len'] is not None:
+                    self.length_limit = int(s_status['max_seq_len'])
+                else:
+                    self.length_limit = None
 
             if check_token_info:
                 self.token_info_available = bool(s_status['show_tokens_to_client'])
@@ -269,7 +272,11 @@ class BertClient:
         else:
             self._check_input_lst_str(texts)
 
-        if self.length_limit and not self._check_length(texts, self.length_limit, is_tokenized):
+        if self.length_limit is None:
+            warnings.warn('server does not put a restriction on "max_seq_len", '
+                          'it will determine "max_seq_len" dynamically according to the sequences in the batch. '
+                          'you can restrict the sequence length on the client side for better efficiency')
+        elif self.length_limit and not self._check_length(texts, self.length_limit, is_tokenized):
             warnings.warn('some of your sentences have more tokens than "max_seq_len=%d" set on the server, '
                           'as consequence you may get less-accurate or truncated embeddings.\n'
                           'here is what you can do:\n'

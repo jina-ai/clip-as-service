@@ -55,6 +55,19 @@ def send_ndarray(src, dest, X, req_id=b'', flags=0, copy=True, track=False):
     return src.send_multipart([dest, jsonapi.dumps(md), X, req_id], flags, copy=copy, track=track)
 
 
+def check_max_seq_len(value):
+    if value is None or value.lower() == 'none':
+        return None
+    try:
+        ivalue = int(value)
+        if ivalue <= 3:
+            raise argparse.ArgumentTypeError("%s is an invalid int value must be >3 "
+                                             "(account for maximum three special symbols in BERT model) or NONE" % value)
+    except TypeError:
+        raise argparse.ArgumentTypeError("%s is an invalid int value" % value)
+    return ivalue
+
+
 def get_args_parser():
     from . import __version__
     from .graph import PoolingStrategy
@@ -77,7 +90,7 @@ def get_args_parser():
 
     group2 = parser.add_argument_group('BERT Parameters',
                                        'config how BERT model and pooling works')
-    group2.add_argument('-max_seq_len', type=int, default=25,
+    group2.add_argument('-max_seq_len', type=check_max_seq_len, default=25,
                         help='maximum length of a sequence')
     group2.add_argument('-pooling_layer', type=int, nargs='+', default=[-2],
                         help='the encoder layer(s) that receives pooling. \
@@ -128,6 +141,11 @@ def get_args_parser():
     group3.add_argument('-prefetch_size', type=int, default=10,
                         help='the number of batches to prefetch on each worker. When running on a CPU-only machine, \
                         this is set to 0 for comparability')
+    group3.add_argument('-fixed_embed_length', action='store_true', default=False,
+                        help='when "max_seq_len" is set to None, the server determines the "max_seq_len" according to '
+                             'the actual sequence lengths within each batch. When "pooling_strategy=NONE", '
+                             'this may cause two ".encode()" from the same client results in different sizes [B, T, D].'
+                             'Turn this on to fix the "T" in [B, T, D] to "max_position_embeddings" in bert json config.')
 
     parser.add_argument('-verbose', action='store_true', default=False,
                         help='turn on tensorflow logging for debug')

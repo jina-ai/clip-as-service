@@ -469,10 +469,11 @@ def embedding_postprocessor(input_tensor,
     seq_length = input_shape[1]
     width = input_shape[2]
 
-    if seq_length > max_position_embeddings:
-        raise ValueError("The seq length (%d) cannot be greater than "
-                         "`max_position_embeddings` (%d)" %
-                         (seq_length, max_position_embeddings))
+    # tf.Assert(tf.less_equal(seq_length, max_position_embeddings), [seq_length])
+    # if seq_length > max_position_embeddings:
+    #     raise ValueError("The seq length (%d) cannot be greater than "
+    #                      "`max_position_embeddings` (%d)" %
+    #                      (seq_length, max_position_embeddings))
 
     output = input_tensor
 
@@ -507,11 +508,12 @@ def embedding_postprocessor(input_tensor,
         # for position [0, 1, 2, ..., max_position_embeddings-1], and the current
         # sequence has positions [0, 1, 2, ... seq_length-1], so we can just
         # perform a slice.
-        if seq_length < max_position_embeddings:
-            position_embeddings = tf.slice(full_position_embeddings, [0, 0],
-                                           [seq_length, -1])
-        else:
-            position_embeddings = full_position_embeddings
+        position_embeddings = tf.slice(full_position_embeddings, [0, 0], [seq_length, -1])
+        # if seq_length < max_position_embeddings:
+        #     position_embeddings = tf.slice(full_position_embeddings, [0, 0],
+        #                                    [seq_length, -1])
+        # else:
+        #     position_embeddings = full_position_embeddings
 
         num_dims = len(output.shape.as_list())
 
