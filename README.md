@@ -195,7 +195,7 @@ bert-serving-start --help
 | `ckpt_name`| str | `bert_model.ckpt` | filename of the checkpoint file. |
 | `config_name`| str | `bert_config.json` | filename of the JSON config file for BERT model. |
 | `graph_tmp_dir` | str | None | path to graph temp file |  
-| `max_seq_len` | int | `25` | maximum length of sequence, longer sequence will be trimmed on the right side. |
+| `max_seq_len` | int | `25` | maximum length of sequence, longer sequence will be trimmed on the right side. Set it to NONE for dynamically using the longest sequence in a (mini)batch. |
 | `mask_cls_sep` | bool | False | masking the embedding on [CLS] and [SEP] with zero. |
 | `num_worker` | int | `1` | number of (GPU/CPU) worker runs BERT model, each works in a separate process. |
 | `max_batch_size` | int | `256` | maximum number of sequences handled by each worker, larger batch will be partitioned into small batches. |
