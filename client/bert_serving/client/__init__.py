@@ -28,7 +28,7 @@ _Response = namedtuple('_Response', ['id', 'content'])
 Response = namedtuple('Response', ['id', 'embedding', 'tokens'])
 
 
-class BertClient:
+class BertClient(object):
     def __init__(self, ip='localhost', port=5555, port_out=5556,
                  output_fmt='ndarray', show_server_config=False,
                  identity=None, check_version=True, check_length=True,
