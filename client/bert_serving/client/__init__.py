@@ -414,6 +414,19 @@ class BertClient(object):
         self.close()
 
 
+class BCManager():
+    def __init__(self, available_bc):
+        self.available_bc = available_bc
+        self.bc = None
+
+    def __enter__(self):
+        self.bc = self.available_bc.pop()
+        return self.bc
+
+    def __exit__(self, *args):
+        self.available_bc.append(self.bc)
+
+
 class ConcurrentBertClient(BertClient):
     def __init__(self, max_concurrency=10, **kwargs):
         """ A thread-safe client object connected to a BertServer
@@ -445,10 +458,9 @@ class ConcurrentBertClient(BertClient):
         @wraps(func)
         def arg_wrapper(self, *args, **kwargs):
             try:
-                bc = self.available_bc.pop()
-                f = getattr(bc, func.__name__)
-                r = f if isinstance(f, dict) else f(*args, **kwargs)
-                self.available_bc.append(bc)
+                with BCManager(self.available_bc) as bc:
+                    f = getattr(bc, func.__name__)
+                    r = f if isinstance(f, dict) else f(*args, **kwargs)
                 return r
             except IndexError:
                 raise RuntimeError('Too many concurrent connections!'
