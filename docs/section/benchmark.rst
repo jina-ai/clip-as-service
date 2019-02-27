@@ -13,7 +13,7 @@ To reproduce the results, please run
 .. highlight:: bash
 .. code:: bash
 
-   python benchmark.py
+   bert-serving-benchmark --help
 
 Common arguments across all experiments are:
 

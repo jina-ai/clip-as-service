@@ -3,8 +3,8 @@ Vue.use(VueCharts);
 const vm = new Vue({
     el: '#mrc-ui',
     data: {
-        serverUrl: 'http://100.102.33.53:8081',
-        databasePath: '/bert_monitor',
+        serverUrl: 'http://100.102.33.165:8081/bert_server',
+        apiRoute: '/status/server',
         results: [],
         top_deck: [],
         second_deck: [],
@@ -27,7 +27,7 @@ const vm = new Vue({
     },
     computed: {
         databaseUrl: function () {
-            return this.serverUrl + this.databasePath
+            return this.serverUrl + this.apiRoute
         },
         runningTime: function () {
             return moment(this.results.server_start_time).fromNow()
