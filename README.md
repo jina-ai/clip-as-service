@@ -764,7 +764,7 @@ No, not at all. Just do `encode` and let the server handles the rest. If the bat
 
 **A:** Yes. See [Benchmark](#zap-benchmark).
 
-To reproduce the results, please run [`python benchmark.py`](server/bert_serving/server/cli/bert-serving-benchmark.py).
+To reproduce the results, please run `bert-serving-benchmark`.
 
 ##### **Q:** What is backend based on?
 
@@ -920,7 +920,7 @@ The primary goal of benchmarking is to test the scalability and the speed of thi
 
 To reproduce the results, please run
 ```bash
-python benchmark.py
+bert-serving-benchmark --help
 ```
 
 Common arguments across all experiments are:

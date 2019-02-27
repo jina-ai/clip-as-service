@@ -166,7 +166,7 @@ Did you benchmark the efficiency?
 
 Yes. See `Benchmark`_.
 
-To reproduce the results, please `run ``python benchmark.py```_.
+To reproduce the results, please `run ``bert-serving-benchmark --help```_.
 
 What is backend based on?
 ''''''''''''''''''''''''''''''''
@@ -411,7 +411,7 @@ again GPU0, respectively. In general, if ``num_worker`` >
 Note, ``device_map`` is ignored when running on CPU.
 
 .. _Benchmark: #zap-benchmark
-.. _run ``python benchmark.py``: benchmark.py
+.. _run ``bert-serving-benchmark --help``: benchmark.py
 .. _ZeroMQ: http://zeromq.org/
 
 .. _UCI-News Aggregator Dataset: https://www.kaggle.com/uciml/news-aggregator-dataset
