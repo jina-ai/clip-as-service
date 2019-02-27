@@ -196,7 +196,7 @@ bert-serving-start --help
 | `ckpt_name`| str | `bert_model.ckpt` | filename of the checkpoint file. |
 | `config_name`| str | `bert_config.json` | filename of the JSON config file for BERT model. |
 | `graph_tmp_dir` | str | None | path to graph temp file |  
-| `max_seq_len` | int | `25` | maximum length of sequence, longer sequence will be trimmed on the right side. |
+| `max_seq_len` | int | `25` | maximum length of sequence, longer sequence will be trimmed on the right side. Set it to NONE for dynamically using the longest sequence in a (mini)batch. |
 | `mask_cls_sep` | bool | False | masking the embedding on [CLS] and [SEP] with zero. |
 | `num_worker` | int | `1` | number of (GPU/CPU) worker runs BERT model, each works in a separate process. |
 | `max_batch_size` | int | `256` | maximum number of sequences handled by each worker, larger batch will be partitioned into small batches. |
@@ -765,7 +765,7 @@ No, not at all. Just do `encode` and let the server handles the rest. If the bat
 
 **A:** Yes. See [Benchmark](#zap-benchmark).
 
-To reproduce the results, please run [`python benchmark.py`](server/bert_serving/server/cli/bert-serving-benchmark.py).
+To reproduce the results, please run `bert-serving-benchmark`.
 
 ##### **Q:** What is backend based on?
 
@@ -921,7 +921,7 @@ The primary goal of benchmarking is to test the scalability and the speed of thi
 
 To reproduce the results, please run
 ```bash
-python benchmark.py
+bert-serving-benchmark --help
 ```
 
 Common arguments across all experiments are:
