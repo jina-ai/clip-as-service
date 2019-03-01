@@ -171,6 +171,7 @@ Note that you only need `pip install -U bert-serving-client` in this case, the s
 > - [Broadcasting to multiple clients](#broadcasting-to-multiple-clients)
 > - [Monitoring the service status in a dashboard](#monitoring-the-service-status-in-a-dashboard)
 > - [Using `bert-as-service` to serve HTTP requests in JSON](#using-bert-as-service-to-serve-http-requests-in-json)
+> - [Starting `BertServer` from Python](#starting-bertserver-from-python)
 
 
 <h2 align="center">Server and Client API</h2>
@@ -262,6 +263,7 @@ The full list of examples can be found in [`example/`](example). You can run eac
 > - [Broadcasting to multiple clients](#broadcasting-to-multiple-clients)
 > - [Monitoring the service status in a dashboard](#monitoring-the-service-status-in-a-dashboard)
 > - [Using `bert-as-service` to serve HTTP requests in JSON](#using-bert-as-service-to-serve-http-requests-in-json)
+> - [Starting `BertServer` from Python](#starting-bertserver-from-python)
 
 </details>
 
