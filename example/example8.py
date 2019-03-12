@@ -28,7 +28,7 @@ with BertClient(port=4000, port_out=4001) as bc:
         query = input(colored('your question: ', 'green'))
         query_vec = bc.encode([query])[0]
         # compute simple dot product as score
-        score = np.sum(query_vec * doc_vecs, axis=1)
+        score = np.sum(query_vec * doc_vecs, axis=1) / np.linalg.norm(doc_vecs, axis=1)
         topk_idx = np.argsort(score)[::-1][:topk]
         print('top %d questions similar to "%s"' % (topk, colored(query, 'green')))
         for idx in topk_idx:
