@@ -53,8 +53,8 @@ similar questions as follows:
    while True:
        query = input('your question: ')
        query_vec = bc.encode([query])[0]
-       # compute simple dot product as score
-       score = np.sum(query_vec * doc_vecs, axis=1)
+       # compute normalized dot product as score
+       score = np.sum(query_vec * doc_vecs, axis=1) / np.linalg.norm(doc_vecs, axis=1)
        topk_idx = np.argsort(score)[::-1][:topk]
        for idx in topk_idx:
            print('> %s\t%s' % (score[idx], questions[idx]))
