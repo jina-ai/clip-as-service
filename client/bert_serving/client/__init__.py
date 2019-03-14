@@ -333,7 +333,7 @@ class BertClient(object):
             tmp = list(self.fetch())
             if sort:
                 tmp = sorted(tmp, key=lambda v: v.id)
-            tmp = [v.content for v in tmp]
+            tmp = [v.embedding for v in tmp]
             if concat:
                 if self.output_fmt == 'ndarray':
                     tmp = np.concatenate(tmp, axis=0)
