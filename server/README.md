@@ -172,6 +172,7 @@ Note that you only need `pip install -U bert-serving-client` in this case, the s
 > - [Broadcasting to multiple clients](#broadcasting-to-multiple-clients)
 > - [Monitoring the service status in a dashboard](#monitoring-the-service-status-in-a-dashboard)
 > - [Using `bert-as-service` to serve HTTP requests in JSON](#using-bert-as-service-to-serve-http-requests-in-json)
+> - [Starting `BertServer` from Python](#starting-bertserver-from-python)
 
 
 <h2 align="center">Server and Client API</h2>
@@ -263,6 +264,7 @@ The full list of examples can be found in [`example/`](example). You can run eac
 > - [Broadcasting to multiple clients](#broadcasting-to-multiple-clients)
 > - [Monitoring the service status in a dashboard](#monitoring-the-service-status-in-a-dashboard)
 > - [Using `bert-as-service` to serve HTTP requests in JSON](#using-bert-as-service-to-serve-http-requests-in-json)
+> - [Starting `BertServer` from Python](#starting-bertserver-from-python)
 
 </details>
 
@@ -619,6 +621,14 @@ json.dumps(bc.server_status, ensure_ascii=False)
 
 This gives the current status of the server including number of requests, number of clients etc. in JSON format. The only thing remained is to start a HTTP server for returning this JSON to the frontend that renders it.
 
+Alternatively, one may simply expose an HTTP port when starting a server via:
+
+```bash
+bert-serving-start -http_port 8001 -model_dir ...
+```
+
+This will allow one to use javascript or `curl` to fetch the server status at port 8001.
+
 `plugin/dashboard/index.html` shows a simple dashboard based on Bootstrap and Vue.js.
 
 <p align="center"><img src=".github/dashboard.png?raw=true"/></p>
@@ -667,6 +677,25 @@ curl -X POST http://xx.xx.xx.xx:8125/encode \
 To get the server's status and client's status, you can send GET requests at `/status/server` and `/status/client`, respectively.
 
 Finally, one may also config CORS to restrict the public access of the server by specifying `-cors` when starting `bert-serving-start`. By default `-cors=*`, meaning the server is public accessible.
+
+
+### Starting `BertServer` from Python
+
+Besides shell, one can also start a `BertServer` from python. Simply do
+```python
+from bert_serving.server.helper import get_args_parser
+from bert_serving.server import BertServer
+args = get_args_parser().parse_args(['-model_dir', 'YOUR_MODEL_PATH_HERE',
+                                     '-port', '5555',
+                                     '-port_out', '5556',
+                                     '-max_seq_len', 'NONE',
+                                     '-mask_cls_sep',
+                                     '-cpu'])
+server = BertServer(args)
+server.start()
+``` 
+
+Note that it's basically mirroring the arg-parsing behavior in CLI, so everything in that `.parse_args([])` list should be string, e.g. `['-port', '5555']` not `['-port', 5555]`.
 
 
 <h2 align="center">:speech_balloon: FAQ</h2>
@@ -1057,3 +1086,18 @@ On Tesla V100 with `tensorflow=1.13.0-rc0` it gives:
 <img src=".github/fp16-xla.svg" width="600">
 
 FP16 achieves ~1.4x speedup (round-trip) comparing to the FP32 counterpart. To reproduce the result, please run `python example/example1.py`.
+
+
+<h2 align="center">Citing</h2>
+<p align="right"><a href="#bert-as-service"><sup>▴ Back to top</sup></a></p>
+
+If you use bert-as-service in a scientific publication, we would appreciate references to the following BibTex entry:
+
+```latex
+@misc{xiao2018bertservice,
+  title={bert-as-service},
+  author={Xiao, Han},
+  howpublished={\url{https://github.com/hanxiao/bert-as-service}},
+  year={2018}
+}
+```
