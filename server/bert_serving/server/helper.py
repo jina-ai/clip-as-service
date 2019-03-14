@@ -4,6 +4,7 @@ import os
 import sys
 import time
 import uuid
+import warnings
 
 import zmq
 from termcolor import colored
@@ -157,7 +158,11 @@ def get_args_parser():
 def check_tf_version():
     import tensorflow as tf
     tf_ver = tf.__version__.split('.')
-    assert int(tf_ver[0]) >= 1 and int(tf_ver[1]) >= 10, 'Tensorflow >=1.10 is required!'
+    if int(tf_ver[0]) <= 1 and int(tf_ver[1]) < 10:
+        raise ModuleNotFoundError('Tensorflow >=1.10 (one-point-ten) is required!')
+    elif int(tf_ver[0]) > 2:
+        warnings.warn('Tensorflow %s is not tested! It may or may not work. '
+                      'Feel free to submit an issue at https://github.com/hanxiao/bert-as-service/issues/' % tf.__version__)
     return tf_ver
 
 
