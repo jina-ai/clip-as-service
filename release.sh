@@ -60,7 +60,7 @@ update_readme $CLIENT_DIR
 update_readme $SERVER_DIR
 
 git add $CLIENT_CODE $SERVER_CODE $CLIENT_MD $SERVER_MD
-git commit -m 'increase version number'
+git commit -m "bumping version to $VER"
 git push origin master
 git tag $VER
 git push -u origin --tags
