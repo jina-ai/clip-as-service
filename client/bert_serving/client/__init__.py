@@ -102,6 +102,7 @@ class BertClient(object):
         self.port_out = port_out
         self.ip = ip
         self.length_limit = 0
+        self.token_info_available = False
 
         if not ignore_all_checks and (check_version or show_server_config or check_length or check_token_info):
             s_status = self.server_status
