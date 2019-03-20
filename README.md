@@ -707,7 +707,7 @@ Or via shell CLI:
 bert-serving-terminate -port 5555
 ```
 
-This will terminate the server running on port 5555.
+This will terminate the server running on localhost at port 5555. You may also use it to terminate a remote server, see `bert-serving-terminate --help` for details.
 
 
 <h2 align="center">:speech_balloon: FAQ</h2>
