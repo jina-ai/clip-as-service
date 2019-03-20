@@ -73,7 +73,7 @@ def get_args_parser():
     from . import __version__
     from .graph import PoolingStrategy
 
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description='Start a BertServer for serving')
 
     group1 = parser.add_argument_group('File Paths',
                                        'config the path, checkpoint and filename of a pretrained/fine-tuned BERT model')
@@ -203,6 +203,7 @@ def get_run_args(parser_fn=get_args_parser, printed=True):
 
 def get_benchmark_parser():
     parser = get_args_parser()
+    parser.description = 'Benchmark BertServer locally'
 
     parser.set_defaults(num_client=1, client_batch_size=4096)
 
@@ -221,6 +222,19 @@ def get_benchmark_parser():
     group.add_argument('-num_repeat', type=int, default=10,
                        help='number of repeats per experiment (must >2), '
                             'as the first two results are omitted for warm-up effect')
+    return parser
+
+
+def get_shutdown_parser():
+    parser = argparse.ArgumentParser()
+    parser.description = 'Shutting down a BertServer instance running on a specific port'
+
+    parser.add_argument('-ip', type=str, default='localhost',
+                        help='the ip address that a BertServer is running on')
+    parser.add_argument('-port', '-port_in', '-port_data', type=int, required=True,
+                        help='the port that a BertServer is running on')
+    parser.add_argument('-timeout', type=int, default=5000,
+                        help='timeout (ms) for connecting to a server')
     return parser
 
 

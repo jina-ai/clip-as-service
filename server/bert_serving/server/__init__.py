@@ -78,8 +78,6 @@ class BertServer(threading.Thread):
     def close(self):
         self.logger.info('shutting down...')
         self._send_close_signal()
-        for p in self.processes:
-            p.close()
         self.join()
 
     @zmqd.context()
@@ -87,6 +85,20 @@ class BertServer(threading.Thread):
     def _send_close_signal(self, _, frontend):
         frontend.connect('tcp://localhost:%d' % self.port)
         frontend.send_multipart([b'', ServerCmd.terminate, b'', b''])
+
+    @staticmethod
+    def shutdown(args):
+        with zmq.Context() as ctx:
+            ctx.setsockopt(zmq.LINGER, args.timeout)
+            with ctx.socket(zmq.PUSH) as frontend:
+                try:
+                    frontend.connect('tcp://%s:%d' % (args.ip, args.port))
+                    frontend.send_multipart([b'', ServerCmd.terminate, b'', b''])
+                    print('shutdown signal sent to %d' % args.port)
+                except zmq.error.Again:
+                    raise TimeoutError(
+                        'no response from the server (with "timeout"=%d ms), please check the following:'
+                        'is the server still online? is the network broken? are "port" correct? ' % args.timeout)
 
     def run(self):
         self._run()
@@ -182,6 +194,8 @@ class BertServer(threading.Thread):
                     else:
                         push_new_job(job_id, msg, int(msg_len))
 
+        for p in self.processes:
+            p.close()
         self.logger.info('terminated!')
 
     def _get_device_map(self):
