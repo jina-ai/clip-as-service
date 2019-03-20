@@ -91,7 +91,7 @@ class BertServer(threading.Thread):
         with zmq.Context() as ctx:
             with ctx.socket(zmq.PUSH) as frontend:
                 try:
-                    ctx.setsockopt(zmq.LINGER, args.timeout)
+                    ctx.setsockopt(zmq.LINGER, 0)
                     frontend.setsockopt(zmq.SNDTIMEO, args.timeout)
                     frontend.connect('tcp://localhost:%d' % args.port)
                     frontend.send_multipart([b'', ServerCmd.terminate, b'', b''], zmq.NOBLOCK)
