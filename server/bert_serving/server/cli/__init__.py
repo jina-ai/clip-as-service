@@ -16,4 +16,6 @@ def benchmark():
 
 def terminate():
     from bert_serving.server import BertServer
-    BertServer.shutdown
+    from bert_serving.server.helper import get_run_args, get_shutdown_parser
+    args = get_run_args(get_shutdown_parser)
+    BertServer.shutdown(args.port)
