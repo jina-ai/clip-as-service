@@ -77,18 +77,22 @@ class BertServer(threading.Thread):
 
     def close(self):
         self.logger.info('shutting down...')
-        self.shutdown(self.port)
-        for p in self.processes:
-            p.close()
+        self._send_close_signal()
         self.join()
+
+    @zmqd.context()
+    @zmqd.socket(zmq.PUSH)
+    def _send_close_signal(self, _, frontend):
+        frontend.connect('tcp://localhost:%d' % self.port)
+        frontend.send_multipart([b'', ServerCmd.terminate, b'', b''])
 
     @staticmethod
     def shutdown(port):
-        @zmqd.context()
-        @zmqd.socket(zmq.PUSH)
-        def _send_close_signal(_, frontend):
-            frontend.connect('tcp://localhost:%d' % port)
-            frontend.send_multipart([b'', ServerCmd.terminate, b'', b''])
+        with zmq.Context() as ctx:
+            with ctx.socket(zmq.PUSH) as frontend:
+                frontend.connect('tcp://localhost:%d' % port)
+                frontend.send_multipart([b'', ServerCmd.terminate, b'', b''])
+        print('shutdown signal sent')
 
     def run(self):
         self._run()
@@ -184,6 +188,8 @@ class BertServer(threading.Thread):
                     else:
                         push_new_job(job_id, msg, int(msg_len))
 
+        for p in self.processes:
+            p.close()
         self.logger.info('terminated!')
 
     def _get_device_map(self):
