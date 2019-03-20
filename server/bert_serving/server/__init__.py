@@ -87,12 +87,18 @@ class BertServer(threading.Thread):
         frontend.send_multipart([b'', ServerCmd.terminate, b'', b''])
 
     @staticmethod
-    def shutdown(port):
+    def shutdown(args):
         with zmq.Context() as ctx:
             with ctx.socket(zmq.PUSH) as frontend:
-                frontend.connect('tcp://localhost:%d' % port)
-                frontend.send_multipart([b'', ServerCmd.terminate, b'', b''])
-        print('shutdown signal sent to %d' % port)
+                try:
+                    frontend.setsockopt(zmq.RCVTIMEO, args.timeout)
+                    frontend.connect('tcp://localhost:%d' % args.port)
+                    frontend.send_multipart([b'', ServerCmd.terminate, b'', b''])
+                    print('shutdown signal sent to %d' % args.port)
+                except zmq.error.Again:
+                    raise TimeoutError(
+                        'no response from the server (with "timeout"=%d ms), please check the following:'
+                        'is the server still online? is the network broken? are "port" correct? ' % args.timeout)
 
     def run(self):
         self._run()
