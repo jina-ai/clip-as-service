@@ -184,10 +184,11 @@ The best way to learn `bert-as-service` **latest API** is [reading the documenta
 
 ### Server API
 
-[Please always refer to the latest server-side API documented here.](https://bert-as-service.readthedocs.io/en/latest/source/server.html#server-side-api)
-Server-side is a CLI `bert-serving-start`, you can get the latest usage via:
+[Please always refer to the latest server-side API documented here.](https://bert-as-service.readthedocs.io/en/latest/source/server.html#server-side-api), you may get the latest usage via:
 ```bash
 bert-serving-start --help
+bert-serving-terminate --help
+bert-serving-benchmark --help
 ```
 
 | Argument | Type | Default | Description |
@@ -696,6 +697,18 @@ server.start()
 ``` 
 
 Note that it's basically mirroring the arg-parsing behavior in CLI, so everything in that `.parse_args([])` list should be string, e.g. `['-port', '5555']` not `['-port', 5555]`.
+
+To shutdown the server, you may call the static method in `BertServer` class via:
+```python
+BertServer.shutdown(port=5555)
+```
+
+Or via shell CLI:
+```bash
+bert-serving-terminate -port 5555
+```
+
+This will terminate the server running on localhost at port 5555. You may also use it to terminate a remote server, see `bert-serving-terminate --help` for details.
 
 
 <h2 align="center">:speech_balloon: FAQ</h2>
