@@ -224,6 +224,13 @@ def get_benchmark_parser():
     return parser
 
 
+def get_shutdown_parser():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-port', '-port_in', '-port_data', type=int, default=5555,
+                        help='server port for receiving data from client')
+    return parser
+
+
 class TimeContext:
     def __init__(self, msg):
         self._msg = msg

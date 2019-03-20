@@ -12,3 +12,8 @@ def benchmark():
     from bert_serving.server.helper import get_run_args, get_benchmark_parser
     args = get_run_args(get_benchmark_parser)
     run_benchmark(args)
+
+
+def terminate():
+    from bert_serving.server import BertServer
+    BertServer.shutdown
