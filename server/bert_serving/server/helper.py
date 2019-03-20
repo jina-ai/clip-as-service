@@ -229,8 +229,10 @@ def get_shutdown_parser():
     parser = argparse.ArgumentParser()
     parser.description = 'Shutting down a BertServer instance running on a specific port'
 
+    parser.add_argument('-ip', type=str, default='localhost',
+                        help='the ip address that a BertServer is running on')
     parser.add_argument('-port', '-port_in', '-port_data', type=int, required=True,
-                        help='the port that BertServer is running on')
+                        help='the port that a BertServer is running on')
     parser.add_argument('-timeout', type=int, default=5000,
                         help='timeout (ms) for connecting to a server')
     return parser
