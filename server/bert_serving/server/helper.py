@@ -226,7 +226,7 @@ def get_benchmark_parser():
 
 def get_shutdown_parser():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-port', '-port_in', '-port_data', type=int, default=5555,
+    parser.add_argument('-port', '-port_in', '-port_data', type=int, required=True,
                         help='server port for receiving data from client')
     return parser
 
