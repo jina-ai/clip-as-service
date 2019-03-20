@@ -187,6 +187,8 @@ The best way to learn `bert-as-service` **latest API** is [reading the documenta
 Server-side is a CLI `bert-serving-start`, you can get the latest usage via:
 ```bash
 bert-serving-start --help
+bert-serving-terminate --help
+bert-serving-benchmark --help
 ```
 
 | Argument | Type | Default | Description |

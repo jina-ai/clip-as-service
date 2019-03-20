@@ -92,7 +92,7 @@ class BertServer(threading.Thread):
             with ctx.socket(zmq.PUSH) as frontend:
                 frontend.connect('tcp://localhost:%d' % port)
                 frontend.send_multipart([b'', ServerCmd.terminate, b'', b''])
-        print('shutdown signal sent')
+        print('shutdown signal sent to %d' % port)
 
     def run(self):
         self._run()
