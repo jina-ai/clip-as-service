@@ -74,6 +74,7 @@ class BertServer(threading.Thread):
             self.logger.info('optimized graph is stored at: %s' % self.graph_path)
         else:
             raise FileNotFoundError('graph optimization fails and returns empty result')
+        self.is_ready = threading.Event()
 
     def close(self):
         self.logger.info('shutting down...')
@@ -148,6 +149,8 @@ class BertServer(threading.Thread):
 
         for p in self.processes:
             p.is_ready.wait()
+
+        self.is_ready.set()
         self.logger.info('all set, ready to serve request!')
 
         while True:
