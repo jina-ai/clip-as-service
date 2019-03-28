@@ -79,6 +79,7 @@ class BertServer(threading.Thread):
     def close(self):
         self.logger.info('shutting down...')
         self._send_close_signal()
+        self.is_ready.clear()
         self.join()
 
     @zmqd.context()
