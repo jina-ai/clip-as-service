@@ -76,6 +76,14 @@ class BertServer(threading.Thread):
             raise FileNotFoundError('graph optimization fails and returns empty result')
         self.is_ready = threading.Event()
 
+    def __enter__(self):
+        self.start()
+        self.is_ready.wait()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
+
     def close(self):
         self.logger.info('shutting down...')
         self._send_close_signal()
