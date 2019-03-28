@@ -1,10 +1,8 @@
 def main():
     from bert_serving.server import BertServer
     from bert_serving.server.helper import get_run_args
-    args = get_run_args()
-    server = BertServer(args)
-    server.start()
-    server.join()
+    with BertServer(get_run_args()) as server:
+        server.join()
 
 
 def benchmark():

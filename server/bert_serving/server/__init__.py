@@ -74,10 +74,20 @@ class BertServer(threading.Thread):
             self.logger.info('optimized graph is stored at: %s' % self.graph_path)
         else:
             raise FileNotFoundError('graph optimization fails and returns empty result')
+        self.is_ready = threading.Event()
+
+    def __enter__(self):
+        self.start()
+        self.is_ready.wait()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
 
     def close(self):
         self.logger.info('shutting down...')
         self._send_close_signal()
+        self.is_ready.clear()
         self.join()
 
     @zmqd.context()
@@ -145,6 +155,13 @@ class BertServer(threading.Thread):
 
         rand_backend_socket = None
         server_status = ServerStatistic()
+
+        for p in self.processes:
+            p.is_ready.wait()
+
+        self.is_ready.set()
+        self.logger.info('all set, ready to serve request!')
+
         while True:
             try:
                 request = frontend.recv_multipart()
@@ -248,9 +265,11 @@ class BertSink(Process):
         self.max_seq_len = args.max_seq_len
         self.max_position_embeddings = bert_config.max_position_embeddings
         self.fixed_embed_length = args.fixed_embed_length
+        self.is_ready = multiprocessing.Event()
 
     def close(self):
         self.logger.info('shutting down...')
+        self.is_ready.clear()
         self.exit_flag.set()
         self.terminate()
         self.join()
@@ -282,6 +301,7 @@ class BertSink(Process):
         # inside the process for better compability
         logger = set_logger(colored('SINK', 'green'), self.verbose)
         logger.info('ready')
+        self.is_ready.set()
 
         while not self.exit_flag.is_set():
             socks = dict(poller.poll())
@@ -438,10 +458,12 @@ class BertWorker(Process):
         self.bert_config = graph_config
         self.use_fp16 = args.fp16
         self.show_tokens_to_client = args.show_tokens_to_client
+        self.is_ready = multiprocessing.Event()
 
     def close(self):
         self.logger.info('shutting down...')
         self.exit_flag.set()
+        self.is_ready.clear()
         self.terminate()
         self.join()
         self.logger.info('terminated!')
@@ -518,6 +540,7 @@ class BertWorker(Process):
                 poller.register(sock, zmq.POLLIN)
 
             logger.info('ready and listening!')
+            self.is_ready.set()
 
             while not self.exit_flag.is_set():
                 events = dict(poller.poll())

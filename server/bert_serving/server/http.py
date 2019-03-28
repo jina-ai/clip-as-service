@@ -1,4 +1,4 @@
-from multiprocessing import Process
+from multiprocessing import Process, Event
 
 from termcolor import colored
 
@@ -9,6 +9,7 @@ class BertHTTPProxy(Process):
     def __init__(self, args):
         super().__init__()
         self.args = args
+        self.is_ready = Event
 
     def create_flask_app(self):
         try:
@@ -60,4 +61,5 @@ class BertHTTPProxy(Process):
 
     def run(self):
         app = self.create_flask_app()
+        self.is_ready.set()
         app.run(port=self.args.http_port, threaded=True, host='0.0.0.0')
