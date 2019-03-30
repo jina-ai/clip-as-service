@@ -9,7 +9,7 @@ class BertHTTPProxy(Process):
     def __init__(self, args):
         super().__init__()
         self.args = args
-        self.is_ready = Event
+        self.is_ready = Event()
 
     def create_flask_app(self):
         try:
