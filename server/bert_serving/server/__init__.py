@@ -166,7 +166,9 @@ class BertServer(threading.Thread):
             try:
                 request = frontend.recv_multipart()
                 client, msg, req_id, msg_len = request
-            except ValueError:
+                assert req_id.isdigit()
+                assert msg_len.isdigit()
+            except (ValueError, AssertionError):
                 self.logger.error('received a wrongly-formatted request (expected 4 frames, got %d)' % len(request))
                 self.logger.error('\n'.join('field %d: %s' % (idx, k) for idx, k in enumerate(request)), exc_info=True)
             else:
