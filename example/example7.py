@@ -18,12 +18,14 @@ import pandas as pd
 # from MulticoreTSNE import MulticoreTSNE as TSNE
 from bert_serving.client import BertClient
 from bert_serving.server import BertServer
-from bert_serving.server.graph import PoolingStrategy
+from bert_serving.server.helper import get_args_parser
 from matplotlib import pyplot as plt
 from matplotlib.colors import ListedColormap
 from sklearn.decomposition import PCA
 
-data = pd.read_csv('/data/cips/data/lab/data/dataset/uci-news-aggregator.csv', usecols=['TITLE', 'CATEGORY'])
+
+#=========================== dump bert vectors ===========================
+data = pd.read_csv('/corpus/uci-news-aggregator.csv', usecols=['TITLE', 'CATEGORY'])
 
 # just copy paste from some Kaggle kernel ->
 num_of_categories = 5000
@@ -54,43 +56,49 @@ print('unique label: %d' % num_label)
 
 pool_layer = 1
 subset_vec_all_layers = []
+port = 6006
+port_out = 6007
 
-common = {
-    'model_dir': '//data/cips/data/lab/data/model/uncased_L-12_H-768_A-12',
-    'num_worker': 2,
-    'num_repeat': 5,
-    'port': 6006,
-    'port_out': 6007,
-    'max_seq_len': 20,
-    'client_batch_size': 2048,
-    'max_batch_size': 256,
-    'num_client': 1,
-    'pooling_strategy': PoolingStrategy.REDUCE_MEAN,
-    'pooling_layer': [-2],
-    'gpu_memory_fraction': 0.5,
-    'xla': False,
-    'cpu': False,
-    'verbose': False,
-    'device_map': []
-}
-args = namedtuple('args_namedtuple', ','.join(common.keys()))
-for k, v in common.items():
-    setattr(args, k, v)
+common = [
+    '-model_dir', '/bert_model/chinese_L-12_H-768_A-12/',
+    '-num_worker', '2',
+    '-port', str(port),
+    '-port_out', str(port_out),
+    '-max_seq_len', '20',
+    # '-client_batch_size', '2048',
+    '-max_batch_size', '256',
+    # '-num_client', '1',
+    '-pooling_strategy', 'REDUCE_MEAN',
+    '-pooling_layer', '-2',
+    '-gpu_memory_fraction', '0.2',
+    '-device','3',
+]
+args = get_args_parser().parse_args(common)
 
 for pool_layer in range(1, 13):
     setattr(args, 'pooling_layer', [-pool_layer])
     server = BertServer(args)
     server.start()
     print('wait until server is ready...')
-    time.sleep(15)
+    time.sleep(20)
     print('encoding...')
-    bc = BertClient(port=common['port'], port_out=common['port_out'], show_server_config=True)
+    bc = BertClient(port=port, port_out=port_out, show_server_config=True)
     subset_vec_all_layers.append(bc.encode(subset_text))
     bc.close()
     server.close()
     print('done at layer -%d' % pool_layer)
 
+#save bert vectors and labels
+stacked_subset_vec_all_layers = np.stack(subset_vec_all_layers)
+np.save('example7_5k_2',stacked_subset_vec_all_layers)
+np_subset_label = np.array(subset_label)
+np.save('example7_5k_2_subset_label',np_subset_label)
 
+#load bert vectors and labels
+subset_vec_all_layers = np.load('example7_5k_mxnet.npy')
+np_subset_label = np.load('example7_5k_mxnet_subset_label.npy')
+subset_label = np_subset_label.tolist()
+#=========================== visulize ===========================
 def vis(embed, vis_alg='PCA', pool_alg='REDUCE_MEAN'):
     plt.close()
     fig = plt.figure()
@@ -117,6 +125,6 @@ def vis(embed, vis_alg='PCA', pool_alg='REDUCE_MEAN'):
 pca_embed = [PCA(n_components=2).fit_transform(v) for v in subset_vec_all_layers]
 vis(pca_embed)
 
-if False:
-    tsne_embed = [TSNE(n_jobs=8).fit_transform(v) for v in subset_vec_all_layers]
-    vis(tsne_embed, 't-SNE')
+# if False:
+#     tsne_embed = [TSNE(n_jobs=8).fit_transform(v) for v in subset_vec_all_layers]
+#     vis(tsne_embed, 't-SNE')
