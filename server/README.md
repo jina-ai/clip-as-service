@@ -199,6 +199,7 @@ bert-serving-benchmark --help
 | `config_name`| str | `bert_config.json` | filename of the JSON config file for BERT model. |
 | `graph_tmp_dir` | str | None | path to graph temp file |  
 | `max_seq_len` | int | `25` | maximum length of sequence, longer sequence will be trimmed on the right side. Set it to NONE for dynamically using the longest sequence in a (mini)batch. |
+| `cased_tokenization` | bool | False | Whether tokenizer should skip the default lowercasing and accent removal. Should be used for e.g. the multilingual cased pretrained BERT model. |
 | `mask_cls_sep` | bool | False | masking the embedding on [CLS] and [SEP] with zero. |
 | `num_worker` | int | `1` | number of (GPU/CPU) worker runs BERT model, each works in a separate process. |
 | `max_batch_size` | int | `256` | maximum number of sequences handled by each worker, larger batch will be partitioned into small batches. |
