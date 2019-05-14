@@ -94,6 +94,9 @@ def get_args_parser():
     group2.add_argument('-max_seq_len', type=check_max_seq_len, default=25,
                         help='maximum length of a sequence, longer sequence will be trimmed on the right side. '
                              'set it to NONE for dynamically using the longest sequence in a (mini)batch.')
+    group2.add_argument('-cased_tokenization', dest='do_lower_case', action='store_false', default=True,
+                        help='Whether tokenizer should skip the default lowercasing and accent removal.'
+                             'Should be used for e.g. the multilingual cased pretrained BERT model.')
     group2.add_argument('-pooling_layer', type=int, nargs='+', default=[-2],
                         help='the encoder layer(s) that receives pooling. \
                         Give a list in order to concatenate several layers into one')

@@ -446,6 +446,7 @@ class BertWorker(Process):
         self.device_id = device_id
         self.logger = set_logger(colored('WORKER-%d' % self.worker_id, 'yellow'), args.verbose)
         self.max_seq_len = args.max_seq_len
+        self.do_lower_case = args.do_lower_case
         self.mask_cls_sep = args.mask_cls_sep
         self.daemon = True
         self.exit_flag = multiprocessing.Event()
@@ -532,10 +533,10 @@ class BertWorker(Process):
         from .bert.tokenization import FullTokenizer
 
         def gen():
-            tokenizer = FullTokenizer(vocab_file=os.path.join(self.model_dir, 'vocab.txt'))
             # Windows does not support logger in MP environment, thus get a new logger
             # inside the process for better compatibility
             logger = set_logger(colored('WORKER-%d' % self.worker_id, 'yellow'), self.verbose)
+            tokenizer = FullTokenizer(vocab_file=os.path.join(self.model_dir, 'vocab.txt'), do_lower_case=self.do_lower_case)
 
             poller = zmq.Poller()
             for sock in socks:
