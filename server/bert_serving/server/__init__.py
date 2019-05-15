@@ -94,7 +94,7 @@ class BertServer(threading.Thread):
     @zmqd.socket(zmq.PUSH)
     def _send_close_signal(self, _, frontend):
         frontend.connect('tcp://localhost:%d' % self.port)
-        frontend.send_multipart([b'', ServerCmd.terminate, b'', b''])
+        frontend.send_multipart([b'0', ServerCmd.terminate, b'0', b'0'])
 
     @staticmethod
     def shutdown(args):
@@ -103,7 +103,7 @@ class BertServer(threading.Thread):
             with ctx.socket(zmq.PUSH) as frontend:
                 try:
                     frontend.connect('tcp://%s:%d' % (args.ip, args.port))
-                    frontend.send_multipart([b'', ServerCmd.terminate, b'', b''])
+                    frontend.send_multipart([b'0', ServerCmd.terminate, b'0', b'0'])
                     print('shutdown signal sent to %d' % args.port)
                 except zmq.error.Again:
                     raise TimeoutError(
