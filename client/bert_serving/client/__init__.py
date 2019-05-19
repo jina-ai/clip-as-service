@@ -268,6 +268,9 @@ class BertClient(object):
         :rtype: numpy.ndarray or list[list[float]]
 
         """
+        if len(texts) == 0:
+            return []
+
         if is_tokenized:
             self._check_input_lst_lst_str(texts)
         else:
