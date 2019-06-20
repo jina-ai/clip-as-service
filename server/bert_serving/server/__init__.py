@@ -332,18 +332,6 @@ class BertSink(Process):
                                                                 pending_jobs[job_id].progress_tokens,
                                                                 pending_jobs[job_id].checksum))
 
-                # check if there are finished jobs, then send it back to workers
-
-                finished = [(k, v) for k, v in pending_jobs.items() if v.is_done]
-                for job_info, tmp in finished:
-                    client_addr, req_id = job_info.split(b'#')
-                    x, x_info = tmp.result
-                    sender.send_multipart([client_addr, x_info, x, req_id])
-                    logger.info('send back\tsize: %d\tjob id: %s' % (tmp.checksum, job_info))
-                    # release the job
-                    tmp.clear()
-                    pending_jobs.pop(job_info)
-
             if socks.get(frontend) == zmq.POLLIN:
                 client_addr, msg_type, msg_info, req_id = frontend.recv_multipart()
                 if msg_type == ServerCmd.new_job:
@@ -351,10 +339,24 @@ class BertSink(Process):
                     # register a new job
                     pending_jobs[job_info].checksum = int(msg_info)
                     logger.info('job register\tsize: %d\tjob id: %s' % (int(msg_info), job_info))
+                    if len(pending_jobs[job_info]._pending_embeds)>0 \
+                            and pending_jobs[job_info].final_ndarray is None:
+                        pending_jobs[job_info].add_embed(None, 0)
                 elif msg_type == ServerCmd.show_config:
                     time.sleep(0.1)  # dirty fix of slow-joiner: sleep so that client receiver can connect.
                     logger.info('send config\tclient %s' % client_addr)
                     sender.send_multipart([client_addr, msg_info, req_id])
+
+            # check if there are finished jobs, then send it back to workers
+            finished = [(k, v) for k, v in pending_jobs.items() if v.is_done]
+            for job_info, tmp in finished:
+                client_addr, req_id = job_info.split(b'#')
+                x, x_info = tmp.result
+                sender.send_multipart([client_addr, x_info, x, req_id])
+                logger.info('send back\tsize: %d\tjob id: %s' % (tmp.checksum, job_info))
+                # release the job
+                tmp.clear()
+                pending_jobs.pop(job_info)
 
 
 class SinkJob:
@@ -396,19 +398,29 @@ class SinkJob:
             self.progress_embeds += progress
             if data.shape[1] > self.max_effective_len:
                 self.max_effective_len = data.shape[1]
-
-        progress = data.shape[0]
+        if data is not None: # when job finish msg come to SINK earlier than job register
+            progress = data.shape[0]
+        else:
+            progress = 0
         if not self.checksum:
             self._pending_embeds.append((data, pid, progress))
         else:
             if self.final_ndarray is None:
-                d_shape = list(data.shape[1:])
+                if data is not None: # when job finish msg come to SINK earlier than job register
+                    d_shape = list(data.shape[1:])
+                else:
+                    d_shape = list(self._pending_embeds[0][0].shape[1:])
                 if self.max_seq_len_unset and len(d_shape) > 1:
                     # if not set max_seq_len, then we have no choice but set result ndarray to
                     # [B, max_position_embeddings, dim] and truncate it at the end
                     d_shape[0] = self.max_position_embeddings
-                self.final_ndarray = np.zeros([self.checksum] + d_shape, dtype=data.dtype)
-            fill_data()
+                if data is not None:
+                    dtype = data.dtype
+                else:
+                    dtype = self._pending_embeds[0][0].dtype
+                self.final_ndarray = np.zeros([self.checksum] + d_shape, dtype=dtype)
+            if data is not None: # when job finish msg come to SINK earlier than job register
+                fill_data()
             while self._pending_embeds:
                 data, pid, progress = self._pending_embeds.pop()
                 fill_data()
