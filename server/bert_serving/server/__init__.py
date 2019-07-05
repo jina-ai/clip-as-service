@@ -32,6 +32,7 @@ _tf_ver_ = check_tf_version()
 class ServerCmd:
     terminate = b'TERMINATION'
     show_config = b'SHOW_CONFIG'
+    show_status = b'SHOW_STATUS'
     new_job = b'REGISTER'
     data_token = b'TOKENS'
     data_embed = b'EMBEDDINGS'
@@ -175,7 +176,7 @@ class BertServer(threading.Thread):
                 server_status.update(request)
                 if msg == ServerCmd.terminate:
                     break
-                elif msg == ServerCmd.show_config:
+                elif msg == ServerCmd.show_config or msg == ServerCmd.show_status:
                     self.logger.info('new config request\treq id: %d\tclient: %s' % (int(req_id), client))
                     status_runtime = {'client': client.decode('ascii'),
                                       'num_process': len(self.processes),
@@ -183,10 +184,10 @@ class BertServer(threading.Thread):
                                       'worker -> sink': addr_sink,
                                       'ventilator <-> sink': addr_front2sink,
                                       'server_current_time': str(datetime.now()),
-                                      'statistic': server_status.value,
                                       'device_map': device_map,
                                       'num_concurrent_socket': self.num_concurrent_socket}
-
+                    if msg == ServerCmd.show_status:
+                        status_runtime['statistic'] = server_status.value
                     sink.send_multipart([client, msg, jsonapi.dumps({**status_runtime,
                                                                      **self.status_args,
                                                                      **self.status_static}), req_id])
@@ -342,7 +343,7 @@ class BertSink(Process):
                     if len(pending_jobs[job_info]._pending_embeds)>0 \
                             and pending_jobs[job_info].final_ndarray is None:
                         pending_jobs[job_info].add_embed(None, 0)
-                elif msg_type == ServerCmd.show_config:
+                elif msg_type == ServerCmd.show_config or msg_type == ServerCmd.show_status:
                     time.sleep(0.1)  # dirty fix of slow-joiner: sleep so that client receiver can connect.
                     logger.info('send config\tclient %s' % client_addr)
                     sender.send_multipart([client_addr, msg_info, req_id])
@@ -598,9 +599,9 @@ class BertWorker(Process):
 
 class ServerStatistic:
     def __init__(self):
-        self._hist_client = defaultdict(int)
+        self._hist_client = CappedHistogram(500)
         self._hist_msg_len = defaultdict(int)
-        self._client_last_active_time = defaultdict(float)
+        self._client_last_active_time = CappedHistogram(500)
         self._num_data_req = 0
         self._num_sys_req = 0
         self._num_total_seq = 0
@@ -628,14 +629,16 @@ class ServerStatistic:
 
     @property
     def value(self):
-        def get_min_max_avg(name, stat):
+        def get_min_max_avg(name, stat, avg=None):
             if len(stat) > 0:
+                avg = sum(stat) / len(stat) if avg is None else avg
+                min_, max_ = min(stat), max(stat)
                 return {
-                    'avg_%s' % name: sum(stat) / len(stat),
-                    'min_%s' % name: min(stat),
-                    'max_%s' % name: max(stat),
-                    'num_min_%s' % name: sum(v == min(stat) for v in stat),
-                    'num_max_%s' % name: sum(v == max(stat) for v in stat),
+                    'avg_%s' % name: avg,
+                    'min_%s' % name: min_,
+                    'max_%s' % name: max_,
+                    'num_min_%s' % name: sum(v == min_ for v in stat),
+                    'num_max_%s' % name: sum(v == max_ for v in stat),
                 }
             else:
                 return {}
@@ -645,15 +648,19 @@ class ServerStatistic:
             now = time.perf_counter()
             return sum(1 for v in self._client_last_active_time.values() if (now - v) < interval)
 
+        avg_msg_len = None
+        if len(self._hist_msg_len) > 0:
+            avg_msg_len = sum(k*v for k,v in self._hist_msg_len.items()) / sum(self._hist_msg_len.values())
+
         parts = [{
             'num_data_request': self._num_data_req,
             'num_total_seq': self._num_total_seq,
             'num_sys_request': self._num_sys_req,
             'num_total_request': self._num_data_req + self._num_sys_req,
-            'num_total_client': len(self._hist_client),
+            'num_total_client': self._hist_client.total_size(),
             'num_active_client': get_num_active_client()},
-            get_min_max_avg('request_per_client', self._hist_client.values()),
-            get_min_max_avg('size_per_request', self._hist_msg_len.keys()),
+            self._hist_client.get_stat_map('request_per_client'),
+            get_min_max_avg('size_per_request', self._hist_msg_len.keys(), avg=avg_msg_len),
             get_min_max_avg('last_two_interval', self._last_two_req_interval),
             get_min_max_avg('request_per_second', [1. / v for v in self._last_two_req_interval]),
         ]
