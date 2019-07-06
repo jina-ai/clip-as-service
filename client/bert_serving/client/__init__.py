@@ -105,7 +105,7 @@ class BertClient(object):
         self.token_info_available = False
 
         if not ignore_all_checks and (check_version or show_server_config or check_length or check_token_info):
-            s_status = self.server_status
+            s_status = self.server_config
 
             if check_version and s_status['server_version'] != self.status['client_version']:
                 raise AttributeError('version mismatch! server version is %s but client version is %s!\n'
@@ -220,6 +220,19 @@ class BertClient(object):
 
     @property
     @_timeout
+    def server_config(self):
+        """
+            Get the current configuration of the server connected to this client
+
+        :return: a dictionary contains the current configuration of the server connected to this client
+        :rtype: dict[str, str]
+
+        """
+        req_id = self._send(b'SHOW_CONFIG')
+        return jsonapi.loads(self._recv(req_id).content[1])
+
+    @property
+    @_timeout
     def server_status(self):
         """
             Get the current status of the server connected to this client
@@ -228,7 +241,7 @@ class BertClient(object):
         :rtype: dict[str, str]
 
         """
-        req_id = self._send(b'SHOW_CONFIG')
+        req_id = self._send(b'SHOW_STATUS')
         return jsonapi.loads(self._recv(req_id).content[1])
 
     @_timeout
@@ -472,6 +485,11 @@ class ConcurrentBertClient(BertClient):
 
     @_concurrent
     def encode(self, **kwargs):
+        pass
+
+    @property
+    @_concurrent
+    def server_config(self):
         pass
 
     @property
