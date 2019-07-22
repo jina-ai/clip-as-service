@@ -740,12 +740,12 @@ In general, each sentence is translated to a 768-dimensional vector. Depending o
 **A:** Sure! Just use a list of the layer you want to concatenate when calling the server. Example:
 
 ```bash
-bert_serving_start -pooling_layer -4 -3 -2 -1 -model_dir /tmp/english_L-12_H-768_A-12/
+bert-serving-start -pooling_layer -4 -3 -2 -1 -model_dir /tmp/english_L-12_H-768_A-12/
 ```
 
 ##### **Q:** What are the available pooling strategies?
 
-**A:** Here is a table summarizes all pooling strategies I implemented. Choose your favorite one by specifying `bert_serving_start -pooling_strategy`.
+**A:** Here is a table summarizes all pooling strategies I implemented. Choose your favorite one by specifying `bert-serving-start -pooling_strategy`.
 
 |Strategy|Description|
 |---|---|
@@ -793,7 +793,7 @@ No, not at all. Just do `encode` and let the server handles the rest. If the bat
 
 ##### **Q:** How many requests can one service handle concurrently?
 
-**A:** The maximum number of concurrent requests is determined by `num_worker` in `bert_serving_start`. If you a sending more than `num_worker` requests concurrently, the new requests will be temporally stored in a queue until a free worker becomes available.
+**A:** The maximum number of concurrent requests is determined by `num_worker` in `bert-serving-start`. If you a sending more than `num_worker` requests concurrently, the new requests will be temporally stored in a queue until a free worker becomes available.
 
 ##### **Q:** So one request means one sentence?
 

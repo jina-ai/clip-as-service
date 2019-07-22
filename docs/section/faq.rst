@@ -52,14 +52,14 @@ calling the server. Example:
 .. highlight:: bash
 .. code:: bash
 
-   bert_serving_start -pooling_layer -4 -3 -2 -1 -model_dir /tmp/english_L-12_H-768_A-12/
+   bert-serving-start -pooling_layer -4 -3 -2 -1 -model_dir /tmp/english_L-12_H-768_A-12/
 
 What are the available pooling strategies?
 '''''''''''''''''''''''''''''''''''''''''''''''''
 
 Here is a table summarizes all pooling strategies I implemented.
 Choose your favorite one by specifying
-``bert_serving_start -pooling_strategy``.
+``bert-serving-start -pooling_strategy``.
 
 ================================ ========================================================================================================================================================================
 Strategy                         Description
@@ -139,7 +139,7 @@ enough time).
 How many requests can one service handle concurrently?
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 The maximum number of concurrent requests is determined by
-``num_worker`` in ``bert_serving_start``. If you a sending more than
+``num_worker`` in ``bert-serving-start``. If you a sending more than
 ``num_worker`` requests concurrently, the new requests will be
 temporally stored in a queue until a free worker becomes available.
 
