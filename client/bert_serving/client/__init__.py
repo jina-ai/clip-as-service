@@ -17,7 +17,7 @@ from zmq.utils import jsonapi
 __all__ = ['__version__', 'BertClient', 'ConcurrentBertClient']
 
 # in the future client version must match with server version
-__version__ = '1.9.3'
+__version__ = '1.9.4'
 
 if sys.version_info >= (3, 0):
     from ._py3_var import *
