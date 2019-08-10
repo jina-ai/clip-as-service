@@ -6,7 +6,3 @@ COPY ./docker/entrypoint.sh /app
 WORKDIR /app
 ENTRYPOINT ["/app/entrypoint.sh"]
 CMD []
-
-
-
-
