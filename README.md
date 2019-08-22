@@ -15,9 +15,8 @@
       <img src="https://readthedocs.org/projects/bert-as-service/badge/?version=latest"
            alt="ReadTheDoc">
     </a>
-  <a href="https://github.com/hanxiao/bert-as-service/releases">
-      <img src="https://img.shields.io/github/release/hanxiao/bert-as-service.svg"
-           alt="GitHub release">
+  <a href="https://pypi.org/search/?q=bert-serving">
+      <img alt="PyPI - Downloads" src="https://img.shields.io/pypi/dm/bert-serving-server">
   </a>
   <a href="https://github.com/hanxiao/bert-as-service/issues">
         <img src="https://img.shields.io/github/issues/hanxiao/bert-as-service.svg"
