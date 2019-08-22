@@ -15,9 +15,8 @@
       <img src="https://readthedocs.org/projects/bert-as-service/badge/?version=latest"
            alt="ReadTheDoc">
     </a>
-  <a href="https://github.com/hanxiao/bert-as-service/releases">
-      <img src="https://img.shields.io/github/release/hanxiao/bert-as-service.svg"
-           alt="GitHub release">
+  <a href="https://pypi.org/search/?q=bert-serving">
+      <img alt="PyPI - Downloads" src="https://img.shields.io/pypi/dm/bert-serving-server">
   </a>
   <a href="https://github.com/hanxiao/bert-as-service/issues">
         <img src="https://img.shields.io/github/issues/hanxiao/bert-as-service.svg"
@@ -51,6 +50,20 @@
 
 <h6 align="center">Made by Han Xiao • :globe_with_meridians: <a href="https://hanxiao.github.io">https://hanxiao.github.io</a></h6>
 
+
+<center>
+<table>
+  <tr>
+  <td width="25%"><a href="https://github.com/gnes-ai/gnes">
+      <img src=".github/gnes-logo-tight.svg" alt="GNES is Generic Neural Elastic Search (logo made by Han Xiao)">
+      </a></td>
+  <td>
+  <b>✨Looking for X-as-service? Or more generic and cloud-native solution?</b>
+  <p><br>Checkout my new project <a href="https://github.com/gnes-ai/gnes">GNES</a>! GNES is Generic Neural Elastic Search, a cloud-native semantic search system based on deep neural network. GNES enables large-scale index and semantic search for text-to-text, image-to-image, video-to-video and any-to-any content form.</p>
+</td>
+  </tr>
+</table>
+</center>
 
 <h2 align="center">What is it</h2>
 
