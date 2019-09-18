@@ -39,7 +39,7 @@ class InputFeatures(object):
 
 
 def convert_lst_to_features(lst_str, max_seq_length, max_position_embeddings,
-                            tokenizer, logger, is_tokenized=False, mask_cls_sep=False):
+                            tokenizer, logger, is_tokenized=False, mask_cls_sep=False, no_special_token=False):
     """Loads a data file into a list of `InputBatch`s."""
 
     examples = read_tokenized_examples(lst_str) if is_tokenized else read_examples(lst_str)
@@ -70,7 +70,7 @@ def convert_lst_to_features(lst_str, max_seq_length, max_position_embeddings,
             _truncate_seq_pair(tokens_a, tokens_b, max_seq_length - 3)
         else:
             # Account for [CLS] and [SEP] with "- 2"
-            if len(tokens_a) > max_seq_length - 2:
+            if len(tokens_a) > max_seq_length - 2 and (no_special_token and is_tokenized):
                 tokens_a = tokens_a[0:(max_seq_length - 2)]
 
         # The convention in BERT is:
@@ -91,9 +91,14 @@ def convert_lst_to_features(lst_str, max_seq_length, max_position_embeddings,
         # For classification tasks, the first vector (corresponding to [CLS]) is
         # used as as the "sentence vector". Note that this only makes sense because
         # the entire model is fine-tuned.
-        tokens = ['[CLS]'] + tokens_a + ['[SEP]']
+        if no_special_token and is_tokenized and not tokens_b:
+            tokens = tokens_a
+            # max_seq_length -= 2
+            input_mask = [1] * len(tokens_a)
+        else:
+            tokens = ['[CLS]'] + tokens_a + ['[SEP]']
+            input_mask = [int(not mask_cls_sep)] + [1] * len(tokens_a) + [int(not mask_cls_sep)]
         input_type_ids = [0] * len(tokens)
-        input_mask = [int(not mask_cls_sep)] + [1] * len(tokens_a) + [int(not mask_cls_sep)]
 
         if tokens_b:
             tokens += tokens_b + ['[SEP]']

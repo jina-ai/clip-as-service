@@ -109,6 +109,10 @@ def get_args_parser():
                         help='masking the embedding on [CLS] and [SEP] with zero. \
                         When pooling_strategy is in {CLS_TOKEN, FIRST_TOKEN, SEP_TOKEN, LAST_TOKEN} \
                         then the embedding is preserved, otherwise the embedding is masked to zero before pooling')
+    group2.add_argument('-no_special_token', action='store_true', default=False,
+                        help='add [CLS] and [SEP] in every sequence, \
+                        put sequence to the model without [CLS] and [SEP] when True and \
+                        is_tokenized=True in Client')
     group2.add_argument('-show_tokens_to_client', action='store_true', default=False,
                         help='sending tokenization results to client')
 
