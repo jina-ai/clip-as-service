@@ -474,6 +474,7 @@ class BertWorker(Process):
         self.bert_config = graph_config
         self.use_fp16 = args.fp16
         self.show_tokens_to_client = args.show_tokens_to_client
+        self.no_special_token = args.no_special_token
         self.is_ready = multiprocessing.Event()
 
     def close(self):
@@ -570,7 +571,7 @@ class BertWorker(Process):
                         tmp_f = list(convert_lst_to_features(msg, self.max_seq_len,
                                                              self.bert_config.max_position_embeddings,
                                                              tokenizer, logger,
-                                                             is_tokenized, self.mask_cls_sep))
+                                                             is_tokenized, self.mask_cls_sep, self.no_special_token))
                         if self.show_tokens_to_client:
                             sink.send_multipart([client_id, jsonapi.dumps([f.tokens for f in tmp_f]),
                                                  b'', ServerCmd.data_token])
