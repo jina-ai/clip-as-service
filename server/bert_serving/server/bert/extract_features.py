@@ -69,9 +69,12 @@ def convert_lst_to_features(lst_str, max_seq_length, max_position_embeddings,
             # Account for [CLS], [SEP], [SEP] with "- 3"
             _truncate_seq_pair(tokens_a, tokens_b, max_seq_length - 3)
         else:
-            # Account for [CLS] and [SEP] with "- 2"
-            if len(tokens_a) > max_seq_length - 2 and (no_special_token and is_tokenized):
+            # Account for [CLS] and [SEP] with "- 2" when with the special token
+            if len(tokens_a) > max_seq_length - 2 and not no_special_token:
                 tokens_a = tokens_a[0:(max_seq_length - 2)]
+            # truncate with max_sql_length when without special token and tokenized
+            elif len(tokens_a) > max_seq_length and (no_special_token and is_tokenized):
+                tokens_a = tokens_a[0:max_seq_length]
 
         # The convention in BERT is:
         # (a) For sequence pairs:
