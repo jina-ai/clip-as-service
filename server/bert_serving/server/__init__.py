@@ -24,7 +24,7 @@ from .http import BertHTTPProxy
 from .zmq_decor import multi_socket
 
 __all__ = ['__version__', 'BertServer']
-__version__ = '1.9.5'
+__version__ = '1.9.7'
 
 _tf_ver_ = check_tf_version()
 
