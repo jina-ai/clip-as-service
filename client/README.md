@@ -712,9 +712,10 @@ server.start()
 
 Note that it's basically mirroring the arg-parsing behavior in CLI, so everything in that `.parse_args([])` list should be string, e.g. `['-port', '5555']` not `['-port', 5555]`.
 
-To shutdown the server, you may call the static method in `BertServer` class via:
+To shutdown the server, you may call the static method in `BertServer` class via with args:
 ```python
-BertServer.shutdown(port=5555)
+shut_args = get_shutdown_parser().parse_args(['-ip','localhost','-port','5555','-timeout','5000'])
+BertServer.shutdown(shutdown_args)
 ```
 
 Or via shell CLI:
