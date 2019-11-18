@@ -98,7 +98,7 @@ np.save('example7_5k_2_subset_label',np_subset_label)
 subset_vec_all_layers = np.load('example7_5k_mxnet.npy')
 np_subset_label = np.load('example7_5k_mxnet_subset_label.npy')
 subset_label = np_subset_label.tolist()
-#=========================== visulize ===========================
+#=========================== visualize ===========================
 def vis(embed, vis_alg='PCA', pool_alg='REDUCE_MEAN'):
     plt.close()
     fig = plt.figure()
