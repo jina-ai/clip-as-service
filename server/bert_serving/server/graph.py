@@ -73,7 +73,8 @@ def optimize_graph(args, logger=None):
                 input_ids=input_ids,
                 input_mask=input_mask,
                 token_type_ids=input_type_ids,
-                use_one_hot_embeddings=False)
+                use_one_hot_embeddings=False,
+                use_position_embeddings=not args.no_position_embeddings)
 
             tvars = tf.trainable_variables()
 
