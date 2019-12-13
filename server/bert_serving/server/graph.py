@@ -21,6 +21,7 @@ class PoolingStrategy(Enum):
     LAST_TOKEN = 5  # corresponds to [SEP] for single sequences
     CLS_TOKEN = 4  # corresponds to the first token for single seq.
     SEP_TOKEN = 5  # corresponds to the last token for single seq.
+    CLS_POOLED = 6 #pooled [CLS] token for fine-tuned classification
 
     def __str__(self):
         return self.name
@@ -107,6 +108,8 @@ def optimize_graph(args, logger=None):
                 elif args.pooling_strategy == PoolingStrategy.FIRST_TOKEN or \
                         args.pooling_strategy == PoolingStrategy.CLS_TOKEN:
                     pooled = tf.squeeze(encoder_layer[:, 0:1, :], axis=1)
+                elif args.pooling_strategy == PoolingStrategy.CLS_POOLED:
+                    pooled = model.pooled_output
                 elif args.pooling_strategy == PoolingStrategy.LAST_TOKEN or \
                         args.pooling_strategy == PoolingStrategy.SEP_TOKEN:
                     seq_len = tf.cast(tf.reduce_sum(input_mask, axis=1), tf.int32)
