@@ -38,7 +38,7 @@ Next, we need to encode our questions into vectors:
 .. highlight:: python
 .. code:: python
 
-   bc = BertClient(port=4000, port_out=4001)
+   bc = BertClient(port=5555, port_out=5556)
    doc_vecs = bc.encode(questions)
 
 Finally, we are ready to receive new query and perform a simple "fuzzy"
