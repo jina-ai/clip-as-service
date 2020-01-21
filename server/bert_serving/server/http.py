@@ -18,6 +18,7 @@ class BertHTTPProxy(Process):
             from flask_cors import CORS
             from flask_json import FlaskJSON, as_json, JsonError
             from bert_serving.client import ConcurrentBertClient
+            from flasgger import Swagger
         except ImportError:
             raise ImportError('BertClient or Flask or its dependencies are not fully installed, '
                               'they are required for serving HTTP requests.'
@@ -28,6 +29,13 @@ class BertHTTPProxy(Process):
                                   port=self.args.port, port_out=self.args.port_out,
                                   output_fmt='list', ignore_all_checks=True)
         app = Flask(__name__)
+        app.config['SWAGGER'] = {
+          'title': 'Colors API',
+          'uiversion': 3,
+          'openapi': '3.0.2'
+        }
+        swag = Swagger(app, template_file='bertApi.openapi.yaml')
+
         logger = set_logger(colored('PROXY', 'red'))
 
         @app.route('/status/server', methods=['GET'])
