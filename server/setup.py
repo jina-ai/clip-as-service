@@ -13,7 +13,7 @@ setup(
     version=__version__,
     description='Mapping a variable-length sentence to a fixed-length vector using BERT model (Server)',
     url='https://github.com/hanxiao/bert-as-service',
-    long_description=open('README.md', 'r').read(),
+    long_description=open('README.md', 'r', encoding="utf8").read(),
     long_description_content_type='text/markdown',
     author='Han Xiao',
     author_email='artex.xh@gmail.com',
