@@ -1,0 +1,247 @@
+openapi: "3.0.2"
+info:
+  version: 1.0.0
+  title: Bert as a Service API
+  description: API to encode sentence or tokens to vectors
+  termsOfService: http://swagger.io/terms/
+  contact:
+    name: Filip Bednárik
+    email: info@ardevop.sk
+    url: https://ardevop.sk
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+servers:
+  - url: http://localhost:8125/
+paths:
+  /encode:
+    post:
+      description: |
+        Encode a list of strings to a list of vectors
+      operationId: app.encode_query
+      requestBody:
+        description: EncodeRequest to apply
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EncodeRequest'
+      responses:
+        '200':
+          description: Encode response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EncodeResponse'
+        default:
+          description: unexpected error
+  /status/server:
+    get:
+      description: Returns server status
+      operationId: get_server_status
+      responses:
+        '200':
+          description: Server status response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerStatusResponse'
+        default:
+          description: unexpected error
+  /status/client:
+    get:
+      description: Returns client status
+      operationId: get_client_status
+      responses:
+        '200':
+          description: Client status response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClientStatusResponse'
+        default:
+          description: unexpected error
+components:
+  schemas:
+    EncodeRequest:
+      type: object
+      required: 
+        - id
+        - texts
+        - is_tokenized
+      properties:
+        id:
+          type: integer
+        texts:
+          type: array
+          items:
+            type: string
+        is_tokenized:
+          type: boolean
+          default: false
+    EncodeResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        results:
+          type: array
+          items:
+            type: array
+            items:
+              type: number
+        status:
+          type: integer
+    ServerStatusResponse:
+      type: object
+      properties:
+        ckpt_name:
+          type: string
+        client:
+          type: string
+        config_name:
+          type: string
+        cors:
+          type: string
+        cpu:
+          type: boolean
+        device_map:
+          type: array
+          items:
+            type: integer
+        do_lower_case:
+          type: boolean
+        fixed_embed_length:
+          type: boolean
+        fp16:
+          type: boolean
+        gpu_memory_fraction:
+          type: number
+        graph_tmp_dir:
+          type: string
+        http_max_connect:
+          type: integer
+        http_port:
+          type: integer
+        mask_cls_sep:
+          type: boolean
+        max_batch_size:
+          type: integer
+        max_seq_len:
+          type: integer
+        model_dir:
+          type: string
+        no_position_embeddings:
+          type: boolean
+        no_special_token:
+          type: boolean
+        num_concurrent_socket:
+          type: integer
+        num_process:
+          type: integer
+        num_worker:
+          type: integer
+        pooling_layer:
+          type: array
+          items:
+            type: integer
+        pooling_strategy:
+          type: integer
+        port:
+          type: integer
+        port_out:
+          type: integer
+        prefetch_size:
+          type: integer
+        priority_batch_size:
+          type: integer
+        python_version:
+          type: string
+        pyzmq_version:
+          type: string
+        server_current_time:
+          type: string
+        server_start_time:
+          type: string
+        server_version:
+          type: string
+        show_tokens_to_client:
+          type: boolean
+        statistic:
+          $ref: '#/components/schemas/Statistic'
+        status:
+          type: integer
+        tensorflow_version:
+          type: array
+          items:
+            type: string
+        tuned_model_dir:
+          type: string
+        "ventilator -> worker":
+          type: array
+          items:
+            type: string
+        "ventilator <-> sink":
+          type: string
+        verbose:
+          type: boolean
+        "worker -> sink":
+          type: string
+        xla:
+          type: boolean
+        zmq_version:
+          type: string
+    Statistic:
+      type: object
+      properties:
+        avg_request_per_client:
+          type: integer
+        max_request_per_client:
+          type: integer
+        min_request_per_client:
+          type: integer
+        num_active_client:
+          type: integer
+        num_data_request:
+          type: integer
+        num_max_request_per_client:
+          type: integer
+        num_min_request_per_client:
+          type: integer
+        num_sys_request:
+          type: integer
+        num_total_client:
+          type: integer
+        num_total_request:
+          type: integer
+        num_total_seq:
+          type: integer
+    ClientStatusResponse:
+      type: object
+      properties:
+        client_version:
+          type: string
+        identity:
+          type: array
+          items:
+            type: integer
+        num_pending_request:
+          type: integer
+        num_request:
+          type: integer
+        output_fmt:
+          type: string
+        pending_request:
+          type: array
+          items:
+            type: integer
+        port:
+          type: integer
+        port_out:
+          type: integer
+        server_ip:
+          type: string
+        status:
+          type: integer
+        timeout:
+          type: integer
