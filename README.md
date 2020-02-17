@@ -933,15 +933,15 @@ The graph below illustrates the pairwise similarity of 3000 Chinese sentences ra
 
 ##### **Q:** I'm getting bad performance, what should I do?
 
-**A:** This often suggests that the pretrained BERT could not generate a descent representation of your downstream task. Thus, you can fine-tune the model on the downstream task and then use `bert-as-service` to serve the fine-tuned BERT. Note that, `bert-as-service` is just a feature extraction service based on BERT. Nothing stops you from using a fine-tuned BERT.
+**A:** This often suggests that the pretrained BERT could not generate a decent representation of your downstream task. Thus, you can fine-tune the model on the downstream task and then use `bert-as-service` to serve the fine-tuned BERT. Note that, `bert-as-service` is just a feature extraction service based on BERT. Nothing stops you from using a fine-tuned BERT.
 
 ##### **Q:** Can I run the server side on CPU-only machine?
 
-**A:** Yes, please run `bert-serving-start -cpu -max_batch_size 16`. Note that, CPU does not scale as good as GPU on large batches, therefore the `max_batch_size` on the server side needs to be smaller, e.g. 16 or 32.
+**A:** Yes, please run `bert-serving-start -cpu -max_batch_size 16`. Note that, CPUs do not scale as well as GPUs to large batches, therefore the `max_batch_size` on the server side needs to be smaller, e.g. 16 or 32.
 
 ##### **Q:** How can I choose `num_worker`?
 
-**A:** Generally, the number of workers should be less than or equal to the number of GPU/CPU you have. Otherwise, multiple workers will be allocated to one GPU/CPU, which may not scale well (and may cause out-of-memory on GPU).
+**A:** Generally, the number of workers should be less than or equal to the number of GPUs or CPUs that you have. Otherwise, multiple workers will be allocated to one GPU/CPU, which may not scale well (and may cause out-of-memory on GPU).
 
 ##### **Q:** Can I specify which GPU to use?
 
