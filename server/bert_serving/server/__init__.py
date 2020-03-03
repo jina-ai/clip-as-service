@@ -49,6 +49,8 @@ class BertServer(threading.Thread):
 
         self.model_dir = args.model_dir
         self.max_seq_len = args.max_seq_len
+        if args.num_worker <= 0:
+            self.logger.error('Invalid num_worker: %d' % args.num_worker)
         self.num_worker = args.num_worker
         self.max_batch_size = args.max_batch_size
         self.num_concurrent_socket = max(8, args.num_worker * 2)  # optimize concurrency for multi-clients
