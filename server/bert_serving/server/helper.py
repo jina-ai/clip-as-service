@@ -117,7 +117,9 @@ def get_args_parser():
                         help='sending tokenization results to client')
     group2.add_argument('-no_position_embeddings', action='store_true', default=False,
                         help='Whether to add position embeddings for the position of each token in the sequence.')
-
+    group2.add_argument('-num_labels', type=int, default=2,
+                        help='Numbers of Label')
+    
     group3 = parser.add_argument_group('Serving Configs',
                                        'config how server utilizes GPU/CPU resources')
     group3.add_argument('-port', '-port_in', '-port_data', type=int, default=5555,

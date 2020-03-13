@@ -21,7 +21,8 @@ class PoolingStrategy(Enum):
     LAST_TOKEN = 5  # corresponds to [SEP] for single sequences
     CLS_TOKEN = 4  # corresponds to the first token for single seq.
     SEP_TOKEN = 5  # corresponds to the last token for single seq.
-    CLS_POOLED = 6 #pooled [CLS] token for fine-tuned classification
+    CLS_POOLED = 6 # pooled [CLS] token for fine-tuned classification
+    CLASSIFICATION = 7 # get probabilities for classification problems.
 
     def __str__(self):
         return self.name
@@ -76,6 +77,15 @@ def optimize_graph(args, logger=None):
                 token_type_ids=input_type_ids,
                 use_one_hot_embeddings=False,
                 use_position_embeddings=not args.no_position_embeddings)
+            
+            if args.pooling_strategy == PoolingStrategy.CLASSIFICATION:
+                hidden_size = model.pooled_output.shape[-1].value
+                output_weights = tf.get_variable(
+                    'output_weights', [args.num_labels, hidden_size],
+                    initializer=tf.truncated_normal_initializer(stddev=0.02))
+
+                output_bias = tf.get_variable(
+                    'output_bias', [args.num_labels], initializer=tf.zeros_initializer())
 
             tvars = tf.trainable_variables()
 
@@ -118,6 +128,11 @@ def optimize_graph(args, logger=None):
                     pooled = tf.gather_nd(encoder_layer, indexes)
                 elif args.pooling_strategy == PoolingStrategy.NONE:
                     pooled = mul_mask(encoder_layer, input_mask)
+                elif args.pooling_strategy == PoolingStrategy.CLASSIFICATION:
+                    pooled = model.pooled_output
+                    logits = tf.matmul(pooled, output_weights, transpose_b=True)
+                    logits = tf.nn.bias_add(logits, output_bias)
+                    pooled = tf.nn.softmax(logits, axis=-1)
                 else:
                     raise NotImplementedError()
 
