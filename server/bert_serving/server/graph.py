@@ -79,7 +79,7 @@ def optimize_graph(args, logger=None):
                 use_position_embeddings=not args.no_position_embeddings)
             
             if args.pooling_strategy == PoolingStrategy.CLASSIFICATION:
-                hidden_size = 768
+                hidden_size = model.pooled_output.shape[-1].value
                 output_weights = tf.get_variable(
                     'output_weights', [args.num_labels, hidden_size],
                     initializer=tf.truncated_normal_initializer(stddev=0.02))
