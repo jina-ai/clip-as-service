@@ -85,7 +85,7 @@ def optimize_graph(args, logger=None):
                     initializer=tf.truncated_normal_initializer(stddev=0.02))
 
                 output_bias = tf.get_variable(
-                    "output_bias", [args.num_labels], initializer=tf.zeros_initializer())
+                    'output_bias', [args.num_labels], initializer=tf.zeros_initializer())
 
             tvars = tf.trainable_variables()
 
