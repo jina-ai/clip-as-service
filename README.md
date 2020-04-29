@@ -4,7 +4,7 @@
 <table>
   <tr><a href="https://github.com/jina-ai/jina"><img src="https://github.com/jina-ai/jina/blob/master/.github/1500х667.gif?raw=true" alt="Jina banner" width="100%"></a></tr>
   <tr>
-      <td width="20%">
+      <td width="30%">
     <a href="https://github.com/jina-ai/jina/tree/master/docs/chapters/101">
       <img src="https://github.com/jina-ai/jina/blob/master/docs/chapters/101/img/ILLUS12.png?raw=true" alt="Jina 101 Concept Illustration Book, Copyright by Jina AI Limited" title="Jina 101 Concept Illustration Book, Copyright by Jina AI Limited"/>
     </a>
