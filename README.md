@@ -1,3 +1,32 @@
+
+<h2 align="center">Are you looking for X-as-serivce? Try <a href="https://github.com/jina-ai/jina">Jina</a>!</h2>
+<h4 align="center">where X is albert, pytorch-transformer, vgg, resnet, videobert, or <b>ANY</b> deep learning representation model?</h4>
+<table>
+  <tr><a href="https://github.com/jina-ai/jina"><img src="https://github.com/jina-ai/jina/blob/master/.github/1500х667.gif?raw=true" alt="Jina banner" width="100%"></a></tr>
+  <tr>
+      <td width="20%">
+    <a href="https://github.com/jina-ai/jina/tree/master/docs/chapters/101">
+      <img src="https://github.com/jina-ai/jina/blob/master/docs/chapters/101/img/ILLUS12.png?raw=true" alt="Jina 101 Concept Illustration Book, Copyright by Jina AI Limited" title="Jina 101 Concept Illustration Book, Copyright by Jina AI Limited"/>
+    </a>
+    </td>
+    <td width="70%">
+<h3><a href="https://github.com/jina-ai/jina/tree/master/docs/chapters/101">► Jina 101: First Thing to Learn About Jina</a></h3>
+&nbsp;&nbsp;<a href="https://github.com/jina-ai/jina/tree/master/docs/chapters/101">English</a> •
+  <a href="https://github.com/jina-ai/jina/tree/master/docs/chapters/101/README.ja.md">日本語</a> •
+  <a href="https://github.com/jina-ai/jina/tree/master/docs/chapters/101/README.fr.md">français</a> •
+  <a href="https://github.com/jina-ai/jina/tree/master/docs/chapters/101/README.de.md">Deutsch</a> •
+  <a href="https://github.com/jina-ai/jina/tree/master/docs/chapters/101/README.ru.md">Русский язык</a> •
+  <a href="https://github.com/jina-ai/jina/tree/master/docs/chapters/101/README.zh.md">中文</a>
+<br>
+    <h3><a href="https://github.com/jina-ai/examples/tree/master/x-as-service">► From BERT-as-Service to X-as-Service</a></h3>
+Learn how to use Jina to extract feature vector using any deep learning representation	
+
+</td>
+  </tr>
+</table>
+
+---
+
 <h1 align="center">bert-as-service</h1>
 
 <p align="center">Using BERT model as a sentence encoding service, i.e. mapping a variable-length sentence to a fixed-length vector.</p>
@@ -69,6 +98,7 @@
 - :gem: **Reliable**: tested on multi-billion sentences; days of running without a break or OOM or any nasty exceptions.
 
 More features: [XLA & FP16 support](#speed-wrt--fp16-and--xla); mix GPU-CPU workloads; optimized graph; `tf.data` friendly; customized tokenizer; flexible pooling strategy; [build-in HTTP server](#using-bert-as-service-to-serve-http-requests-in-json) and dashboard; [async encoding](#asynchronous-encoding); [multicasting](#broadcasting-to-multiple-clients); etc.
+
 
 
 <h2 align="center">Install</h2>
