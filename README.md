@@ -25,7 +25,6 @@ Learn how to use Jina to extract feature vector using any deep learning represen
   </tr>
 </table>
 
----
 
 <h1 align="center">bert-as-service</h1>
 
