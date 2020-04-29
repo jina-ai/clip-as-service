@@ -1,6 +1,6 @@
 
-<h2 align="center">Are you looking for X-as-serivce? Try <a href="https://github.com/jina-ai/jina">Jina</a>!</h2>
-<h4 align="center">where X is albert, pytorch-transformer, vgg, resnet, videobert, or <b>ANY</b> deep learning representation model?</h4>
+<h2 align="center">Are you looking for X-as-service? Try <a href="https://github.com/jina-ai/jina">Jina</a>!</h2>
+<h4 align="center">where X can be albert, pytorch-transformer, vgg, resnet, videobert, or <b>ANY</b> deep learning representation model?</h4>
 <table>
   <tr><a href="https://github.com/jina-ai/jina"><img src="https://github.com/jina-ai/jina/blob/master/.github/1500х667.gif?raw=true" alt="Jina banner" width="100%"></a></tr>
   <tr>
