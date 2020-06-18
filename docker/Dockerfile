@@ -1,6 +1,6 @@
 FROM tensorflow/tensorflow:1.12.0-gpu-py3
 RUN pip install bert-serving-server[http]
-COPY ./docker/entrypoint.sh /app
+COPY ./docker/entrypoint.sh /app/
 WORKDIR /app
 ENTRYPOINT ["/app/entrypoint.sh"]
 CMD []
