@@ -185,7 +185,7 @@ def import_tf(device_id=-1, verbose=False, use_fp16=False):
     os.environ['TF_FP16_MATMUL_USE_FP32_COMPUTE'] = '0' if use_fp16 else '1'
     os.environ['TF_FP16_CONV_USE_FP32_COMPUTE'] = '0' if use_fp16 else '1'
     import tensorflow as tf
-    tf.logging.set_verbosity(tf.logging.DEBUG if verbose else tf.logging.ERROR)
+    tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.DEBUG if verbose else tf.compat.v1.logging.ERROR)
     return tf
 
 

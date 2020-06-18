@@ -22,7 +22,7 @@ from tensorflow.python.estimator.run_config import RunConfig
 from tensorflow.python.estimator.training import TrainSpec, EvalSpec, train_and_evaluate
 
 os.environ['CUDA_VISIBLE_DEVICES'] = str(GPUtil.getFirstAvailable()[0])
-tf.logging.set_verbosity(tf.logging.INFO)
+tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.INFO)
 
 train_fp = ['/data/cips/data/lab/data/dataset/final_all_data/exercise_contest/data_train.json']
 eval_fp = ['/data/cips/data/lab/data/dataset/final_all_data/exercise_contest/data_test.json']
