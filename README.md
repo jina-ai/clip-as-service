@@ -653,10 +653,10 @@ This gives the current status of the server including number of requests, number
 Alternatively, one may simply expose an HTTP port when starting a server via:
 
 ```bash
-bert-serving-start -http_port 8001 -model_dir ...
+bert-serving-start -http_port 8081 -model_dir ...
 ```
 
-This will allow one to use javascript or `curl` to fetch the server status at port 8001.
+This will allow one to use javascript or `curl` to fetch the server status at port 8081.
 
 `plugin/dashboard/index.html` shows a simple dashboard based on Bootstrap and Vue.js.
 
