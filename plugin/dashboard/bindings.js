@@ -3,7 +3,7 @@ Vue.use(VueCharts);
 const vm = new Vue({
     el: '#mrc-ui',
     data: {
-        serverUrl: 'http://100.102.33.165:8081/bert_server',
+        serverUrl: 'http://127.0.0.1:8081',
         apiRoute: '/status/server',
         results: [],
         top_deck: [],
