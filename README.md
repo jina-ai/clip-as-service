@@ -143,7 +143,7 @@ bert-serving-start -model_dir /tmp/english_L-12_H-768_A-12/ -num_worker=4
 ```
 This will start a service with four workers, meaning that it can handle up to four **concurrent** requests. More concurrent requests will be queued in a load balancer. Details can be found in our [FAQ](#q-what-is-the-parallel-processing-model-behind-the-scene) and [the benchmark on number of clients](#speed-wrt-num_client).
 
-**Note:**: If you are running the service in Jupyter Notebook, add '!' in the beginning of the command i.e.
+**Note:** If you are running the service in Jupyter Notebook, add '!' in the beginning of the command i.e.
 ```bash
 !bert-serving-start -model_dir /tmp/english_L-12_H-768_A-12/ -num_worker=4 
 ```
