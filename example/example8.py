@@ -17,7 +17,7 @@ from termcolor import colored
 prefix_q = '##### **Q:** '
 topk = 5
 
-with open('README.md') as fp:
+with open('README.md','r', encoding='UTF-8') as fp:
     questions = [v.replace(prefix_q, '').strip() for v in fp if v.strip() and v.startswith(prefix_q)]
     print('%d questions loaded, avg. len of %d' % (len(questions), np.mean([len(d.split()) for d in questions])))
 

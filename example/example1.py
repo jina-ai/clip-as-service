@@ -18,7 +18,7 @@ from bert_serving.client import BertClient
 if __name__ == '__main__':
     bc = BertClient(port=int(sys.argv[1]), port_out=int(sys.argv[2]), show_server_config=True)
     # encode a list of strings
-    with open('README.md') as fp:
+    with open('README.md','r', encoding='UTF-8') as fp:
         data = [v for v in fp if v.strip()][:512]
         num_tokens = sum(len([vv for vv in v.split() if vv.strip()]) for v in data)
 

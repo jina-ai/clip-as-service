@@ -27,7 +27,7 @@ if __name__ == '__main__':
     bc = BertClient(port=int(sys.argv[1]), port_out=int(sys.argv[2]))
     num_repeat = 20
 
-    with open('README.md') as fp:
+    with open('README.md','r', encoding='UTF-8') as fp:
         data = [v for v in fp if v.strip()]
 
     send_without_block(bc, data, num_repeat)
