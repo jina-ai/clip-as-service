@@ -491,8 +491,8 @@ class BertWorker(Process):
         from tensorflow.python.estimator.model_fn import EstimatorSpec
 
         def model_fn(features, labels, mode, params):
-            with tf.gfile.GFile(self.graph_path, 'rb') as f:
-                graph_def = tf.GraphDef()
+            with tf.io.gfile.GFile(self.graph_path, 'rb') as f:
+                graph_def = tf.compat.v1.GraphDef()
                 graph_def.ParseFromString(f.read())
 
             input_names = ['input_ids', 'input_mask', 'input_type_ids']
@@ -506,7 +506,7 @@ class BertWorker(Process):
                 'encodes': output[0]
             })
 
-        config = tf.ConfigProto(device_count={'GPU': 0 if self.device_id < 0 else 1})
+        config = tf.compat.v1.ConfigProto(device_count={'GPU': 0 if self.device_id < 0 else 1})
         config.gpu_options.allow_growth = True
         config.gpu_options.per_process_gpu_memory_fraction = self.gpu_memory_fraction
         config.log_device_placement = False
