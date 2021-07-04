@@ -44,7 +44,7 @@ def optimize_graph(args, logger=None):
         tf = import_tf(verbose=args.verbose)
         from tensorflow.python.tools.optimize_for_inference_lib import optimize_for_inference
 
-        config = tf.ConfigProto(device_count={'GPU': 0}, allow_soft_placement=True)
+        config = tf.compat.v1.ConfigProto(device_count={'GPU': 0}, allow_soft_placement=True)
 
         config_fp = os.path.join(args.model_dir, args.config_name)
         init_checkpoint = os.path.join(args.tuned_model_dir or args.model_dir, args.ckpt_name)
@@ -56,16 +56,16 @@ def optimize_graph(args, logger=None):
         logger.info(
             'checkpoint%s: %s' % (
             ' (override by the fine-tuned model)' if args.tuned_model_dir else '', init_checkpoint))
-        with tf.gfile.GFile(config_fp, 'r') as f:
+        with tf.io.gfile.GFile(config_fp, 'r') as f:
             bert_config = modeling.BertConfig.from_dict(json.load(f))
 
         logger.info('build graph...')
         # input placeholders, not sure if they are friendly to XLA
-        input_ids = tf.placeholder(tf.int32, (None, None), 'input_ids')
-        input_mask = tf.placeholder(tf.int32, (None, None), 'input_mask')
-        input_type_ids = tf.placeholder(tf.int32, (None, None), 'input_type_ids')
+        input_ids = tf.compat.v1.placeholder(tf.int32, (None, None), 'input_ids')
+        input_mask = tf.compat.v1.placeholder(tf.int32, (None, None), 'input_mask')
+        input_type_ids = tf.compat.v1.placeholder(tf.int32, (None, None), 'input_type_ids')
 
-        jit_scope = tf.contrib.compiler.jit.experimental_jit_scope if args.xla else contextlib.suppress
+        jit_scope = tf.xla.experimental.jit_scope if args.xla else contextlib.suppress
 
         with jit_scope():
             input_tensors = [input_ids, input_mask, input_type_ids]
@@ -81,28 +81,28 @@ def optimize_graph(args, logger=None):
             
             if args.pooling_strategy == PoolingStrategy.CLASSIFICATION:
                 hidden_size = model.pooled_output.shape[-1].value
-                output_weights = tf.get_variable(
+                output_weights = tf.compat.v1.get_variable(
                     'output_weights', [args.num_labels, hidden_size],
-                    initializer=tf.truncated_normal_initializer(stddev=0.02))
+                    initializer=tf.compat.v1.truncated_normal_initializer(stddev=0.02))
 
-                output_bias = tf.get_variable(
+                output_bias = tf.compat.v1.get_variable(
                     'output_bias', [args.num_labels], initializer=tf.zeros_initializer())
 
             if args.pooling_strategy == PoolingStrategy.REGRESSION:
                 hidden_size = model.pooled_output.shape[-1].value
-                output_weights = tf.get_variable(
+                output_weights = tf.compat.v1.get_variable(
                     'output_weights', [1, hidden_size],
-                    initializer=tf.truncated_normal_initializer(stddev=0.02))
+                    initializer=tf.compat.v1.truncated_normal_initializer(stddev=0.02))
 
-                output_bias = tf.get_variable(
+                output_bias = tf.compat.v1.get_variable(
                     'output_bias', [1], initializer=tf.zeros_initializer())
 
-            tvars = tf.trainable_variables()
+            tvars = tf.compat.v1.trainable_variables()
 
             (assignment_map, initialized_variable_names
              ) = modeling.get_assignment_map_from_checkpoint(tvars, init_checkpoint)
 
-            tf.train.init_from_checkpoint(init_checkpoint, assignment_map)
+            tf.compat.v1.train.init_from_checkpoint(init_checkpoint, assignment_map)
 
             minus_mask = lambda x, m: x - tf.expand_dims(1.0 - m, axis=-1) * 1e30
             mul_mask = lambda x, m: x * tf.expand_dims(m, axis=-1)
@@ -110,7 +110,7 @@ def optimize_graph(args, logger=None):
             masked_reduce_mean = lambda x, m: tf.reduce_sum(mul_mask(x, m), axis=1) / (
                     tf.reduce_sum(m, axis=1, keepdims=True) + 1e-10)
 
-            with tf.variable_scope("pooling"):
+            with tf.compat.v1.variable_scope("pooling"):
                 if len(args.pooling_layer) == 1:
                     encoder_layer = model.all_encoder_layers[args.pooling_layer[0]]
                 else:
@@ -156,12 +156,12 @@ def optimize_graph(args, logger=None):
 
             pooled = tf.identity(pooled, 'final_encodes')
             output_tensors = [pooled]
-            tmp_g = tf.get_default_graph().as_graph_def()
+            tmp_g = tf.compat.v1.get_default_graph().as_graph_def()
 
-        with tf.Session(config=config) as sess:
+        with tf.compat.v1.Session(config=config) as sess:
             logger.info('load parameters from checkpoint...')
 
-            sess.run(tf.global_variables_initializer())
+            sess.run(tf.compat.v1.global_variables_initializer())
             dtypes = [n.dtype for n in input_tensors]
             logger.info('optimize...')
             tmp_g = optimize_for_inference(
@@ -177,7 +177,7 @@ def optimize_graph(args, logger=None):
 
         tmp_file = tempfile.NamedTemporaryFile('w', delete=False, dir=args.graph_tmp_dir).name
         logger.info('write graph to a tmp file: %s' % tmp_file)
-        with tf.gfile.GFile(tmp_file, 'wb') as f:
+        with tf.io.gfile.GFile(tmp_file, 'wb') as f:
             f.write(tmp_g.SerializeToString())
         return tmp_file, bert_config
     except Exception:

@@ -64,9 +64,9 @@ def create_optimizer(loss, init_lr, num_train_steps, num_warmup_steps, use_tpu):
         exclude_from_weight_decay=["LayerNorm", "layer_norm", "bias"])
 
     if use_tpu:
-        optimizer = tf.contrib.tpu.CrossShardOptimizer(optimizer)
+        optimizer = tf.compat.v1.tpu.CrossShardOptimizer(optimizer)
 
-    tvars = tf.trainable_variables()
+    tvars = tf.compat.v1.trainable_variables()
     grads = tf.gradients(loss, tvars)
 
     # This is how the model was pre-trained.
@@ -110,13 +110,13 @@ class AdamWeightDecayOptimizer(tf.train.Optimizer):
 
             param_name = self._get_variable_name(param.name)
 
-            m = tf.get_variable(
+            m = tf.compat.v1.get_variable(
                 name=param_name + "/adam_m",
                 shape=param.shape.as_list(),
                 dtype=tf.float32,
                 trainable=False,
                 initializer=tf.zeros_initializer())
-            v = tf.get_variable(
+            v = tf.compat.v1.get_variable(
                 name=param_name + "/adam_v",
                 shape=param.shape.as_list(),
                 dtype=tf.float32,
