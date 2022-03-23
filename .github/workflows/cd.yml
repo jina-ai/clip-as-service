@@ -5,11 +5,6 @@ on:
     branches:
       - main
 
-#on:
-#  push:
-#    branches-ignore:
-#      - '**'  # temporally ignore all
-
 
 jobs:
   prep-testbed:
