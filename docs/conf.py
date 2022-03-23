@@ -169,9 +169,18 @@ ogp_custom_meta_tags = [
     '<meta name="twitter:card" content="summary_large_image">',
     '<meta name="twitter:site" content="@JinaAI_">',
     '<meta name="twitter:creator" content="@JinaAI_">',
-    '<meta name="description" content="DocArray is a library for nested, unstructured data such as text, image, audio, video, 3D mesh.">',
-    '<meta property="og:description" content="DocArray is a library for nested, unstructured data such as text, image, audio, video, 3D mesh. It allows deep learning engineers to easily preprocess, embed, search, recommend and transfer the data.">',
+    '<meta name="description" content="Embedding image and sentence into fixed-length vectors via CLIP.">',
+    '<meta property="og:description" content="CLIP-as-service is a low-latency high-scalability embedding service for images and texts. It can be easily integrated as a microservice into neural search solutions.">',
     '''
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-E63SXVNDXZ"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-E63SXVNDXZ');
+</script>
 
 <script async defer src="https://buttons.github.io/buttons.js"></script>
     ''',
