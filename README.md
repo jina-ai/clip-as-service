@@ -131,7 +131,7 @@ You can change `0.0.0.0` to the intranet or public IP address to test the connec
 4. To get image embedding:
     ```python    
     r = c.encode(['apple.png',  # local image 
-                  'https://docarray.jina.ai/_static/favicon.png',  # remote image
+                  'https://clip-as-service.jina.ai/_static/favicon.png',  # remote image
                   'data:image/gif;base64,R0lGODlhEAAQAMQAAORHHOVSKudfOulrSOp3WOyDZu6QdvCchPGolfO0o/XBs/fNwfjZ0frl3/zy7////wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAkAABAALAAAAAAQABAAAAVVICSOZGlCQAosJ6mu7fiyZeKqNKToQGDsM8hBADgUXoGAiqhSvp5QAnQKGIgUhwFUYLCVDFCrKUE1lBavAViFIDlTImbKC5Gm2hB0SlBCBMQiB0UjIQA7'])  # in image URI
     
     print(r.shape)  # [3, 512]
