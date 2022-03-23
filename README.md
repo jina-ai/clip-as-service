@@ -2,7 +2,7 @@
 <br>
 <br>
 <br>
-<img src="https://github.com/jina-ai/clip-as-serviceblob/main/docs/_static/logo-light.svg?raw=true" alt="CLIP-as-service logo: The data structure for unstructured data" width="200px">
+<img src="https://github.com/jina-ai/clip-as-service/blob/main/docs/_static/logo-light.svg?raw=true" alt="CLIP-as-service logo: The data structure for unstructured data" width="200px">
 <br>
 <br>
 <br>
@@ -81,7 +81,7 @@ python -m clip_server
 </td>
 <td>
 
-<img src="https://github.com/jina-ai/clip-as-serviceblob/main/.github/README-img/server-output.svg?raw=true" alt="Expected server output" width="300px">
+<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/server-output.svg?raw=true" alt="Expected server output" width="300px">
 
 </td>
 </tr>
@@ -101,7 +101,7 @@ c.profile()
 </td>
 <td>
 
-<img src="https://github.com/jina-ai/clip-as-serviceblob/main/.github/README-img/pyclient-output.svg?raw=true" alt="Expected clip-client output" width="300px">
+<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/pyclient-output.svg?raw=true" alt="Expected clip-client output" width="300px">
 
 </td>
 </tr>
@@ -173,7 +173,7 @@ da.plot_image_sprites()
 ```
 
 <p align="center">
-<img src="https://github.com/jina-ai/clip-as-serviceblob/main/.github/README-img/ttl-image-sprites.png?raw=true" alt="Visualize of the image sprite of Totally looks like dataset" width="50%">
+<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/ttl-image-sprites.png?raw=true" alt="Visualize of the image sprite of Totally looks like dataset" width="50%">
 </p>
 
 #### Encode images
@@ -229,21 +229,21 @@ Now you can input arbitrary English sentences and view the top-9 matched images.
 <td>
 
 <p align="center">
-<img src="https://github.com/jina-ai/clip-as-serviceblob/main/.github/README-img/a-happy-potato.png?raw=true" alt="Visualize of the image sprite of Totally looks like dataset" width="100%">
+<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/a-happy-potato.png?raw=true" alt="Visualize of the image sprite of Totally looks like dataset" width="100%">
 </p>
 
 </td>
 <td>
 
 <p align="center">
-<img src="https://github.com/jina-ai/clip-as-serviceblob/main/.github/README-img/a-super-evil-AI.png?raw=true" alt="Visualize of the image sprite of Totally looks like dataset" width="100%">
+<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/a-super-evil-AI.png?raw=true" alt="Visualize of the image sprite of Totally looks like dataset" width="100%">
 </p>
 
 </td>
 <td>
 
 <p align="center">
-<img src="https://github.com/jina-ai/clip-as-serviceblob/main/.github/README-img/a-guy-enjoying-his-burger.png?raw=true" alt="Visualize of the image sprite of Totally looks like dataset" width="100%">
+<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/a-guy-enjoying-his-burger.png?raw=true" alt="Visualize of the image sprite of Totally looks like dataset" width="100%">
 </p>
 
 </td>
@@ -261,21 +261,21 @@ Now you can input arbitrary English sentences and view the top-9 matched images.
 <td>
 
 <p align="center">
-<img src="https://github.com/jina-ai/clip-as-serviceblob/main/.github/README-img/professor-cat-is-very-serious.png?raw=true" alt="Visualize of the image sprite of Totally looks like dataset" width="100%">
+<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/professor-cat-is-very-serious.png?raw=true" alt="Visualize of the image sprite of Totally looks like dataset" width="100%">
 </p>
 
 </td>
 <td>
 
 <p align="center">
-<img src="https://github.com/jina-ai/clip-as-serviceblob/main/.github/README-img/an-ego-engineer-lives-with-parent.png?raw=true" alt="Visualize of the image sprite of Totally looks like dataset" width="100%">
+<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/an-ego-engineer-lives-with-parent.png?raw=true" alt="Visualize of the image sprite of Totally looks like dataset" width="100%">
 </p>
 
 </td>
 <td>
 
 <p align="center">
-<img src="https://github.com/jina-ai/clip-as-serviceblob/main/.github/README-img/there-will-be-no-tomorrow-so-lets-eat-unhealthy.png?raw=true" alt="Visualize of the image sprite of Totally looks like dataset" width="100%">
+<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/there-will-be-no-tomorrow-so-lets-eat-unhealthy.png?raw=true" alt="Visualize of the image sprite of Totally looks like dataset" width="100%">
 </p>
 
 </td>
@@ -370,7 +370,7 @@ Fun time! Note, unlike the previous example, here the input is an image, the sen
 <tr>
 <td>
 <p align="center">
-<img src="https://github.com/jina-ai/clip-as-serviceblob/main/.github/README-img/Besides,-there-was-truth-in-his-looks.png?raw=true" alt="Visualize of the image sprite of Totally looks like dataset" height="100px">
+<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/Besides,-there-was-truth-in-his-looks.png?raw=true" alt="Visualize of the image sprite of Totally looks like dataset" height="100px">
 </p>
 
 
@@ -378,21 +378,21 @@ Fun time! Note, unlike the previous example, here the input is an image, the sen
 <td>
 
 <p align="center">
-<img src="https://github.com/jina-ai/clip-as-serviceblob/main/.github/README-img/Gardiner-smiled.png?raw=true" alt="Visualize of the image sprite of Totally looks like dataset" height="100px">
+<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/Gardiner-smiled.png?raw=true" alt="Visualize of the image sprite of Totally looks like dataset" height="100px">
 </p>
 
 </td>
 <td>
 
 <p align="center">
-<img src="https://github.com/jina-ai/clip-as-serviceblob/main/.github/README-img/what’s-his-name.png?raw=true" alt="Visualize of the image sprite of Totally looks like dataset" height="100px">
+<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/what’s-his-name.png?raw=true" alt="Visualize of the image sprite of Totally looks like dataset" height="100px">
 </p>
 
 </td>
 <td>
 
 <p align="center">
-<img src="https://github.com/jina-ai/clip-as-serviceblob/main/.github/README-img/By-tea-time,-however,-the-dose-had-been-enough,-and-Mr.png?raw=true" alt="Visualize of the image sprite of Totally looks like dataset" height="100px">
+<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/By-tea-time,-however,-the-dose-had-been-enough,-and-Mr.png?raw=true" alt="Visualize of the image sprite of Totally looks like dataset" height="100px">
 </p>
 
 </td>
@@ -400,7 +400,7 @@ Fun time! Note, unlike the previous example, here the input is an image, the sen
 <td>
 
 <p align="center">
-<img src="https://github.com/jina-ai/clip-as-serviceblob/main/.github/README-img/You-do-not-look-well.png?raw=true" alt="Visualize of the image sprite of Totally looks like dataset" height="100px">
+<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/You-do-not-look-well.png?raw=true" alt="Visualize of the image sprite of Totally looks like dataset" height="100px">
 </p>
 
 </td>
@@ -418,7 +418,7 @@ Fun time! Note, unlike the previous example, here the input is an image, the sen
 <tr>
 <td>
 <p align="center">
-<img src="https://github.com/jina-ai/clip-as-serviceblob/main/.github/README-img/“A-gamester!”-she-cried.png?raw=true" alt="Visualize of the image sprite of Totally looks like dataset" height="100px">
+<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/“A-gamester!”-she-cried.png?raw=true" alt="Visualize of the image sprite of Totally looks like dataset" height="100px">
 </p>
 
 
@@ -426,21 +426,21 @@ Fun time! Note, unlike the previous example, here the input is an image, the sen
 <td>
 
 <p align="center">
-<img src="https://github.com/jina-ai/clip-as-serviceblob/main/.github/README-img/If-you-mention-my-name-at-the-Bell,-you-will-be-attended-to.png?raw=true" alt="Visualize of the image sprite of Totally looks like dataset" height="100px">
+<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/If-you-mention-my-name-at-the-Bell,-you-will-be-attended-to.png?raw=true" alt="Visualize of the image sprite of Totally looks like dataset" height="100px">
 </p>
 
 </td>
 <td>
 
 <p align="center">
-<img src="https://github.com/jina-ai/clip-as-serviceblob/main/.github/README-img/Never-mind-Miss-Lizzy’s-hair.png?raw=true" alt="Visualize of the image sprite of Totally looks like dataset" height="100px">
+<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/Never-mind-Miss-Lizzy’s-hair.png?raw=true" alt="Visualize of the image sprite of Totally looks like dataset" height="100px">
 </p>
 
 </td>
 <td>
 
 <p align="center">
-<img src="https://github.com/jina-ai/clip-as-serviceblob/main/.github/README-img/Elizabeth-will-soon-be-the-wife-of-Mr.png?raw=true" alt="Visualize of the image sprite of Totally looks like dataset" height="100px">
+<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/Elizabeth-will-soon-be-the-wife-of-Mr.png?raw=true" alt="Visualize of the image sprite of Totally looks like dataset" height="100px">
 </p>
 
 </td>
@@ -448,7 +448,7 @@ Fun time! Note, unlike the previous example, here the input is an image, the sen
 <td>
 
 <p align="center">
-<img src="https://github.com/jina-ai/clip-as-serviceblob/main/.github/README-img/I-saw-them-the-night-before-last.png?raw=true" alt="Visualize of the image sprite of Totally looks like dataset" height="100px">
+<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/I-saw-them-the-night-before-last.png?raw=true" alt="Visualize of the image sprite of Totally looks like dataset" height="100px">
 </p>
 
 </td>
