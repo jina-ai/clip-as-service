@@ -21,7 +21,7 @@ except FileNotFoundError as ex:
     __version__ = '0.0.0'
 
 try:
-    with open('README.md', encoding='utf8') as fp:
+    with open('../README.md', encoding='utf8') as fp:
         _long_description = fp.read()
 except FileNotFoundError:
     _long_description = ''
