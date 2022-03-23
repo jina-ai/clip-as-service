@@ -14,7 +14,7 @@ Make sure you have Python 3.7+. You can install client and server independently.
 ````{tab} Client
 
 ```bash
-pip install clip_client
+pip install clip-client
 ```
 
 ````
@@ -22,7 +22,7 @@ pip install clip_client
 ````{tab} Server
 
 ```bash
-pip install clip_server
+pip install clip-server
 ```
 ````
 

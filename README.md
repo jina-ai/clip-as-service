@@ -108,7 +108,7 @@ c.profile()
 </table>
 
 
-You can change `0.0.0.0` to the intranet or public IP address to test the connectivity over private and public network. If you encounter some errors, please find the solution here.  
+You can change `0.0.0.0` to the intranet or public IP address to test the connectivity over private and public network. 
 
 
 ## Get Started

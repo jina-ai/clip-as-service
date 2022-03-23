@@ -8,7 +8,7 @@ CLIP-as-service is designed in a client-server architecture. A server is a long-
 This chapter introduces the API of the client. 
 
 ```{tip}
-You will need to install client first in Python 3.7+: `pip install clip_server`.
+You will need to install client first in Python 3.7+: `pip install clip-server`.
 ```
 
 ## Start server
