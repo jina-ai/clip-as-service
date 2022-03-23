@@ -1,8 +1,3 @@
-<a href="https://github.com/jina-ai/jina"><h2 align="center">Are you looking for X-as-service? Try  <img src="https://github.com/jina-ai/jina/blob/master/.github/logo-only.gif?raw=true" alt="Jina logo: Jina is a cloud-native neural search framework" width="100px">
-</h2></a>
-<p align="center">the Cloud-Native Neural Search Framework for Any Kind of Data</p>
-
-
 <h1 align="center">bert-as-service</h1>
 
 <p align="center">Using BERT model as a sentence encoding service, i.e. mapping a variable-length sentence to a fixed-length vector.</p>
