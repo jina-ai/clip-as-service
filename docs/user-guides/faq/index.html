@@ -10,11 +10,13 @@
   
 <meta property="og:url" content="https://clip-as-service.jina.ai/user-guides/faq/" />
   
-<meta property="og:site_name" content="CLIP-as-service 0.0.5 Documentation" />
+<meta property="og:site_name" content="CLIP-as-service 0.0.6 Documentation" />
+  
+<meta property="og:description" content="This is a list of Frequently Asked Questions about CLIP-as-service. Feel free to suggest new entries! What is CLIP model?: Developed by OpenAI, CLIP (Contrastive Language-Image Pre-Training) is a neural network trained on a variety of (image, text) pairs. The original CLIP Github repository can b..." />
   
 <meta property="og:image" content="https://clip-as-service.jina.ai/_static/banner.png" />
   
-<meta property="og:image:alt" content="CLIP-as-service 0.0.5 Documentation" />
+<meta property="og:image:alt" content="CLIP-as-service 0.0.6 Documentation" />
   
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@JinaAI_">
@@ -36,7 +38,7 @@
     <link rel="index" title="Index" href="../../genindex/" /><link rel="search" title="Search" href="../../search/" /><link rel="prev" title="Server API" href="../server/" />
 
     <link rel="shortcut icon" href="../../_static/favicon.png"/><meta name="generator" content="sphinx-4.4.0, furo 2022.03.04"/>
-        <title>FAQ - CLIP-as-service 0.0.5 documentation</title>
+        <title>FAQ - CLIP-as-service 0.0.6 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=935aa2abcc5c1da4283d1dc201fb1f0add16d23a" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -167,7 +169,7 @@
         </div>
         <div class="header-center">
             <a href="../../">
-                <div class="brand">CLIP-as-service 0.0.5 documentation</div>
+                <div class="brand">CLIP-as-service 0.0.6 documentation</div>
             </a>
         </div>
         <div class="header-right">
@@ -185,7 +187,7 @@
                     </svg>
                 </button>
             </div>
-            <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+            <label class="toc-overlay-icon toc-header-icon" for="__toc">
                 <div class="visually-hidden">Toggle table of contents sidebar</div>
                 <i class="icon">
                     <svg>
@@ -284,6 +286,58 @@
                 </div>
                 <section class="tex2jax_ignore mathjax_ignore" id="faq">
 <h1>FAQ<a class="headerlink" href="#faq" title="Permalink to this headline">#</a></h1>
+<p>This is a list of Frequently Asked Questions about CLIP-as-service. Feel free to suggest new entries!</p>
+<section id="what-is-clip-model">
+<h2>What is CLIP model?<a class="headerlink" href="#what-is-clip-model" title="Permalink to this headline">#</a></h2>
+<p>Developed by OpenAI, CLIP (Contrastive Language-Image Pre-Training) is a neural network trained on a variety of (image, text) pairs. The original CLIP Github repository can be found <a class="reference external" href="https://github.com/openai/CLIP">here</a>.</p>
+</section>
+<section id="do-i-need-to-install-clip-server-and-clip-client-together">
+<h2>Do I need to install <code class="docutils literal notranslate"><span class="pre">clip-server</span></code> and <code class="docutils literal notranslate"><span class="pre">clip-client</span></code> together?<a class="headerlink" href="#do-i-need-to-install-clip-server-and-clip-client-together" title="Permalink to this headline">#</a></h2>
+<p>No. You can install them separately on different machines. On a GPU server, you just need <code class="docutils literal notranslate"><span class="pre">clip-server</span></code>; on your laptop, you just need <code class="docutils literal notranslate"><span class="pre">clip-client</span></code></p>
+</section>
+<section id="what-is-clip-as-service-powered-by-the-codebase-seems-quite-small">
+<h2>What is CLIP-as-service powered by? The codebase seems quite small<a class="headerlink" href="#what-is-clip-as-service-powered-by-the-codebase-seems-quite-small" title="Permalink to this headline">#</a></h2>
+<p>CLIP-as-service leverages features from <a class="reference external" href="https://github.com/jina-ai/jina">Jina</a> and <a class="reference external" href="https://github.com/jina-ai/docarray">DocArray</a>. Thanks to them CLIP-as-service can be quickly built with solid infrastructure and rich features.</p>
+</section>
+<section id="i-had-this-aiorpcerror-what-should-i-do">
+<h2>I had this AioRpcError, what should I do?<a class="headerlink" href="#i-had-this-aiorpcerror-what-should-i-do" title="Permalink to this headline">#</a></h2>
+<p>If you encounter the following errors, it means you client can not connect to the server.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>     GRPCClient@28632[E]:gRPC error: StatusCode.UNAVAILABLE failed to connect to all addresses
+the ongoing request is terminated as the server is not available or closed already
+</pre></div>
+</div>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>AioRpcError: &lt;AioRpcError of RPC that terminated with:
+        status = StatusCode.UNAVAILABLE
+        details = "failed to connect to all addresses"
+        debug_error_string =
+"{"created":"@1648074480.571952000","description":"Failed to pick subchannel",
+"file":"src/core/ext/filters/client_channel/client_channel.cc","file_line":312
+9,"referenced_errors":[{"created":"@1648074480.571952000","description":"faile
+d to connect to all addresses","file":"src/core/lib/transport/error_utils.cc",
+"file_line":163,"grpc_status":14}]}"
+</pre></div>
+</div>
+<p>You can try <code class="docutils literal notranslate"><span class="pre">.profile()</span></code> to <a class="reference internal" href="../client/#profiling"><span class="std std-ref">confirm it</span></a>. If it still throws the same error, then your connection is broken.</p>
+<p>While it is hard to pinpoint a network problem, also out of the scope of CLIP-as-service, we here provide you a checklist that may help you to diagnose the problem:</p>
+<ul class="simple">
+<li><p>Are the IP address, port, and protocol all correct?</p></li>
+<li><p>Is client and server under the same network, or a different network?</p></li>
+<li><p>Is your server down?</p></li>
+<li><p>Is server’s port open to public?</p></li>
+<li><p>Is there a firewall on the server side that restricts the port?</p></li>
+<li><p>Is there a firewall on the client side that restricts the port?</p></li>
+<li><p>Is the security group (on Cloud providers) correctly configured?</p></li>
+</ul>
+</section>
+<section id="why-clip-as-service-why-not-clip-as-a-service">
+<h2>Why “CLIP-as-service” why not “CLIP-as-a-service”<a class="headerlink" href="#why-clip-as-service-why-not-clip-as-a-service" title="Permalink to this headline">#</a></h2>
+<p>Kind of pay homage to BERT-as-service. It is not about grammatically correct anyhow.</p>
+</section>
+<section id="what-happened-to-the-bert-as-service">
+<h2>What happened to the BERT-as-service.<a class="headerlink" href="#what-happened-to-the-bert-as-service" title="Permalink to this headline">#</a></h2>
+<p>There has been no maintenance of BERT-as-service since Feb. 2019.</p>
+<p>CLIP-as-service is a huge upgrade of BERT-as-service, with more powerful universal embedding models that can handle both images and texts; and more solid and efficient microservice infrastructure developed in the last 2 years by Jina AI. The high-level API, especially the client side, is a drop-in replacement of the old BERT-as-service.</p>
+</section>
 </section>
 
             </article>
@@ -338,6 +392,28 @@
             
 
             <div class="toc-sticky toc-scroll">
+                
+                <div class="toc-title-container">
+          <span class="toc-title">
+            Contents
+          </span>
+                </div>
+                <div class="toc-tree-container">
+                    <div class="toc-tree">
+                        <ul>
+<li><a class="reference internal" href="#">FAQ</a><ul>
+<li><a class="reference internal" href="#what-is-clip-model">What is CLIP model?</a></li>
+<li><a class="reference internal" href="#do-i-need-to-install-clip-server-and-clip-client-together">Do I need to install <code class="docutils literal notranslate"><span class="pre">clip-server</span></code> and <code class="docutils literal notranslate"><span class="pre">clip-client</span></code> together?</a></li>
+<li><a class="reference internal" href="#what-is-clip-as-service-powered-by-the-codebase-seems-quite-small">What is CLIP-as-service powered by? The codebase seems quite small</a></li>
+<li><a class="reference internal" href="#i-had-this-aiorpcerror-what-should-i-do">I had this AioRpcError, what should I do?</a></li>
+<li><a class="reference internal" href="#why-clip-as-service-why-not-clip-as-a-service">Why “CLIP-as-service” why not “CLIP-as-a-service”</a></li>
+<li><a class="reference internal" href="#what-happened-to-the-bert-as-service">What happened to the BERT-as-service.</a></li>
+</ul>
+</li>
+</ul>
+
+                    </div>
+                </div>
                 
             </div>
 

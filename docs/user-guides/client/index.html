@@ -10,13 +10,13 @@
   
 <meta property="og:url" content="https://clip-as-service.jina.ai/user-guides/client/" />
   
-<meta property="og:site_name" content="CLIP-as-service 0.0.5 Documentation" />
+<meta property="og:site_name" content="CLIP-as-service 0.0.6 Documentation" />
   
 <meta property="og:description" content="CLIP-as-service is designed in a client-server architecture. A client sends images and texts to the server, and receives the embeddings from the server. Additionally, clip_client has many nice designs for speeding up the encoding on large amount of data: Streaming: request sending is not blocked ..." />
   
 <meta property="og:image" content="https://clip-as-service.jina.ai/_images/client-pgbar.gif" />
   
-<meta property="og:image:alt" content="CLIP-as-service 0.0.5 Documentation" />
+<meta property="og:image:alt" content="CLIP-as-service 0.0.6 Documentation" />
   
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@JinaAI_">
@@ -38,7 +38,7 @@
     <link rel="index" title="Index" href="../../genindex/" /><link rel="search" title="Search" href="../../search/" /><link rel="next" title="Server API" href="../server/" /><link rel="prev" title="Welcome to CLIP-as-service!" href="../../" />
 
     <link rel="shortcut icon" href="../../_static/favicon.png"/><meta name="generator" content="sphinx-4.4.0, furo 2022.03.04"/>
-        <title>Client API - CLIP-as-service 0.0.5 documentation</title>
+        <title>Client API - CLIP-as-service 0.0.6 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=935aa2abcc5c1da4283d1dc201fb1f0add16d23a" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -169,7 +169,7 @@
         </div>
         <div class="header-center">
             <a href="../../">
-                <div class="brand">CLIP-as-service 0.0.5 documentation</div>
+                <div class="brand">CLIP-as-service 0.0.6 documentation</div>
             </a>
         </div>
         <div class="header-right">
@@ -298,7 +298,7 @@
 <p>This chapter introduces the API of the client.</p>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-<p>You will need to install client first in Python 3.7+: <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">clip_client</span></code>.</p>
+<p>You will need to install client first in Python 3.7+: <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">clip-client</span></code>.</p>
 </div>
 <section id="construct-client">
 <span id="id1"></span><h2>Construct client<a class="headerlink" href="#construct-client" title="Permalink to this headline">#</a></h2>
@@ -535,7 +535,7 @@
 <p>The final time cost will be less than <code class="docutils literal notranslate"><span class="pre">3s</span> <span class="pre">+</span> <span class="pre">time(t2)</span></code>.</p>
 </section>
 <section id="profiling">
-<h2>Profiling<a class="headerlink" href="#profiling" title="Permalink to this headline">#</a></h2>
+<span id="id2"></span><h2>Profiling<a class="headerlink" href="#profiling" title="Permalink to this headline">#</a></h2>
 <p>You can use <code class="docutils literal notranslate"><span class="pre">client.profile()</span></code> to give a quick test on the server to make sure everything is good.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">clip_client</span> <span class="kn">import</span> <span class="n">Client</span>
 

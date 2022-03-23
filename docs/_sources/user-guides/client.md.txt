@@ -11,7 +11,7 @@ CLIP-as-service is designed in a client-server architecture. A client sends imag
 This chapter introduces the API of the client. 
 
 ```{tip}
-You will need to install client first in Python 3.7+: `pip install clip_client`.
+You will need to install client first in Python 3.7+: `pip install clip-client`.
 ```
 
 
@@ -249,6 +249,7 @@ asyncio.run(main())
 
 The final time cost will be less than `3s + time(t2)`.
 
+(profiling)=
 ## Profiling
 
 You can use `client.profile()` to give a quick test on the server to make sure everything is good. 
