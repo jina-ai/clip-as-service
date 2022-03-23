@@ -1,47 +1,88 @@
+import sys
 from os import path
 
-from setuptools import setup, find_packages
+from setuptools import find_packages
+from setuptools import setup
 
-# setup metainfo
-libinfo_py = path.join('bert_serving', 'server', '__init__.py')
-libinfo_content = open(libinfo_py, 'r').readlines()
-version_line = [l.strip() for l in libinfo_content if l.startswith('__version__')][0]
-exec(version_line)  # produce __version__
+if sys.version_info < (3, 7, 0):
+    raise OSError(f'clip-as-service requires Python >=3.7, but yours is {sys.version}')
+
+try:
+    pkg_name = 'clip-server'
+    libinfo_py = path.join(
+        path.dirname(__file__), pkg_name.replace('-', '_'), '__init__.py'
+    )
+    libinfo_content = open(libinfo_py, 'r', encoding='utf8').readlines()
+    version_line = [l.strip() for l in libinfo_content if l.startswith('__version__')][
+        0
+    ]
+    exec(version_line)  # gives __version__
+except FileNotFoundError:
+    __version__ = '0.0.0'
+
+try:
+    with open('README.md', encoding='utf8') as fp:
+        _long_description = fp.read()
+except FileNotFoundError:
+    _long_description = ''
 
 setup(
-    name='bert_serving_server',
-    version=__version__,
-    description='Mapping a variable-length sentence to a fixed-length vector using BERT model (Server)',
-    url='https://github.com/hanxiao/bert-as-service',
-    long_description=open('README.md', 'r', encoding="utf8").read(),
-    long_description_content_type='text/markdown',
-    author='Han Xiao',
-    author_email='artex.xh@gmail.com',
-    license='MIT',
+    name=pkg_name,
     packages=find_packages(),
+    version=__version__,
+    include_package_data=True,
+    description='The data structure for unstructured data',
+    author='Jina AI',
+    author_email='hello@jina.ai',
+    license='Apache 2.0',
+    url='https://github.com/jina-ai/docarray',
+    download_url='https://github.com/jina-ai/docarray/tags',
+    long_description=_long_description,
+    long_description_content_type='text/markdown',
     zip_safe=False,
-    install_requires=[
-        'numpy',
-        'six',
-        'pyzmq>=17.1.0',
-        'GPUtil>=1.3.0',
-        'termcolor>=1.1'
-    ],
+    setup_requires=['setuptools>=18.0', 'wheel'],
+    install_requires=['ftfy', 'torch', 'regex', 'torchvision', 'jina'],
     extras_require={
-        'cpu': ['tensorflow>=1.10.0'],
-        'gpu': ['tensorflow-gpu>=1.10.0'],
-        'http': ['flask', 'flask-compress', 'flask-cors', 'flask-json', 'bert-serving-client']
+        'onnx': ['onnxruntime', 'onnx', 'onnxruntime-gpu'],
+        'test': [
+            'pytest',
+            'pytest-timeout',
+            'pytest-mock',
+            'pytest-cov',
+            'pytest-repeat',
+            'pytest-reraise',
+            'mock',
+            'pytest-custom_exit_code',
+            'black',
+        ],
     },
-    classifiers=(
-        'Programming Language :: Python :: 3.6',
-        'License :: OSI Approved :: MIT License',
+    classifiers=[
+        'Development Status :: 5 - Production/Stable',
+        'Intended Audience :: Developers',
+        'Intended Audience :: Education',
+        'Intended Audience :: Science/Research',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Unix Shell',
+        'Environment :: Console',
+        'License :: OSI Approved :: Apache Software License',
         'Operating System :: OS Independent',
+        'Topic :: Database :: Database Engines/Servers',
         'Topic :: Scientific/Engineering :: Artificial Intelligence',
-    ),
-    entry_points={
-        'console_scripts': ['bert-serving-start=bert_serving.server.cli:main',
-                            'bert-serving-benchmark=bert_serving.server.cli:benchmark',
-                            'bert-serving-terminate=bert_serving.server.cli:terminate'],
+        'Topic :: Internet :: WWW/HTTP :: Indexing/Search',
+        'Topic :: Scientific/Engineering :: Image Recognition',
+        'Topic :: Multimedia :: Video',
+        'Topic :: Scientific/Engineering',
+        'Topic :: Scientific/Engineering :: Mathematics',
+        'Topic :: Software Development',
+        'Topic :: Software Development :: Libraries',
+        'Topic :: Software Development :: Libraries :: Python Modules',
+    ],
+    project_urls={
+        'Documentation': 'https://docarray.jina.ai',
+        'Source': 'https://github.com/jina-ai/docarray/',
+        'Tracker': 'https://github.com/jina-ai/docarray/issues',
     },
-    keywords='bert nlp tensorflow machine learning sentence encoding embedding serving',
+    keywords='docarray deep-learning data-structures cross-modal multi-modal unstructured-data nested-data neural-search',
 )

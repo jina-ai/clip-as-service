@@ -1,0 +1,15 @@
+repos:
+- repo: https://github.com/ambv/black
+  rev: 20.8b1
+  hooks:
+  - id: black
+    types: [python]
+    exclude: ^(docs/|server/clip_server/resources/)
+    args:
+      - -S
+- repo: https://github.com/asottile/blacken-docs
+  rev: v1.12.1
+  hooks:
+  -   id: blacken-docs
+      args:
+        - -S

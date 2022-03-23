@@ -1,1 +1,2 @@
-include requirements.txt README.md
+recursive-include clip_server/resources *
+include clip_server/*.yml

@@ -5,19 +5,17 @@ from setuptools import find_packages
 from setuptools import setup
 
 if sys.version_info < (3, 7, 0):
-    raise OSError(f'clip-as-service requires Python >=3.7, but yours is {sys.version}')
+    raise OSError(f'Clip-as-service requires Python >=3.7, but yours is {sys.version}')
 
 try:
-    pkg_name = 'clip-client'
-    libinfo_py = path.join(
-        path.dirname(__file__), pkg_name.replace('-', '_'), '__init__.py'
-    )
+    pkg_name = 'clip-as-service'
+    libinfo_py = path.join('server/clip_server/__init__.py')
     libinfo_content = open(libinfo_py, 'r', encoding='utf8').readlines()
     version_line = [l.strip() for l in libinfo_content if l.startswith('__version__')][
         0
     ]
     exec(version_line)  # gives __version__
-except FileNotFoundError as ex:
+except FileNotFoundError:
     __version__ = '0.0.0'
 
 try:
@@ -41,20 +39,7 @@ setup(
     long_description_content_type='text/markdown',
     zip_safe=False,
     setup_requires=['setuptools>=18.0', 'wheel'],
-    install_requires=['jina'],
-    extras_require={
-        'test': [
-            'pytest',
-            'pytest-timeout',
-            'pytest-mock',
-            'pytest-cov',
-            'pytest-repeat',
-            'pytest-reraise',
-            'mock',
-            'pytest-custom_exit_code',
-            'black',
-        ],
-    },
+    install_requires=['clip-server', 'clip-client'],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
