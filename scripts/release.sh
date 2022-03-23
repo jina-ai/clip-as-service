@@ -86,8 +86,6 @@ if [[ $1 == "final" ]]; then
 
   make_release_note
 
-  exit
-
   pub_pypi client
   pub_pypi server
   pub_pypi "."
