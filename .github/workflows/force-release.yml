@@ -44,6 +44,6 @@ jobs:
       - name: bumping master version
         uses: ad-m/github-push-action@v0.6.0
         with:
-          github_token: ${{ secrets.JINA_DEV_BOTH }}
+          github_token: ${{ secrets.JINA_DEV_BOT }}
           tags: true
           branch: main
