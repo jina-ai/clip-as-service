@@ -55,17 +55,16 @@ class CLIPEncoder(Executor):
         _img_da = docs.find({'blob': {'$exists': True}})
         _txt_da = docs.find({'text': {'$exists': True}})
 
-        with torch.inference_mode():
-            # for image
-            if _img_da:
-                _img_da.apply(self._preproc_image)
-                _img_da.embeddings = self._model.encode_image(_img_da.tensors)
+        # for image
+        if _img_da:
+            _img_da.apply(self._preproc_image)
+            _img_da.embeddings = self._model.encode_image(_img_da.tensors)
 
-            # for text
-            if _txt_da:
-                texts = self._preproc_text(_txt_da)
-                _txt_da.embeddings = self._model.encode_text(_txt_da.tensors)
-                _txt_da.texts = texts
+        # for text
+        if _txt_da:
+            texts = self._preproc_text(_txt_da)
+            _txt_da.embeddings = self._model.encode_text(_txt_da.tensors)
+            _txt_da.texts = texts
 
         # drop tensors
         docs.tensors = None
