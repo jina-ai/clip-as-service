@@ -13,6 +13,7 @@
 <a href="https://pypi.org/project/clip_server/"><img src="https://github.com/jina-ai/jina/blob/master/.github/badges/python-badge.svg?raw=true" alt="Python 3.7 3.8 3.9 3.10" title="CLIP-as-service supports Python 3.7 and above"></a>
 <a href="https://pypi.org/project/clip_server/"><img src="https://img.shields.io/pypi/v/clip_server?color=%23099cec&amp;label=PyPI&amp;logo=pypi&amp;logoColor=white" alt="PyPI"></a>
 <a href="https://slack.jina.ai"><img src="https://img.shields.io/badge/Slack-2.7k%2B-blueviolet?logo=slack&amp;logoColor=white"></a>
+<a href="https://codecov.io/gh/jina-ai/clip-as-service"><img src="https://codecov.io/gh/jina-ai/clip-as-service/branch/main/graph/badge.svg?token=M7aC0FgIqd"/></a>
 </p>
 
 <!-- start elevator-pitch -->
