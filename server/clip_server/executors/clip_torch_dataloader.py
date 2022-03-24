@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Optional, List
 import torch
 from PIL import Image
 from jina import Executor, requests
+from torch.utils.data import Dataset, DataLoader
 
 from clip_server.model import clip
 
@@ -13,13 +14,31 @@ if TYPE_CHECKING:
     from docarray import DocumentArray, Document
 
 
+class DocumentDataset(Dataset):
+    def __init__(self, device):
+        self.device = device
+        self.da = None
+
+    def set_da(self, da: 'DocumentArray'):
+        self.da = da
+
+    def __len__(self):
+        return len(self.da)
+
+    def __getitem__(self, idx):
+        text = self.da[idx].text
+        tensor = clip.tokenize(text)
+        return tensor[0]
+
+
 class CLIPEncoder(Executor):
     def __init__(
-        self,
-        name: str = 'ViT-B/32',
-        device: Optional[str] = None,
-        jit: bool = False,
-        **kwargs
+            self,
+            name: str = 'ViT-B/32',
+            device: Optional[str] = None,
+            jit: bool = False,
+            batch_size: int = 1000,
+            **kwargs
     ):
         super().__init__(**kwargs)
         if not device:
@@ -27,6 +46,10 @@ class CLIPEncoder(Executor):
         else:
             self._device = device
         self._model, self._preprocess = clip.load(name, device=self._device, jit=jit)
+        self.batch_size = batch_size
+
+        self.dataset = DocumentDataset(self._device)
+        self.dataloader = DataLoader(self.dataset, batch_size=self.batch_size, num_workers=48, persistent_workers=True)
 
     def _preproc_image(self, d: 'Document'):
         d.tensor = self._preprocess(Image.open(io.BytesIO(d.blob))).to(self._device)
@@ -53,14 +76,17 @@ class CLIPEncoder(Executor):
 
             # for text
             if _txt_da:
+                self.dataset.set_da(_txt_da)
+
                 st = perf_counter()
-                texts = self._preproc_text(_txt_da)
-                print('cpu preprocessing', perf_counter() - st); st = perf_counter()
-                _txt_da.embeddings = (
-                    self._model.encode_text(_txt_da.tensors).cpu().numpy()
-                )
-                print('gpu embedding', perf_counter() - st); st = perf_counter()
-                _txt_da.texts = texts
+                for i, batch in enumerate(self.dataloader):
+                    print('gpu waiting for workers', perf_counter() - st); st = perf_counter()
+                    _txt_da[i * self.batch_size:(i + 1) * self.batch_size].embeddings = (
+                        self._model.encode_text(batch.to(self._device)).cpu().numpy()
+                    )
+                    print('gpu encoding', perf_counter() - st); st = perf_counter()
+
+                    st = perf_counter()
 
         # drop tensors
         docs.tensors = None
