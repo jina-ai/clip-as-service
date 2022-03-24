@@ -7,6 +7,7 @@
 
 
 
+
 <a name=release-note-0-0-3></a>
 ## Release Note (`0.0.3`)
 
@@ -136,4 +137,29 @@
  - [[```1b679cdc```](https://github.com/jina-ai/clip-as-service/commit/1b679cdc8c657e872833f1344f19ed7d6bb57b0a)] __-__ fix banner (*Han Xiao*)
  - [[```9e0a1058```](https://github.com/jina-ai/clip-as-service/commit/9e0a1058b77f33508a3dbdffabaacf3bb0c53cb4)] __-__ __version__: the next version will be 0.1.1 (*Jina Dev Bot*)
  - [[```1a2a2af9```](https://github.com/jina-ai/clip-as-service/commit/1a2a2af932717cc0da12667453cd00c58e6ee443)] __-__ bump version (*Han Xiao*)
+
+<a name=release-note-0-1-2></a>
+## Release Note (`0.1.2`)
+
+> Release time: 2022-03-24 10:57:53
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Han Xiao,  Alex Cureton-Griffiths,  Wang Bo,  Jina Dev Bot,  🙇
+
+
+### 🧼 Code Refactoring
+
+ - [[```715e8ba9```](https://github.com/jina-ai/clip-as-service/commit/715e8ba90faf1c58daed608cd02340404484a018)] __-__ remove unused main unify keywords (#658) (*Wang Bo*)
+
+### 📗 Documentation
+
+ - [[```ff16ce1d```](https://github.com/jina-ai/clip-as-service/commit/ff16ce1db88bbac14cb19c05266b1286c224e65d)] __-__ __readme__: polish (#660) (*Alex Cureton-Griffiths*)
+
+### 🍹 Other Improvements
+
+ - [[```0ec1fac2```](https://github.com/jina-ai/clip-as-service/commit/0ec1fac2a4f0c02a0cc704da9b2361e1d22108fa)] __-__ fix setup deps (*Han Xiao*)
+ - [[```59b154a7```](https://github.com/jina-ai/clip-as-service/commit/59b154a7358cfdf1449fab8a2855599b657ddf24)] __-__ __version__: the next version will be 0.1.2 (*Jina Dev Bot*)
+ - [[```1b679cdc```](https://github.com/jina-ai/clip-as-service/commit/1b679cdc8c657e872833f1344f19ed7d6bb57b0a)] __-__ fix banner (*Han Xiao*)
 
