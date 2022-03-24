@@ -73,5 +73,5 @@ setup(
         'Source': 'https://github.com/jina-ai/clip-as-service/',
         'Tracker': 'https://github.com/jina-ai/clip-as-service/issues',
     },
-    keywords='openai jina deep-learning cross-modal multi-modal neural-search',
+    keywords='jina openai clip deep-learning cross-modal multi-modal neural-search',
 )
