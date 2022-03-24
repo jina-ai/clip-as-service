@@ -31,7 +31,7 @@ setup(
     packages=find_packages(),
     version=__version__,
     include_package_data=True,
-    description='Embedding image and sentence into fixed-length vectors via CLIP',
+    description='Embed images and sentences into fixed-length vectors via CLIP',
     author='Jina AI',
     author_email='hello@jina.ai',
     license='Apache 2.0',

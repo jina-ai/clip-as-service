@@ -166,7 +166,7 @@ ogp_custom_meta_tags = [
     '<meta name="twitter:card" content="summary_large_image">',
     '<meta name="twitter:site" content="@JinaAI_">',
     '<meta name="twitter:creator" content="@JinaAI_">',
-    '<meta name="description" content="Embedding image and sentence into fixed-length vectors via CLIP.">',
+    '<meta name="description" content="Embed images and sentences into fixed-length vectors via CLIP.">',
     '<meta property="og:description" content="CLIP-as-service is a low-latency high-scalability embedding service for images and texts. It can be easily integrated as a microservice into neural search solutions.">',
     '''
 
