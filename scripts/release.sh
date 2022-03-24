@@ -88,6 +88,7 @@ if [[ $1 == "final" ]]; then
 
   pub_pypi client
   pub_pypi server
+  cp scripts/MANIFEST.in ./
   cp scripts/setup.py ./
   pub_pypi "."
 
@@ -108,6 +109,7 @@ elif [[ $1 == 'rc' ]]; then
 
   pub_pypi client
   pub_pypi server
+  cp scripts/MANIFEST.in ./
   cp scripts/setup.py ./
   pub_pypi "."
 
@@ -129,6 +131,7 @@ else
 
   pub_pypi client
   pub_pypi server
+  cp scripts/MANIFEST.in ./
   cp scripts/setup.py ./
   pub_pypi "."
 fi
