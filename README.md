@@ -121,7 +121,7 @@ You can change `0.0.0.0` to the intranet or public IP address to test the connec
    ```python
     from clip_client import Client
    
-    c = Client('grpc://87.191.159.105:51000')
+    c = Client('grpc://86.18.245.210:51000')
     ```
 3. To get sentence embedding:
     ```python    
@@ -179,14 +179,14 @@ da.plot_image_sprites()
 
 #### Encode images
 
-Start the server with `python -m clip_server`. Let's say it's at `87.191.159.105:51000` with `GRPC` protocol (you will get this information after running the server).
+Start the server with `python -m clip_server`. Let's say it's at `86.18.245.210:51000` with `GRPC` protocol (you will get this information after running the server).
 
 Create a Python client script:
 
 ```python
 from clip_client import Client
 
-c = Client(server='grpc://87.191.159.105:51000')
+c = Client(server='grpc://86.18.245.210:51000')
 
 da = c.encode(da, show_progress=True)
 ```
@@ -333,7 +333,7 @@ Now encode these 6,403 sentences, it may take 10 seconds or less depending on yo
 ```python
 from clip_client import Client
 
-c = Client('grpc://87.191.159.105:51000')
+c = Client('grpc://86.18.245.210:51000')
 
 r = c.encode(da, show_progress=True)
 ```
