@@ -69,8 +69,3 @@ class CLIPEncoder(Executor):
 
         # drop tensors
         docs.tensors = None
-
-
-if __name__ == '__main__':
-    os.environ['JINA_LOG_LEVEL'] = 'DEBUG'
-    CLIPEncoder.serve(port=12346)
