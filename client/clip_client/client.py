@@ -59,12 +59,12 @@ class Client:
     @overload
     def encode(
         self,
-        content: Iterator[str],
+        content: Iterable[str],
         *,
         batch_size: Optional[int] = None,
         show_progress: bool = False,
     ) -> 'np.ndarray':
-        """Encode images and texts into embeddings.
+        """Encode images and texts into embeddings where the input is an iterable of raw strings.
 
         Each image and text must be represented as a string. The following strings are acceptable:
 
@@ -76,7 +76,7 @@ class Client:
         :param content: an iterator of image URIs or sentences, each element is an image or a text sentence as a string.
         :param batch_size: the number of elements in each request when sending ``content``
         :param show_progress: if set, show a progress bar
-        :return: the embdding in a numpy ndarray with shape ``[N, D]``. ``N`` is in the same length of ``content``
+        :return: the embedding in a numpy ndarray with shape ``[N, D]``. ``N`` is in the same length of ``content``
         """
         ...
 
@@ -88,7 +88,23 @@ class Client:
         batch_size: Optional[int] = None,
         show_progress: bool = False,
     ) -> 'DocumentArray':
+        """Encode images and texts into embeddings where the input is an iterable of :class:`docarray.Document`.
+
+        :param content: an iterable of :class:`docarray.Document`, each Document must be filled with `.uri`, `.text` or `.blob`.
+        :param batch_size: the number of elements in each request when sending ``content``
+        :param show_progress: if set, show a progress bar
+        :return: the embedding in a numpy ndarray with shape ``[N, D]``. ``N`` is in the same length of ``content``
+        """
         ...
+
+    def encode(self, content, **kwargs):
+        if isinstance(content, str):
+            raise TypeError(
+                f'content must be an Iterable of [str, Document], try `.encode(["{content}"])` instead'
+            )
+
+        r = self._client.post(**self._get_post_payload(content, kwargs))
+        return r.embeddings if self._return_plain else r
 
     def _iter_doc(self, content) -> Generator['Document', None, None]:
         from docarray import Document
@@ -124,15 +140,6 @@ class Client:
             request_size=kwargs.get('batch_size', 8),
             total_docs=len(content) if hasattr(content, '__len__') else None,
         )
-
-    def encode(self, content, **kwargs):
-        if isinstance(content, str):
-            raise TypeError(
-                f'content must be an Iterable of [str, Document], try `.encode(["{content}"])` instead'
-            )
-
-        r = self._client.post(**self._get_post_payload(content, kwargs))
-        return r.embeddings if self._return_plain else r
 
     def profile(self, content: Optional[str] = '') -> Dict[str, float]:
         """Profiling a single query's roundtrip including network and compuation latency. Results is summarized in a table.
