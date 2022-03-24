@@ -47,6 +47,7 @@ setup(
             'pytest',
             'pytest-timeout',
             'pytest-mock',
+            'pytest-asyncio',
             'pytest-cov',
             'pytest-repeat',
             'pytest-reraise',

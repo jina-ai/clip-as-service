@@ -51,6 +51,7 @@ setup(
             'pytest-cov',
             'pytest-repeat',
             'pytest-reraise',
+            'pytest-asyncio',
             'mock',
             'pytest-custom_exit_code',
             'black',
