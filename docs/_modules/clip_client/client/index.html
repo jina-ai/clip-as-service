@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex/" /><link rel="search" title="Search" href="../../../search/" />
 
     <link rel="shortcut icon" href="../../../_static/favicon.png"/><meta name="generator" content="sphinx-4.4.0, furo 2022.03.04"/>
-        <title>clip_client.client - CLIP-as-service 0.0.7 documentation</title>
+        <title>clip_client.client - CLIP-as-service 0.1.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?digest=935aa2abcc5c1da4283d1dc201fb1f0add16d23a" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
@@ -136,7 +136,7 @@
         </div>
         <div class="header-center">
             <a href="../../../">
-                <div class="brand">CLIP-as-service 0.0.7 documentation</div>
+                <div class="brand">CLIP-as-service 0.1.0 documentation</div>
             </a>
         </div>
         <div class="header-right">
@@ -321,12 +321,12 @@
     <span class="nd">@overload</span>
     <span class="k">def</span> <span class="nf">encode</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">content</span><span class="p">:</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">content</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">batch_size</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">show_progress</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">'np.ndarray'</span><span class="p">:</span>
-        <span class="sd">"""Encode images and texts into embeddings.</span>
+        <span class="sd">"""Encode images and texts into embeddings where the input is an iterable of raw strings.</span>
 
 <span class="sd">        Each image and text must be represented as a string. The following strings are acceptable:</span>
 
@@ -338,7 +338,7 @@
 <span class="sd">        :param content: an iterator of image URIs or sentences, each element is an image or a text sentence as a string.</span>
 <span class="sd">        :param batch_size: the number of elements in each request when sending ``content``</span>
 <span class="sd">        :param show_progress: if set, show a progress bar</span>
-<span class="sd">        :return: the embdding in a numpy ndarray with shape ``[N, D]``. ``N`` is in the same length of ``content``</span>
+<span class="sd">        :return: the embedding in a numpy ndarray with shape ``[N, D]``. ``N`` is in the same length of ``content``</span>
 <span class="sd">        """</span>
         <span class="o">...</span>
 
@@ -350,7 +350,23 @@
         <span class="n">batch_size</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">show_progress</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">'DocumentArray'</span><span class="p">:</span>
+        <span class="sd">"""Encode images and texts into embeddings where the input is an iterable of :class:`docarray.Document`.</span>
+
+<span class="sd">        :param content: an iterable of :class:`docarray.Document`, each Document must be filled with `.uri`, `.text` or `.blob`.</span>
+<span class="sd">        :param batch_size: the number of elements in each request when sending ``content``</span>
+<span class="sd">        :param show_progress: if set, show a progress bar</span>
+<span class="sd">        :return: the embedding in a numpy ndarray with shape ``[N, D]``. ``N`` is in the same length of ``content``</span>
+<span class="sd">        """</span>
         <span class="o">...</span>
+
+<div class="viewcode-block" id="Client.encode"><a class="viewcode-back" href="../../../api/clip_client.client/#clip_client.client.Client.encode">[docs]</a>    <span class="k">def</span> <span class="nf">encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">content</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">'content must be an Iterable of [str, Document], try `.encode(["</span><span class="si">{</span><span class="n">content</span><span class="si">}</span><span class="s1">"])` instead'</span>
+            <span class="p">)</span>
+
+        <span class="n">r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_post_payload</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">r</span><span class="o">.</span><span class="n">embeddings</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_return_plain</span> <span class="k">else</span> <span class="n">r</span></div>
 
     <span class="k">def</span> <span class="nf">_iter_doc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">content</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="s1">'Document'</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
         <span class="kn">from</span> <span class="nn">docarray</span> <span class="kn">import</span> <span class="n">Document</span>
@@ -386,15 +402,6 @@
             <span class="n">request_size</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'batch_size'</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span>
             <span class="n">total_docs</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">content</span><span class="p">)</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="s1">'__len__'</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
         <span class="p">)</span>
-
-<div class="viewcode-block" id="Client.encode"><a class="viewcode-back" href="../../../api/clip_client.client/#clip_client.client.Client.encode">[docs]</a>    <span class="k">def</span> <span class="nf">encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">content</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">'content must be an Iterable of [str, Document], try `.encode(["</span><span class="si">{</span><span class="n">content</span><span class="si">}</span><span class="s1">"])` instead'</span>
-            <span class="p">)</span>
-
-        <span class="n">r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_post_payload</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">))</span>
-        <span class="k">return</span> <span class="n">r</span><span class="o">.</span><span class="n">embeddings</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_return_plain</span> <span class="k">else</span> <span class="n">r</span></div>
 
 <div class="viewcode-block" id="Client.profile"><a class="viewcode-back" href="../../../api/clip_client.client/#clip_client.client.Client.profile">[docs]</a>    <span class="k">def</span> <span class="nf">profile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">content</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s1">''</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
         <span class="sd">"""Profiling a single query's roundtrip including network and compuation latency. Results is summarized in a table.</span>
