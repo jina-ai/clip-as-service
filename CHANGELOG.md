@@ -8,6 +8,7 @@
 
 
 
+
 <a name=release-note-0-0-3></a>
 ## Release Note (`0.0.3`)
 
@@ -162,4 +163,25 @@
  - [[```0ec1fac2```](https://github.com/jina-ai/clip-as-service/commit/0ec1fac2a4f0c02a0cc704da9b2361e1d22108fa)] __-__ fix setup deps (*Han Xiao*)
  - [[```59b154a7```](https://github.com/jina-ai/clip-as-service/commit/59b154a7358cfdf1449fab8a2855599b657ddf24)] __-__ __version__: the next version will be 0.1.2 (*Jina Dev Bot*)
  - [[```1b679cdc```](https://github.com/jina-ai/clip-as-service/commit/1b679cdc8c657e872833f1344f19ed7d6bb57b0a)] __-__ fix banner (*Han Xiao*)
+
+<a name=release-note-0-1-3></a>
+## Release Note (`0.1.3`)
+
+> Release time: 2022-03-24 13:03:30
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Han Xiao,  Wang Bo,  Jina Dev Bot,  🙇
+
+
+### 🧼 Code Refactoring
+
+ - [[```ae4d0bac```](https://github.com/jina-ai/clip-as-service/commit/ae4d0bacbfadb57e1cb1de8a5f6adca5426e62d3)] __-__ remove inference model pytorch from onnx (#661) (*Wang Bo*)
+
+### 🍹 Other Improvements
+
+ - [[```dece9dd0```](https://github.com/jina-ai/clip-as-service/commit/dece9dd0695bc418fc13fe9ed95ef52ba9f8f19d)] __-__ fix setup file (*Han Xiao*)
+ - [[```3d04e695```](https://github.com/jina-ai/clip-as-service/commit/3d04e69511098490b1e56e15640a6378df89ff04)] __-__ __version__: the next version will be 0.1.3 (*Jina Dev Bot*)
+ - [[```0ec1fac2```](https://github.com/jina-ai/clip-as-service/commit/0ec1fac2a4f0c02a0cc704da9b2361e1d22108fa)] __-__ fix setup deps (*Han Xiao*)
 
