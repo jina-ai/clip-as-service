@@ -6,7 +6,7 @@
 <br>
 <br>
 <br>
-<b>Embedding image and sentence into fixed-length vectors via CLIP</b>
+<b>Embed images and sentences into fixed-length vectors with CLIP</b>
 </p>
 
 <p align=center>
@@ -18,7 +18,7 @@
 
 <!-- start elevator-pitch -->
 
-CLIP-as-service is a low-latency high-scalability service for embedding images and texts. It can be easily integrated as a microservice into neural search solutions.
+CLIP-as-service is a low-latency high-scalability service for embedding images and text. It can be easily integrated as a microservice into neural search solutions.
 
 ⚡ **Fast**: Serve CLIP models with ONNX runtime and PyTorch JIT with 800QPS<sup>[*]</sup>. Non-blocking duplex streaming on requests and responses, designed for large data and long-running tasks. 
 
@@ -26,9 +26,9 @@ CLIP-as-service is a low-latency high-scalability service for embedding images a
 
 🐥 **Easy-to-use**: No learning curve, minimalist design on client and server. Intuitive and consistent API for image and sentence embedding. 
 
-👒 **Modern**: Async client support. Easily switch between gRPC, HTTP, Websocket protocols with TLS and compressions.
+👒 **Modern**: Async client support. Easily switch between gRPC, HTTP, WebSocket protocols with TLS and compression.
 
-🍱 **Integration**: Smoothly integrated with neural search ecosystem including [Jina](https://github.com/jina-ai/jina) and [DocArray](https://github.com/jina-ai/docarray). Build cross-modal and multi-modal solution in no time. 
+🍱 **Integration**: Smooth integration with neural search ecosystem including [Jina](https://github.com/jina-ai/jina) and [DocArray](https://github.com/jina-ai/docarray). Build cross-modal and multi-modal solutions in no time. 
 
 <sup>[*] with default config (single replica, PyTorch no JIT) on GeForce RTX 3090. </sup>
 
@@ -138,15 +138,15 @@ You can change `0.0.0.0` to the intranet or public IP address to test the connec
     print(r.shape)  # [3, 512]
     ```
 
-More comprehensive server & client configs can be found in the docs.
+More comprehensive server and client configuration can be found in the [docs](https://clip-as-service.jina.ai/).
 
-### Text-to-image cross-modal search in 10 Lines
+### Text-to-image cross-modal search in 10 lines
 
-Let's build a text-to-image search using CLIP-as-service. Namely, user input a sentence and the program returns the matched images. We will use [Totally Looks Like](https://sites.google.com/view/totally-looks-like-dataset) dataset and [DocArray](https://github.com/jina-ai/docarray) package. Note that DocArray is included within `clip-client` as an upstream dependency, so you don't need to install it separately.
+Let's build a text-to-image search using CLIP-as-service. Namely, a user can input a sentence and the program returns matching images. We'll use the [Totally Looks Like](https://sites.google.com/view/totally-looks-like-dataset) dataset and [DocArray](https://github.com/jina-ai/docarray) package. Note that DocArray is included within `clip-client` as an upstream dependency, so you don't need to install it separately.
 
 #### Load images
 
-First we load images. You can simply pull it from Jina Cloud:
+First we load images. You can simply pull them from Jina Cloud:
 
 ```python
 from docarray import DocumentArray
@@ -157,7 +157,7 @@ da = DocumentArray.pull('ttl-original', show_progress=True, local_cache=True)
 <details>
 <summary>or download TTL dataset, unzip, load manually</summary>
 
-Alternatively, you can go to [Totally Looks Like](https://sites.google.com/view/totally-looks-like-dataset) official website, unzip and load images as follows:
+Alternatively, you can go to [Totally Looks Like](https://sites.google.com/view/totally-looks-like-dataset) official website, unzip and load images:
 
 ```python
 from docarray import DocumentArray
@@ -167,21 +167,22 @@ da = DocumentArray.from_files(['left/*.jpg', 'right/*.jpg'])
 
 </details>
 
-The dataset contains 12,032 images, hence it may take half minute to pull. Once done, you can visualize it and get the first taste of those images.
+The dataset contains 12,032 images, so it may take a while to pull. Once done, you can visualize it and get the first taste of those images:
 
 ```python
 da.plot_image_sprites()
 ```
 
 <p align="center">
-<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/ttl-image-sprites.png?raw=true" alt="Visualize of the image sprite of Totally looks like dataset" width="50%">
+<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/ttl-image-sprites.png?raw=true" alt="Visualization of the image sprite of Totally looks like dataset" width="50%">
 </p>
 
 #### Encode images
 
-Start the server with `python -m clip_server`. Say it is at `87.191.159.105:51000` with `GRPC` protocol (you will get this information after running the server).
+Start the server with `python -m clip_server`. Let's say it's at `87.191.159.105:51000` with `GRPC` protocol (you will get this information after running the server).
 
 Create a Python client script:
+
 ```python
 from clip_client import Client
 
@@ -190,12 +191,12 @@ c = Client(server='grpc://87.191.159.105:51000')
 da = c.encode(da, show_progress=True)
 ```
 
-Depending on your GPU and client-server network, it could take a while to embed 12K images. In my case, it takes ~2 minute.
+Depending on your GPU and client-server network, it may take a while to embed 12K images. In my case, it took about two minutes.
 
 <details>
 <summary>Download the pre-encoded dataset</summary>
 
-For people who are impatient or lack of GPU, waiting can be a hell. In this case, you can simply pull our pre-encoded image dataset.
+If you're impatient or don't have a GPU, waiting can be Hell. In this case, you can simply pull our pre-encoded image dataset:
 
 ```python
 from docarray import DocumentArray
@@ -207,7 +208,7 @@ da = DocumentArray.pull('ttl-embedding', show_progress=True, local_cache=True)
 
 #### Search via sentence 
 
-Let's build a simple prompt to allow user to type sentence:
+Let's build a simple prompt to allow a user to type sentence:
 
 ```python
 while True:
@@ -218,7 +219,7 @@ while True:
 
 #### Showcase
 
-Now you can input arbitrary English sentences and view the top-9 matched images. Search is fast and instinct. Let's have some fun:
+Now you can input arbitrary English sentences and view the top-9 matching images. Search is fast and instinctive. Let's have some fun:
 
 <table>
 <tr>
@@ -230,21 +231,21 @@ Now you can input arbitrary English sentences and view the top-9 matched images.
 <td>
 
 <p align="center">
-<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/a-happy-potato.png?raw=true" alt="Visualize of the image sprite of Totally looks like dataset" width="100%">
+<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/a-happy-potato.png?raw=true" alt="Visualization of the image sprite of Totally looks like dataset" width="100%">
 </p>
 
 </td>
 <td>
 
 <p align="center">
-<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/a-super-evil-AI.png?raw=true" alt="Visualize of the image sprite of Totally looks like dataset" width="100%">
+<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/a-super-evil-AI.png?raw=true" alt="Visualization of the image sprite of Totally looks like dataset" width="100%">
 </p>
 
 </td>
 <td>
 
 <p align="center">
-<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/a-guy-enjoying-his-burger.png?raw=true" alt="Visualize of the image sprite of Totally looks like dataset" width="100%">
+<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/a-guy-enjoying-his-burger.png?raw=true" alt="Visualization of the image sprite of Totally looks like dataset" width="100%">
 </p>
 
 </td>
@@ -262,21 +263,21 @@ Now you can input arbitrary English sentences and view the top-9 matched images.
 <td>
 
 <p align="center">
-<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/professor-cat-is-very-serious.png?raw=true" alt="Visualize of the image sprite of Totally looks like dataset" width="100%">
+<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/professor-cat-is-very-serious.png?raw=true" alt="Visualization of the image sprite of Totally looks like dataset" width="100%">
 </p>
 
 </td>
 <td>
 
 <p align="center">
-<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/an-ego-engineer-lives-with-parent.png?raw=true" alt="Visualize of the image sprite of Totally looks like dataset" width="100%">
+<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/an-ego-engineer-lives-with-parent.png?raw=true" alt="Visualization of the image sprite of Totally looks like dataset" width="100%">
 </p>
 
 </td>
 <td>
 
 <p align="center">
-<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/there-will-be-no-tomorrow-so-lets-eat-unhealthy.png?raw=true" alt="Visualize of the image sprite of Totally looks like dataset" width="100%">
+<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/there-will-be-no-tomorrow-so-lets-eat-unhealthy.png?raw=true" alt="Visualization of the image sprite of Totally looks like dataset" width="100%">
 </p>
 
 </td>
@@ -327,7 +328,7 @@ da.summary()
 
 #### Encode sentences
 
-Now encode these 6403 sentences, it may take 10s or less depending on your GPU and network: 
+Now encode these 6,403 sentences, it may take 10 seconds or less depending on your GPU and network: 
 
 ```python
 from clip_client import Client
@@ -340,7 +341,7 @@ r = c.encode(da, show_progress=True)
 <details>
 <summary>Download the pre-encoded dataset</summary>
 
-Again, for people who are impatient or lack of GPU, we have prepared a pre-encoded text dataset.
+Again, for people who are impatient or don't have a GPU, we have prepared a pre-encoded text dataset:
 
 ```python
 from docarray import DocumentArray
@@ -352,7 +353,7 @@ da = DocumentArray.pull('ttl-textual', show_progress=True, local_cache=True)
 
 #### Search via image
 
-Let's load our previously stored image embedding; randomly sample image Document from it, then find top-1 nearest neighbour of each.
+Let's load our previously stored image embedding, randomly sample 10 image Documents, then find top-1 nearest neighbour of each.
 
 ```python
 from docarray import DocumentArray
@@ -365,13 +366,13 @@ for d in img_da.sample(10):
 
 #### Showcase
 
-Fun time! Note, unlike the previous example, here the input is an image, the sentence is the output. All sentences come from the book "Pride and Prejudice". 
+Fun time! Note, unlike the previous example, here the input is an image and the sentence is the output. All sentences come from the book "Pride and Prejudice". 
 
 <table>
 <tr>
 <td>
 <p align="center">
-<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/Besides,-there-was-truth-in-his-looks.png?raw=true" alt="Visualize of the image sprite of Totally looks like dataset" height="100px">
+<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/Besides,-there-was-truth-in-his-looks.png?raw=true" alt="Visualization of the image sprite of Totally looks like dataset" height="100px">
 </p>
 
 
@@ -379,21 +380,21 @@ Fun time! Note, unlike the previous example, here the input is an image, the sen
 <td>
 
 <p align="center">
-<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/Gardiner-smiled.png?raw=true" alt="Visualize of the image sprite of Totally looks like dataset" height="100px">
+<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/Gardiner-smiled.png?raw=true" alt="Visualization of the image sprite of Totally looks like dataset" height="100px">
 </p>
 
 </td>
 <td>
 
 <p align="center">
-<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/what’s-his-name.png?raw=true" alt="Visualize of the image sprite of Totally looks like dataset" height="100px">
+<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/what’s-his-name.png?raw=true" alt="Visualization of the image sprite of Totally looks like dataset" height="100px">
 </p>
 
 </td>
 <td>
 
 <p align="center">
-<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/By-tea-time,-however,-the-dose-had-been-enough,-and-Mr.png?raw=true" alt="Visualize of the image sprite of Totally looks like dataset" height="100px">
+<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/By-tea-time,-however,-the-dose-had-been-enough,-and-Mr.png?raw=true" alt="Visualization of the image sprite of Totally looks like dataset" height="100px">
 </p>
 
 </td>
@@ -401,7 +402,7 @@ Fun time! Note, unlike the previous example, here the input is an image, the sen
 <td>
 
 <p align="center">
-<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/You-do-not-look-well.png?raw=true" alt="Visualize of the image sprite of Totally looks like dataset" height="100px">
+<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/You-do-not-look-well.png?raw=true" alt="Visualization of the image sprite of Totally looks like dataset" height="100px">
 </p>
 
 </td>
@@ -419,7 +420,7 @@ Fun time! Note, unlike the previous example, here the input is an image, the sen
 <tr>
 <td>
 <p align="center">
-<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/“A-gamester!”-she-cried.png?raw=true" alt="Visualize of the image sprite of Totally looks like dataset" height="100px">
+<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/“A-gamester!”-she-cried.png?raw=true" alt="Visualization of the image sprite of Totally looks like dataset" height="100px">
 </p>
 
 
@@ -427,21 +428,21 @@ Fun time! Note, unlike the previous example, here the input is an image, the sen
 <td>
 
 <p align="center">
-<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/If-you-mention-my-name-at-the-Bell,-you-will-be-attended-to.png?raw=true" alt="Visualize of the image sprite of Totally looks like dataset" height="100px">
+<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/If-you-mention-my-name-at-the-Bell,-you-will-be-attended-to.png?raw=true" alt="Visualization of the image sprite of Totally looks like dataset" height="100px">
 </p>
 
 </td>
 <td>
 
 <p align="center">
-<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/Never-mind-Miss-Lizzy’s-hair.png?raw=true" alt="Visualize of the image sprite of Totally looks like dataset" height="100px">
+<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/Never-mind-Miss-Lizzy’s-hair.png?raw=true" alt="Visualization of the image sprite of Totally looks like dataset" height="100px">
 </p>
 
 </td>
 <td>
 
 <p align="center">
-<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/Elizabeth-will-soon-be-the-wife-of-Mr.png?raw=true" alt="Visualize of the image sprite of Totally looks like dataset" height="100px">
+<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/Elizabeth-will-soon-be-the-wife-of-Mr.png?raw=true" alt="Visualization of the image sprite of Totally looks like dataset" height="100px">
 </p>
 
 </td>
@@ -449,7 +450,7 @@ Fun time! Note, unlike the previous example, here the input is an image, the sen
 <td>
 
 <p align="center">
-<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/I-saw-them-the-night-before-last.png?raw=true" alt="Visualize of the image sprite of Totally looks like dataset" height="100px">
+<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/I-saw-them-the-night-before-last.png?raw=true" alt="Visualization of the image sprite of Totally looks like dataset" height="100px">
 </p>
 
 </td>
