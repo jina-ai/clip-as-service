@@ -29,7 +29,7 @@ setup(
     packages=find_packages(),
     version=__version__,
     include_package_data=True,
-    description='Low-latency high-scalability service for embedding images and texts',
+    description='Embedding image and sentence into fixed-length vectors via CLIP',
     author='Jina AI',
     author_email='hello@jina.ai',
     license='Apache 2.0',
