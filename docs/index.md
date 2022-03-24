@@ -60,7 +60,7 @@ At the first time, it will download the default pretrained model, which may take
  🔗         Protocol                  GRPC   
  🏠     Local access         0.0.0.0:51000   
  🔒  Private network    192.168.3.62:51000   
- 🌐   Public address  87.191.159.105:51000   
+ 🌐   Public address  87.105.159.191:51000   
 ```
 
 It means the server is ready to serve. Note down the three addresses showed above, you will need them later.
@@ -71,7 +71,7 @@ It means the server is ready to serve. Note down the three addresses showed abov
 Depending on the location of the client and server. You may use different IP addresses:
 - Client and server are on the same machine: use local address e.g. `0.0.0.0`
 - Client and server are behind the same router: use private network address e.g. `192.168.3.62`
-- Server is in public network: use public network address e.g. `87.191.159.105`
+- Server is in public network: use public network address e.g. `87.105.159.191`
 ```
 
 Run the following Python script:

@@ -88,6 +88,7 @@ if [[ $1 == "final" ]]; then
 
   pub_pypi client
   pub_pypi server
+  cp setup.py ../
   pub_pypi "."
 
   VER_TAG_NEXT=$VER_TAG\'${NEXT_VER}\'
@@ -107,6 +108,7 @@ elif [[ $1 == 'rc' ]]; then
 
   pub_pypi client
   pub_pypi server
+  cp setup.py ../
   pub_pypi "."
 
   VER_TAG_NEXT=$VER_TAG\'${NEXT_VER}\'
@@ -127,5 +129,6 @@ else
 
   pub_pypi client
   pub_pypi server
+  cp setup.py ../
   pub_pypi "."
 fi
