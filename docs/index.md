@@ -113,6 +113,15 @@ user-guides/faq
 ```
 
 
+```{toctree}
+:caption: Developer References
+:hidden:
+:maxdepth: 1
+
+api/clip_client
+changelog/index
+```
+
 
 ---
 {ref}`genindex` | {ref}`modindex`

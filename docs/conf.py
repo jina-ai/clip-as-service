@@ -60,12 +60,9 @@ html_theme_options = {
         "color-brand-primary": "#FBCB67",
         "color-brand-content": "#FBCB67",
     },
-
     # PLEASE DO NOT DELETE the empty line between `start-announce` and `end-announce`
     # PLEASE DO NOT DELETE `start-announce`/ `end-announce` it is used for our dev bot to inject announcement from GH
-
     # start-announce
-
     # end-announce
 }
 
@@ -77,7 +74,7 @@ html_css_files = [
 ]
 html_js_files = [
     'https://cdn.jsdelivr.net/npm/vue@2/dist/vue.min.js',
-    ]
+]
 htmlhelp_basename = slug
 html_show_sourcelink = False
 html_favicon = '_static/favicon.png'
@@ -110,7 +107,7 @@ extensions = [
     'sphinx_inline_tabs',
 ]
 
-myst_enable_extensions = ['colon_fence', 'substitution']
+myst_enable_extensions = ['colon_fence', 'substitution', 'deflist']
 
 # -- Custom 404 page
 
@@ -128,7 +125,7 @@ notfound_context = {
 }
 notfound_no_urls_prefix = True
 
-apidoc_module_dir = repo_dir
+apidoc_module_dir = '../client'
 apidoc_output_dir = 'api'
 apidoc_excluded_paths = ['tests', 'legacy', 'hub', 'toy*', 'setup.py']
 apidoc_separate_modules = True
@@ -193,14 +190,18 @@ def add_server_address(app):
     js_text = "var server_address = '%s';" % server_address
     app.add_js_file(None, body=js_text)
 
+
 def configure_qa_bot_ui(app):
     # This sets the server address to <qa-bot>
     server_address = app.config['server_address']
-    js_text = """
+    js_text = (
+        """
         document.addEventListener('DOMContentLoaded', function() { 
             document.querySelector('qa-bot').setAttribute('server', '%s');
         });
-        """ % server_address
+        """
+        % server_address
+    )
     app.add_js_file(None, body=js_text)
 
 

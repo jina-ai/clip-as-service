@@ -1,5 +1,10 @@
 Copyright 2020-2022 Jina AI Limited.  All rights reserved.
 
+The following three files are licensed under MIT License via https://github.com/openai/CLIP Copyright (c) 2021 OpenAI
+    server/clip_server/model/clip.py
+    server/clip_server/model/model.py
+    server/clip_server/model/simple_tokenizer.py
+
 
                                  Apache License
                            Version 2.0, January 2004

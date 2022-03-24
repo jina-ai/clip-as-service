@@ -1,6 +1,6 @@
 # Client API
 
-CLIP-as-service is designed in a client-server architecture. A client sends images and texts to the server, and receives the embeddings from the server. Additionally, `clip_client` has many nice designs for speeding up the encoding on large amount of data:
+CLIP-as-service is designed in a client-server architecture. A client sends images and texts to the server, and receives the embeddings from the server. Additionally, {class}`~clip_client.client.Client` has many nice designs for speeding up the encoding on large amount of data:
 - Streaming: request sending is *not* blocked by the response receiving. Sending and receiving are two separate streams that run in parallel. Both are independent and each have separate internal buffer.
 - Batching: large requests are segmented into small batches and send in a stream. 
 - Low memory footprint: only load data when needed.
@@ -41,7 +41,7 @@ scheme://netloc:port
 
 ## Encoding
 
-Client provides `.encode()` function that allows you to send sentences, images to the server in a streaming and sync/async manner. Encoding here means getting the fixed-length vector representation of a sentence or image.
+Client provides {func}`~clip_client.client.Client.encode` function that allows you to send sentences, images to the server in a streaming and sync/async manner. Encoding here means getting the fixed-length vector representation of a sentence or image.
 
 `.encode()` supports two basic input types:
 - **An iterable of `str`**, e.g. `List[str]`, `Tuple[str]`, `Generator[str]` are all acceptable.
@@ -213,7 +213,7 @@ Here are some suggestions when encoding large number of Documents:
 
 ## Async encoding
 
-To encode Document in an asynchronous manner, one can use `.aencode()`.
+To encode Document in an asynchronous manner, one can use {func}`~clip_client.client.Client.aencode`.
 
 ```{tip}
 Despite the sexy word "async", I often found many data scientists have a misconception about asynchronous. And their motivation of using async function is often wrong. _Async is not a silver bullet._ In a simple language, you will only need `.aencode()` when there is another concurrent task that is also async. Then you want to "overlap" the time spending of these two tasks.
@@ -252,7 +252,7 @@ The final time cost will be less than `3s + time(t2)`.
 (profiling)=
 ## Profiling
 
-You can use `client.profile()` to give a quick test on the server to make sure everything is good. 
+You can use {func}`~clip_client.client.Client.profile` to give a quick test on the server to make sure everything is good. 
 
 ```python
 from clip_client import Client
@@ -272,7 +272,7 @@ This give you a tree-like table showing the latency and percentage.
     └──  CLIP model  4ms  100%      
 ```
 
-Underneath `.profile()` sends a single empty Document to the CLIP-server for encoding and calculates a summary of latency. The above tree can be read as follows:  
+Under the hood, `.profile()` sends a single empty Document to the CLIP-server for encoding and calculates a summary of latency. The above tree can be read as follows:  
 
 - From calling `client.encode()` to returning the results, everything counted, takes 16ms to finish.
 - Among them the time spent on the server is 4ms, the remaining 12ms is spent on the client-server communication, request packing, response unpacking.

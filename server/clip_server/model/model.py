@@ -1,3 +1,5 @@
+# Originally from https://github.com/openai/CLIP. MIT License, Copyright (c) 2021 OpenAI
+
 from collections import OrderedDict
 from typing import Tuple, Union
 
