@@ -57,7 +57,7 @@ Let's look at these two built-in YAML configs:
 jtype: Flow
 version: '1'
 with:
-  port: 51000
+  port: 54321
 executors:
   - name: clip_t
     uses:
@@ -74,7 +74,7 @@ executors:
 jtype: Flow
 version: '1'
 with:
-  port: 51000
+  port: 54321
 executors:
   - name: clip_o
     uses:
@@ -101,7 +101,7 @@ emphasize-lines: 9
 jtype: Flow
 version: '1'
 with:
-  port: 51000
+  port: 54321
 executors:
   - name: clip_t
     uses:
@@ -124,7 +124,7 @@ emphasize-lines: 6
 jtype: Flow
 version: '1'
 with:
-  port: 51000
+  port: 54321
 executors:
   - name: clip_t
     uses:
@@ -147,7 +147,7 @@ emphasize-lines: 3,4
 jtype: Flow
 version: '1'
 with:
-  port: 51000
+  port: 54321
 executors:
   - name: clip_t
     uses:
@@ -188,7 +188,7 @@ emphasize-lines: 9-11
 jtype: Flow
 version: '1'
 with:
-  port: 51000
+  port: 54321
 executors:
   - name: clip_t
     uses:
@@ -215,7 +215,7 @@ emphasize-lines: 9
 jtype: Flow
 version: '1'
 with:
-  port: 51000
+  port: 54321
 executors:
   - name: clip_t
     uses:
@@ -229,7 +229,7 @@ executors:
 
 ### Flow config
 
-Flow configs are the ones under top-level `with:`. We can see the `port: 51000` is configured there. Besides `port`, there are some common parameters you might need.
+Flow configs are the ones under top-level `with:`. We can see the `port: 54321` is configured there. Besides `port`, there are some common parameters you might need.
 
 | Parameter | Description                                                                                                                                                                                                           |
 | --- |-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -248,7 +248,7 @@ emphasize-lines: 5,6
 jtype: Flow
 version: '1'
 with:
-  port: 51000
+  port: 54321
   protocol: websocket
   prefetch: 10
 executors:

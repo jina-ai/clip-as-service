@@ -58,9 +58,9 @@ At the first time, it will download the default pretrained model, which may take
 
 ```text
  🔗         Protocol                  GRPC   
- 🏠     Local access         0.0.0.0:51000   
- 🔒  Private network    192.168.3.62:51000   
- 🌐   Public address   86.18.245.210:51000   
+ 🏠     Local access         0.0.0.0:54321   
+ 🔒  Private network    192.168.3.62:54321   
+ 🌐   Public address   86.18.245.210:54321   
 ```
 
 It means the server is ready to serve. Note down the three addresses showed above, you will need them later.
@@ -79,7 +79,7 @@ Run the following Python script:
 ```python
 from clip_client import Client
 
-c = Client('grpc://0.0.0.0:51000')
+c = Client('grpc://0.0.0.0:54321')
 c.profile()
 ```
 
