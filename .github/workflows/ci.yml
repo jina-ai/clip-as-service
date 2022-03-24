@@ -117,7 +117,7 @@ jobs:
       - name: Test
         id: test
         run: |
-          pytest --suppress-no-test-exit-code --cov=cas --cov-report=xml \
+          pytest --suppress-no-test-exit-code --cov=clip_client --cov-report=xml \
             -v -s -m "not gpu" ${{ matrix.test-path }}
           echo "::set-output name=codecov_flag::cas"
         timeout-minutes: 30

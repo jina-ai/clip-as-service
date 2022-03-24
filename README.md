@@ -17,7 +17,7 @@
 
 <!-- start elevator-pitch -->
 
-CLIP-as-service is a low-latency high-scalability embedding service for images and texts. It can be easily integrated as a microservice into neural search solutions.
+CLIP-as-service is a low-latency high-scalability service for embedding images and texts. It can be easily integrated as a microservice into neural search solutions.
 
 ⚡ **Fast**: Serve CLIP models with ONNX runtime and PyTorch JIT with 800QPS<sup>[*]</sup>. Non-blocking duplex streaming on requests and responses, designed for large data and long-running tasks. 
 

@@ -44,17 +44,6 @@ setup(
     install_requires=['ftfy', 'torch', 'regex', 'torchvision', 'jina'],
     extras_require={
         'onnx': ['onnxruntime', 'onnx', 'onnxruntime-gpu'],
-        'test': [
-            'pytest',
-            'pytest-timeout',
-            'pytest-mock',
-            'pytest-cov',
-            'pytest-repeat',
-            'pytest-reraise',
-            'mock',
-            'pytest-custom_exit_code',
-            'black',
-        ],
     },
     classifiers=[
         'Development Status :: 5 - Production/Stable',
