@@ -201,7 +201,7 @@ Here are some suggestions when encoding large number of Documents:
     c = Client(...)
     c.encode(data_gen())
     ```
-    Yield raw strings is aslo acceptable, e.g. to encode all images under a directory, you can simply do:
+    Yield raw strings is also acceptable, e.g. to encode all images under a directory, you can simply do:
     ```python
     from glob import iglob
 
