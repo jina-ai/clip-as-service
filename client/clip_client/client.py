@@ -104,6 +104,15 @@ class Client:
             )
 
         r = self._client.post(**self._get_post_payload(content, kwargs))
+        return self._pack_result(r)
+
+    def _pack_result(self, r):
+        if r.embeddings is None:
+            raise ValueError(
+                'empty embedding returned from the server. '
+                'This often due to a mis-config of the server, '
+                'restarting the server or changing the serving port number often solves the problem'
+            )
         return r.embeddings if self._return_plain else r
 
     def _iter_doc(self, content) -> Generator['Document', None, None]:
@@ -222,4 +231,5 @@ class Client:
             **self._get_post_payload(content, kwargs)
         ):
             r.extend(da)
-        return r.embeddings if self._return_plain else r
+
+        return self._pack_result(r)
