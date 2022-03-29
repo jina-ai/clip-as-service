@@ -138,7 +138,7 @@ You can change `0.0.0.0` to the intranet or public IP address to test the connec
     print(r.shape)  # [3, 512]
     ```
 
-More comprehensive server and client configuration can be found in the [docs](https://clip-as-service.jina.ai/).
+More comprehensive server and client user guides can be found in the [docs](https://clip-as-service.jina.ai/).
 
 ### Text-to-image cross-modal search in 10 lines
 
