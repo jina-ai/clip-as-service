@@ -10,6 +10,7 @@
 
 
 
+
 <a name=release-note-0-0-3></a>
 ## Release Note (`0.0.3`)
 
@@ -202,4 +203,25 @@
  - [[```989a706a```](https://github.com/jina-ai/clip-as-service/commit/989a706aa53271d9018ce48d9241e37887572025)] __-__ hide top-level setup (*Han Xiao*)
  - [[```f07e0f57```](https://github.com/jina-ai/clip-as-service/commit/f07e0f57ab795688100d07c09564fe3680031a83)] __-__ __version__: the next version will be 0.1.4 (*Jina Dev Bot*)
  - [[```dece9dd0```](https://github.com/jina-ai/clip-as-service/commit/dece9dd0695bc418fc13fe9ed95ef52ba9f8f19d)] __-__ fix setup file (*Han Xiao*)
+
+<a name=release-note-0-1-6></a>
+## Release Note (`0.1.6`)
+
+> Release time: 2022-03-29 07:02:26
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Han Xiao,  felix-wang,  Jina Dev Bot,  🙇
+
+
+### 🐞 Bug fixes
+
+ - [[```b4624dd4```](https://github.com/jina-ai/clip-as-service/commit/b4624dd408e0ee3908f57b7e5e598e5631de3d95)] __-__ __client__: raise value when embedding is empty (#666) (*Han Xiao*)
+
+### 🍹 Other Improvements
+
+ - [[```16f8c403```](https://github.com/jina-ai/clip-as-service/commit/16f8c403a274961c3acd1ecddbef823dcea488b2)] __-__ fix typo (#664) (*felix-wang*)
+ - [[```da1dd85c```](https://github.com/jina-ai/clip-as-service/commit/da1dd85cba6bc72c4ff83fd0c00c2651eef56075)] __-__ hide top-level setup (*Han Xiao*)
+ - [[```fe22c3f2```](https://github.com/jina-ai/clip-as-service/commit/fe22c3f21ee180c7f74e1a996572b0eb04a36a6d)] __-__ __version__: the next version will be 0.1.6 (*Jina Dev Bot*)
 
