@@ -295,31 +295,10 @@ class Client:
                 'the length of the input is unknown, the progressbar would not be accurate.'
             )
 
-        from rich.progress import (
-            Progress,
-            BarColumn,
-            SpinnerColumn,
-            MofNCompleteColumn,
-            TextColumn,
-            TimeRemainingColumn,
-        )
+        from docarray.array.mixins.io.pbar import get_pbar
 
-        self._pbar = Progress(
-            SpinnerColumn(),
-            TextColumn('[bold]{task.description}'),
-            BarColumn(),
-            MofNCompleteColumn(),
-            '•',
-            TimeRemainingColumn(),
-            '•',
-            TextColumn(
-                '[bold blue]{task.fields[total_size]}',
-                justify='right',
-                style='progress.filesize',
-            ),
-            transient=True,
-            disable=disable,
-        )
+        self._pbar = get_pbar(disable)
+
         os.environ['JINA_GRPC_SEND_BYTES'] = '0'
         os.environ['JINA_GRPC_RECV_BYTES'] = '0'
 

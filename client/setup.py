@@ -41,7 +41,7 @@ setup(
     long_description_content_type='text/markdown',
     zip_safe=False,
     setup_requires=['setuptools>=18.0', 'wheel'],
-    install_requires=['jina>=3.2.10', 'docarray[common]>=0.9.18'],
+    install_requires=['jina>=3.2.10', 'docarray[common]>=0.10.3'],
     extras_require={
         'test': [
             'pytest',
@@ -64,6 +64,7 @@ setup(
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
         'Programming Language :: Unix Shell',
         'Environment :: Console',
         'License :: OSI Approved :: Apache Software License',
