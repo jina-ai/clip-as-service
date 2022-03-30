@@ -1,6 +1,7 @@
 import mimetypes
 import os
 import time
+import warnings
 from typing import (
     overload,
     TYPE_CHECKING,
@@ -186,7 +187,7 @@ class Client:
             on='/',
             inputs=self._iter_doc(content),
             request_size=kwargs.get('batch_size', 8),
-            total_docs=len(content) if hasattr(content, '__len__') else 500,
+            total_docs=len(content) if hasattr(content, '__len__') else None,
         )
 
     def profile(self, content: Optional[str] = '') -> Dict[str, float]:
@@ -267,7 +268,7 @@ class Client:
 
         self._prepare_streaming(
             not kwargs.get('show_progress'),
-            total=len(content) if hasattr(content, '__len__') else 500,
+            total=len(content) if hasattr(content, '__len__') else None,
         )
 
         async for da in self._async_client.post(
@@ -287,6 +288,13 @@ class Client:
         return self._unboxed_result
 
     def _prepare_streaming(self, disable, total):
+
+        if total is None:
+            total = 500
+            warnings.warn(
+                'the length of the input is unknown, the progressbar would not be accurate.'
+            )
+
         from rich.progress import (
             Progress,
             BarColumn,
