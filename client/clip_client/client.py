@@ -145,7 +145,9 @@ class Client:
         from docarray import Document
 
         self._return_plain = True
-        self._pbar.start_task(self._s_task)
+
+        if hasattr(self, '_pbar'):
+            self._pbar.start_task(self._s_task)
 
         for c in content:
             if isinstance(c, str):
@@ -168,20 +170,23 @@ class Client:
             else:
                 raise TypeError(f'unsupported input type {c!r}')
 
-            self._pbar.update(
-                self._s_task,
-                advance=1,
-                total_size=str(
-                    filesize.decimal(int(os.environ.get('JINA_GRPC_SEND_BYTES', '0')))
-                ),
-            )
+            if hasattr(self, '_pbar'):
+                self._pbar.update(
+                    self._s_task,
+                    advance=1,
+                    total_size=str(
+                        filesize.decimal(
+                            int(os.environ.get('JINA_GRPC_SEND_BYTES', '0'))
+                        )
+                    ),
+                )
 
     def _get_post_payload(self, content, kwargs):
         return dict(
             on='/',
             inputs=self._iter_doc(content),
             request_size=kwargs.get('batch_size', 8),
-            total_docs=len(content) if hasattr(content, '__len__') else None,
+            total_docs=len(content) if hasattr(content, '__len__') else 500,
         )
 
     def profile(self, content: Optional[str] = '') -> Dict[str, float]:
