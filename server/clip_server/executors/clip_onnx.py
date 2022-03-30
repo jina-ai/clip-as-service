@@ -68,9 +68,7 @@ class CLIPEncoder(Executor):
                 batch_size=self._minibatch_size,
                 num_worker=self._num_worker_preprocess,
             ):
-                minibatch.embeddings = (
-                    self._model.encode_image(minibatch.tensors).cpu().numpy()
-                )
+                minibatch.embeddings = self._model.encode_image(minibatch.tensors)
 
         # for text
         if _txt_da:
@@ -79,9 +77,7 @@ class CLIPEncoder(Executor):
                 batch_size=self._minibatch_size,
                 num_worker=self._num_worker_preprocess,
             ):
-                minibatch.embeddings = (
-                    self._model.encode_text(minibatch.tensors).cpu().numpy()
-                )
+                minibatch.embeddings = self._model.encode_text(minibatch.tensors)
                 minibatch.texts = _texts
 
         # drop tensors
