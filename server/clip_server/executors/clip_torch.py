@@ -37,7 +37,7 @@ class CLIPEncoder(Executor):
 
     def _preproc_text(self, da: 'DocumentArray') -> Tuple['DocumentArray', List[str]]:
         texts = da.texts
-        da.tensors = clip.tokenize(da.texts).to(self._device)
+        da.tensors = clip.tokenize(texts).to(self._device)
         da[:, 'mime_type'] = 'text'
         return da, texts
 
