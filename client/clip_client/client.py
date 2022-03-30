@@ -267,7 +267,7 @@ class Client:
 
         self._prepare_streaming(
             not kwargs.get('show_progress'),
-            total=len(content) if hasattr(content, '__len__') else None,
+            total=len(content) if hasattr(content, '__len__') else 500,
         )
 
         async for da in self._async_client.post(
