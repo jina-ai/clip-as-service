@@ -164,11 +164,13 @@ executors:
 
 For PyTorch backend, you can set the following parameters via `with`:
 
-| Parameter | Description                                                                       |
-|-----------|-----------------------------------------------------------------------------------|
-| `name`    | Model weights, default is `ViT-B/32`. Support all OpenAI released pretrained models |
-| `device`  | `cuda` or `cpu`. Default is `None` means auto-detect                              |
-| `jit` | If to enable Torchscript JIT, default is `False`| 
+| Parameter | Description                                                                                                                    |
+|-----------|--------------------------------------------------------------------------------------------------------------------------------|
+| `name`    | Model weights, default is `ViT-B/32`. Support all OpenAI released pretrained models.                                           |
+| `device`  | `cuda` or `cpu`. Default is `None` means auto-detect.                                                                          |
+| `jit` | If to enable Torchscript JIT, default is `False`.                                                                              | 
+| `num_worker_preprocess` | The number of CPU workers for image & text prerpocessing, default 4.                                                           | 
+| `minibatch_size` | The size of a minibatch for CPU preprocessing and GPU encoding, default 64. Reduce the size of it if you encounter OOM on GPU. | 
 
 
 For ONNX backend, you can set the following parameters:
@@ -177,6 +179,8 @@ For ONNX backend, you can set the following parameters:
 |-----------|---------------------------------------------------------------------------------------------------|
 | `name`    | Model name, default is `ViT-B/32`.                                                                |
 | `providers`  | [ONNX runtime provides](https://onnxruntime.ai/docs/execution-providers/), default is auto-detect |
+| `num_worker_preprocess` | The number of CPU workers for image & text prerpocessing, default 4.                                                           | 
+| `minibatch_size` | The size of a minibatch for CPU preprocessing and GPU encoding, default 64. Reduce the size of it if you encounter OOM on GPU. | 
 
 For example, to turn on JIT and force PyTorch running on CPU, one can do:
 

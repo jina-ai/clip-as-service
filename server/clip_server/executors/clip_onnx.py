@@ -1,6 +1,6 @@
 import io
 import os
-from typing import TYPE_CHECKING, List, Sequence
+from typing import TYPE_CHECKING, List, Sequence, Tuple
 
 import torch
 from PIL import Image
@@ -33,22 +33,28 @@ class CLIPEncoder(Executor):
             'CUDAExecutionProvider',
             'CPUExecutionProvider',
         ),
+        num_worker_preprocess: int = 4,
+        minibatch_size: int = 64,
         **kwargs
     ):
         super().__init__(**kwargs)
         self._preprocess = clip._transform(_SIZE[name])
         self._model = CLIPOnnxModel(name)
+        self._num_worker_preprocess = num_worker_preprocess
+        self._minibatch_size = minibatch_size
         self._model.start_sessions(providers=providers)
 
-    def _preproc_image(self, d: 'Document'):
-        d.tensor = self._preprocess(Image.open(io.BytesIO(d.blob))).cpu().numpy()
-        return d
+    def _preproc_image(self, da: 'DocumentArray') -> 'DocumentArray':
+        for d in da:
+            d.tensor = self._preprocess(Image.open(io.BytesIO(d.blob)))
+        da.tensors = da.tensors.cpu().numpy()
+        return da
 
-    def _preproc_text(self, da: 'DocumentArray') -> List[str]:
+    def _preproc_text(self, da: 'DocumentArray') -> Tuple['DocumentArray', List[str]]:
         texts = da.texts
-        da.tensors = clip.tokenize(da.texts).cpu().numpy()
+        da.tensors = clip.tokenize(texts).cpu().numpy()
         da[:, 'mime_type'] = 'text'
-        return texts
+        return da, texts
 
     @requests
     async def encode(self, docs: 'DocumentArray', **kwargs):
@@ -57,14 +63,26 @@ class CLIPEncoder(Executor):
 
         # for image
         if _img_da:
-            _img_da.apply(self._preproc_image)
-            _img_da.embeddings = self._model.encode_image(_img_da.tensors)
+            for minibatch in _img_da.map_batch(
+                self._preproc_image,
+                batch_size=self._minibatch_size,
+                num_worker=self._num_worker_preprocess,
+            ):
+                minibatch.embeddings = (
+                    self._model.encode_image(minibatch.tensors).cpu().numpy()
+                )
 
         # for text
         if _txt_da:
-            texts = self._preproc_text(_txt_da)
-            _txt_da.embeddings = self._model.encode_text(_txt_da.tensors)
-            _txt_da.texts = texts
+            for minibatch, _texts in _txt_da.map_batch(
+                self._preproc_text,
+                batch_size=self._minibatch_size,
+                num_worker=self._num_worker_preprocess,
+            ):
+                minibatch.embeddings = (
+                    self._model.encode_text(minibatch.tensors).cpu().numpy()
+                )
+                minibatch.texts = _texts
 
         # drop tensors
         docs.tensors = None
