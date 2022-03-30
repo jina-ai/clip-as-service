@@ -13,6 +13,7 @@
 
 
 
+
 <a name=release-note-0-0-3></a>
 ## Release Note (`0.0.3`)
 
@@ -278,4 +279,25 @@
 
  - [[```dd61bdce```](https://github.com/jina-ai/clip-as-service/commit/dd61bdce6f6e908a6a583106d1c51ca5725b1ad4)] __-__ update readme (*Han Xiao*)
  - [[```be5fff81```](https://github.com/jina-ai/clip-as-service/commit/be5fff8129628d069e8d2992705f5f8b4681e040)] __-__ __version__: the next version will be 0.1.8 (*Jina Dev Bot*)
+
+<a name=release-note-0-1-9></a>
+## Release Note (`0.1.9`)
+
+> Release time: 2022-03-30 23:20:09
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Han Xiao,  Jina Dev Bot,  🙇
+
+
+### ⚡ Performance Improvements
+
+ - [[```88123432```](https://github.com/jina-ai/clip-as-service/commit/8812343211701fd93b75dab9f5b86bd5bc9e6819)] __-__ __server__: use map_batch to overlap cpu gpu (#669) (*Han Xiao*)
+
+### 🍹 Other Improvements
+
+ - [[```41b93773```](https://github.com/jina-ai/clip-as-service/commit/41b937732a4f241e22ef9089071e9c7b611a6674)] __-__ fix readme (*Han Xiao*)
+ - [[```da3227d3```](https://github.com/jina-ai/clip-as-service/commit/da3227d3b3df984a2816dbea283c209020b0815a)] __-__ update readme (*Han Xiao*)
+ - [[```431d4635```](https://github.com/jina-ai/clip-as-service/commit/431d46353c3382ff954fc05bc8397f3e560a7ac7)] __-__ __version__: the next version will be 0.1.9 (*Jina Dev Bot*)
 
