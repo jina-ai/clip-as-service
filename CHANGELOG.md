@@ -12,6 +12,7 @@
 
 
 
+
 <a name=release-note-0-0-3></a>
 ## Release Note (`0.0.3`)
 
@@ -253,4 +254,28 @@
 
  - [[```9e276744```](https://github.com/jina-ai/clip-as-service/commit/9e27674447d041c21078082478acc234d5c0e3f7)] __-__ fix readme (*Han Xiao*)
  - [[```1c2de8da```](https://github.com/jina-ai/clip-as-service/commit/1c2de8da0ac3cfa7fa7304f6c55b4979747f22a5)] __-__ __version__: the next version will be 0.1.7 (*Jina Dev Bot*)
+
+<a name=release-note-0-1-8></a>
+## Release Note (`0.1.8`)
+
+> Release time: 2022-03-30 14:30:36
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Han Xiao,  Jina Dev Bot,  🙇
+
+
+### 🆕 New Features
+
+ - [[```d56b1463```](https://github.com/jina-ai/clip-as-service/commit/d56b146392c16d7f917b3a6baeba9d6b77121249)] __-__ __client__: more comprehensive progressbar (#667) (*Han Xiao*)
+
+### 🧼 Code Refactoring
+
+ - [[```065d6a91```](https://github.com/jina-ai/clip-as-service/commit/065d6a910e44a31718463a51ba0e3c29ca926d1c)] __-__ __client__: use docarray pbar (#668) (*Han Xiao*)
+
+### 🍹 Other Improvements
+
+ - [[```dd61bdce```](https://github.com/jina-ai/clip-as-service/commit/dd61bdce6f6e908a6a583106d1c51ca5725b1ad4)] __-__ update readme (*Han Xiao*)
+ - [[```be5fff81```](https://github.com/jina-ai/clip-as-service/commit/be5fff8129628d069e8d2992705f5f8b4681e040)] __-__ __version__: the next version will be 0.1.8 (*Jina Dev Bot*)
 
