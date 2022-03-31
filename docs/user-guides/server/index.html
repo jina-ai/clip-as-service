@@ -10,13 +10,13 @@
   
 <meta property="og:url" content="https://clip-as-service.jina.ai/user-guides/server/" />
   
-<meta property="og:site_name" content="CLIP-as-service 0.1.9 Documentation" />
+<meta property="og:site_name" content="CLIP-as-service 0.1.10 Documentation" />
   
 <meta property="og:description" content="CLIP-as-service is designed in a client-server architecture. A server is a long-running program that receives raw sentences and images from clients, and returns CLIP embeddings to the client. Additionally, clip_server is optimized for speed, low memory footprint and scalability. Horizontal scalin..." />
   
 <meta property="og:image" content="https://clip-as-service.jina.ai/_images/server-start.gif" />
   
-<meta property="og:image:alt" content="CLIP-as-service 0.1.9 Documentation" />
+<meta property="og:image:alt" content="CLIP-as-service 0.1.10 Documentation" />
   
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@JinaAI_">
@@ -38,7 +38,7 @@
     <link rel="index" title="Index" href="../../genindex/" /><link rel="search" title="Search" href="../../search/" /><link rel="next" title="FAQ" href="../faq/" /><link rel="prev" title="Client API" href="../client/" />
 
     <link rel="shortcut icon" href="../../_static/favicon.png"/><meta name="generator" content="sphinx-4.5.0, furo 2022.03.04"/>
-        <title>Server API - CLIP-as-service 0.1.9 documentation</title>
+        <title>Server API - CLIP-as-service 0.1.10 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=935aa2abcc5c1da4283d1dc201fb1f0add16d23a" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -169,7 +169,7 @@
         </div>
         <div class="header-center">
             <a href="../../">
-                <div class="brand">CLIP-as-service 0.1.9 documentation</div>
+                <div class="brand">CLIP-as-service 0.1.10 documentation</div>
             </a>
         </div>
         <div class="header-right">
@@ -416,7 +416,7 @@ python -m clip_server onnx_flow.yml
 </div>
 <section id="clip-model-config">
 <h3>CLIP model config<a class="headerlink" href="#clip-model-config" title="Permalink to this headline">#</a></h3>
-<p>For PyTorch backend, you can set the following parameters via <code class="docutils literal notranslate"><span class="pre">with</span></code>:</p>
+<p>For PyTorch &amp; ONNX backend, you can set the following parameters via <code class="docutils literal notranslate"><span class="pre">with</span></code>:</p>
 <div class="table-wrapper"><table border="1" class="docutils">
 <thead>
 <tr>
@@ -430,14 +430,6 @@ python -m clip_server onnx_flow.yml
 <td>Model weights, default is <code>ViT-B/32</code>. Support all OpenAI released pretrained models.</td>
 </tr>
 <tr>
-<td><code>device</code></td>
-<td><code>cuda</code> or <code>cpu</code>. Default is <code>None</code> means auto-detect.</td>
-</tr>
-<tr>
-<td><code>jit</code></td>
-<td>If to enable Torchscript JIT, default is <code>False</code>.</td>
-</tr>
-<tr>
 <td><code>num_worker_preprocess</code></td>
 <td>The number of CPU workers for image &amp; text prerpocessing, default 4.</td>
 </tr>
@@ -445,9 +437,15 @@ python -m clip_server onnx_flow.yml
 <td><code>minibatch_size</code></td>
 <td>The size of a minibatch for CPU preprocessing and GPU encoding, default 64. Reduce the size of it if you encounter OOM on GPU.</td>
 </tr>
+<tr>
+<td><code>pool_backend</code></td>
+<td>The backend of the preprocessing worker pool, default is <code>thread</code></td>
+</tr>
 </tbody>
 </table></div>
-<p>For ONNX backend, you can set the following parameters:</p>
+<p>There are also runtime-specific parameters listed below:</p>
+<div class="tab-set docutils">
+<input checked="True" class="tab-input" id="tab-set--2-input--1" name="tab-set--2" type="radio"/><label class="tab-label" for="tab-set--2-input--1">PyTorch</label><div class="tab-content docutils">
 <div class="table-wrapper"><table border="1" class="docutils">
 <thead>
 <tr>
@@ -457,23 +455,33 @@ python -m clip_server onnx_flow.yml
 </thead>
 <tbody>
 <tr>
-<td><code>name</code></td>
-<td>Model name, default is <code>ViT-B/32</code>.</td>
+<td><code>device</code></td>
+<td><code>cuda</code> or <code>cpu</code>. Default is <code>None</code> means auto-detect.</td>
 </tr>
+<tr>
+<td><code>jit</code></td>
+<td>If to enable Torchscript JIT, default is <code>False</code>.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<input class="tab-input" id="tab-set--2-input--2" name="tab-set--2" type="radio"/><label class="tab-label" for="tab-set--2-input--2">ONNX</label><div class="tab-content docutils">
+<div class="table-wrapper"><table border="1" class="docutils">
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
 <tr>
 <td><code>providers</code></td>
 <td><a href="https://onnxruntime.ai/docs/execution-providers/">ONNX runtime provides</a>, default is auto-detect</td>
 </tr>
-<tr>
-<td><code>num_worker_preprocess</code></td>
-<td>The number of CPU workers for image &amp; text prerpocessing, default 4.</td>
-</tr>
-<tr>
-<td><code>minibatch_size</code></td>
-<td>The size of a minibatch for CPU preprocessing and GPU encoding, default 64. Reduce the size of it if you encounter OOM on GPU.</td>
-</tr>
 </tbody>
 </table></div>
+</div>
+</div>
 <p>For example, to turn on JIT and force PyTorch running on CPU, one can do:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">jtype</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Flow</span><span class="w"></span>
 <span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">'1'</span><span class="w"></span>
@@ -608,7 +616,7 @@ python -m clip_server onnx_flow.yml
                             <a href="https://jina.ai">Copyright &#169; Jina AI Limited. All rights reserved.</a>
                         </div>
                         <div class="last-updated">
-                            Last updated on Mar 30, 2022.
+                            Last updated on Mar 31, 2022.
                         </div>
                     </div>
                     <div class="right-details">
