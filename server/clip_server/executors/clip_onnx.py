@@ -1,16 +1,12 @@
 import io
-import os
-from typing import TYPE_CHECKING, List, Sequence, Tuple
+from multiprocessing.pool import ThreadPool, Pool
+from typing import List, Sequence, Tuple
 
-import torch
 from PIL import Image
-from jina import Executor, requests
+from jina import Executor, requests, DocumentArray
 
 from clip_server.model import clip
 from clip_server.model.clip_onnx import CLIPOnnxModel
-
-if TYPE_CHECKING:
-    from docarray import DocumentArray, Document
 
 _SIZE = {
     'RN50': 224,
@@ -35,12 +31,16 @@ class CLIPEncoder(Executor):
         ),
         num_worker_preprocess: int = 4,
         minibatch_size: int = 64,
+        pool_backend: str = 'thread',
         **kwargs
     ):
         super().__init__(**kwargs)
         self._preprocess = clip._transform(_SIZE[name])
         self._model = CLIPOnnxModel(name)
-        self._num_worker_preprocess = num_worker_preprocess
+        if pool_backend == 'thread':
+            self._pool = ThreadPool(processes=num_worker_preprocess)
+        else:
+            self._pool = Pool(processes=num_worker_preprocess)
         self._minibatch_size = minibatch_size
         self._model.start_sessions(providers=providers)
 
@@ -64,18 +64,14 @@ class CLIPEncoder(Executor):
         # for image
         if _img_da:
             for minibatch in _img_da.map_batch(
-                self._preproc_image,
-                batch_size=self._minibatch_size,
-                num_worker=self._num_worker_preprocess,
+                self._preproc_image, batch_size=self._minibatch_size, pool=self._pool
             ):
                 minibatch.embeddings = self._model.encode_image(minibatch.tensors)
 
         # for text
         if _txt_da:
             for minibatch, _texts in _txt_da.map_batch(
-                self._preproc_text,
-                batch_size=self._minibatch_size,
-                num_worker=self._num_worker_preprocess,
+                self._preproc_text, batch_size=self._minibatch_size, pool=self._pool
             ):
                 minibatch.embeddings = self._model.encode_text(minibatch.tensors)
                 minibatch.texts = _texts
