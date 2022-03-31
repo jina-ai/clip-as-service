@@ -41,7 +41,14 @@ setup(
     long_description_content_type='text/markdown',
     zip_safe=False,
     setup_requires=['setuptools>=18.0', 'wheel'],
-    install_requires=['ftfy', 'torch', 'regex', 'torchvision', 'jina>=3.2.10'],
+    install_requires=[
+        'ftfy',
+        'torch',
+        'regex',
+        'torchvision',
+        'jina>=3.2.10',
+        'docarray>=0.11.0',
+    ],
     extras_require={
         'onnx': ['onnxruntime', 'onnx', 'onnxruntime-gpu'],
     },

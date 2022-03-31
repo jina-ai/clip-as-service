@@ -1,13 +1,12 @@
 import io
-from typing import TYPE_CHECKING, Optional, List, Tuple
+from multiprocessing.pool import ThreadPool, Pool
+from typing import Optional, List, Tuple
 
 import torch
 from PIL import Image
-from clip_server.model import clip
-from jina import Executor, requests
+from jina import Executor, requests, DocumentArray
 
-if TYPE_CHECKING:
-    from docarray import DocumentArray
+from clip_server.model import clip
 
 
 class CLIPEncoder(Executor):
@@ -18,6 +17,7 @@ class CLIPEncoder(Executor):
         jit: bool = False,
         num_worker_preprocess: int = 4,
         minibatch_size: int = 64,
+        pool_backend: str = 'thread',
         **kwargs
     ):
         super().__init__(**kwargs)
@@ -25,9 +25,12 @@ class CLIPEncoder(Executor):
             self._device = 'cuda' if torch.cuda.is_available() else 'cpu'
         else:
             self._device = device
-        self._num_worker_preprocess = num_worker_preprocess
         self._minibatch_size = minibatch_size
         self._model, self._preprocess = clip.load(name, device=self._device, jit=jit)
+        if pool_backend == 'thread':
+            self._pool = ThreadPool(processes=num_worker_preprocess)
+        else:
+            self._pool = Pool(processes=num_worker_preprocess)
 
     def _preproc_image(self, da: 'DocumentArray') -> 'DocumentArray':
         for d in da:
@@ -52,7 +55,7 @@ class CLIPEncoder(Executor):
                 for minibatch in _img_da.map_batch(
                     self._preproc_image,
                     batch_size=self._minibatch_size,
-                    num_worker=self._num_worker_preprocess,
+                    pool=self._pool,
                 ):
                     minibatch.embeddings = (
                         self._model.encode_image(minibatch.tensors).cpu().numpy()
@@ -63,7 +66,7 @@ class CLIPEncoder(Executor):
                 for minibatch, _texts in _txt_da.map_batch(
                     self._preproc_text,
                     batch_size=self._minibatch_size,
-                    num_worker=self._num_worker_preprocess,
+                    pool=self._pool,
                 ):
                     minibatch.embeddings = (
                         self._model.encode_text(minibatch.tensors).cpu().numpy()
