@@ -103,7 +103,7 @@ The explicit comes from now you have to put the string into the Document attribu
 
 ```python
 from clip_client import Client
-from docarray import Document, DocumentArray
+from docarray import Document
 
 c = Client('grpc://0.0.0.0:23456')
 
@@ -287,4 +287,69 @@ c.profile('https://docarray.jina.ai/_static/favicon.png')
 ```
 
 
-Single query latency is often very fluctuated. Running `.profile()` multiple times may give you different results. Nonetheless, it helps you understand who to blame if CLIP-as-service is running slow for you: the network? the computation? But certainly not this software itself.  
+Single query latency is often very fluctuated. Running `.profile()` multiple times may give you different results. Nonetheless, it helps you understand who to blame if CLIP-as-service is running slow for you: the network? the computation? But certainly not this software itself.
+
+
+## Plain HTTP request via `curl`
+
+```{tip}
+Sending large embeddings over plain HTTP is often not the best idea. Websocket is often a better choice, allows one to call clip-server from Javascript with much better performance.   
+```
+
+If your {ref}`server is spawned<flow-config>` with `protocol: http` and `cors: True`, then you do not need to call the server via Python client. You can simply do it via `curl` or Javascript by sending a JSON to `http://address:port/post`. Notice, the `/post` endpoint at the end. For example,
+
+To encode sentences:
+
+```{code-block} bash
+---
+emphasize-lines: 3
+---
+curl -X POST http://demo-cas.jina.ai:51000/post \ 
+     -H 'Content-Type: application/json' \
+     -d '{"data":[{"text": "First do it"}, {"text": "then do it right"}, {"text": "then do it better"}], "execEndpoint":"/"}'
+```
+
+To encode a local image, you need to load it as base64 string and put into the `blob` field, and be careful with the quotes there:
+
+```{code-block} bash
+---
+emphasize-lines: 3
+---
+curl -X POST http://demo-cas.jina.ai:51000/post \ 
+     -H 'Content-Type: application/json' \
+     -d '{"data":[{"text": "First do it"}, {"blob":"'"$( base64 test-1.jpeg)"'" }], "execEndpoint":"/"}'
+```
+
+To encode a remote image, you can simply put its address into `uri` field:
+
+```{code-block} bash
+---
+emphasize-lines: 3
+---
+curl -X POST http://demo-cas.jina.ai:51000/post \ 
+     -H 'Content-Type: application/json' \
+     -d '{"data":[{"text": "First do it"}, {"uri": "https://clip-as-service.jina.ai/_static/favicon.png"}], "execEndpoint":"/"}'
+```
+
+Run it, you will get:
+
+```json
+{"header":{"requestId":"8b1f4b419bc54e95ab4b63cc086233c9","status":null,"execEndpoint":"/","targetExecutor":""},"parameters":null,"routes":[{"executor":"gateway","startTime":"2022-04-01T15:24:28.267003+00:00","endTime":"2022-04-01T15:24:28.328868+00:00","status":null},{"executor":"clip_t","startTime":"2022-04-01T15:24:28.267189+00:00","endTime":"2022-04-01T15:24:28.328748+00:00","status":null}],"data":[{"id":"b15331b8281ffde1e9fb64005af28ffd","parent_id":null,"granularity":null,"adjacency":null,"blob":null,"tensor":null,"mime_type":"text/plain","text":"hello, world!","weight":null,"uri":null,"tags":null,"offset":null,"location":null,"embedding":[-0.022064208984375,0.1044921875, ..., -0.1363525390625,-0.447509765625],"modality":null,"evaluations":null,"scores":null,"chunks":null,"matches":null}]}
+```
+
+The embedding is inside `.data[].embedding`. If you have [jq](https://stedolan.github.io/jq/) installed, you can easily filter the embeddings out via:
+
+```{code-block} bash
+---
+emphasize-lines: 4
+---
+curl -X POST http://demo-cas.jina.ai:51001/post \
+     -H 'Content-Type: application/json' \
+     -d '{"data":[{"text": "hello, world!"}, {"blob":"'"$( base64 test-1.jpeg)"'" }], "execEndpoint":"/"}' | \
+     jq -c '.data[] | .embedding'
+```
+
+```json
+[-0.022064208984375,0.1044921875,...]
+[-0.0750732421875,-0.166015625,...]
+```
