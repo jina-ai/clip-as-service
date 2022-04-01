@@ -15,6 +15,7 @@
 
 
 
+
 <a name=release-note-0-0-3></a>
 ## Release Note (`0.0.3`)
 
@@ -321,4 +322,28 @@
 ### 🍹 Other Improvements
 
  - [[```f0dfc34a```](https://github.com/jina-ai/clip-as-service/commit/f0dfc34adca3c3d7b9879ac518735dd929074e80)] __-__ __version__: the next version will be 0.1.10 (*Jina Dev Bot*)
+
+<a name=release-note-0-1-11></a>
+## Release Note (`0.1.11`)
+
+> Release time: 2022-04-01 15:46:07
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Han Xiao,  Jina Dev Bot,  🙇
+
+
+### ⚡ Performance Improvements
+
+ - [[```962a1b5c```](https://github.com/jina-ai/clip-as-service/commit/962a1b5ce92249d98e4850e0af003d63b95a3f9d)] __-__ __server__: reuse the preprocessing pool (#670) (*Han Xiao*)
+
+### 📗 Documentation
+
+ - [[```257f0393```](https://github.com/jina-ai/clip-as-service/commit/257f03931d28a0d9020a3381495a41df1185fd9c)] __-__ add http endpoint explain (#671) (*Han Xiao*)
+
+### 🍹 Other Improvements
+
+ - [[```2e9e212f```](https://github.com/jina-ai/clip-as-service/commit/2e9e212f0d9501c7d55d0fd8dd82c180a067ca89)] __-__ add demo server (*Han Xiao*)
+ - [[```99133924```](https://github.com/jina-ai/clip-as-service/commit/991339248bb3d7e9b6a741f2cf456f7f8bade154)] __-__ __version__: the next version will be 0.1.11 (*Jina Dev Bot*)
 
