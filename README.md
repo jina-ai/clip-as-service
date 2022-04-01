@@ -110,6 +110,17 @@ c.profile()
 
 You can change `0.0.0.0` to the intranet or public IP address to test the connectivity over private and public network. 
 
+### Demo server
+
+We provide a demo server for you to play with:
+
+```python
+from clip_client import Client
+
+c = Client('grpc://demo-cas.jina.ai:51000')
+
+print(c.encode(['First do it', 'then do it right', 'then do it better']))
+```
 
 ## Get Started
 
