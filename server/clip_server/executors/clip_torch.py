@@ -34,6 +34,9 @@ class CLIPEncoder(Executor):
 
     def _preproc_image(self, da: 'DocumentArray') -> 'DocumentArray':
         for d in da:
+            if not d.blob and d.uri:
+                # in case user uses HTTP protocol and send data via curl not using .blob (base64), but in .uri
+                d.load_uri_to_blob()
             d.tensor = self._preprocess(Image.open(io.BytesIO(d.blob)))
         da.tensors = da.tensors.to(self._device)
         return da
