@@ -31,6 +31,13 @@ CLIP-as-service is a low-latency high-scalability service for embedding images a
 
 <sup>[*] with default config (single replica, PyTorch no JIT) on GeForce RTX 3090. </sup>
 
+## Try it!
+
+```bash
+curl -X POST http://demo-cas.jina.ai:51001/post -H 'Content-Type: application/json' \
+     -d '{"data":[{"text": "hello, world!"}, {"uri": "https://clip-as-service.jina.ai/_static/favicon.png" }], "execEndpoint":"/"}'
+```
+
 <!-- end elevator-pitch -->
 
 ## [Documentation](https://clip-as-service.jina.ai)
