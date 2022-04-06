@@ -51,13 +51,15 @@ class Client:
         if _scheme == 'ws':
             _scheme = 'websocket'  # temp fix for the core
 
-        if _scheme in ('grpc', 'http', 'ws', 'websocket'):
+        if _scheme in ('grpc', 'http', 'websocket'):
             _kwargs = dict(host=r.hostname, port=_port, protocol=_scheme, https=_tls)
 
             from jina import Client
 
             self._client = Client(**_kwargs)
             self._async_client = Client(**_kwargs, asyncio=True)
+        else:
+            raise ValueError(f'{server} is not a valid scheme')
 
     @overload
     def encode(
@@ -191,7 +193,7 @@ class Client:
         )
 
     def profile(self, content: Optional[str] = '') -> Dict[str, float]:
-        """Profiling a single query's roundtrip including network and compuation latency. Results is summarized in a table.
+        """Profiling a single query's roundtrip including network and computation latency. Results is summarized in a table.
 
         :param content: the content to be sent for profiling. By default it sends an empty Document
             that helps you understand the network latency.
