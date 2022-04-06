@@ -12,4 +12,6 @@ for changed_file in $CHANGED_FILES; do
     arrVar+=(${changed_file})
   fi
 done
-black -S --check "${arrVar[@]}"
+if [ ${#arrVar[@]} -ne 0 ]; then
+  black -S --check "${arrVar[@]}"
+fi
