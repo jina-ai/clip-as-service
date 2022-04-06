@@ -13,7 +13,7 @@ def test_protocols(port_generator, protocol, pytestconfig):
 
     if protocol == 'other':
         with pytest.raises(ValueError):
-            Client(server=f'{protocol}://0.0.0.0:{f.port}')
+            Client(server=f'{protocol}://0.0.0.0:8000')
         return
 
     f = Flow(port=port_generator(), protocol=protocol).add(uses=CLIPEncoder)
