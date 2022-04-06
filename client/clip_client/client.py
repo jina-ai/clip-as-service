@@ -58,6 +58,8 @@ class Client:
 
             self._client = Client(**_kwargs)
             self._async_client = Client(**_kwargs, asyncio=True)
+        else:
+            raise ValueError(f'{server} is not a valid scheme')
 
     @overload
     def encode(
