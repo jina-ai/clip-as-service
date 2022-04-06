@@ -11,13 +11,13 @@ from clip_client.client import Client
 def test_protocols(port_generator, protocol, pytestconfig):
     from clip_server.executors.clip_torch import CLIPEncoder
 
+    if protocol == 'other':
+        with pytest.raises(ValueError):
+            Client(server=f'{protocol}://0.0.0.0:{f.port}')
+        return
+
     f = Flow(port=port_generator(), protocol=protocol).add(uses=CLIPEncoder)
     with f:
-        if protocol == 'other':
-            with pytest.raises(ValueError):
-                Client(server=f'{protocol}://0.0.0.0:{f.port}')
-            return
-
         c = Client(server=f'{protocol}://0.0.0.0:{f.port}')
         c.profile()
         c.profile(content='hello world')
