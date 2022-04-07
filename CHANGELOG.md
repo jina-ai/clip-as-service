@@ -16,6 +16,7 @@
 
 
 
+
 <a name=release-note-0-0-3></a>
 ## Release Note (`0.0.3`)
 
@@ -346,4 +347,32 @@
 
  - [[```2e9e212f```](https://github.com/jina-ai/clip-as-service/commit/2e9e212f0d9501c7d55d0fd8dd82c180a067ca89)] __-__ add demo server (*Han Xiao*)
  - [[```99133924```](https://github.com/jina-ai/clip-as-service/commit/991339248bb3d7e9b6a741f2cf456f7f8bade154)] __-__ __version__: the next version will be 0.1.11 (*Jina Dev Bot*)
+
+<a name=release-note-0-1-12></a>
+## Release Note (`0.1.12`)
+
+> Release time: 2022-04-07 02:20:52
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ felix-wang,  samsja,  Han Xiao,  Jina Dev Bot,  🙇
+
+
+### 🆕 New Features
+
+ - [[```ffc4bdc4```](https://github.com/jina-ai/clip-as-service/commit/ffc4bdc4e2414fa0aff67bb5cbaffd4077a7c8f4)] __-__ gitignore (#673) (*samsja*)
+
+### 🐞 Bug fixes
+
+ - [[```aeb64c08```](https://github.com/jina-ai/clip-as-service/commit/aeb64c082d4819ab9330ba65f57f13ba2a868268)] __-__ ignore onnxruntime-gpu on macos (#675) (*felix-wang*)
+
+### 📗 Documentation
+
+ - [[```257f0393```](https://github.com/jina-ai/clip-as-service/commit/257f03931d28a0d9020a3381495a41df1185fd9c)] __-__ add http endpoint explain (#671) (*Han Xiao*)
+
+### 🍹 Other Improvements
+
+ - [[```e2b2ae8b```](https://github.com/jina-ai/clip-as-service/commit/e2b2ae8bb96ce8602f9808c01e9a1712b7cdf7ac)] __-__ update readme (*Han Xiao*)
+ - [[```d7aa1615```](https://github.com/jina-ai/clip-as-service/commit/d7aa161503ed72e662f8efe477af702e8759375e)] __-__ __version__: the next version will be 0.1.12 (*Jina Dev Bot*)
 
