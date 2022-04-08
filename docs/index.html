@@ -10,13 +10,13 @@
   
 <meta property="og:url" content="https://clip-as-service.jina.ai/index/" />
   
-<meta property="og:site_name" content="CLIP-as-service 0.1.12 Documentation" />
+<meta property="og:site_name" content="CLIP-as-service 0.1.13 Documentation" />
   
 <meta property="og:description" content="CLIP-as-service is a low-latency high-scalability service for embedding images and text. It can be easily integrated as a microservice into neural search solutions. ⚡ Fast: Serve CLIP models with ONNX runtime and PyTorch JIT with 800QPS[*]. Non-blocking duplex streaming on requests and responses,..." />
   
 <meta property="og:image" content="https://clip-as-service.jina.ai/_static/banner.png" />
   
-<meta property="og:image:alt" content="CLIP-as-service 0.1.12 Documentation" />
+<meta property="og:image:alt" content="CLIP-as-service 0.1.13 Documentation" />
   
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@JinaAI_">
@@ -36,15 +36,16 @@
 
 <script async defer src="https://buttons.github.io/buttons.js"></script>
     <link rel="index" title="Index" href="genindex/" /><link rel="search" title="Search" href="search/" /><link rel="next" title="Client API" href="user-guides/client/" />
+        <link rel="canonical" href="https://clip-as-service.jina.ai/index.html" />
 
-    <link rel="shortcut icon" href="_static/favicon.png"/><meta name="generator" content="sphinx-4.5.0, furo 2022.03.04"/>
-        <title>CLIP-as-service 0.1.12 documentation</title>
+    <link rel="shortcut icon" href="_static/favicon.png"/><meta name="generator" content="sphinx-4.5.0, furo 2022.04.07"/>
+        <title>CLIP-as-service 0.1.13 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=935aa2abcc5c1da4283d1dc201fb1f0add16d23a" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
     <link rel="stylesheet" type="text/css" href="_static/tabs.css" />
     <link rel="stylesheet" type="text/css" href="_static/design-style.59c74d8c95b765a7fd995ac71d459ebe.min.css" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=25ceb02ed1c46dc30f2321ff83e92799f69dfdb9" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
     <link rel="stylesheet" type="text/css" href="_static/main.css" />
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta2/css/all.min.css" />
     
@@ -79,10 +80,12 @@
   }
 </style></head>
   <body>
+    
     <script>
       document.body.dataset.theme = localStorage.getItem("theme") || "auto";
     </script>
     
+
 <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
   <symbol id="svg-toc" viewBox="0 0 24 24">
     <title>Contents</title>
@@ -156,7 +159,7 @@
 
 
 <div class="page">
-    <header class="mobile-header" id="mobile-header">
+    <header class="mobile-header">
         <div class="header-left">
             <label class="nav-overlay-icon" for="__navigation">
                 <div class="visually-hidden">Toggle site navigation sidebar</div>
@@ -169,7 +172,7 @@
         </div>
         <div class="header-center">
             <a href="#">
-                <div class="brand">CLIP-as-service 0.1.12 documentation</div>
+                <div class="brand">CLIP-as-service 0.1.13 documentation</div>
             </a>
         </div>
         <div class="header-right">
@@ -197,7 +200,7 @@
             </label>
         </div>
     </header>
-    <aside class="sidebar-drawer" id="sidebar-drawer">
+    <aside class="sidebar-drawer">
         <div class="sidebar-container">
             
             <div class="sidebar-sticky"><a class="sidebar-brand" href="#">
@@ -266,9 +269,14 @@
     </aside>
     <div class="main">
         <div class="content">
-            <article role="main">
-                <div class="content-icon-container">
-                    <div class="theme-toggle-container theme-toggle-content">
+            <div class="article-container">
+                <a href="#" class="back-to-top muted-link">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+                    </svg>
+                    <span>Back to top</span>
+                </a>
+                <div class="content-icon-container"><div class="theme-toggle-container theme-toggle-content">
                         <button class="theme-toggle">
                             <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
                             <svg class="theme-icon-when-auto">
@@ -292,7 +300,8 @@
                         </i>
                     </label>
                 </div>
-                <section class="tex2jax_ignore mathjax_ignore" id="welcome-to-clip-as-service">
+                <article role="main">
+                    <section class="tex2jax_ignore mathjax_ignore" id="welcome-to-clip-as-service">
 <h1>Welcome to CLIP-as-service!<a class="headerlink" href="#welcome-to-clip-as-service" title="Permalink to this headline">#</a></h1>
 <p>CLIP-as-service is a low-latency high-scalability service for embedding images and text. It can be easily integrated as a microservice into neural search solutions.</p>
 <p>⚡ <strong>Fast</strong>: Serve CLIP models with ONNX runtime and PyTorch JIT with 800QPS<sup>[*]</sup>. Non-blocking duplex streaming on requests and responses, designed for large data and long-running tasks.</p>
@@ -414,7 +423,8 @@ and <a class="reference external" href="https://youtube.com/c/jina-ai">live stre
 </section>
 </section>
 
-            </article>
+                </article>
+            </div>
             <footer>
                 
                 <div class="related-pages">
@@ -431,16 +441,12 @@ and <a class="reference external" href="https://youtube.com/c/jina-ai">live stre
                     </a>
                     
                 </div>
-
                 <div class="bottom-of-page">
-
                     <div class="left-details">
                         <div class="copyright">
-                            <a href="https://jina.ai">Copyright &#169; Jina AI Limited. All rights reserved.</a>
-                        </div>
-                        <div class="last-updated">
-                            Last updated on Apr 07, 2022.
-                        </div>
+                            Copyright &#169; Jina AI Limited. All rights reserved.
+                        </div><div class="last-updated">
+                            Last updated on Apr 08, 2022</div>
                     </div>
                     <div class="right-details">
                         <div class="social-btns">
@@ -460,11 +466,10 @@ and <a class="reference external" href="https://youtube.com/c/jina-ai">live stre
                 
             </footer>
         </div>
-        <aside class="toc-drawer" id="toc-drawer">
+        <aside class="toc-drawer">
             
-
+            
             <div class="toc-sticky toc-scroll">
-                
                 <div class="toc-title-container">
           <span class="toc-title">
             Contents
@@ -491,15 +496,14 @@ and <a class="reference external" href="https://youtube.com/c/jina-ai">live stre
 
                     </div>
                 </div>
-                
             </div>
-
+            
             
         </aside>
-
     </div>
 </div>
-<img referrerpolicy="no-referrer-when-downgrade" src="https://static.scarf.sh/a.png?x-pxid=54c1ac2c-37ee-49bd-897e-45901a6847a6" /><script data-url_root="#" id="documentation_options" src="_static/documentation_options.js"></script>
+<img referrerpolicy="no-referrer-when-downgrade"
+     src="https://static.scarf.sh/a.png?x-pxid=2823e771-0e1e-4320-8fde-48bc48e53262"/><script data-url_root="#" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
