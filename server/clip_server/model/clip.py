@@ -92,11 +92,11 @@ def _convert_image_to_rgb(image):
     return image.convert('RGB')
 
 
-def _blob2image(x):
-    return Image.open(io.BytesIO(x))
+def _blob2image(blob):
+    return Image.open(io.BytesIO(blob))
 
 
-def _transform_image(n_px):
+def _transform_blob(n_px):
     return Compose(
         [
             _blob2image,
@@ -192,7 +192,7 @@ def load(
             model.float()
         return (
             model,
-            _transform_image(model.visual.input_resolution),
+            _transform_blob(model.visual.input_resolution),
             _transform_ndarray(model.visual.input_resolution),
         )
 
@@ -261,7 +261,7 @@ def load(
 
     return (
         model,
-        _transform_image(model.input_resolution.item()),
+        _transform_blob(model.input_resolution.item()),
         _transform_ndarray(model.input_resolution.item()),
     )
 

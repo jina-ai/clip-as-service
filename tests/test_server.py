@@ -1,7 +1,7 @@
 import os
 
 import pytest
-from clip_server.model.clip import _transform_ndarray, _transform_image
+from clip_server.model.clip import _transform_ndarray, _transform_blob
 from docarray import Document
 
 
@@ -19,6 +19,6 @@ def test_server_preprocess_ndarray_image(image_uri, size):
     d2 = Document(uri=image_uri)
     d2.load_uri_to_image_tensor()
 
-    t1 = _transform_image(size)(d1.blob).numpy()
+    t1 = _transform_blob(size)(d1.blob).numpy()
     t2 = _transform_ndarray(size)(d2.tensor).numpy()
     assert t1.shape == t2.shape
