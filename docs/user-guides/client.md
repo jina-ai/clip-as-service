@@ -96,7 +96,9 @@ This feature uses [DocArray](https://docarray.jina.ai), which is installed toget
 
 If auto-detection on a list of raw string is too "sci-fi" to you, then you may use `docarray.Document` to make the input more explicit and organized. `Document` can be used as a container to easily represent a sentence or an image.
 
-- Input: each Document must be filled with `.text` or `.uri` or `.blob` attribute. Document filled with `.text` is considered as sentence, Document filled with `.uri` or `.blob` is considered as image.
+- Input: each Document must be filled with `.text` or `.uri` or `.blob` or `.tensor` attribute. 
+  - Document filled with `.text` is considered as sentence;
+  - Document filled with `.uri` or `.blob` or `.tensor` is considered as image. If `.tensor` is filled, then its shape must be in `[H, W, C]` format.
 - Output: a `DocumentArray` of the same input length. Each Document in it is now filled with `.embedding` attribute.
 
 The explicit comes from now you have to put the string into the Document attributes. For example, we can rewrite the above example as below:
