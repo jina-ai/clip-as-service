@@ -26,7 +26,9 @@ class CLIPEncoder(Executor):
         else:
             self._device = device
         self._minibatch_size = minibatch_size
-        self._model, self._preprocess = clip.load(name, device=self._device, jit=jit)
+        self._model, self._preprocess_image, self._preprocess_tensor = clip.load(
+            name, device=self._device, jit=jit
+        )
         if pool_backend == 'thread':
             self._pool = ThreadPool(processes=num_worker_preprocess)
         else:
@@ -34,10 +36,13 @@ class CLIPEncoder(Executor):
 
     def _preproc_image(self, da: 'DocumentArray') -> 'DocumentArray':
         for d in da:
-            if not d.blob and d.uri:
-                # in case user uses HTTP protocol and send data via curl not using .blob (base64), but in .uri
-                d.load_uri_to_blob()
-            d.tensor = self._preprocess(Image.open(io.BytesIO(d.blob)))
+            if d.tensor is not None:
+                d.tensor = self._preprocess_tensor(d.tensor)
+            else:
+                if not d.blob and d.uri:
+                    # in case user uses HTTP protocol and send data via curl not using .blob (base64), but in .uri
+                    d.load_uri_to_blob()
+                d.tensor = self._preprocess_image(Image.open(io.BytesIO(d.blob)))
         da.tensors = da.tensors.to(self._device)
         return da
 
