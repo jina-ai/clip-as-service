@@ -168,6 +168,8 @@ class Client:
                     c.load_uri_to_blob()
                     self._return_plain = False
                     yield c
+                elif c.tensor is not None:
+                    yield c
                 else:
                     raise TypeError(f'unsupported input type {c!r} {c.content_type}')
             else:

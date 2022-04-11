@@ -1,6 +1,7 @@
 # Originally from https://github.com/openai/CLIP. MIT License, Copyright (c) 2021 OpenAI
 
 import os
+import io
 import urllib
 import warnings
 from typing import Union, List
@@ -91,13 +92,32 @@ def _convert_image_to_rgb(image):
     return image.convert('RGB')
 
 
-def _transform(n_px):
+def _blob2image(blob):
+    return Image.open(io.BytesIO(blob))
+
+
+def _transform_blob(n_px):
     return Compose(
         [
+            _blob2image,
             Resize(n_px, interpolation=BICUBIC),
             CenterCrop(n_px),
             _convert_image_to_rgb,
             ToTensor(),
+            Normalize(
+                (0.48145466, 0.4578275, 0.40821073),
+                (0.26862954, 0.26130258, 0.27577711),
+            ),
+        ]
+    )
+
+
+def _transform_ndarray(n_px):
+    return Compose(
+        [
+            ToTensor(),
+            Resize(n_px, interpolation=BICUBIC),
+            CenterCrop(n_px),
             Normalize(
                 (0.48145466, 0.4578275, 0.40821073),
                 (0.26862954, 0.26130258, 0.27577711),
@@ -170,7 +190,11 @@ def load(
         model = build_model(state_dict or model.state_dict()).to(device)
         if str(device) == 'cpu':
             model.float()
-        return model, _transform(model.visual.input_resolution)
+        return (
+            model,
+            _transform_blob(model.visual.input_resolution),
+            _transform_ndarray(model.visual.input_resolution),
+        )
 
     # patch the device names
     device_holder = torch.jit.trace(
@@ -235,7 +259,11 @@ def load(
 
         model.float()
 
-    return model, _transform(model.input_resolution.item())
+    return (
+        model,
+        _transform_blob(model.input_resolution.item()),
+        _transform_ndarray(model.input_resolution.item()),
+    )
 
 
 def tokenize(

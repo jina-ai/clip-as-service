@@ -56,6 +56,9 @@ def test_plain_inputs(make_flow, inputs, port_generator):
                     uri=f'{os.path.dirname(os.path.abspath(__file__))}/img/00000.jpg'
                 ),
                 Document(text='hello, world'),
+                Document(
+                    uri=f'{os.path.dirname(os.path.abspath(__file__))}/img/00000.jpg'
+                ).load_uri_to_image_tensor(),
             ]
         ),
         DocumentArray.from_files(
