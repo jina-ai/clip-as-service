@@ -1,14 +1,22 @@
 import random
-import threading
 import time
 from typing import Optional
-
+import threading
 import click
 import numpy as np
 from docarray import Document, DocumentArray
 
 
-class BenchmarkClient(object):
+def warn(*args, **kwargs):
+    pass
+
+
+import warnings
+
+warnings.warn = warn
+
+
+class BenchmarkClient(threading.Thread):
     def __init__(
         self,
         server: str,
@@ -32,12 +40,6 @@ class BenchmarkClient(object):
         self.image_sample = image_sample
         self.num_iter = num_iter
         self.avg_time = 0
-
-    def start(self):
-        self.run()
-
-    def join(self):
-        pass
 
     def run(self):
         try:
@@ -81,50 +83,58 @@ class BenchmarkClient(object):
 
 @click.command(name='clip-as-service benchmark')
 @click.argument('server')
-@click.option('--batch_size', default=1, help='number of batch')
 @click.option(
-    '--num_iter', default=50, help='number of repeat run per experiment (must > 2)'
+    '--batch_sizes',
+    multiple=True,
+    type=int,
+    default=[1, 8, 16, 32, 64],
+    help='number of batch',
 )
 @click.option(
-    "--num_clients",
+    '--num_iter', default=10, help='number of repeat run per experiment (must > 2)'
+)
+@click.option(
+    "--concurrent_clients",
     multiple=True,
-    default=[1],
+    type=int,
+    default=[1, 4, 16, 32, 64],
     help='number of concurrent clients per experiment',
 )
 @click.option("--image_sample", help='path to the image sample file')
-def main(server, batch_size, num_iter, num_clients, image_sample):
+def main(server, batch_sizes, num_iter, concurrent_clients, image_sample):
     # wait until the server is ready
-    for num_client in num_clients:
-        all_clients = [
-            BenchmarkClient(
-                server,
-                batch_size=batch_size,
-                num_iter=num_iter,
-                modality='image' if (image_sample is not None) else 'text',
-                image_sample=image_sample,
+    for batch_size in batch_sizes:
+        for num_client in concurrent_clients:
+            all_clients = [
+                BenchmarkClient(
+                    server,
+                    batch_size=batch_size,
+                    num_iter=num_iter,
+                    modality='image' if (image_sample is not None) else 'text',
+                    image_sample=image_sample,
+                )
+                for _ in range(num_client)
+            ]
+
+            for bc in all_clients:
+                bc.start()
+
+            clients_speed = []
+            for bc in all_clients:
+                bc.join()
+                clients_speed.append(batch_size / bc.avg_time)
+
+            max_speed, min_speed, avg_speed = (
+                max(clients_speed),
+                min(clients_speed),
+                np.mean(clients_speed),
             )
-            for _ in range(num_client)
-        ]
 
-        for bc in all_clients:
-            bc.start()
-
-        clients_speed = []
-        for bc in all_clients:
-            bc.join()
-            clients_speed.append(batch_size / bc.avg_time)
-
-        max_speed, min_speed, avg_speed = (
-            max(clients_speed),
-            min(clients_speed),
-            np.mean(clients_speed),
-        )
-
-        print(
-            'avg speed: %.3f\tmax speed: %.3f\tmin speed: %.3f'
-            % (avg_speed, max_speed, min_speed),
-            flush=True,
-        )
+            print(
+                '(concurrent client=%d, batch_size=%d) avg speed: %.3f\tmax speed: %.3f\tmin speed: %.3f'
+                % (num_client, batch_size, avg_speed, max_speed, min_speed),
+                flush=True,
+            )
 
 
 if __name__ == '__main__':
