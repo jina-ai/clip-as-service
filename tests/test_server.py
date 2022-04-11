@@ -3,6 +3,7 @@ import os
 import pytest
 from clip_server.model.clip import _transform_ndarray, _transform_blob
 from docarray import Document
+import numpy as np
 
 
 @pytest.mark.parametrize(
@@ -22,3 +23,16 @@ def test_server_preprocess_ndarray_image(image_uri, size):
     t1 = _transform_blob(size)(d1.blob).numpy()
     t2 = _transform_ndarray(size)(d2.tensor).numpy()
     assert t1.shape == t2.shape
+
+
+@pytest.mark.parametrize(
+    'tensor',
+    [
+        np.random.random([100, 100, 3]),
+        np.random.random([1, 1, 3]),
+        np.random.random([5, 50, 3]),
+    ],
+)
+def test_transform_arbitrary_tensor(tensor):
+    d = Document(tensor=tensor)
+    assert _transform_ndarray(224)(d.tensor).numpy().shape == (3, 224, 224)
