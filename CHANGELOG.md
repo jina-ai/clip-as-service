@@ -17,6 +17,7 @@
 
 
 
+
 <a name=release-note-0-0-3></a>
 ## Release Note (`0.0.3`)
 
@@ -375,4 +376,32 @@
 
  - [[```e2b2ae8b```](https://github.com/jina-ai/clip-as-service/commit/e2b2ae8bb96ce8602f9808c01e9a1712b7cdf7ac)] __-__ update readme (*Han Xiao*)
  - [[```d7aa1615```](https://github.com/jina-ai/clip-as-service/commit/d7aa161503ed72e662f8efe477af702e8759375e)] __-__ __version__: the next version will be 0.1.12 (*Jina Dev Bot*)
+
+<a name=release-note-0-1-13></a>
+## Release Note (`0.1.13`)
+
+> Release time: 2022-04-11 08:02:20
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Han Xiao,  Jina Dev Bot,  felix-wang,  🙇
+
+
+### 🆕 New Features
+
+ - [[```8b800eea```](https://github.com/jina-ai/clip-as-service/commit/8b800eea5d40d02417a4368fcc38ac58dc2d651d)] __-__ __server__: allow client sending tensor document (#678) (*Han Xiao*)
+
+### 🐞 Bug fixes
+
+ - [[```aeb64c08```](https://github.com/jina-ai/clip-as-service/commit/aeb64c082d4819ab9330ba65f57f13ba2a868268)] __-__ ignore onnxruntime-gpu on macos (#675) (*felix-wang*)
+
+### 📗 Documentation
+
+ - [[```b6f9d849```](https://github.com/jina-ai/clip-as-service/commit/b6f9d849e5693d6c40744feebd5d309dbeed1cb3)] __-__ __server__: docs document tensor (#679) (*Han Xiao*)
+
+### 🍹 Other Improvements
+
+ - [[```fa42dc50```](https://github.com/jina-ai/clip-as-service/commit/fa42dc50f6c766c60fe246802ecc8c15e37fbdf4)] __-__ update docs (*Han Xiao*)
+ - [[```c91fa4d1```](https://github.com/jina-ai/clip-as-service/commit/c91fa4d16fd01ba8cc571041919201bbb1a76e31)] __-__ __version__: the next version will be 0.1.13 (*Jina Dev Bot*)
 
