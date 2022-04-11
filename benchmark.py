@@ -8,7 +8,7 @@ import numpy as np
 from docarray import Document, DocumentArray
 
 
-class BenchmarkClient(threading.Thread):
+class BenchmarkClient(object):
     def __init__(
         self,
         server: str,
@@ -32,6 +32,12 @@ class BenchmarkClient(threading.Thread):
         self.image_sample = image_sample
         self.num_iter = num_iter
         self.avg_time = 0
+
+    def start(self):
+        self.run()
+
+    def join(self):
+        pass
 
     def run(self):
         try:
@@ -99,6 +105,7 @@ def main(server, batch_size, num_iter, num_clients, image_sample):
             )
             for _ in range(num_client)
         ]
+
         for bc in all_clients:
             bc.start()
 
@@ -108,13 +115,13 @@ def main(server, batch_size, num_iter, num_clients, image_sample):
             clients_speed.append(batch_size / bc.avg_time)
 
         max_speed, min_speed, avg_speed = (
-            int(max(clients_speed)),
-            int(min(clients_speed)),
-            int(np.mean(clients_speed)),
+            max(clients_speed),
+            min(clients_speed),
+            np.mean(clients_speed),
         )
 
         print(
-            'avg speed: %d\tmax speed: %d\tmin speed: %d'
+            'avg speed: %.3f\tmax speed: %.3f\tmin speed: %.3f'
             % (avg_speed, max_speed, min_speed),
             flush=True,
         )
