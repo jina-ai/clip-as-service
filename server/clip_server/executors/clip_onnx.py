@@ -57,8 +57,6 @@ class CLIPEncoder(Executor):
 
         self._model.start_sessions(providers=providers)
 
-        # TODO: https://fs-eire.github.io/onnxruntime/docs/performance/tune-performance.html#mkl_dnnngraph-execution-provider
-
     def _preproc_image(self, da: 'DocumentArray') -> 'DocumentArray':
         for d in da:
             if d.tensor is not None:
