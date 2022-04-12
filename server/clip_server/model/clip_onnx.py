@@ -1,8 +1,4 @@
 import os
-
-# It needs to be done before importing onnxruntime
-os.environ['OMP_WAIT_POLICY'] = 'PASIVE'
-
 import onnxruntime as ort
 
 from .clip import _download, available_models
@@ -41,10 +37,10 @@ class CLIPOnnxModel:
             ort.GraphOptimizationLevel.ORT_ENABLE_ALL
         )
 
-        # Set the operators in the graph run in parallel
+        # Run the operators in the graph in parallel
         self.sess_options.execution_mode = ort.ExecutionMode.ORT_PARALLEL
 
-        # Control the number of threads used to parallelize the execution of the graph (across nodes)
+        # The number of threads used to parallelize the execution of the graph (across nodes)
         self.sess_options.inter_op_num_threads = 1
         self.sess_options.intra_op_num_threads = int(
             os.environ.get('OMP_NUM_THREADS', '1')
