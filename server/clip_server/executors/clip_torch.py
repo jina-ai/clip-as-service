@@ -1,10 +1,11 @@
 import io
+import warnings
 from multiprocessing.pool import ThreadPool, Pool
 from typing import Optional, List, Tuple
 
-import torch
 from PIL import Image
 from jina import Executor, requests, DocumentArray
+from jina.logging.logger import JinaLogger
 
 from clip_server.model import clip
 
@@ -18,9 +19,25 @@ class CLIPEncoder(Executor):
         num_worker_preprocess: int = 4,
         minibatch_size: int = 64,
         pool_backend: str = 'thread',
-        **kwargs
+        **kwargs,
     ):
         super().__init__(**kwargs)
+        self.logger = JinaLogger(self.__class__.__name__)
+
+        import torch
+
+        num_threads = torch.get_num_threads() // self.runtime_args.replicas
+        if num_threads < 2:
+            self.logger.warning(
+                f'Too many clip encoder replicas ({self.runtime_args.replicas})'
+                'that would exhaust CPU resources.'
+            )
+
+        # NOTE: make sure to set the threads right after the torch import,
+        # and `torch.set_num_threads` always take precedence over environment variables `OMP_NUM_THREADS`.
+        # For more details, please see https://pytorch.org/docs/stable/generated/torch.set_num_threads.html
+        torch.set_num_threads(max(num_threads, 1))
+
         if not device:
             self._device = 'cuda' if torch.cuda.is_available() else 'cpu'
         else:
@@ -58,6 +75,8 @@ class CLIPEncoder(Executor):
             {'$or': [{'blob': {'$exists': True}}, {'tensor': {'$exists': True}}]}
         )
         _txt_da = docs.find({'text': {'$exists': True}})
+
+        import torch
 
         with torch.inference_mode():
             # for image
