@@ -25,7 +25,6 @@ class CLIPEncoder(Executor):
         self,
         name: str = 'ViT-B/32',
         device: Optional[str] = None,
-        providers: Sequence = ('CPUExecutionProvider',),
         num_worker_preprocess: int = 4,
         minibatch_size: int = 64,
         pool_backend: str = 'thread',
