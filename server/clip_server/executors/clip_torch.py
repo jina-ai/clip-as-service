@@ -36,6 +36,7 @@ class CLIPEncoder(Executor):
         # NOTE: make sure to set the threads right after the torch import,
         # and `torch.set_num_threads` always take precedence over environment variables `OMP_NUM_THREADS`.
         # For more details, please see https://pytorch.org/docs/stable/generated/torch.set_num_threads.html
+        # FIXME: This hack would harm the performance in K8S deployment.
         torch.set_num_threads(max(num_threads, 1))
 
         if not device:
