@@ -1,6 +1,10 @@
-import onnxruntime
-
 import os
+
+# It needs to be done before importing onnxruntime
+os.environ['OMP_WAIT_POLICY'] = 'PASIVE'
+
+import onnxruntime as ort
+
 from .clip import _download, available_models
 
 _S3_BUCKET = 'https://clip-as-service.s3.us-east-2.amazonaws.com/models/onnx/'
@@ -30,13 +34,31 @@ class CLIPOnnxModel:
                 f'Model {name} not found; available models = {available_models()}'
             )
 
+        self.sess_options = ort.SessionOptions()
+
+        # Enables all available optimizations including layout optimizations
+        self.sess_options.graph_optimization_level = (
+            ort.GraphOptimizationLevel.ORT_ENABLE_ALL
+        )
+
+        # Set the operators in the graph run in parallel
+        self.sess_options.execution_mode = ort.ExecutionMode.ORT_PARALLEL
+
+        # Control the number of threads used to parallelize the execution of the graph (across nodes)
+        self.sess_options.inter_op_num_threads = 1
+        self.sess_options.intra_op_num_threads = int(
+            os.environ.get('OMP_NUM_THREADS', '1')
+        )
+
     def start_sessions(
         self,
         **kwargs,
     ):
-        self._visual_session = onnxruntime.InferenceSession(self._visual_path, **kwargs)
-        self._textual_session = onnxruntime.InferenceSession(
-            self._textual_path, **kwargs
+        self._visual_session = ort.InferenceSession(
+            self._visual_path, sess_options=self.sess_options, **kwargs
+        )
+        self._textual_session = ort.InferenceSession(
+            self._textual_path, sess_options=self.sess_options, **kwargs
         )
 
     def encode_image(self, onnx_image):

@@ -97,7 +97,7 @@ class BenchmarkClient(threading.Thread):
     "--concurrent_clients",
     multiple=True,
     type=int,
-    default=[1, 4, 16, 32, 64],
+    default=[1, 4, 16, 32],
     help='number of concurrent clients per experiment',
 )
 @click.option("--image_sample", help='path to the image sample file')

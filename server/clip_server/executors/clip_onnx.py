@@ -1,6 +1,6 @@
 import io
 from multiprocessing.pool import ThreadPool, Pool
-from typing import List, Sequence, Tuple
+from typing import List, Sequence, Tuple, Optional
 
 from PIL import Image
 from jina import Executor, requests, DocumentArray
@@ -24,11 +24,8 @@ class CLIPEncoder(Executor):
     def __init__(
         self,
         name: str = 'ViT-B/32',
-        providers: Sequence = (
-            'TensorrtExecutionProvider',
-            'CUDAExecutionProvider',
-            'CPUExecutionProvider',
-        ),
+        device: Optional[str] = None,
+        providers: Sequence = ('CPUExecutionProvider',),
         num_worker_preprocess: int = 4,
         minibatch_size: int = 64,
         pool_backend: str = 'thread',
@@ -43,7 +40,25 @@ class CLIPEncoder(Executor):
         else:
             self._pool = Pool(processes=num_worker_preprocess)
         self._minibatch_size = minibatch_size
+
+        import torch
+
+        if not device:
+            self._device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        else:
+            self._device = device
+
+        # define the priority order for the execution providers
+        providers = ['CPUExecutionProvider']
+
+        # prefer CUDA Execution Provider over CPU Execution Provider
+        if device == 'cuda':
+            providers.insert(0, 'CUDAExecutionProvider')
+            providers.insert(0, 'TensorrtExecutionProvider')
+
         self._model.start_sessions(providers=providers)
+
+        # TODO: https://fs-eire.github.io/onnxruntime/docs/performance/tune-performance.html#mkl_dnnngraph-execution-provider
 
     def _preproc_image(self, da: 'DocumentArray') -> 'DocumentArray':
         for d in da:
