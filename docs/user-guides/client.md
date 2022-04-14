@@ -112,6 +112,7 @@ c = Client('grpc://0.0.0.0:23456')
 da = [
     Document(text='she smiled, with pain'),
     Document(uri='apple.png'),
+    Document(uri='apple.png').load_uri_to_image_tensor(),
     Document(blob=open('apple.png', 'rb').read()),
     Document(uri='https://clip-as-service.jina.ai/_static/favicon.png'),
     Document(
