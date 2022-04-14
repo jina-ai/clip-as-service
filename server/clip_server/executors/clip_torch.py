@@ -54,7 +54,9 @@ class CLIPEncoder(Executor):
 
     @requests
     async def encode(self, docs: 'DocumentArray', **kwargs):
-        _img_da = docs.find({'blob': {'$exists': True}})
+        _img_da = docs.find(
+            {'$or': [{'blob': {'$exists': True}}, {'tensor': {'$exists': True}}]}
+        )
         _txt_da = docs.find({'text': {'$exists': True}})
 
         with torch.inference_mode():
