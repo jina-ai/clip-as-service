@@ -112,6 +112,7 @@ c = Client('grpc://0.0.0.0:23456')
 da = [
     Document(text='she smiled, with pain'),
     Document(uri='apple.png'),
+    Document(uri='apple.png').load_uri_to_image_tensor(),
     Document(blob=open('apple.png', 'rb').read()),
     Document(uri='https://clip-as-service.jina.ai/_static/favicon.png'),
     Document(
@@ -131,23 +132,26 @@ r = c.encode(DocumentArray(da))
 Now that the return result is a DocumentArray, we can get a summary of it.
 
 ```text
-                            Documents Summary                             
-                                                                          
-  Length                        5                                         
-  Homogenous Documents          False                                     
-  3 Documents have attributes   ('id', 'mime_type', 'uri', 'embedding')   
-  1 Document has attributes     ('id', 'mime_type', 'text', 'embedding')  
-  1 Document has attributes     ('id', 'embedding')                       
-                                                                          
-                      Attributes Summary                       
-                                                               
-  Attribute   Data type      #Unique values   Has empty value  
- ───────────────────────────────────────────────────────────── 
-  embedding   ('ndarray',)   5                False            
-  id          ('str',)       5                False            
-  mime_type   ('str',)       4                False            
-  text        ('str',)       2                False            
-  uri         ('str',)       4                False            
+╭──────────────────────────── Documents Summary ─────────────────────────────╮
+│                                                                            │
+│   Length                        6                                          │
+│   Homogenous Documents          False                                      │
+│   4 Documents have attributes   ('id', 'mime_type', 'uri', 'embedding')    │
+│   1 Document has attributes     ('id', 'mime_type', 'text', 'embedding')   │
+│   1 Document has attributes     ('id', 'embedding')                        │
+│                                                                            │
+╰────────────────────────────────────────────────────────────────────────────╯
+╭────────────────────── Attributes Summary ───────────────────────╮
+│                                                                 │
+│   Attribute   Data type      #Unique values   Has empty value   │
+│  ─────────────────────────────────────────────────────────────  │
+│   embedding   ('ndarray',)   6                False             │
+│   id          ('str',)       6                False             │
+│   mime_type   ('str',)       5                False             │
+│   text        ('str',)       2                False             │
+│   uri         ('str',)       4                False             │
+│                                                                 │
+╰─────────────────────────────────────────────────────────────────╯
 ```
 
 To get the embedding of all Documents, simply call `r.embeddings`:
