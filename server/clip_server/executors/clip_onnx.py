@@ -1,8 +1,9 @@
-import io
+import os
 from multiprocessing.pool import ThreadPool, Pool
-from typing import List, Sequence, Tuple, Optional
+from typing import List, Tuple, Optional
 
-from PIL import Image
+import onnxruntime as ort
+
 from jina import Executor, requests, DocumentArray
 
 from clip_server.model import clip
@@ -28,7 +29,7 @@ class CLIPEncoder(Executor):
         num_worker_preprocess: int = 4,
         minibatch_size: int = 64,
         pool_backend: str = 'thread',
-        **kwargs
+        **kwargs,
     ):
         super().__init__(**kwargs)
         self._preprocess_blob = clip._transform_blob(_SIZE[name])
@@ -55,7 +56,28 @@ class CLIPEncoder(Executor):
             providers.insert(0, 'CUDAExecutionProvider')
             providers.insert(0, 'TensorrtExecutionProvider')
 
-        self._model.start_sessions(providers=providers)
+        sess_options = ort.SessionOptions()
+
+        # Enables all available optimizations including layout optimizations
+        sess_options.graph_optimization_level = (
+            ort.GraphOptimizationLevel.ORT_ENABLE_ALL
+        )
+
+        # Run the operators in the graph in parallel
+        sess_options.execution_mode = ort.ExecutionMode.ORT_PARALLEL
+
+        if self._device != 'cuda' and (not os.environ.get('OMP_NUM_THREADS')):
+            num_threads = torch.get_num_threads() // self.runtime_args.replicas
+            if num_threads < 2:
+                self.logger.warning(
+                    f'Too many encoder replicas ({self.runtime_args.replicas})'
+                )
+
+            # The number of threads used to parallelize the execution of the graph (across nodes)
+            sess_options.inter_op_num_threads = 1
+            sess_options.intra_op_num_threads = max(num_threads, 1)
+
+        self._model.start_sessions(sess_options=sess_options, providers=providers)
 
     def _preproc_image(self, da: 'DocumentArray') -> 'DocumentArray':
         for d in da:

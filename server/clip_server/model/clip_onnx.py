@@ -19,7 +19,6 @@ class CLIPOnnxModel:
     def __init__(
         self,
         name: str = None,
-        num_threads: int = None,
     ):
         if name in _MODELS:
             cache_dir = os.path.expanduser(f'~/.cache/clip/{name.replace("/", "-")}')
