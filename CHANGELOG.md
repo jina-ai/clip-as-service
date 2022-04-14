@@ -18,6 +18,7 @@
 
 
 
+
 <a name=release-note-0-0-3></a>
 ## Release Note (`0.0.3`)
 
@@ -404,4 +405,27 @@
 
  - [[```fa42dc50```](https://github.com/jina-ai/clip-as-service/commit/fa42dc50f6c766c60fe246802ecc8c15e37fbdf4)] __-__ update docs (*Han Xiao*)
  - [[```c91fa4d1```](https://github.com/jina-ai/clip-as-service/commit/c91fa4d16fd01ba8cc571041919201bbb1a76e31)] __-__ __version__: the next version will be 0.1.13 (*Jina Dev Bot*)
+
+<a name=release-note-0-1-14></a>
+## Release Note (`0.1.14`)
+
+> Release time: 2022-04-14 02:39:16
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ felix-wang,  Jina Dev Bot,  Han Xiao,  🙇
+
+
+### 🐞 Bug fixes
+
+ - [[```8286eeed```](https://github.com/jina-ai/clip-as-service/commit/8286eeed13e65b7414e7bff0ace689daac103101)] __-__ tensor input document (#681) (*felix-wang*)
+
+### 📗 Documentation
+
+ - [[```b6f9d849```](https://github.com/jina-ai/clip-as-service/commit/b6f9d849e5693d6c40744feebd5d309dbeed1cb3)] __-__ __server__: docs document tensor (#679) (*Han Xiao*)
+
+### 🍹 Other Improvements
+
+ - [[```ef6ea254```](https://github.com/jina-ai/clip-as-service/commit/ef6ea254b48d2675364184c3cfcb787819e8433a)] __-__ __version__: the next version will be 0.1.14 (*Jina Dev Bot*)
 
