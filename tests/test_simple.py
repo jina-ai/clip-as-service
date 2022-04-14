@@ -40,7 +40,10 @@ def test_protocols(port_generator, protocol, pytestconfig):
 def test_plain_inputs(make_flow, inputs, port_generator):
     c = Client(server=f'grpc://0.0.0.0:{make_flow.port}')
     r = c.encode(inputs if not callable(inputs) else inputs())
-    assert r.shape
+
+    assert (
+        r.shape[0] == len(list(inputs)) if not callable(inputs) else len(list(inputs()))
+    )
 
 
 @pytest.mark.parametrize(
