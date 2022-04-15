@@ -16,7 +16,9 @@ _MODELS = {
 
 
 class CLIPOnnxModel:
-    def __init__(self, name: str = None, use_float16: bool = False):
+    def __init__(
+        self, name: str = None, use_float16: bool = False, use_int8: bool = False
+    ):
         if name in _MODELS:
             cache_dir = os.path.expanduser(f'~/.cache/clip/{name.replace("/", "-")}')
             self._textual_path = _download(_S3_BUCKET + _MODELS[name][0], cache_dir)
@@ -25,32 +27,19 @@ class CLIPOnnxModel:
             raise RuntimeError(
                 f'Model {name} not found; available models = {available_models()}'
             )
-        if use_float16:
-            import onnx
-            from onnxmltools.utils.float16_converter import (
-                convert_float_to_float16_model_path,
-            )
+        from .onnx_helper import convert_float_to_float16, quantize
 
-            new_onnx_model = convert_float_to_float16_model_path(self._textual_path)
+        if use_int8:
+            output_path = f'{self._textual_path[:-5]}_qunatized.onnx'
+            print(f'=> quantize model to {output_path}')
 
-            self._textual_path = f'{self._textual_path[:-5]}_optimized.onnx'
-            onnx.save(new_onnx_model, self._textual_path)
-
-            # from onnx import load_model
-            # from onnxruntime.transformers import optimizer, onnx_model
-            #
-            # # optimized_model = optimizer.optimize_model(self._textual_path, model_type='bert')
-            #
-            # model = load_model(self._textual_path)
-            # optimized_model = onnx_model.OnnxModel(model)
-            #
-            # if hasattr(optimized_model, 'convert_float32_to_float16'):
-            #     optimized_model.convert_float_to_float16()
-            # else:
-            #     optimized_model.convert_model_float32_to_float16()
-            #
-            # self._textual_path = f'{self._textual_path[:-5]}_optimized.onnx'
-            # optimized_model.save_model_to_file(self._textual_path)
+            quantize(self._textual_path, output_path)
+            self._textual_path = output_path
+        elif use_float16:
+            output_path = f'{self._textual_path[:-5]}_float16.onnx'
+            print(f'==> convert model to {output_path}')
+            convert_float_to_float16(self._textual_path, output_path)
+            self._textual_path = output_path
 
     def start_sessions(
         self,
