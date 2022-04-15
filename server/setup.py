@@ -50,7 +50,14 @@ setup(
         'docarray>=0.11.0',
     ],
     extras_require={
-        'onnx': ['onnxruntime', 'onnx']
+        'onnx': [
+            'onnxruntime',
+            'onnx',
+            'sympy',
+            'onnxconverter-common',
+            'onnxruntime-tools',
+            'onnxmltools',
+        ]
         + (['onnxruntime-gpu>=1.8.0'] if sys.platform != 'darwin' else []),
     },
     classifiers=[

@@ -29,12 +29,13 @@ class CLIPEncoder(Executor):
         num_worker_preprocess: int = 4,
         minibatch_size: int = 64,
         pool_backend: str = 'thread',
+        use_float16: bool = False,
         **kwargs,
     ):
         super().__init__(**kwargs)
         self._preprocess_blob = clip._transform_blob(_SIZE[name])
         self._preprocess_tensor = clip._transform_ndarray(_SIZE[name])
-        self._model = CLIPOnnxModel(name)
+        self._model = CLIPOnnxModel(name, use_float16=use_float16)
         if pool_backend == 'thread':
             self._pool = ThreadPool(processes=num_worker_preprocess)
         else:
