@@ -50,9 +50,8 @@ setup(
         'docarray>=0.11.0',
     ],
     extras_require={
-        'onnx': ['onnxruntime', 'onnx'] + ['onnxruntime-gpu']
-        if sys.platform != 'darwin'
-        else [],
+        'onnx': ['onnxruntime', 'onnx']
+        + (['onnxruntime-gpu>=1.8.0'] if sys.platform != 'darwin' else []),
     },
     classifiers=[
         'Development Status :: 5 - Production/Stable',

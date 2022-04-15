@@ -44,6 +44,7 @@ class CLIPEncoder(Executor):
         import torch
 
         if not device:
+
             self._device = 'cuda' if torch.cuda.is_available() else 'cpu'
         else:
             self._device = device
@@ -54,6 +55,7 @@ class CLIPEncoder(Executor):
         # prefer CUDA Execution Provider over CPU Execution Provider
         if self._device == 'cuda':
             providers.insert(0, 'CUDAExecutionProvider')
+            providers.insert(0, 'TensorrtExecutionProvider')
 
         sess_options = ort.SessionOptions()
 
@@ -62,15 +64,15 @@ class CLIPEncoder(Executor):
             ort.GraphOptimizationLevel.ORT_ENABLE_ALL
         )
 
-        # Run the operators in the graph in parallel
-        sess_options.execution_mode = ort.ExecutionMode.ORT_PARALLEL
-
         if self._device != 'cuda' and (not os.environ.get('OMP_NUM_THREADS')):
             num_threads = torch.get_num_threads() // self.runtime_args.replicas
             if num_threads < 2:
                 self.logger.warning(
                     f'Too many encoder replicas ({self.runtime_args.replicas})'
                 )
+
+            # Run the operators in the graph in parallel (not support the CUDA Execution Provider)
+            sess_options.execution_mode = ort.ExecutionMode.ORT_PARALLEL
 
             # The number of threads used to parallelize the execution of the graph (across nodes)
             sess_options.inter_op_num_threads = 1
