@@ -28,9 +28,13 @@ class CLIPOnnxModel:
             )
 
         if enable_quantization:
-            output_path = f'{self._textual_path[:-5]}_qunatized.onnx'
+            output_path = f'{self._textual_path[:-5]}_quant.onnx'
             quantize(self._textual_path, output_path)
             self._textual_path = output_path
+
+            output_path = f'{self._visual_path[:-5]}_quant.onnx'
+            quantize(self._visual_path, output_path)
+            self._visual_path = output_path
 
     def start_sessions(
         self,
@@ -99,5 +103,7 @@ def quantize(model_path: str, output_model_path: str):
         reduce_range=True,  # should be the same as per_channel
         activation_type=QuantType.QUInt8,
         weight_type=QuantType.QInt8,  # per docs, signed is faster on most CPUs
-        optimize_model=False,
+        optimize_model=True,
+        op_types_to_quantize=["MatMul", "Attention", "Mul", "Add"],
+        extra_options={"WeightSymmetric": False, "MatMulConstBOnly": True},
     )  # op_types_to_quantize=['MatMul', 'Relu', 'Add', 'Mul' ],

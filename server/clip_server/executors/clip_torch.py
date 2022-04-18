@@ -1,4 +1,5 @@
 import os
+import numpy as np
 from multiprocessing.pool import ThreadPool, Pool
 from typing import Optional, List, Tuple
 
@@ -88,7 +89,10 @@ class CLIPEncoder(Executor):
                     pool=self._pool,
                 ):
                     minibatch.embeddings = (
-                        self._model.encode_image(minibatch.tensors).cpu().numpy()
+                        self._model.encode_image(minibatch.tensors)
+                        .cpu()
+                        .numpy()
+                        .astype(np.float32)
                     )
 
             # for text
@@ -99,7 +103,10 @@ class CLIPEncoder(Executor):
                     pool=self._pool,
                 ):
                     minibatch.embeddings = (
-                        self._model.encode_text(minibatch.tensors).cpu().numpy()
+                        self._model.encode_text(minibatch.tensors)
+                        .cpu()
+                        .numpy()
+                        .astype(np.float32)
                     )
                     minibatch.texts = _texts
 
