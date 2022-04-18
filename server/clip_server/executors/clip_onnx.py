@@ -53,7 +53,7 @@ class CLIPEncoder(Executor):
         providers = ['CPUExecutionProvider']
 
         # prefer CUDA Execution Provider over CPU Execution Provider
-        if self._device == 'cuda':
+        if self._device.startswith('cuda'):
             providers.insert(0, 'CUDAExecutionProvider')
             # TODO: support tensorrt
             # providers.insert(0, 'TensorrtExecutionProvider')
@@ -65,7 +65,9 @@ class CLIPEncoder(Executor):
             ort.GraphOptimizationLevel.ORT_ENABLE_ALL
         )
 
-        if self._device != 'cuda' and (not os.environ.get('OMP_NUM_THREADS')):
+        if not self._device.startswith('cuda') and (
+            not os.environ.get('OMP_NUM_THREADS')
+        ):
             num_threads = torch.get_num_threads() // self.runtime_args.replicas
             if num_threads < 2:
                 self.logger.warning(

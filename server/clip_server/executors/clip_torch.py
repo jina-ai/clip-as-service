@@ -30,7 +30,9 @@ class CLIPEncoder(Executor):
         else:
             self._device = device
 
-        if self._device != 'cuda' and (not os.environ.get('OMP_NUM_THREADS')):
+        if not self._device.startswith('cuda') and (
+            not os.environ.get('OMP_NUM_THREADS')
+        ):
             num_threads = torch.get_num_threads() // self.runtime_args.replicas
             if num_threads < 2:
                 self.logger.warning(
