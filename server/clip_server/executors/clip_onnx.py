@@ -56,7 +56,8 @@ class CLIPEncoder(Executor):
         # prefer CUDA Execution Provider over CPU Execution Provider
         if self._device == 'cuda':
             providers.insert(0, 'CUDAExecutionProvider')
-            providers.insert(0, 'TensorrtExecutionProvider')
+            # TODO: support tensorrt
+            # providers.insert(0, 'TensorrtExecutionProvider')
 
         sess_options = ort.SessionOptions()
 
