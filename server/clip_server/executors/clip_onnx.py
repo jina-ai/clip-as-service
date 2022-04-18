@@ -1,8 +1,9 @@
-import io
+import os
 from multiprocessing.pool import ThreadPool, Pool
-from typing import List, Sequence, Tuple
+from typing import List, Tuple, Optional
 
-from PIL import Image
+import onnxruntime as ort
+
 from jina import Executor, requests, DocumentArray
 
 from clip_server.model import clip
@@ -24,26 +25,61 @@ class CLIPEncoder(Executor):
     def __init__(
         self,
         name: str = 'ViT-B/32',
-        providers: Sequence = (
-            'TensorrtExecutionProvider',
-            'CUDAExecutionProvider',
-            'CPUExecutionProvider',
-        ),
+        device: Optional[str] = None,
         num_worker_preprocess: int = 4,
         minibatch_size: int = 64,
         pool_backend: str = 'thread',
-        **kwargs
+        **kwargs,
     ):
         super().__init__(**kwargs)
         self._preprocess_blob = clip._transform_blob(_SIZE[name])
         self._preprocess_tensor = clip._transform_ndarray(_SIZE[name])
-        self._model = CLIPOnnxModel(name)
         if pool_backend == 'thread':
             self._pool = ThreadPool(processes=num_worker_preprocess)
         else:
             self._pool = Pool(processes=num_worker_preprocess)
         self._minibatch_size = minibatch_size
-        self._model.start_sessions(providers=providers)
+
+        self._model = CLIPOnnxModel(name)
+
+        import torch
+
+        if not device:
+            self._device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        else:
+            self._device = device
+
+        # define the priority order for the execution providers
+        providers = ['CPUExecutionProvider']
+
+        # prefer CUDA Execution Provider over CPU Execution Provider
+        if self._device == 'cuda':
+            providers.insert(0, 'CUDAExecutionProvider')
+            # TODO: support tensorrt
+            # providers.insert(0, 'TensorrtExecutionProvider')
+
+        sess_options = ort.SessionOptions()
+
+        # Enables all available optimizations including layout optimizations
+        sess_options.graph_optimization_level = (
+            ort.GraphOptimizationLevel.ORT_ENABLE_ALL
+        )
+
+        if self._device != 'cuda' and (not os.environ.get('OMP_NUM_THREADS')):
+            num_threads = torch.get_num_threads() // self.runtime_args.replicas
+            if num_threads < 2:
+                self.logger.warning(
+                    f'Too many encoder replicas ({self.runtime_args.replicas})'
+                )
+
+            # Run the operators in the graph in parallel (not support the CUDA Execution Provider)
+            sess_options.execution_mode = ort.ExecutionMode.ORT_PARALLEL
+
+            # The number of threads used to parallelize the execution of the graph (across nodes)
+            sess_options.inter_op_num_threads = 1
+            sess_options.intra_op_num_threads = max(num_threads, 1)
+
+        self._model.start_sessions(sess_options=sess_options, providers=providers)
 
     def _preproc_image(self, da: 'DocumentArray') -> 'DocumentArray':
         for d in da:

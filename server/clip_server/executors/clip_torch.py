@@ -1,10 +1,10 @@
-import io
+import os
+import numpy as np
 from multiprocessing.pool import ThreadPool, Pool
 from typing import Optional, List, Tuple
 
-import torch
-from PIL import Image
 from jina import Executor, requests, DocumentArray
+from jina.logging.logger import JinaLogger
 
 from clip_server.model import clip
 
@@ -18,13 +18,32 @@ class CLIPEncoder(Executor):
         num_worker_preprocess: int = 4,
         minibatch_size: int = 64,
         pool_backend: str = 'thread',
-        **kwargs
+        **kwargs,
     ):
         super().__init__(**kwargs)
+        self.logger = JinaLogger(self.__class__.__name__)
+
+        import torch
+
         if not device:
             self._device = 'cuda' if torch.cuda.is_available() else 'cpu'
         else:
             self._device = device
+
+        if self._device != 'cuda' and (not os.environ.get('OMP_NUM_THREADS')):
+            num_threads = torch.get_num_threads() // self.runtime_args.replicas
+            if num_threads < 2:
+                self.logger.warning(
+                    f'Too many encoder replicas ({self.runtime_args.replicas})'
+                )
+
+            # NOTE: make sure to set the threads right after the torch import,
+            # and `torch.set_num_threads` always take precedence over environment variables `OMP_NUM_THREADS`.
+            # For more details, please see https://pytorch.org/docs/stable/generated/torch.set_num_threads.html
+            # FIXME: This hack would harm the performance in K8S deployment.
+            torch.set_num_threads(max(num_threads, 1))
+            torch.set_num_interop_threads(1)
+
         self._minibatch_size = minibatch_size
         self._model, self._preprocess_blob, self._preprocess_tensor = clip.load(
             name, device=self._device, jit=jit
@@ -59,6 +78,8 @@ class CLIPEncoder(Executor):
         )
         _txt_da = docs.find({'text': {'$exists': True}})
 
+        import torch
+
         with torch.inference_mode():
             # for image
             if _img_da:
@@ -68,7 +89,10 @@ class CLIPEncoder(Executor):
                     pool=self._pool,
                 ):
                     minibatch.embeddings = (
-                        self._model.encode_image(minibatch.tensors).cpu().numpy()
+                        self._model.encode_image(minibatch.tensors)
+                        .cpu()
+                        .numpy()
+                        .astype(np.float32)
                     )
 
             # for text
@@ -79,7 +103,10 @@ class CLIPEncoder(Executor):
                     pool=self._pool,
                 ):
                     minibatch.embeddings = (
-                        self._model.encode_text(minibatch.tensors).cpu().numpy()
+                        self._model.encode_text(minibatch.tensors)
+                        .cpu()
+                        .numpy()
+                        .astype(np.float32)
                     )
                     minibatch.texts = _texts
 
