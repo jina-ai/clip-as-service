@@ -9,7 +9,3 @@ __resources_path__ = os.path.join(
     ),
     'resources',
 )
-
-
-def cli_entrypoint():
-    print('hello')

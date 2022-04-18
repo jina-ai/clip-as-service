@@ -30,11 +30,13 @@ class CLIPEncoder(Executor):
         else:
             self._device = device
 
-        if self._device != 'cuda' and (not os.environ.get('OMP_NUM_THREADS')):
+        if not self._device.startswith('cuda') and (
+            not os.environ.get('OMP_NUM_THREADS')
+        ):
             num_threads = torch.get_num_threads() // self.runtime_args.replicas
             if num_threads < 2:
                 self.logger.warning(
-                    f'Too many encoder replicas ({self.runtime_args.replicas})'
+                    f'Too many encoder replicas (replicas={self.runtime_args.replicas})'
                 )
 
             # NOTE: make sure to set the threads right after the torch import,
@@ -48,6 +50,7 @@ class CLIPEncoder(Executor):
         self._model, self._preprocess_blob, self._preprocess_tensor = clip.load(
             name, device=self._device, jit=jit
         )
+
         if pool_backend == 'thread':
             self._pool = ThreadPool(processes=num_worker_preprocess)
         else:
@@ -73,10 +76,19 @@ class CLIPEncoder(Executor):
 
     @requests
     async def encode(self, docs: 'DocumentArray', **kwargs):
-        _img_da = docs.find(
-            {'$or': [{'blob': {'$exists': True}}, {'tensor': {'$exists': True}}]}
-        )
-        _txt_da = docs.find({'text': {'$exists': True}})
+        _img_da = DocumentArray()
+        _txt_da = DocumentArray()
+        for d in docs:
+            if d.text:
+                _txt_da.append(d)
+            elif (d.blob is not None) or (d.tensor is not None):
+                _img_da.append(d)
+            elif d.uri:
+                _img_da.append(d)
+            else:
+                self.logger.warning(
+                    f'The content of document {d.id} is empty, cannot be processed'
+                )
 
         import torch
 

@@ -1,10 +1,11 @@
 import os
 from multiprocessing.pool import ThreadPool, Pool
 from typing import List, Tuple, Optional
-
+import numpy as np
 import onnxruntime as ort
 
 from jina import Executor, requests, DocumentArray
+from jina.logging.logger import JinaLogger
 
 from clip_server.model import clip
 from clip_server.model.clip_onnx import CLIPOnnxModel
@@ -32,6 +33,8 @@ class CLIPEncoder(Executor):
         **kwargs,
     ):
         super().__init__(**kwargs)
+        self.logger = JinaLogger(self.__class__.__name__)
+
         self._preprocess_blob = clip._transform_blob(_SIZE[name])
         self._preprocess_tensor = clip._transform_ndarray(_SIZE[name])
         if pool_backend == 'thread':
@@ -53,7 +56,7 @@ class CLIPEncoder(Executor):
         providers = ['CPUExecutionProvider']
 
         # prefer CUDA Execution Provider over CPU Execution Provider
-        if self._device == 'cuda':
+        if self._device.startswith('cuda'):
             providers.insert(0, 'CUDAExecutionProvider')
             # TODO: support tensorrt
             # providers.insert(0, 'TensorrtExecutionProvider')
@@ -65,11 +68,13 @@ class CLIPEncoder(Executor):
             ort.GraphOptimizationLevel.ORT_ENABLE_ALL
         )
 
-        if self._device != 'cuda' and (not os.environ.get('OMP_NUM_THREADS')):
+        if not self._device.startswith('cuda') and (
+            not os.environ.get('OMP_NUM_THREADS')
+        ):
             num_threads = torch.get_num_threads() // self.runtime_args.replicas
             if num_threads < 2:
                 self.logger.warning(
-                    f'Too many encoder replicas ({self.runtime_args.replicas})'
+                    f'Too many encoder replicas (replicas={self.runtime_args.replicas})'
                 )
 
             # Run the operators in the graph in parallel (not support the CUDA Execution Provider)
@@ -90,21 +95,30 @@ class CLIPEncoder(Executor):
                     # in case user uses HTTP protocol and send data via curl not using .blob (base64), but in .uri
                     d.load_uri_to_blob()
                 d.tensor = self._preprocess_blob(d.blob)
-        da.tensors = da.tensors.cpu().numpy()
+        da.tensors = da.tensors.detach().cpu().numpy().astype(np.float32)
         return da
 
     def _preproc_text(self, da: 'DocumentArray') -> Tuple['DocumentArray', List[str]]:
         texts = da.texts
-        da.tensors = clip.tokenize(texts).cpu().numpy()
+        da.tensors = clip.tokenize(texts).detach().cpu().numpy().astype(np.int64)
         da[:, 'mime_type'] = 'text'
         return da, texts
 
     @requests
     async def encode(self, docs: 'DocumentArray', **kwargs):
-        _img_da = docs.find(
-            {'$or': [{'blob': {'$exists': True}}, {'tensor': {'$exists': True}}]}
-        )
-        _txt_da = docs.find({'text': {'$exists': True}})
+        _img_da = DocumentArray()
+        _txt_da = DocumentArray()
+        for d in docs:
+            if d.text:
+                _txt_da.append(d)
+            elif (d.blob is not None) or (d.tensor is not None):
+                _img_da.append(d)
+            elif d.uri:
+                _img_da.append(d)
+            else:
+                self.logger.warning(
+                    f'The content of document {d.id} is empty, cannot be processed'
+                )
 
         # for image
         if _img_da:
