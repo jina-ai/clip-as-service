@@ -36,7 +36,7 @@ class CLIPEncoder(Executor):
             num_threads = torch.get_num_threads() // self.runtime_args.replicas
             if num_threads < 2:
                 self.logger.warning(
-                    f'Too many encoder replicas ({self.runtime_args.replicas})'
+                    f'Too many encoder replicas (replicas={self.runtime_args.replicas})'
                 )
 
             # NOTE: make sure to set the threads right after the torch import,
