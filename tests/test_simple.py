@@ -8,7 +8,8 @@ from clip_client.client import Client
 
 
 @pytest.mark.parametrize('protocol', ['grpc', 'http', 'websocket', 'other'])
-def test_protocols(port_generator, protocol, pytestconfig):
+@pytest.mark.parametrize('jit', [True, False])
+def test_protocols(port_generator, protocol, jit, pytestconfig):
     from clip_server.executors.clip_torch import CLIPEncoder
 
     if protocol == 'other':
@@ -16,7 +17,9 @@ def test_protocols(port_generator, protocol, pytestconfig):
             Client(server=f'{protocol}://0.0.0.0:8000')
         return
 
-    f = Flow(port=port_generator(), protocol=protocol).add(uses=CLIPEncoder)
+    f = Flow(port=port_generator(), protocol=protocol).add(
+        uses=CLIPEncoder, uses_with={'jit': jit}
+    )
     with f:
         c = Client(server=f'{protocol}://0.0.0.0:{f.port}')
         c.profile()
