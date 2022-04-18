@@ -5,6 +5,7 @@ import numpy as np
 import onnxruntime as ort
 
 from jina import Executor, requests, DocumentArray
+from jina.logging.logger import JinaLogger
 
 from clip_server.model import clip
 from clip_server.model.clip_onnx import CLIPOnnxModel
@@ -32,6 +33,8 @@ class CLIPEncoder(Executor):
         **kwargs,
     ):
         super().__init__(**kwargs)
+        self.logger = JinaLogger(self.__class__.__name__)
+
         self._preprocess_blob = clip._transform_blob(_SIZE[name])
         self._preprocess_tensor = clip._transform_ndarray(_SIZE[name])
         if pool_backend == 'thread':
