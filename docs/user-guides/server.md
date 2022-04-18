@@ -184,9 +184,9 @@ There are also runtime-specific parameters listed below:
 
 ````{tab} ONNX
 
-| Parameter | Description                                                                                       |
-|-----------|---------------------------------------------------------------------------------------------------|
-| `providers`  | [ONNX runtime provides](https://onnxruntime.ai/docs/execution-providers/), default is auto-detect |
+| Parameter | Description                                                                                                                    |
+|-----------|--------------------------------------------------------------------------------------------------------------------------------|
+| `device`  | `cuda` or `cpu`. Default is `None` means auto-detect.
 
 ````
 
