@@ -1,7 +1,7 @@
 import os
 from multiprocessing.pool import ThreadPool, Pool
 from typing import List, Tuple, Optional
-
+import numpy as np
 import onnxruntime as ort
 
 from jina import Executor, requests, DocumentArray
@@ -90,12 +90,12 @@ class CLIPEncoder(Executor):
                     # in case user uses HTTP protocol and send data via curl not using .blob (base64), but in .uri
                     d.load_uri_to_blob()
                 d.tensor = self._preprocess_blob(d.blob)
-        da.tensors = da.tensors.cpu().numpy()
+        da.tensors = da.tensors.detach().cpu().numpy().astype(np.float32)
         return da
 
     def _preproc_text(self, da: 'DocumentArray') -> Tuple['DocumentArray', List[str]]:
         texts = da.texts
-        da.tensors = clip.tokenize(texts).cpu().numpy()
+        da.tensors = clip.tokenize(texts).detach().cpu().numpy().astype(np.int64)
         da[:, 'mime_type'] = 'text'
         return da, texts
 

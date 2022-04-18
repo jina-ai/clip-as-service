@@ -48,6 +48,7 @@ class CLIPEncoder(Executor):
         self._model, self._preprocess_blob, self._preprocess_tensor = clip.load(
             name, device=self._device, jit=jit
         )
+
         if pool_backend == 'thread':
             self._pool = ThreadPool(processes=num_worker_preprocess)
         else:
