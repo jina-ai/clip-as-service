@@ -20,6 +20,7 @@
 
 
 
+
 <a name=release-note-0-0-3></a>
 ## Release Note (`0.0.3`)
 
@@ -454,4 +455,24 @@
  - [[```fb229ae8```](https://github.com/jina-ai/clip-as-service/commit/fb229ae81f708d00f01af2d791de6eb67174e1c7)] __-__ add jcloud logo (*Han Xiao*)
  - [[```a3891eed```](https://github.com/jina-ai/clip-as-service/commit/a3891eedfa88e92f4a730f94b897da79ec28848d)] __-__ fix readme (*Han Xiao*)
  - [[```bfd04706```](https://github.com/jina-ai/clip-as-service/commit/bfd047061d7465877503caa3f11f77065718cbc4)] __-__ __version__: the next version will be 0.1.15 (*Jina Dev Bot*)
+
+<a name=release-note-0-2-0></a>
+## Release Note (`0.2.0`)
+
+> Release time: 2022-04-18 04:27:56
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ numb3r3,  Jina Dev Bot,  felix-wang,  🙇
+
+
+### ⚡ Performance Improvements
+
+ - [[```10d53eb4```](https://github.com/jina-ai/clip-as-service/commit/10d53eb4c4b84c95412b5f904de705cc01d7ba89)] __-__ scalable benchmark (#680) (*felix-wang*)
+
+### 🍹 Other Improvements
+
+ - [[```67226f5c```](https://github.com/jina-ai/clip-as-service/commit/67226f5c8ec7d652f5d47ed0ab21dc8d14fc49c8)] __-__ bump version (*numb3r3*)
+ - [[```5dc64878```](https://github.com/jina-ai/clip-as-service/commit/5dc6487819483ee680cf6e4c6a5fd1c0c27e2b54)] __-__ __version__: the next version will be 0.1.16 (*Jina Dev Bot*)
 
