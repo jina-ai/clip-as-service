@@ -17,7 +17,7 @@ _MODELS = {
 
 
 class CLIPOnnxModel:
-    def __init__(self, name: str = None, enable_quantization: bool = False):
+    def __init__(self, name: str = None):
         if name in _MODELS:
             cache_dir = os.path.expanduser(f'~/.cache/clip/{name.replace("/", "-")}')
             self._textual_path = _download(_S3_BUCKET + _MODELS[name][0], cache_dir)
@@ -26,15 +26,6 @@ class CLIPOnnxModel:
             raise RuntimeError(
                 f'Model {name} not found; available models = {available_models()}'
             )
-
-        if enable_quantization:
-            output_path = f'{self._textual_path[:-5]}_quant.onnx'
-            quantize(self._textual_path, output_path)
-            self._textual_path = output_path
-
-            output_path = f'{self._visual_path[:-5]}_quant.onnx'
-            quantize(self._visual_path, output_path)
-            self._visual_path = output_path
 
     def start_sessions(
         self,

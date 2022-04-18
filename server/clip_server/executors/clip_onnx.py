@@ -29,7 +29,6 @@ class CLIPEncoder(Executor):
         num_worker_preprocess: int = 4,
         minibatch_size: int = 64,
         pool_backend: str = 'thread',
-        enable_quantization: bool = False,
         **kwargs,
     ):
         super().__init__(**kwargs)
@@ -41,7 +40,7 @@ class CLIPEncoder(Executor):
             self._pool = Pool(processes=num_worker_preprocess)
         self._minibatch_size = minibatch_size
 
-        self._model = CLIPOnnxModel(name, enable_quantization=enable_quantization)
+        self._model = CLIPOnnxModel(name)
 
         import torch
 
