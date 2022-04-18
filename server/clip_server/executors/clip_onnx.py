@@ -101,10 +101,19 @@ class CLIPEncoder(Executor):
 
     @requests
     async def encode(self, docs: 'DocumentArray', **kwargs):
-        _img_da = docs.find(
-            {'$or': [{'blob': {'$exists': True}}, {'tensor': {'$exists': True}}]}
-        )
-        _txt_da = docs.find({'text': {'$exists': True}})
+        _img_da = DocumentArray()
+        _txt_da = DocumentArray()
+        for d in docs:
+            if d.text:
+                _txt_da.append(d)
+            elif (d.blob is not None) or (d.tensor is not None):
+                _img_da.append(d)
+            elif d.uri:
+                _img_da.append(d)
+            else:
+                self.logger.warning(
+                    f'The content of document {d.id} is empty, cannot be processed'
+                )
 
         # for image
         if _img_da:
