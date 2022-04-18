@@ -29,24 +29,23 @@ class CLIPEncoder(Executor):
         num_worker_preprocess: int = 4,
         minibatch_size: int = 64,
         pool_backend: str = 'thread',
-        use_float16: bool = False,
-        use_int8: bool = False,
+        enable_quantization: bool = False,
         **kwargs,
     ):
         super().__init__(**kwargs)
         self._preprocess_blob = clip._transform_blob(_SIZE[name])
         self._preprocess_tensor = clip._transform_ndarray(_SIZE[name])
-        self._model = CLIPOnnxModel(name, use_float16=use_float16, use_int8=use_int8)
         if pool_backend == 'thread':
             self._pool = ThreadPool(processes=num_worker_preprocess)
         else:
             self._pool = Pool(processes=num_worker_preprocess)
         self._minibatch_size = minibatch_size
 
+        self._model = CLIPOnnxModel(name, enable_quantization=enable_quantization)
+
         import torch
 
         if not device:
-
             self._device = 'cuda' if torch.cuda.is_available() else 'cpu'
         else:
             self._device = device
