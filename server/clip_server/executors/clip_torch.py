@@ -1,6 +1,6 @@
 import os
 import numpy as np
-from multiprocessing.pool import ThreadPool, Pool
+from multiprocessing.pool import ThreadPool
 from typing import Optional, List, Tuple
 
 from jina import Executor, requests, DocumentArray
@@ -17,7 +17,6 @@ class CLIPEncoder(Executor):
         jit: bool = False,
         num_worker_preprocess: int = 4,
         minibatch_size: int = 64,
-        pool_backend: str = 'thread',
         **kwargs,
     ):
         super().__init__(**kwargs)
@@ -51,10 +50,7 @@ class CLIPEncoder(Executor):
             name, device=self._device, jit=jit
         )
 
-        if pool_backend == 'thread':
-            self._pool = ThreadPool(processes=num_worker_preprocess)
-        else:
-            self._pool = Pool(processes=num_worker_preprocess)
+        self._pool = ThreadPool(processes=num_worker_preprocess)
 
     def _preproc_image(self, da: 'DocumentArray') -> 'DocumentArray':
         for d in da:
