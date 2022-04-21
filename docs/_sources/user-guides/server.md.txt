@@ -169,7 +169,6 @@ For PyTorch & ONNX backend, you can set the following parameters via `with`:
 | `name`    | Model weights, default is `ViT-B/32`. Support all OpenAI released pretrained models.                                           |
 | `num_worker_preprocess` | The number of CPU workers for image & text prerpocessing, default 4.                                                           | 
 | `minibatch_size` | The size of a minibatch for CPU preprocessing and GPU encoding, default 64. Reduce the size of it if you encounter OOM on GPU. |
-| `pool_backend` | The backend of the preprocessing worker pool, default is `thread`                                                               |
 
 There are also runtime-specific parameters listed below:
 
