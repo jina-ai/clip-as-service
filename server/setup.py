@@ -40,7 +40,7 @@ setup(
     long_description=_long_description,
     long_description_content_type='text/markdown',
     zip_safe=False,
-    setup_requires=['setuptools>=18.0', 'wheel'],
+    setup_requires=['setuptools>=18.0', 'wheel', 'nvidia-pyindex'],
     install_requires=[
         'ftfy',
         'torch',
@@ -56,6 +56,7 @@ setup(
             'onnx',
         ]
         + (['onnxruntime-gpu>=1.8.0'] if sys.platform != 'darwin' else []),
+        'tensorrt': ['onnx', 'onnxruntime', 'onnxruntime-gpu', 'nvidia-tensorrt'],
     },
     classifiers=[
         'Development Status :: 5 - Production/Stable',
