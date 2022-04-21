@@ -21,6 +21,7 @@
 
 
 
+
 <a name=release-note-0-0-3></a>
 ## Release Note (`0.0.3`)
 
@@ -475,4 +476,28 @@
 
  - [[```67226f5c```](https://github.com/jina-ai/clip-as-service/commit/67226f5c8ec7d652f5d47ed0ab21dc8d14fc49c8)] __-__ bump version (*numb3r3*)
  - [[```5dc64878```](https://github.com/jina-ai/clip-as-service/commit/5dc6487819483ee680cf6e4c6a5fd1c0c27e2b54)] __-__ __version__: the next version will be 0.1.16 (*Jina Dev Bot*)
+
+<a name=release-note-0-2-1></a>
+## Release Note (`0.2.1`)
+
+> Release time: 2022-04-21 15:32:35
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ felix-wang,  Han Xiao,  Jina Dev Bot,  numb3r3,  🙇
+
+
+### 🐞 Bug fixes
+
+ - [[```2558d738```](https://github.com/jina-ai/clip-as-service/commit/2558d7388a6ebdbfa99e489d9d005d9e1c22c33a)] __-__ pass extra_search path (#687) (*felix-wang*)
+ - [[```71e9ebc8```](https://github.com/jina-ai/clip-as-service/commit/71e9ebc89a27b9ed64def3b6968b78c4ea1c3256)] __-__ remove process backend (#685) (*felix-wang*)
+ - [[```65ad956d```](https://github.com/jina-ai/clip-as-service/commit/65ad956dab7e4f011568ac14357d636312dd4f5e)] __-__ use one iteration step (#683) (*felix-wang*)
+
+### 🍹 Other Improvements
+
+ - [[```e3d4e918```](https://github.com/jina-ai/clip-as-service/commit/e3d4e9181b645dfebd23620e153d86c563d38c9b)] __-__ update readme (*Han Xiao*)
+ - [[```ec3a700c```](https://github.com/jina-ai/clip-as-service/commit/ec3a700c632dba97c01529c0049c383d68636aa8)] __-__ update docs (#684) (*felix-wang*)
+ - [[```11487cee```](https://github.com/jina-ai/clip-as-service/commit/11487ceec184fbcf93c0c1debedbf22d097d9254)] __-__ __version__: the next version will be 0.2.1 (*Jina Dev Bot*)
+ - [[```67226f5c```](https://github.com/jina-ai/clip-as-service/commit/67226f5c8ec7d652f5d47ed0ab21dc8d14fc49c8)] __-__ bump version (*numb3r3*)
 
