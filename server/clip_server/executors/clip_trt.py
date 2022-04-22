@@ -1,16 +1,12 @@
-import os
-from multiprocessing.pool import ThreadPool, Pool
-from typing import List, Tuple, Optional
+from multiprocessing.pool import ThreadPool
+from typing import List, Tuple
 import numpy as np
-
-import tensorrt as trt
-import onnxruntime as ort
 
 from jina import Executor, requests, DocumentArray
 from jina.logging.logger import JinaLogger
 
 from clip_server.model import clip
-from clip_server.model.clip_onnx import CLIPOnnxModel
+from clip_server.model.clip_trt import CLIPTensorRTModel
 
 _SIZE = {
     'RN50': 224,
@@ -28,7 +24,7 @@ class CLIPEncoder(Executor):
     def __init__(
         self,
         name: str = 'ViT-B/32',
-        device: Optional[str] = None,
+        device: str = 'cuda',
         num_worker_preprocess: int = 4,
         minibatch_size: int = 64,
         **kwargs,
@@ -41,49 +37,23 @@ class CLIPEncoder(Executor):
         self._pool = ThreadPool(processes=num_worker_preprocess)
 
         self._minibatch_size = minibatch_size
-
-        self._model = CLIPOnnxModel(name)
+        self._device = device
 
         import torch
 
-        if not device:
-            self._device = 'cuda' if torch.cuda.is_available() else 'cpu'
-        else:
-            self._device = device
+        assert (
+            torch.cuda.is_available()
+        ), "CUDA/GPU is not available on Pytorch. Please check your CUDA installation"
 
-        # define the priority order for the execution providers
-        providers = ['CPUExecutionProvider']
-
-        # prefer CUDA Execution Provider over CPU Execution Provider
-        if self._device.startswith('cuda'):
-            providers.insert(0, 'CUDAExecutionProvider')
-            # TODO: support tensorrt
-            # providers.insert(0, 'TensorrtExecutionProvider')
-
-        sess_options = ort.SessionOptions()
-
-        # Enables all available optimizations including layout optimizations
-        sess_options.graph_optimization_level = (
-            ort.GraphOptimizationLevel.ORT_ENABLE_ALL
+        assert self._device.startswith('cuda'), (
+            f'can not perform inference on {self._device}'
+            f' with Nvidia TensorRT as backend'
         )
 
-        if not self._device.startswith('cuda') and (
-            not os.environ.get('OMP_NUM_THREADS')
-        ):
-            num_threads = torch.get_num_threads() // self.runtime_args.replicas
-            if num_threads < 2:
-                self.logger.warning(
-                    f'Too many encoder replicas (replicas={self.runtime_args.replicas})'
-                )
-
-            # Run the operators in the graph in parallel (not support the CUDA Execution Provider)
-            sess_options.execution_mode = ort.ExecutionMode.ORT_PARALLEL
-
-            # The number of threads used to parallelize the execution of the graph (across nodes)
-            sess_options.inter_op_num_threads = 1
-            sess_options.intra_op_num_threads = max(num_threads, 1)
-
-        self._model.start_sessions(sess_options=sess_options, providers=providers)
+        self._model = CLIPTensorRTModel(
+            name, max_batch_size=minibatch_size, image_resolution=_SIZE[name]
+        )
+        self._model.start_contexts()
 
     def _preproc_image(self, da: 'DocumentArray') -> 'DocumentArray':
         for d in da:

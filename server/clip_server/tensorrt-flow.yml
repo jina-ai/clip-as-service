@@ -1,0 +1,12 @@
+jtype: Flow
+version: '1'
+with:
+  port: 51000
+executors:
+  - name: clip_r
+    uses:
+      jtype: CLIPEncoder
+      metas:
+        py_modules:
+          - executors/clip_trt.py
+
