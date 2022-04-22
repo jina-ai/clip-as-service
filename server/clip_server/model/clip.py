@@ -3,6 +3,7 @@
 import os
 import io
 import urllib
+import shutil
 import warnings
 from typing import Union, List
 
@@ -70,20 +71,46 @@ def _download(url: str, root: str):
 
         task = progress.add_task('download', filename=url, start=False)
 
-        with urllib.request.urlopen(url) as source, open(
-            download_target, 'wb'
-        ) as output:
+        tmp_file_path = download_target + '.part'
+        resume_byte_pos = (
+            os.path.getsize(tmp_file_path) if os.path.exists(tmp_file_path) else 0
+        )
 
-            progress.update(task, total=int(source.info().get('Content-Length')))
+        total_bytes = -1
+        try:
+            total_bytes = int(
+                urllib.request.urlopen(url).info().get('Content-Length', -1)
+            )
 
-            progress.start_task(task)
-            while True:
-                buffer = source.read(8192)
-                if not buffer:
-                    break
+            mode = 'ab' if resume_byte_pos else 'wb'
 
-                output.write(buffer)
-                progress.update(task, advance=len(buffer))
+            with open(tmp_file_path, mode) as output:
+
+                progress.update(task, total=total_bytes)
+
+                progress.start_task(task)
+
+                req = urllib.request.Request(url)
+                if resume_byte_pos:
+                    progress.update(task, advance=resume_byte_pos)
+                    req.headers['Range'] = f'bytes={resume_byte_pos}-'
+
+                with urllib.request.urlopen(req) as source:
+                    while True:
+                        buffer = source.read(8192)
+                        if not buffer:
+                            break
+
+                        output.write(buffer)
+                        progress.update(task, advance=len(buffer))
+        except Exception as ex:
+            raise ex
+        finally:
+            # rename the temp download file to the correct name if fully downloaded
+            if os.path.exists(tmp_file_path) and (
+                total_bytes == os.path.getsize(tmp_file_path)
+            ):
+                shutil.move(tmp_file_path, download_target)
 
     return download_target
 
