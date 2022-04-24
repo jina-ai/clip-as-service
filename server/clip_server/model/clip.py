@@ -3,6 +3,7 @@
 import os
 import io
 import urllib
+import shutil
 import warnings
 from typing import Union, List
 
@@ -36,7 +37,7 @@ _MODELS = {
 }
 
 
-def _download(url: str, root: str):
+def _download(url: str, root: str, with_resume: bool = True):
     os.makedirs(root, exist_ok=True)
     filename = os.path.basename(url)
 
@@ -70,20 +71,48 @@ def _download(url: str, root: str):
 
         task = progress.add_task('download', filename=url, start=False)
 
-        with urllib.request.urlopen(url) as source, open(
-            download_target, 'wb'
-        ) as output:
+        tmp_file_path = download_target + '.part'
+        resume_byte_pos = (
+            os.path.getsize(tmp_file_path) if os.path.exists(tmp_file_path) else 0
+        )
 
-            progress.update(task, total=int(source.info().get('Content-Length')))
+        total_bytes = -1
+        try:
+            # resolve the 403 error by passing a valid user-agent
+            req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
 
-            progress.start_task(task)
-            while True:
-                buffer = source.read(8192)
-                if not buffer:
-                    break
+            total_bytes = int(
+                urllib.request.urlopen(req).info().get('Content-Length', -1)
+            )
 
-                output.write(buffer)
-                progress.update(task, advance=len(buffer))
+            mode = 'ab' if (with_resume and resume_byte_pos) else 'wb'
+
+            with open(tmp_file_path, mode) as output:
+
+                progress.update(task, total=total_bytes)
+
+                progress.start_task(task)
+
+                if resume_byte_pos and with_resume:
+                    progress.update(task, advance=resume_byte_pos)
+                    req.headers['Range'] = f'bytes={resume_byte_pos}-'
+
+                with urllib.request.urlopen(req) as source:
+                    while True:
+                        buffer = source.read(8192)
+                        if not buffer:
+                            break
+
+                        output.write(buffer)
+                        progress.update(task, advance=len(buffer))
+        except Exception as ex:
+            raise ex
+        finally:
+            # rename the temp download file to the correct name if fully downloaded
+            if os.path.exists(tmp_file_path) and (
+                total_bytes == os.path.getsize(tmp_file_path)
+            ):
+                shutil.move(tmp_file_path, download_target)
 
     return download_target
 
@@ -165,6 +194,7 @@ def load(
         model_path = _download(
             _S3_BUCKET + _MODELS[name],
             download_root or os.path.expanduser('~/.cache/clip'),
+            with_resume=True,
         )
     elif os.path.isfile(name):
         model_path = name
