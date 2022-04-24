@@ -6,12 +6,23 @@ from docarray import Document
 import numpy as np
 
 
-@pytest.mark.parametrize('with_resume', [True, False])
-def test_server_download(tmpdir, with_resume):
-    _download(
-        'https://docarray.jina.ai/_static/favicon.png', tmpdir, with_resume=with_resume
-    )
-    assert os.path.getsize(os.path.join(tmpdir, 'favicon.png')) > 0
+def test_server_download(tmpdir):
+    _download('https://docarray.jina.ai/_static/favicon.png', tmpdir, with_resume=False)
+
+    target_path = os.path.join(tmpdir, 'favicon.png')
+    file_size = os.path.getsize(target_path)
+    assert file_size > 0
+
+    part_path = target_path + '.part'
+    with open(target_path, 'rb') as source, open(part_path, 'wb') as part_out:
+        buf = source.read(10)
+        part_out.write(buf)
+
+    os.remove(target_path)
+
+    _download('https://docarray.jina.ai/_static/favicon.png', tmpdir, with_resume=True)
+    assert os.path.getsize(target_path) == file_size
+    assert not os.path.exists(part_path)
 
 
 @pytest.mark.parametrize(
