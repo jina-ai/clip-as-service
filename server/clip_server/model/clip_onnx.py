@@ -20,8 +20,12 @@ class CLIPOnnxModel:
     def __init__(self, name: str = None):
         if name in _MODELS:
             cache_dir = os.path.expanduser(f'~/.cache/clip/{name.replace("/", "-")}')
-            self._textual_path = _download(_S3_BUCKET + _MODELS[name][0], cache_dir)
-            self._visual_path = _download(_S3_BUCKET + _MODELS[name][1], cache_dir)
+            self._textual_path = _download(
+                _S3_BUCKET + _MODELS[name][0], cache_dir, with_resume=True
+            )
+            self._visual_path = _download(
+                _S3_BUCKET + _MODELS[name][1], cache_dir, with_resume=True
+            )
         else:
             raise RuntimeError(
                 f'Model {name} not found; available models = {available_models()}'

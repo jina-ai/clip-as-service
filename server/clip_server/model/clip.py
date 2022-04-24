@@ -37,7 +37,7 @@ _MODELS = {
 }
 
 
-def _download(url: str, root: str):
+def _download(url: str, root: str, with_resume: bool = True):
     os.makedirs(root, exist_ok=True)
     filename = os.path.basename(url)
 
@@ -78,11 +78,14 @@ def _download(url: str, root: str):
 
         total_bytes = -1
         try:
+            # resolve the 403 error by passing a valid user-agent
+            req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+
             total_bytes = int(
-                urllib.request.urlopen(url).info().get('Content-Length', -1)
+                urllib.request.urlopen(req).info().get('Content-Length', -1)
             )
 
-            mode = 'ab' if resume_byte_pos else 'wb'
+            mode = 'ab' if (with_resume and resume_byte_pos) else 'wb'
 
             with open(tmp_file_path, mode) as output:
 
@@ -90,8 +93,7 @@ def _download(url: str, root: str):
 
                 progress.start_task(task)
 
-                req = urllib.request.Request(url)
-                if resume_byte_pos:
+                if resume_byte_pos and with_resume:
                     progress.update(task, advance=resume_byte_pos)
                     req.headers['Range'] = f'bytes={resume_byte_pos}-'
 
@@ -192,6 +194,7 @@ def load(
         model_path = _download(
             _S3_BUCKET + _MODELS[name],
             download_root or os.path.expanduser('~/.cache/clip'),
+            with_resume=True,
         )
     elif os.path.isfile(name):
         model_path = name

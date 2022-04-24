@@ -1,9 +1,17 @@
 import os
 
 import pytest
-from clip_server.model.clip import _transform_ndarray, _transform_blob
+from clip_server.model.clip import _transform_ndarray, _transform_blob, _download
 from docarray import Document
 import numpy as np
+
+
+@pytest.mark.parametrize('with_resume', [True, False])
+def test_server_download(tmpdir, with_resume):
+    _download(
+        'https://docarray.jina.ai/_static/favicon.png', tmpdir, with_resume=with_resume
+    )
+    assert os.path.getsize(os.path.join(tmpdir, 'favicon.png')) > 0
 
 
 @pytest.mark.parametrize(
