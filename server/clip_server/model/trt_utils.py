@@ -92,7 +92,7 @@ def build_engine(
                 config: IBuilderConfig = builder.create_builder_config()
                 config.max_workspace_size = workspace_size
                 # to enable complete trt inspector debugging, only for TensorRT >= 8.2
-                # config.profiling_verbosity = trt.ProfilingVerbosity.DETAILED
+                config.profiling_verbosity = trt.ProfilingVerbosity.DETAILED
                 # disable CUDNN optimizations
                 config.set_tactic_sources(
                     tactic_sources=1 << int(trt.TacticSource.CUBLAS)
@@ -175,9 +175,11 @@ def infer_tensorrt(
         assert isinstance(
             tensor, torch.Tensor
         ), f"unexpected tensor type: {tensor.dtype}"
-        # warning: small changes in output if int64 is used instead of int32
-        # tensor = tensor.type(torch.int32)
-        # tensor = tensor.to("cuda")
+
+        if tensor.dtype == torch.int64:
+            # warning: small changes in output if int64 is used instead of int32
+            tensor = tensor.type(torch.int32)
+            # tensor = tensor.to("cuda")
         input_tensors.append(tensor)
     # calculate input shape, bind it, allocate GPU memory for the output
     output_tensors: List[torch.Tensor] = get_output_tensors(
