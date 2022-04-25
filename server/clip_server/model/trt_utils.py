@@ -176,8 +176,8 @@ def infer_tensorrt(
             tensor, torch.Tensor
         ), f"unexpected tensor type: {tensor.dtype}"
         # warning: small changes in output if int64 is used instead of int32
-        tensor = tensor.type(torch.int32)
-        tensor = tensor.to("cuda")
+        # tensor = tensor.type(torch.int32)
+        # tensor = tensor.to("cuda")
         input_tensors.append(tensor)
     # calculate input shape, bind it, allocate GPU memory for the output
     output_tensors: List[torch.Tensor] = get_output_tensors(

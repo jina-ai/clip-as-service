@@ -5,7 +5,7 @@ try:
     import tensorrt as trt
     from tensorrt.tensorrt import Logger, Runtime
 
-    from .trt_utils import build_engine, infer_tensorrt
+    from .trt_utils import load_engine
 except ImportError:
     raise ImportError(
         "It seems that TensorRT is not yet installed. "
@@ -15,17 +15,24 @@ except ImportError:
     )
 
 from .clip import _download, available_models
-from .clip_onnx import _S3_BUCKET, _MODELS
+
+_S3_BUCKET = 'https://clip-as-service.s3.us-east-2.amazonaws.com/models/onnx/'
+_MODELS = {
+    'RN50': ('RN50/textual.trt', 'RN50/visual.trt'),
+    'RN101': ('RN101/textual.trt', 'RN101/visual.trt'),
+    'RN50x4': ('RN50x4/textual.trt', 'RN50x4/visual.trt'),
+    'RN50x16': ('RN50x16/textual.trt', 'RN50x16/visual.trt'),
+    'RN50x64': ('RN50x64/textual.trt', 'RN50x64/visual.trt'),
+    'ViT-B/32': ('ViT-B-32/textual.trt', 'ViT-B-32/visual.trt'),
+    'ViT-B/16': ('ViT-B-16/textual.trt', 'ViT-B-16/visual.trt'),
+    'ViT-L/14': ('ViT-L-14/textual.trt', 'ViT-L-14/visual.trt'),
+}
 
 
 class CLIPTensorRTModel:
     def __init__(
         self,
         name: str = None,
-        max_batch_size: int = 1024,
-        max_seq_len: int = 77,
-        image_resolution: int = 224,
-        image_channel: int = 3,
     ):
         if name in _MODELS:
             cache_dir = os.path.expanduser(f'~/.cache/clip/{name.replace("/", "-")}')
@@ -39,69 +46,15 @@ class CLIPTensorRTModel:
         trt_logger: Logger = trt.Logger(trt.Logger.ERROR)
         runtime: Runtime = trt.Runtime(trt_logger)
 
-        self._textual_engine = build_engine(
-            runtime=runtime,
-            onnx_file_path=self._textual_path,
-            logger=trt_logger,
-            min_shape=(1, max_seq_len),
-            optimal_shape=(max_batch_size, max_seq_len),
-            max_shape=(max_batch_size, max_seq_len),
-            workspace_size=10000 * 1024 * 1024,
-            fp16=True,
-            int8=False,
-        )
-
-        self._visual_engine = build_engine(
-            runtime=runtime,
-            onnx_file_path=self._visual_path,
-            logger=trt_logger,
-            min_shape=(1, image_channel, image_resolution, image_resolution),
-            optimal_shape=(
-                max_batch_size,
-                image_channel,
-                image_resolution,
-                image_resolution,
-            ),
-            max_shape=(
-                max_batch_size,
-                image_channel,
-                image_resolution,
-                image_resolution,
-            ),
-            workspace_size=10000 * 1024 * 1024,
-            fp16=True,
-            int8=False,
-        )
-
-    def start_contexts(
-        self,
-        **kwargs,
-    ):
-        self._textual_context = self._textual_engine.create_execution_context()
-        self._textual_context.set_optimization_profile_async(
-            profile_index=0, stream_handle=torch.cuda.current_stream().cuda_stream
-        )
-
-        self._visual_context = self._visual_engine.create_execution_context()
-        self._visual_context.set_optimization_profile_async(
-            profile_index=0, stream_handle=torch.cuda.current_stream().cuda_stream
-        )
+        self._textual_engine = load_engine(runtime, self._textual_path)
+        self._visual_engine = load_engine(runtime, self._visual_path)
 
     def encode_image(self, onnx_image):
-        (visual_output,) = infer_tensorrt(
-            context=self._visual_context,
-            host_inputs={'input': torch.tensor(onnx_image)},
-            input_binding_idxs=[0],
-            output_binding_idxs=[1],
-        )
+        (visual_output,) = self._visual_engine({'input': onnx_image})
 
         return visual_output
 
     def encode_text(self, onnx_text):
-        (textual_output,) = infer_tensorrt(
-            context=self._textual_context,
-            host_inputs={'input': torch.tensor(onnx_text)},
-            input_binding_idxs=[0],
-            output_binding_idxs=[1],
-        )
+        (textual_output,) = self._textual_engine({'input': onnx_text})
+
         return textual_output

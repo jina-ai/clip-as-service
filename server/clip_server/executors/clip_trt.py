@@ -50,10 +50,7 @@ class CLIPEncoder(Executor):
             f' with Nvidia TensorRT as backend'
         )
 
-        self._model = CLIPTensorRTModel(
-            name, max_batch_size=minibatch_size, image_resolution=_SIZE[name]
-        )
-        self._model.start_contexts()
+        self._model = CLIPTensorRTModel(name)
 
     def _preproc_image(self, da: 'DocumentArray') -> 'DocumentArray':
         for d in da:
@@ -64,12 +61,12 @@ class CLIPEncoder(Executor):
                     # in case user uses HTTP protocol and send data via curl not using .blob (base64), but in .uri
                     d.load_uri_to_blob()
                 d.tensor = self._preprocess_blob(d.blob)
-        da.tensors = da.tensors.detach().cpu().numpy().astype(np.float32)
+        da.tensors = da.tensors.to(self._device)
         return da
 
     def _preproc_text(self, da: 'DocumentArray') -> Tuple['DocumentArray', List[str]]:
         texts = da.texts
-        da.tensors = clip.tokenize(texts).detach().cpu().numpy().astype(np.int64)
+        da.tensors = clip.tokenize(texts).to(self._device)
         da[:, 'mime_type'] = 'text'
         return da, texts
 
