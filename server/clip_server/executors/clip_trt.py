@@ -8,17 +8,6 @@ from jina.logging.logger import JinaLogger
 from clip_server.model import clip
 from clip_server.model.clip_trt import CLIPTensorRTModel
 
-_SIZE = {
-    'RN50': 224,
-    'RN101': 224,
-    'RN50x4': 288,
-    'RN50x16': 384,
-    'RN50x64': 448,
-    'ViT-B/32': 224,
-    'ViT-B/16': 224,
-    'ViT-L/14': 224,
-}
-
 
 class CLIPEncoder(Executor):
     def __init__(
@@ -32,8 +21,8 @@ class CLIPEncoder(Executor):
         super().__init__(**kwargs)
         self.logger = JinaLogger(self.__class__.__name__)
 
-        self._preprocess_blob = clip._transform_blob(_SIZE[name])
-        self._preprocess_tensor = clip._transform_ndarray(_SIZE[name])
+        self._preprocess_blob = clip._transform_blob(clip.MODEL_SIZE[name])
+        self._preprocess_tensor = clip._transform_ndarray(clip.MODEL_SIZE[name])
         self._pool = ThreadPool(processes=num_worker_preprocess)
 
         self._minibatch_size = minibatch_size
