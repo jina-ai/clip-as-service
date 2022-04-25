@@ -1,10 +1,10 @@
 import os
+import warnings
 from multiprocessing.pool import ThreadPool
 from typing import Optional, List, Tuple, Dict
 
 import numpy as np
 from jina import Executor, requests, DocumentArray, Document
-from jina.logging.logger import JinaLogger
 
 from clip_server.model import clip
 
@@ -20,7 +20,6 @@ class CLIPEncoder(Executor):
         **kwargs,
     ):
         super().__init__(**kwargs)
-        self.logger = JinaLogger(self.__class__.__name__)
 
         import torch
 
@@ -30,13 +29,13 @@ class CLIPEncoder(Executor):
             self._device = device
 
         if not self._device.startswith('cuda') and (
-            not os.environ.get('OMP_NUM_THREADS')
+            'OMP_NUM_THREADS' not in os.environ
             and hasattr(self.runtime_args, 'replicas')
         ):
             replicas = getattr(self.runtime_args, 'replicas', 1)
             num_threads = max(1, torch.get_num_threads() // replicas)
             if num_threads < 2:
-                self.logger.warning(
+                warnings.warn(
                     f'Too many replicas ({replicas}) vs too few threads {num_threads} may result in '
                     f'sub-optimal performance.'
                 )

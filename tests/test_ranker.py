@@ -4,7 +4,8 @@ import pytest
 from clip_client import Client
 from clip_server.executors.clip_torch import CLIPEncoder
 from docarray import DocumentArray, Document
-from jina import Flow
+
+os.environ['OMP_NUM_THREADS'] = '1'
 
 
 @pytest.mark.asyncio
@@ -62,13 +63,9 @@ async def test_torch_executor_rank_text2imgs():
         ),
     ],
 )
-def test_docarray_inputs(d, port_generator):
-    from clip_server.executors.clip_torch import CLIPEncoder
-
-    f = Flow(port=port_generator()).add(uses=CLIPEncoder)
-    with f:
-        c = Client(server=f'grpc://0.0.0.0:{f.port}')
-        r = c.rerank([d])
+def test_docarray_inputs(make_torch_flow, d):
+    c = Client(server=f'grpc://0.0.0.0:{make_torch_flow.port}')
+    r = c.rerank([d])
     assert isinstance(r, DocumentArray)
     rv = r['@m', 'scores__clip_score__value']
     for v in rv:

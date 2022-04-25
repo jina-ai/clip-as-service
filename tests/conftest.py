@@ -26,3 +26,12 @@ def make_flow(port_generator, request):
     f = Flow(port=port_generator()).add(name=request.param, uses=CLIPEncoder)
     with f:
         yield f
+
+
+@pytest.fixture(scope='session', params=['torch'])
+def make_torch_flow(port_generator, request):
+    from clip_server.executors.clip_torch import CLIPEncoder
+
+    f = Flow(port=port_generator()).add(name=request.param, uses=CLIPEncoder)
+    with f:
+        yield f
