@@ -1,9 +1,9 @@
 # Originally from https://github.com/openai/CLIP. MIT License, Copyright (c) 2021 OpenAI
 
-import os
 import io
-import urllib
+import os
 import shutil
+import urllib
 import warnings
 from typing import Union, List
 
@@ -34,6 +34,7 @@ _MODELS = {
     'ViT-B/32': 'ViT-B-32.pt',
     'ViT-B/16': 'ViT-B-16.pt',
     'ViT-L/14': 'ViT-L-14.pt',
+    'ViT-L/14@336px': 'ViT-L-14-336px.pt',
 }
 
 

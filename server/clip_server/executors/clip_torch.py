@@ -1,8 +1,8 @@
 import os
-import numpy as np
 from multiprocessing.pool import ThreadPool
 from typing import Optional, List, Tuple
 
+import numpy as np
 from jina import Executor, requests, DocumentArray
 from jina.logging.logger import JinaLogger
 
@@ -31,11 +31,14 @@ class CLIPEncoder(Executor):
 
         if not self._device.startswith('cuda') and (
             not os.environ.get('OMP_NUM_THREADS')
+            and hasattr(self.runtime_args, 'replicas')
         ):
-            num_threads = torch.get_num_threads() // self.runtime_args.replicas
+            replicas = getattr(self.runtime_args, 'replicas', 1)
+            num_threads = max(1, torch.get_num_threads() // replicas)
             if num_threads < 2:
                 self.logger.warning(
-                    f'Too many encoder replicas (replicas={self.runtime_args.replicas})'
+                    f'Too many replicas ({replicas}) vs too few threads {num_threads} may result in '
+                    f'sub-optimal performance.'
                 )
 
             # NOTE: make sure to set the threads right after the torch import,
@@ -70,21 +73,64 @@ class CLIPEncoder(Executor):
         da[:, 'mime_type'] = 'text'
         return da, texts
 
+    @staticmethod
+    def _split_img_txt_da(d, _img_da, _txt_da):
+        if d.text:
+            _txt_da.append(d)
+        elif (d.blob is not None) or (d.tensor is not None):
+            _img_da.append(d)
+        elif d.uri:
+            _img_da.append(d)
+
+    @requests(on='/rank')
+    async def rank(self, docs: 'DocumentArray', **kwargs):
+        for d in docs:
+            _img_da = DocumentArray()
+            _txt_da = DocumentArray()
+            self._split_img_txt_da(d, _img_da, _txt_da)
+
+            for c in d.chunks:
+                self._split_img_txt_da(c, _img_da, _txt_da)
+
+            if len(_img_da) != 1 and len(_txt_da) != 1:
+                raise ValueError(
+                    'chunks must be all in same modality, either all images or all text'
+                )
+            elif not _img_da or not _txt_da:
+                raise ValueError(
+                    'root and chunks must be in different modality, one is image one is text'
+                )
+            elif len(d.chunks) <= 1:
+                raise ValueError('must have more than one chunks to rank over chunks')
+            else:
+                _img_da = self._preproc_image(_img_da)
+                _txt_da, texts = self._preproc_text(_txt_da)
+
+                logits_per_image, logits_per_text = self._model(
+                    _img_da.tensors, _txt_da.tensors
+                )
+                probs_image = (
+                    logits_per_image.softmax(dim=-1).cpu().detach().numpy().squeeze()
+                )
+                probs_text = (
+                    logits_per_text.softmax(dim=-1).cpu().detach().numpy().squeeze()
+                )
+                if len(_img_da) == 1:
+                    probs = probs_image
+                elif len(_txt_da) == 1:
+                    probs = probs_text
+
+                for c, v in zip(d.chunks, probs):
+                    c.scores['clip-rank'].value = v
+
+                _txt_da.texts = texts
+
     @requests
     async def encode(self, docs: 'DocumentArray', **kwargs):
         _img_da = DocumentArray()
         _txt_da = DocumentArray()
         for d in docs:
-            if d.text:
-                _txt_da.append(d)
-            elif (d.blob is not None) or (d.tensor is not None):
-                _img_da.append(d)
-            elif d.uri:
-                _img_da.append(d)
-            else:
-                self.logger.warning(
-                    f'The content of document {d.id} is empty, cannot be processed'
-                )
+            self._split_img_txt_da(d, _img_da, _txt_da)
 
         import torch
 
