@@ -1,6 +1,7 @@
 import os
 
 import pytest
+from clip_client import Client
 from clip_server.executors.clip_torch import CLIPEncoder
 from docarray import DocumentArray, Document
 
@@ -13,14 +14,14 @@ async def test_torch_executor_rank_img2texts():
         f'{os.path.dirname(os.path.abspath(__file__))}/**/*.jpg'
     )
     for d in da:
-        d.chunks.append(Document(text='hello, world!'))
-        d.chunks.append(Document(text='goodbye, world!'))
+        d.matches.append(Document(text='hello, world!'))
+        d.matches.append(Document(text='goodbye, world!'))
 
-    await ce.rank(da)
-    print(da['@c', 'scores__clip-rank__value'])
+    await ce.rerank(da, {})
+    print(da['@m', 'scores__clip_score__value'])
     for d in da:
-        for c in d.chunks:
-            assert c.scores['clip-rank'].value is not None
+        for c in d.matches:
+            assert c.scores['clip_score'].value is not None
 
 
 @pytest.mark.asyncio
@@ -30,13 +31,41 @@ async def test_torch_executor_rank_text2imgs():
         [Document(text='hello, world!'), Document(text='goodbye, world!')]
     )
     for d in db:
-        d.chunks.extend(
+        d.matches.extend(
             DocumentArray.from_files(
                 f'{os.path.dirname(os.path.abspath(__file__))}/**/*.jpg'
             )
         )
-    await ce.rank(db)
-    print(db['@c', 'scores__clip-rank__value'])
+    await ce.rerank(db, {})
+    print(db['@m', 'scores__clip_score__value'])
     for d in db:
-        for c in d.chunks:
-            assert c.scores['clip-rank'].value is not None
+        for c in d.matches:
+            assert c.scores['clip_score'].value is not None
+
+
+@pytest.mark.parametrize(
+    'd',
+    [
+        Document(
+            uri='https://docarray.jina.ai/_static/favicon.png',
+            matches=[Document(text='hello, world'), Document(text='goodbye, world')],
+        ),
+        Document(
+            text='hello, world',
+            matches=[
+                Document(uri='https://docarray.jina.ai/_static/favicon.png'),
+                Document(
+                    uri=f'{os.path.dirname(os.path.abspath(__file__))}/img/00000.jpg'
+                ),
+            ],
+        ),
+    ],
+)
+def test_docarray_inputs(make_torch_flow, d):
+    c = Client(server=f'grpc://0.0.0.0:{make_torch_flow.port}')
+    r = c.rerank([d])
+    assert isinstance(r, DocumentArray)
+    rv = r['@m', 'scores__clip_score__value']
+    for v in rv:
+        assert v is not None
+        assert v > 0

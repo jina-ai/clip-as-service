@@ -14,7 +14,6 @@ from typing import (
 )
 from urllib.parse import urlparse
 
-
 if TYPE_CHECKING:
     import numpy as np
     from docarray import DocumentArray, Document
@@ -316,3 +315,85 @@ class Client:
         from docarray import DocumentArray
 
         self._results = DocumentArray()
+
+    @staticmethod
+    def _prepare_single_doc(d: 'Document'):
+        if d.content_type in ('text', 'blob'):
+            return d
+        elif not d.blob and d.uri:
+            d.load_uri_to_blob()
+            return d
+        elif d.tensor is not None:
+            return d
+        else:
+            raise TypeError(f'unsupported input type {d!r} {d.content_type}')
+
+    @staticmethod
+    def _prepare_rank_doc(d: 'Document', _source: str = 'matches'):
+        _get = lambda d: getattr(d, _source)
+        if not _get(d):
+            raise ValueError(f'`.rerank()` requires every doc to have `.{_source}`')
+        d = Client._prepare_single_doc(d)
+        setattr(d, _source, [Client._prepare_single_doc(c) for c in _get(d)])
+        return d
+
+    def _iter_rank_docs(
+        self, content, _source='matches'
+    ) -> Generator['Document', None, None]:
+        from rich import filesize
+        from docarray import Document
+
+        self._return_plain = True
+
+        if hasattr(self, '_pbar'):
+            self._pbar.start_task(self._s_task)
+
+        for c in content:
+            if isinstance(c, Document):
+                yield self._prepare_rank_doc(c, _source)
+            else:
+                raise TypeError(f'unsupported input type {c!r}')
+
+            if hasattr(self, '_pbar'):
+                self._pbar.update(
+                    self._s_task,
+                    advance=1,
+                    total_size=str(
+                        filesize.decimal(
+                            int(os.environ.get('JINA_GRPC_SEND_BYTES', '0'))
+                        )
+                    ),
+                )
+
+    def _get_rank_payload(self, content, kwargs):
+        return dict(
+            on='/rerank',
+            inputs=self._iter_rank_docs(
+                content, _source=kwargs.get('source', 'matches')
+            ),
+            request_size=kwargs.get('batch_size', 8),
+            total_docs=len(content) if hasattr(content, '__len__') else None,
+        )
+
+    def rerank(self, docs: Iterable['Document'], **kwargs) -> 'DocumentArray':
+        """Rerank image-text matches according to the server CLIP model.
+
+        Given a Document with nested matches, where the root is image/text and the matches is in another modality, i.e.
+        text/image; this method reranks the matches according to the CLIP model.
+
+        Each match now has a new score inside ``clip_score`` and matches are sorted descendingly according to this score.
+        More details can be found in: https://github.com/openai/CLIP#usage
+
+        :param docs: the input Documents
+        :return: the reranked Documents in a DocumentArray.
+
+        """
+        self._prepare_streaming(
+            not kwargs.get('show_progress'),
+            total=len(docs),
+        )
+        with self._pbar:
+            self._client.post(
+                **self._get_rank_payload(docs, kwargs), on_done=self._gather_result
+            )
+        return self._results

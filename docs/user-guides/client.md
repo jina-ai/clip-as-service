@@ -255,6 +255,74 @@ asyncio.run(main())
 
 The final time cost will be less than `3s + time(t2)`.
 
+## Reranking
+
+```{tip}
+This feature is only available with `clip_server>=0.3.0` and the server is running with PyTorch backend.
+```
+
+One can also rerank cross-modal matches via {meth}`~clip_client.client.Client.rerank`. First construct a cross-modal Document where the root contains an image and `.matches` contain sentences to rerank. One can also construct text-to-image rerank as below:
+
+````{tab} Given image, rerank sentences
+
+```python
+from docarray import Document
+
+d = Document(
+    uri='.github/README-img/rerank.png',
+    matches=[
+        Document(text=f'a photo of a {p}')
+        for p in (
+            'control room',
+            'lecture room',
+            'conference room',
+            'podium indoor',
+            'television studio',
+        )
+    ],
+)
+```
+
+````
+
+````{tab} Given sentence, rerank images
+
+```python
+from docarray import Document
+
+d = Document(
+    text='a photo of conference room',
+    matches=[
+        Document(uri='.github/README-img/4.png'),
+        Document(uri='.github/README-img/9.png'),
+        Document(uri='https://clip-as-service.jina.ai/_static/favicon.png'),
+    ],
+)
+```
+
+````
+
+
+
+Then call `rerank`, you can feed it with multiple Documents as a list:
+
+```python
+from clip_client import Client
+
+c = Client(server='grpc://demo-cas.jina.ai:51000')
+r = c.rerank([d])
+
+print(r['@m', ['text', 'scores__clip_score__value']])
+```
+
+Finally, in the return you can observe the matches are re-ranked according to `.scores['clip_score']`:
+
+```text
+[['a photo of a television studio', 'a photo of a conference room', 'a photo of a lecture room', 'a photo of a control room', 'a photo of a podium indoor'], 
+[0.9920725226402283, 0.006038925610482693, 0.0009973491542041302, 0.00078492151806131, 0.00010626466246321797]]
+```
+
+
 (profiling)=
 ## Profiling
 

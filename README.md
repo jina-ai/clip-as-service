@@ -482,8 +482,46 @@ Fun time! Note, unlike the previous example, here the input is an image and the 
 </table>
 
 
-Intrigued? That's only scratching the surface of what CLIP-as-service is capable of. [Read our docs to learn more](https://clip-as-service.jina.ai).
+### Rerank image-text matches via CLIP model
 
+From `0.3.0` CLIP-as-service adds a new `/rerank` endpoint that re-ranks cross-modal matches according to their joint likelihood in CLIP model. For example, given an image Document with some predefined sentence matches as below:
+
+```python
+from clip_client import Client
+from docarray import Document
+
+c = Client(server='grpc://demo-cas.jina.ai:51000')
+r = c.rerank(
+    [
+        Document(
+            uri='.github/README-img/rerank.png',
+            matches=[
+                Document(text=f'a photo of a {p}')
+                for p in (
+                    'control room',
+                    'lecture room',
+                    'conference room',
+                    'podium indoor',
+                    'television studio',
+                )
+            ],
+        )
+    ]
+)
+
+print(r['@m', ['text', 'scores__clip_score__value']])
+```
+
+```text
+[['a photo of a television studio', 'a photo of a conference room', 'a photo of a lecture room', 'a photo of a control room', 'a photo of a podium indoor'], 
+[0.9920725226402283, 0.006038925610482693, 0.0009973491542041302, 0.00078492151806131, 0.00010626466246321797]]
+```
+
+One can see now `a photo of a television studio` is ranked to the top with `clip_score` score at `0.992`. In practice, one can use this endpoint to re-rank the matching result from another search system, for improving the cross-modal search quality.
+
+<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/rerank.png?raw=true" alt="Rerank endpoint image input" width="40%"><img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/rerank-chart.svg?raw=true" alt="Rerank endpoint output" width="50%">
+
+Intrigued? That's only scratching the surface of what CLIP-as-service is capable of. [Read our docs to learn more](https://clip-as-service.jina.ai).
 
 <!-- start support-pitch -->
 ## Support
