@@ -381,7 +381,7 @@ class Client:
         Given a Document with nested matches, where the root is image/text and the matches is in another modality, i.e.
         text/image; this method reranks the matches according to the CLIP model.
 
-        Each match now has a new score inside ``clip-rank`` and matches are sorted descendingly according to this score.
+        Each match now has a new score inside ``clip_score`` and matches are sorted descendingly according to this score.
         More details can be found in: https://github.com/openai/CLIP#usage
 
         :param docs: the input Documents

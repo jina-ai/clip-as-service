@@ -19,10 +19,10 @@ async def test_torch_executor_rank_img2texts():
         d.matches.append(Document(text='goodbye, world!'))
 
     await ce.rerank(da, {})
-    print(da['@m', 'scores__clip-rank__value'])
+    print(da['@m', 'scores__clip_score__value'])
     for d in da:
         for c in d.matches:
-            assert c.scores['clip-rank'].value is not None
+            assert c.scores['clip_score'].value is not None
 
 
 @pytest.mark.asyncio
@@ -38,10 +38,10 @@ async def test_torch_executor_rank_text2imgs():
             )
         )
     await ce.rerank(db, {})
-    print(db['@m', 'scores__clip-rank__value'])
+    print(db['@m', 'scores__clip_score__value'])
     for d in db:
         for c in d.matches:
-            assert c.scores['clip-rank'].value is not None
+            assert c.scores['clip_score'].value is not None
 
 
 @pytest.mark.parametrize(
@@ -70,7 +70,7 @@ def test_docarray_inputs(d, port_generator):
         c = Client(server=f'grpc://0.0.0.0:{f.port}')
         r = c.rerank([d])
     assert isinstance(r, DocumentArray)
-    rv = r['@m', 'scores__clip-rank__value']
+    rv = r['@m', 'scores__clip_score__value']
     for v in rv:
         assert v is not None
         assert v > 0

@@ -130,13 +130,13 @@ class CLIPEncoder(Executor):
                 _txt_da.tensors = None
 
                 for c, v in zip(_get(d), probs):
-                    c.scores['clip-rank'].value = v
+                    c.scores['clip_score'].value = v
                 setattr(
                     d,
                     _source,
                     sorted(
                         _get(d),
-                        key=lambda _m: _m.scores['clip-rank'].value,
+                        key=lambda _m: _m.scores['clip_score'].value,
                         reverse=True,
                     ),
                 )

@@ -509,7 +509,7 @@ r = c.rerank(
     ]
 )
 
-print(r['@m', ['text', 'scores__clip-rank__value']])
+print(r['@m', ['text', 'scores__clip_score__value']])
 ```
 
 ```text
@@ -517,7 +517,7 @@ print(r['@m', ['text', 'scores__clip-rank__value']])
 [0.9920725226402283, 0.006038925610482693, 0.0009973491542041302, 0.00078492151806131, 0.00010626466246321797]]
 ```
 
-One can see now `a photo of a television studio` is ranked to the top with `clip-rank` score at `0.992`. In practice, one can use this endpoint to re-rank the matching result from another search system, for improving the cross-modal search quality.
+One can see now `a photo of a television studio` is ranked to the top with `clip_score` score at `0.992`. In practice, one can use this endpoint to re-rank the matching result from another search system, for improving the cross-modal search quality.
 
 <img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/rerank.png?raw=true" alt="Rerank endpoint image input" width="40%"><img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/rerank-chart.svg?raw=true" alt="Rerank endpoint output" width="50%">
 
