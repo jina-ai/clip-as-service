@@ -56,7 +56,7 @@ setup(
             'onnx',
         ]
         + (['onnxruntime-gpu>=1.8.0'] if sys.platform != 'darwin' else []),
-        'tensorrt': ['onnx', 'onnxruntime', 'onnxruntime-gpu', 'nvidia-tensorrt'],
+        'tensorrt': ['nvidia-tensorrt'],
     },
     classifiers=[
         'Development Status :: 5 - Production/Stable',
