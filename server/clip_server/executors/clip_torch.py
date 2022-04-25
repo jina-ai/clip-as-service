@@ -1,9 +1,9 @@
 import os
 from multiprocessing.pool import ThreadPool
-from typing import Optional, List, Tuple
+from typing import Optional, List, Tuple, Dict
 
 import numpy as np
-from jina import Executor, requests, DocumentArray
+from jina import Executor, requests, DocumentArray, Document
 from jina.logging.logger import JinaLogger
 
 from clip_server.model import clip
@@ -82,26 +82,31 @@ class CLIPEncoder(Executor):
         elif d.uri:
             _img_da.append(d)
 
-    @requests(on='/rank')
-    async def rank(self, docs: 'DocumentArray', **kwargs):
+    @requests(on='/rerank')
+    async def rerank(self, docs: 'DocumentArray', parameters: Dict, **kwargs):
+        _source = parameters.get('source', 'matches')
+        _get = lambda d: getattr(d, _source)
+
         for d in docs:
             _img_da = DocumentArray()
             _txt_da = DocumentArray()
             self._split_img_txt_da(d, _img_da, _txt_da)
 
-            for c in d.chunks:
+            for c in _get(d):
                 self._split_img_txt_da(c, _img_da, _txt_da)
 
             if len(_img_da) != 1 and len(_txt_da) != 1:
                 raise ValueError(
-                    'chunks must be all in same modality, either all images or all text'
+                    f'`d.{_source}` must be all in same modality, either all images or all text'
                 )
             elif not _img_da or not _txt_da:
                 raise ValueError(
-                    'root and chunks must be in different modality, one is image one is text'
+                    f'`d` and `d.{_source}` must be in different modality, one is image one is text'
                 )
-            elif len(d.chunks) <= 1:
-                raise ValueError('must have more than one chunks to rank over chunks')
+            elif len(_get(d)) <= 1:
+                raise ValueError(
+                    f'`d.{_source}` must have more than one Documents to do ranking'
+                )
             else:
                 _img_da = self._preproc_image(_img_da)
                 _txt_da, texts = self._preproc_text(_txt_da)
@@ -120,10 +125,21 @@ class CLIPEncoder(Executor):
                 elif len(_txt_da) == 1:
                     probs = probs_text
 
-                for c, v in zip(d.chunks, probs):
-                    c.scores['clip-rank'].value = v
-
                 _txt_da.texts = texts
+                _img_da.tensors = None
+                _txt_da.tensors = None
+
+                for c, v in zip(_get(d), probs):
+                    c.scores['clip-rank'].value = v
+                setattr(
+                    d,
+                    _source,
+                    sorted(
+                        _get(d),
+                        key=lambda _m: _m.scores['clip-rank'].value,
+                        reverse=True,
+                    ),
+                )
 
     @requests
     async def encode(self, docs: 'DocumentArray', **kwargs):
