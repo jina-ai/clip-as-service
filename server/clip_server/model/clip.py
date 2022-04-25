@@ -37,7 +37,6 @@ _MODELS = {
     'ViT-L/14@336px': 'ViT-L-14-336px.pt',
 }
 
-
 MODEL_SIZE = {
     'RN50': 224,
     'RN101': 224,
@@ -47,6 +46,7 @@ MODEL_SIZE = {
     'ViT-B/32': 224,
     'ViT-B/16': 224,
     'ViT-L/14': 224,
+    'ViT-L/14@336px': 336,
 }
 
 
