@@ -326,7 +326,7 @@ class Client:
         elif d.tensor is not None:
             return d
         else:
-            raise TypeError(f'unsupported input type {c!r} {c.content_type}')
+            raise TypeError(f'unsupported input type {d!r} {d.content_type}')
 
     @staticmethod
     def _prepare_rank_doc(d: 'Document', _source: str = 'matches'):
