@@ -1,4 +1,5 @@
 def convert_float_to_float16(model_path: str, output_model_path: str):
+    import onnx
     from onnxmltools.utils.float16_converter import (
         convert_float_to_float16_model_path,
     )
