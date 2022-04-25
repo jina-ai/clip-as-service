@@ -16,7 +16,7 @@ except ImportError:
 
 from .clip import _download, available_models
 
-_S3_BUCKET = 'https://clip-as-service.s3.us-east-2.amazonaws.com/models/onnx/'
+_S3_BUCKET = 'https://clip-as-service.s3.us-east-2.amazonaws.com/models/tensorrt/'
 _MODELS = {
     'RN50': ('RN50/textual.trt', 'RN50/visual.trt'),
     'RN101': ('RN101/textual.trt', 'RN101/visual.trt'),
