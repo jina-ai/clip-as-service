@@ -5,8 +5,6 @@ from clip_client import Client
 from clip_server.executors.clip_torch import CLIPEncoder
 from docarray import DocumentArray, Document
 
-os.environ['OMP_NUM_THREADS'] = '1'
-
 
 @pytest.mark.asyncio
 async def test_torch_executor_rank_img2texts():
