@@ -600,7 +600,7 @@
 
  - [[```8600286c```](https://github.com/jina-ai/clip-as-service/commit/8600286cf53755c127cf258af918b6bdf3e86691)] __-__ update readme (*Han Xiao*)
  - [[```5e1dd607```](https://github.com/jina-ai/clip-as-service/commit/5e1dd607e47a94265f48cbb2a70406c5057b86fa)] __-__ __version__: the next version will be 0.2.4 (*Jina Dev Bot*)
-
+ 
 <a name=release-note-0-3-1></a>
 ## Release Note (`0.3.1`)
 
@@ -1449,4 +1449,4 @@
  - [[```d520ebb8```](https://github.com/jina-ai/clip-as-service/commit/d520ebb835e2814f7696148a0dcabbbf8bdadc76)] __-__ remove unused md (*numb3r3*)
  - [[```2c3c61f9```](https://github.com/jina-ai/clip-as-service/commit/2c3c61f9d6f5a351f235dbad45879f0c7c4fd986)] __-__ __version__: the next version will be 0.7.1 (*Jina Dev Bot*)
  - [[```53636cea```](https://github.com/jina-ai/clip-as-service/commit/53636cea63bf8063bcfd744aae4577df8e0eab2e)] __-__ bump version to 0.7.0 (*numb3r3*)
-
+ 

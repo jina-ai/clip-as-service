@@ -297,6 +297,14 @@ There are also runtime-specific parameters listed below:
 
 ````
 
+For nebullvm backend, you just need to set name and mini_batch size
+
+| Parameter | Description                                                                                                                    |
+|-----------|--------------------------------------------------------------------------------------------------------------------------------|
+| `name`    | Model weights, default is `ViT-B/32`. Support all OpenAI released pretrained models.                                           | | 
+| `minibatch_size` | The size of a minibatch for CPU preprocessing and GPU encoding, default 64. Reduce the size of it if you encounter OOM on GPU. |
+
+
 For example, to turn on JIT and force PyTorch running on CPU, one can do:
 
 ```{code-block} yaml
