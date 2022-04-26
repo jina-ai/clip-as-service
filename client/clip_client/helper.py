@@ -51,6 +51,4 @@ def is_latest_version(package: str = None, github_repo: str = None) -> None:
     :param github_repo: repo name that contains CHANGELOG if none then the same as package name
     """
 
-    threading.Thread(
-        target=_version_check, daemon=True, args=(package, github_repo)
-    ).start()
+    threading.Thread(target=_version_check, args=(package, github_repo)).start()
