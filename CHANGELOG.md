@@ -25,6 +25,7 @@
 
 
 
+
 <a name=release-note-0-0-3></a>
 ## Release Note (`0.0.3`)
 
@@ -567,4 +568,24 @@
 
  - [[```8600286c```](https://github.com/jina-ai/clip-as-service/commit/8600286cf53755c127cf258af918b6bdf3e86691)] __-__ update readme (*Han Xiao*)
  - [[```5e1dd607```](https://github.com/jina-ai/clip-as-service/commit/5e1dd607e47a94265f48cbb2a70406c5057b86fa)] __-__ __version__: the next version will be 0.2.4 (*Jina Dev Bot*)
+
+<a name=release-note-0-3-1></a>
+## Release Note (`0.3.1`)
+
+> Release time: 2022-04-26 08:03:08
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Han Xiao,  Jina Dev Bot,  🙇
+
+
+### 🆕 New Features
+
+ - [[```ca5f3021```](https://github.com/jina-ai/clip-as-service/commit/ca5f30211d87fc324e9cfffb3fcc89682a233ba8)] __-__ __helper__: add version check for client and server (#696) (*Han Xiao*)
+
+### 🍹 Other Improvements
+
+ - [[```234650f4```](https://github.com/jina-ai/clip-as-service/commit/234650f48a1e59cd274748f98ae84f6648b811af)] __-__ __version__: the next version will be 0.3.1 (*Jina Dev Bot*)
+ - [[```8600286c```](https://github.com/jina-ai/clip-as-service/commit/8600286cf53755c127cf258af918b6bdf3e86691)] __-__ update readme (*Han Xiao*)
 
