@@ -1,5 +1,7 @@
 __version__ = '0.3.1'
 
+import os
+
 from .client import Client
 
 if 'NO_VERSION_CHECK' not in os.environ:
