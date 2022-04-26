@@ -23,7 +23,7 @@ def _version_check(package: str = None, github_repo: str = None):
             headers={'User-Agent': 'Mozilla/5.0'},
         )
         with urlopen(
-            req, timeout=5
+            req, timeout=1
         ) as resp:  # 'with' is important to close the resource after use
             j = json.load(resp)
             releases = j.get('releases', {})
