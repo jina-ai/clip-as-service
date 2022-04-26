@@ -34,7 +34,7 @@ def _version_check(package: str = None, github_repo: str = None):
                 print(
                     Panel(
                         f'You are using [b]{package} {cur_ver}[/b], but [bold green]{latest_release_ver}[/] is available. '
-                        f'You may upgrade it via [b]pip install -U {package}[/b]. [link=https://github.com/jina-ai/{github_repo}/blob/main/CHANGELOG.md]Read Changelog here[/link].',
+                        f'You may upgrade it via [b]pip install -U {package}[/b]. [link=https://github.com/jina-ai/{github_repo}/releases]Read Changelog here[/link].',
                         title=':new: New version available!',
                         width=50,
                     )
