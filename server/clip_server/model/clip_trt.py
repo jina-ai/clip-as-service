@@ -40,7 +40,7 @@ class CLIPTensorRTModel:
             self._visual_path = _download(_S3_BUCKET + _MODELS[name][1], cache_dir)
         else:
             raise RuntimeError(
-                f'Model {name} not found; available models = {available_models()}'
+                f'Model {name} not found or not supports TensorRT backend; available models = {_MODELS.keys()}'
             )
 
         trt_logger: Logger = trt.Logger(trt.Logger.ERROR)

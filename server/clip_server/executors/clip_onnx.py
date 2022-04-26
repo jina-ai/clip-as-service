@@ -1,14 +1,15 @@
 import os
 import warnings
-from multiprocessing.pool import ThreadPool, Pool
-from typing import List, Tuple, Optional
-import numpy as np
+from functools import partial
+from multiprocessing.pool import ThreadPool
+from typing import Optional
 import onnxruntime as ort
 
 from jina import Executor, requests, DocumentArray
 
 from clip_server.model import clip
 from clip_server.model.clip_onnx import CLIPOnnxModel
+from clip_server.executors.helper import split_img_txt_da, preproc_image, preproc_text
 
 
 class CLIPEncoder(Executor):
@@ -74,51 +75,30 @@ class CLIPEncoder(Executor):
 
         self._model.start_sessions(sess_options=sess_options, providers=providers)
 
-    def _preproc_image(self, da: 'DocumentArray') -> 'DocumentArray':
-        for d in da:
-            if d.tensor is not None:
-                d.tensor = self._preprocess_tensor(d.tensor)
-            else:
-                if not d.blob and d.uri:
-                    # in case user uses HTTP protocol and send data via curl not using .blob (base64), but in .uri
-                    d.load_uri_to_blob()
-                d.tensor = self._preprocess_blob(d.blob)
-        da.tensors = da.tensors.detach().cpu().numpy().astype(np.float32)
-        return da
-
-    def _preproc_text(self, da: 'DocumentArray') -> Tuple['DocumentArray', List[str]]:
-        texts = da.texts
-        da.tensors = clip.tokenize(texts).detach().cpu().numpy().astype(np.int64)
-        da[:, 'mime_type'] = 'text'
-        return da, texts
-
     @requests
     async def encode(self, docs: 'DocumentArray', **kwargs):
         _img_da = DocumentArray()
         _txt_da = DocumentArray()
         for d in docs:
-            if d.text:
-                _txt_da.append(d)
-            elif (d.blob is not None) or (d.tensor is not None):
-                _img_da.append(d)
-            elif d.uri:
-                _img_da.append(d)
-            else:
-                warnings.warn(
-                    f'The content of document {d.id} is empty, cannot be processed'
-                )
+            split_img_txt_da(d, _img_da, _txt_da)
 
         # for image
         if _img_da:
             for minibatch in _img_da.map_batch(
-                self._preproc_image, batch_size=self._minibatch_size, pool=self._pool
+                partial(
+                    preproc_image, preprocess_fn=self._preprocess_tensor, return_np=True
+                ),
+                batch_size=self._minibatch_size,
+                pool=self._pool,
             ):
                 minibatch.embeddings = self._model.encode_image(minibatch.tensors)
 
         # for text
         if _txt_da:
             for minibatch, _texts in _txt_da.map_batch(
-                self._preproc_text, batch_size=self._minibatch_size, pool=self._pool
+                partial(preproc_text, return_np=True),
+                batch_size=self._minibatch_size,
+                pool=self._pool,
             ):
                 minibatch.embeddings = self._model.encode_text(minibatch.tensors)
                 minibatch.texts = _texts
