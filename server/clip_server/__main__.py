@@ -3,9 +3,10 @@ import os
 import sys
 
 if __name__ == '__main__':
-    from .helper import is_latest_version
+    if 'NO_VERSION_CHECK' not in os.environ:
+        from .helper import is_latest_version
 
-    is_latest_version(github_repo='clip-as-service')
+        is_latest_version(github_repo='clip-as-service')
 
     from jina import Flow
 
