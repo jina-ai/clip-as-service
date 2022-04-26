@@ -1,11 +1,10 @@
 import os
-import torch
 
 try:
     import tensorrt as trt
     from tensorrt.tensorrt import Logger, Runtime
 
-    from .trt_utils import load_engine
+    from clip_server.model.trt_utils import load_engine
 except ImportError:
     raise ImportError(
         "It seems that TensorRT is not yet installed. "
@@ -14,15 +13,15 @@ except ImportError:
         "https://docs.nvidia.com/deeplearning/tensorrt/install-guide/index.html"
     )
 
-from .clip import _download, available_models
+from .clip import _download
 
 _S3_BUCKET = 'https://clip-as-service.s3.us-east-2.amazonaws.com/models/tensorrt/'
 _MODELS = {
     'RN50': ('RN50/textual.trt', 'RN50/visual.trt'),
     'RN101': ('RN101/textual.trt', 'RN101/visual.trt'),
     'RN50x4': ('RN50x4/textual.trt', 'RN50x4/visual.trt'),
-    'RN50x16': ('RN50x16/textual.trt', 'RN50x16/visual.trt'),
-    'RN50x64': ('RN50x64/textual.trt', 'RN50x64/visual.trt'),
+    # 'RN50x16': ('RN50x16/textual.trt', 'RN50x16/visual.trt'),
+    # 'RN50x64': ('RN50x64/textual.trt', 'RN50x64/visual.trt'),
     'ViT-B/32': ('ViT-B-32/textual.trt', 'ViT-B-32/visual.trt'),
     'ViT-B/16': ('ViT-B-16/textual.trt', 'ViT-B-16/visual.trt'),
     'ViT-L/14': ('ViT-L-14/textual.trt', 'ViT-L-14/visual.trt'),

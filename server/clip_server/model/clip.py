@@ -2,8 +2,7 @@
 
 import io
 import os
-import shutil
-import urllib
+
 import warnings
 from typing import Union, List
 
