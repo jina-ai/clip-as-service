@@ -59,9 +59,8 @@ def is_latest_version(package: str = None, github_repo: str = None) -> None:
     :param package: package name if none auto-detected
     :param github_repo: repo name that contains CHANGELOG if none then the same as package name
     """
-    if 'NO_VERSION_CHECK' not in os.environ:
-        import threading
+    import threading
 
-        threading.Thread(
-            target=_version_check, daemon=True, args=(package, github_repo)
-        ).start()
+    threading.Thread(
+        target=_version_check, daemon=True, args=(package, github_repo)
+    ).start()
