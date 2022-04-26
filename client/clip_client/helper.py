@@ -1,19 +1,7 @@
-import os
-import sys
-
-__resources_path__ = os.path.join(
-    os.path.dirname(
-        sys.modules.get('clip_server').__file__
-        if 'clip_server' in sys.modules
-        else __file__
-    ),
-    'resources',
-)
-
-
 def _version_check(package: str = None, github_repo: str = None):
     try:
         import json
+        import sys
         import warnings
         from urllib.request import Request, urlopen
         import pkg_resources
@@ -59,6 +47,8 @@ def is_latest_version(package: str = None, github_repo: str = None) -> None:
     :param package: package name if none auto-detected
     :param github_repo: repo name that contains CHANGELOG if none then the same as package name
     """
+    import os
+
     if 'NO_VERSION_CHECK' not in os.environ:
         import threading
 
