@@ -4,15 +4,13 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-<meta property="og:title" content="Changelog" />
+<meta property="og:title" content="clip_client.helper module" />
   
 <meta property="og:type" content="website" />
   
-<meta property="og:url" content="https://clip-as-service.jina.ai/changelog/index/" />
+<meta property="og:url" content="https://clip-as-service.jina.ai/api/clip_client.helper/" />
   
 <meta property="og:site_name" content="CLIP-as-service 0.3.1 Documentation" />
-  
-<meta property="og:description" content="CLIP-as-service follows semantic versioning. However, before the project reach 1.0.0, any breaking change will only bump the minor version. An automated release note is generated on every release. The release note includes features, bugs, refactorings etc. This chapter only tracks the most import..." />
   
 <meta property="og:image" content="https://clip-as-service.jina.ai/_static/banner.png" />
   
@@ -35,18 +33,18 @@
 </script>
 
 <script async defer src="https://buttons.github.io/buttons.js"></script>
-    <link rel="index" title="Index" href="../genindex/" /><link rel="search" title="Search" href="../search/" /><link rel="prev" title="clip_client.helper module" href="../api/clip_client.helper/" />
-        <link rel="canonical" href="https://clip-as-service.jina.ai/changelog/index.html" />
+    <link rel="index" title="Index" href="../../genindex/" /><link rel="search" title="Search" href="../../search/" /><link rel="next" title="Changelog" href="../../changelog/" /><link rel="prev" title="clip_client.client module" href="../clip_client.client/" />
+        <link rel="canonical" href="https://clip-as-service.jina.ai/api/clip_client.helper.html" />
 
-    <link rel="shortcut icon" href="../_static/favicon.png"/><meta name="generator" content="sphinx-4.5.0, furo 2022.04.07"/>
-        <title>Changelog - CLIP-as-service 0.3.1 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
-    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/tabs.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/design-style.b7bb847fb20b106c3d81b95245e65545.min.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
-    <link rel="stylesheet" type="text/css" href="../_static/main.css" />
+    <link rel="shortcut icon" href="../../_static/favicon.png"/><meta name="generator" content="sphinx-4.5.0, furo 2022.04.07"/>
+        <title>clip_client.helper module - CLIP-as-service 0.3.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/design-style.b7bb847fb20b106c3d81b95245e65545.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/main.css" />
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta2/css/all.min.css" />
     
     
@@ -171,7 +169,7 @@
             </label>
         </div>
         <div class="header-center">
-            <a href="../">
+            <a href="../../">
                 <div class="brand">CLIP-as-service 0.3.1 documentation</div>
             </a>
         </div>
@@ -190,7 +188,7 @@
                     </svg>
                 </button>
             </div>
-            <label class="toc-overlay-icon toc-header-icon" for="__toc">
+            <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
                 <div class="visually-hidden">Toggle table of contents sidebar</div>
                 <i class="icon">
                     <svg>
@@ -203,11 +201,11 @@
     <aside class="sidebar-drawer">
         <div class="sidebar-container">
             
-            <div class="sidebar-sticky"><a class="sidebar-brand" href="../">
+            <div class="sidebar-sticky"><a class="sidebar-brand" href="../../">
   
   <div class="sidebar-logo-container">
-    <img class="sidebar-logo only-light" src="../_static/logo-light.svg" alt="Light Logo" />
-    <img class="sidebar-logo only-dark" src="../_static/logo-dark.svg" alt="Dark Logo" />
+    <img class="sidebar-logo only-light" src="../../_static/logo-light.svg" alt="Light Logo" />
+    <img class="sidebar-logo only-dark" src="../../_static/logo-dark.svg" alt="Dark Logo" />
   </div>
   
   
@@ -215,7 +213,7 @@
 <div class="sd-d-flex-row sd-align-major-spaced">
   <a class="github-button" href="https://github.com/jina-ai/clip-as-service" data-icon="octicon-star" data-show-count="true" aria-label="Star jina-ai/jina on GitHub" style="opacity: 0;">Star</a>
   
-</div><form class="sidebar-search-container" method="get" action="../search/" role="search">
+</div><form class="sidebar-search-container" method="get" action="../../search/" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
   <input type="hidden" name="area" value="default">
@@ -223,46 +221,46 @@
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
     <p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../user-guides/client/">Client API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../user-guides/server/">Server API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../user-guides/faq/">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user-guides/client/">Client API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user-guides/server/">Server API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user-guides/faq/">FAQ</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Developer References</span></p>
 <ul class="current">
-<li class="toctree-l1 has-children"><a class="reference internal" href="../api/clip_client/">clip_client package</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../api/clip_client.client/">clip_client.client module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api/clip_client.helper/">clip_client.helper module</a></li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="../clip_client/">clip_client package</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../clip_client.client/">clip_client.client module</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">clip_client.helper module</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog/">Changelog</a></li>
 </ul>
 
     <p class="caption" role="heading"><span class="caption-text">Ecosystem</span></p>
     <ul>
         <li class="toctree-l1">
             <a class="reference external" href="https://docs.jina.ai">
-                <img class="sidebar-ecosys-logo only-light-line" src="../_static/search-light.svg">
-                <img class="sidebar-ecosys-logo only-dark-line" src="../_static/search-dark.svg">
+                <img class="sidebar-ecosys-logo only-light-line" src="../../_static/search-light.svg">
+                <img class="sidebar-ecosys-logo only-dark-line" src="../../_static/search-dark.svg">
                 Jina</a></li>
         <li class="toctree-l1"><a class="reference external" href="https://hub.jina.ai">
-            <img class="sidebar-ecosys-logo only-light-line" src="../_static/hub-light.svg">
-            <img class="sidebar-ecosys-logo only-dark-line" src="../_static/hub-dark.svg">
+            <img class="sidebar-ecosys-logo only-light-line" src="../../_static/hub-light.svg">
+            <img class="sidebar-ecosys-logo only-dark-line" src="../../_static/hub-dark.svg">
             Jina Hub</a></li>
         <li class="toctree-l1"><a class="reference external" href="https://finetuner.jina.ai">
-            <img class="sidebar-ecosys-logo only-light-line" src="../_static/finetuner-light.svg">
-            <img class="sidebar-ecosys-logo only-dark-line" src="../_static/finetuner-dark.svg">
+            <img class="sidebar-ecosys-logo only-light-line" src="../../_static/finetuner-light.svg">
+            <img class="sidebar-ecosys-logo only-dark-line" src="../../_static/finetuner-dark.svg">
             Finetuner</a></li>
         <li class="toctree-l1"><a class="reference external" href="https://docarray.jina.ai">
-            <img class="sidebar-ecosys-logo only-light-line" src="../_static/docarray-light.svg">
-            <img class="sidebar-ecosys-logo only-dark-line" src="../_static/docarray-dark.svg">
+            <img class="sidebar-ecosys-logo only-light-line" src="../../_static/docarray-light.svg">
+            <img class="sidebar-ecosys-logo only-dark-line" src="../../_static/docarray-dark.svg">
             DocArray</a></li>
         <li class="toctree-l1"><a class="reference internal" href="#">
-            <img class="sidebar-ecosys-logo only-light-line" src="../_static/cas-light.svg">
-            <img class="sidebar-ecosys-logo only-dark-line" src="../_static/cas-dark.svg">
+            <img class="sidebar-ecosys-logo only-light-line" src="../../_static/cas-light.svg">
+            <img class="sidebar-ecosys-logo only-dark-line" src="../../_static/cas-dark.svg">
             CLIP-as-service</a></li>
         <li class="toctree-l1"><a class="reference external" href="https://github.com/jina-ai/jcloud">
-            <img class="sidebar-ecosys-logo only-light-line" src="../_static/JCloud-light.svg">
-            <img class="sidebar-ecosys-logo only-dark-line" src="../_static/JCloud-dark.svg">
+            <img class="sidebar-ecosys-logo only-light-line" src="../../_static/JCloud-light.svg">
+            <img class="sidebar-ecosys-logo only-dark-line" src="../../_static/JCloud-dark.svg">
             JCloud</a></li>
     </ul>
 </div>
@@ -295,7 +293,7 @@
                             </svg>
                         </button>
                     </div>
-                    <label class="toc-overlay-icon toc-content-icon"
+                    <label class="toc-overlay-icon toc-content-icon no-toc"
                            for="__toc">
                         <div class="visually-hidden">Toggle table of contents sidebar</div>
                         <i class="icon">
@@ -306,45 +304,24 @@
                     </label>
                 </div>
                 <article role="main">
-                    <section class="tex2jax_ignore mathjax_ignore" id="changelog">
-<h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this headline">#</a></h1>
-<p>CLIP-as-service follows semantic versioning. However, before the project reach 1.0.0, any breaking change will only bump the minor version.  An automated release note is <a class="reference external" href="https://github.com/jina-ai/clip-as-service/releases">generated on every release</a>. The release note includes features, bugs, refactorings etc.</p>
-<p>This chapter only tracks the most important breaking changes and explain the rationale behind them.</p>
-<section id="improve-the-service-scalability-with-replicas">
-<h2>0.2.0: improve the service scalability with replicas<a class="headerlink" href="#improve-the-service-scalability-with-replicas" title="Permalink to this headline">#</a></h2>
-<p>This change is mainly intended to improve the inference performance with replicas.</p>
-<p>Here is the short benchmark summary of the improvement (<code class="docutils literal notranslate"><span class="pre">replicas=4</span></code>):</p>
-<div class="table-wrapper"><table border="1" class="docutils">
-<thead>
-<tr>
-<th>batch_size</th>
-<th>before</th>
-<th>after</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>1</td>
-<td>23.74</td>
-<td>18.89</td>
-</tr>
-<tr>
-<td>8</td>
-<td>58.88</td>
-<td>30.38</td>
-</tr>
-<tr>
-<td>16</td>
-<td>14.96</td>
-<td>91.86</td>
-</tr>
-<tr>
-<td>32</td>
-<td>14.78</td>
-<td>101.75</td>
-</tr>
-</tbody>
-</table></div></section>
+                    <section id="module-clip_client.helper">
+<span id="clip-client-helper-module"></span><h1>clip_client.helper module<a class="headerlink" href="#module-clip_client.helper" title="Permalink to this headline">#</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="clip_client.helper.is_latest_version">
+<span class="sig-prename descclassname"><span class="pre">clip_client.helper.</span></span><span class="sig-name descname"><span class="pre">is_latest_version</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">package</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">github_repo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/clip_client/helper/#is_latest_version"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#clip_client.helper.is_latest_version" title="Permalink to this definition">#</a></dt>
+<dd><p>Check if there is a latest version from Pypi, set env <cite>NO_VERSION_CHECK</cite> to disable it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>package</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – package name if none auto-detected</p></li>
+<li><p><strong>github_repo</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – repo name that contains CHANGELOG if none then the same as package name</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
 </section>
 
                 </article>
@@ -352,8 +329,18 @@
             <footer>
                 
                 <div class="related-pages">
-                    
-                    <a class="prev-page" href="../api/clip_client.helper/">
+                    <a class="next-page" href="../../changelog/">
+                        <div class="page-info">
+                            <div class="context">
+                                <span>Next</span>
+                            </div>
+                            <div class="title">Changelog</div>
+                        </div>
+                        <svg>
+                            <use href="#svg-arrow-right"></use>
+                        </svg>
+                    </a>
+                    <a class="prev-page" href="../clip_client.client/">
                         <svg>
                             <use href="#svg-arrow-right"></use>
                         </svg>
@@ -362,7 +349,7 @@
                                 <span>Previous</span>
                             </div>
                             
-                            <div class="title">clip_client.helper module</div>
+                            <div class="title">clip_client.client module</div>
                             
                         </div>
                     </a>
@@ -392,42 +379,23 @@
                 
             </footer>
         </div>
-        <aside class="toc-drawer">
+        <aside class="toc-drawer no-toc">
             
-            
-            <div class="toc-sticky toc-scroll">
-                <div class="toc-title-container">
-          <span class="toc-title">
-            Contents
-          </span>
-                </div>
-                <div class="toc-tree-container">
-                    <div class="toc-tree">
-                        <ul>
-<li><a class="reference internal" href="#">Changelog</a><ul>
-<li><a class="reference internal" href="#improve-the-service-scalability-with-replicas">0.2.0: improve the service scalability with replicas</a></li>
-</ul>
-</li>
-</ul>
-
-                    </div>
-                </div>
-            </div>
             
             
         </aside>
     </div>
 </div>
 <img referrerpolicy="no-referrer-when-downgrade"
-     src="https://static.scarf.sh/a.png?x-pxid=2823e771-0e1e-4320-8fde-48bc48e53262"/><script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-    <script src="../_static/jquery.js"></script>
-    <script src="../_static/underscore.js"></script>
-    <script src="../_static/doctools.js"></script>
-    <script src="../_static/scripts/furo.js"></script>
-    <script src="../_static/clipboard.min.js"></script>
-    <script src="../_static/copybutton.js"></script>
-    <script src="../_static/tabs.js"></script>
-    <script src="../_static/design-tabs.js"></script>
+     src="https://static.scarf.sh/a.png?x-pxid=2823e771-0e1e-4320-8fde-48bc48e53262"/><script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/scripts/furo.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script src="../../_static/tabs.js"></script>
+    <script src="../../_static/design-tabs.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.min.js"></script>
     </body>
 </html>

@@ -8,6 +8,7 @@ Submodules
    :maxdepth: 4
 
    clip_client.client
+   clip_client.helper
 
 Module contents
 ---------------
