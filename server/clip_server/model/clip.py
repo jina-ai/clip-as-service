@@ -303,7 +303,6 @@ def load(
 
     return (
         model,
-        _transform_blob(model.input_resolution.item()),
         _transform_ndarray(model.input_resolution.item()),
     )
 
