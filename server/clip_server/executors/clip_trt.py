@@ -20,7 +20,6 @@ class CLIPEncoder(Executor):
         super().__init__(**kwargs)
         self.logger = JinaLogger(self.__class__.__name__)
 
-        self._preprocess_blob = clip._transform_blob(clip.MODEL_SIZE[name])
         self._preprocess_tensor = clip._transform_ndarray(clip.MODEL_SIZE[name])
         self._pool = ThreadPool(processes=num_worker_preprocess)
 

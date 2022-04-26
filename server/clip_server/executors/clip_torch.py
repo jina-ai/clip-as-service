@@ -46,7 +46,7 @@ class CLIPEncoder(Executor):
             torch.set_num_interop_threads(1)
 
         self._minibatch_size = minibatch_size
-        self._model, self._preprocess_blob, self._preprocess_tensor = clip.load(
+        self._model, self._preprocess_tensor = clip.load(
             name, device=self._device, jit=jit
         )
 

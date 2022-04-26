@@ -235,7 +235,6 @@ def load(
             model.float()
         return (
             model,
-            _transform_blob(model.visual.input_resolution),
             _transform_ndarray(model.visual.input_resolution),
         )
 
