@@ -40,6 +40,8 @@ class CLIPEncoder(Executor):
 
         self._model = CLIPTensorRTModel(name)
 
+        self._model.start_engines()
+
     @requests
     async def encode(self, docs: 'DocumentArray', **kwargs):
         _img_da = DocumentArray()

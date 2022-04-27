@@ -13,7 +13,7 @@ except ImportError:
         "https://docs.nvidia.com/deeplearning/tensorrt/install-guide/index.html"
     )
 
-from .clip import _download
+from .clip import _download, MODEL_SIZE
 
 _S3_BUCKET = 'https://clip-as-service.s3.us-east-2.amazonaws.com/models/tensorrt/'
 _MODELS = {
@@ -41,12 +41,61 @@ class CLIPTensorRTModel:
             raise RuntimeError(
                 f'Model {name} not found or not supports Nvidia TensorRT backend; available models = {list(_MODELS.keys())}'
             )
+        self._name = name
+
+    def start_engines(self):
+        import torch
 
         trt_logger: Logger = trt.Logger(trt.Logger.ERROR)
         runtime: Runtime = trt.Runtime(trt_logger)
+        compute_capacity = torch.cuda.get_device_capability()
 
-        self._textual_engine = load_engine(runtime, self._textual_path)
-        self._visual_engine = load_engine(runtime, self._visual_path)
+        if compute_capacity == (8, 6):
+            self._textual_engine = load_engine(runtime, self._textual_path)
+            self._visual_engine = load_engine(runtime, self._visual_path)
+        else:
+            print(
+                f'The engine plan file is generated on an incompatible device, expecting compute {compute_capacity}'
+                'got compute 8.6, will rebuild the TensorRT engine.'
+            )
+            from clip_server.model.clip_onnx import CLIPOnnxModel
+            from clip_server.model.trt_utils import build_engine
+
+            onnx_model = CLIPOnnxModel(self._name)
+
+            self._visual_engine = build_engine(
+                runtime=runtime,
+                onnx_file_path=onnx_model._visual_path,
+                logger=trt_logger,
+                min_shape=(1, 3, MODEL_SIZE[self._name], MODEL_SIZE[self._name]),
+                optimal_shape=(
+                    768,
+                    3,
+                    MODEL_SIZE[self._name],
+                    MODEL_SIZE[self._name],
+                ),
+                max_shape=(
+                    1024,
+                    MODEL_SIZE[self._name],
+                    MODEL_SIZE[self._name],
+                    MODEL_SIZE[self._name],
+                ),
+                workspace_size=10000 * 1024 * 1024,
+                fp16=False,
+                int8=False,
+            )
+
+            self._text_engine = build_engine(
+                runtime=runtime,
+                onnx_file_path=onnx_model._textual_path,
+                logger=trt_logger,
+                min_shape=(1, 77),
+                optimal_shape=(768, 77),
+                max_shape=(1024, 77),
+                workspace_size=10000 * 1024 * 1024,
+                fp16=False,
+                int8=False,
+            )
 
     def encode_image(self, onnx_image):
         (visual_output,) = self._visual_engine({'input': onnx_image})
