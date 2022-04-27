@@ -4,7 +4,7 @@ try:
     import tensorrt as trt
     from tensorrt.tensorrt import Logger, Runtime
 
-    from clip_server.model.trt_utils import load_engine
+    from clip_server.model.trt_utils import load_engine, build_engine, save_engine
 except ImportError:
     raise ImportError(
         "It seems that TensorRT is not yet installed. "
@@ -50,20 +50,16 @@ class CLIPTensorRTModel:
         runtime: Runtime = trt.Runtime(trt_logger)
         compute_capacity = torch.cuda.get_device_capability()
 
-        if compute_capacity == (8, 6):
-            self._textual_engine = load_engine(runtime, self._textual_path)
-            self._visual_engine = load_engine(runtime, self._visual_path)
-        else:
+        if compute_capacity != (8, 6):
             print(
                 f'The engine plan file is generated on an incompatible device, expecting compute {compute_capacity}'
                 'got compute 8.6, will rebuild the TensorRT engine.'
             )
             from clip_server.model.clip_onnx import CLIPOnnxModel
-            from clip_server.model.trt_utils import build_engine
 
             onnx_model = CLIPOnnxModel(self._name)
 
-            self._visual_engine = build_engine(
+            visual_engine = build_engine(
                 runtime=runtime,
                 onnx_file_path=onnx_model._visual_path,
                 logger=trt_logger,
@@ -85,7 +81,9 @@ class CLIPTensorRTModel:
                 int8=False,
             )
 
-            self._text_engine = build_engine(
+            save_engine(visual_engine, self._visual_engine)
+
+            text_engine = build_engine(
                 runtime=runtime,
                 onnx_file_path=onnx_model._textual_path,
                 logger=trt_logger,
@@ -96,6 +94,10 @@ class CLIPTensorRTModel:
                 fp16=False,
                 int8=False,
             )
+            save_engine(text_engine, self._textual_engine)
+
+        self._textual_engine = load_engine(runtime, self._textual_path)
+        self._visual_engine = load_engine(runtime, self._visual_path)
 
     def encode_image(self, onnx_image):
         (visual_output,) = self._visual_engine({'input': onnx_image})
