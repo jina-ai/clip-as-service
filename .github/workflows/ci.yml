@@ -167,14 +167,14 @@ jobs:
         uses: andstor/file-existence-action@v1
         with:
           files: "coverage.xml"
-          - name: Upload coverage from test to Codecov
-            uses: codecov/codecov-action@v2
-            if: steps.check_files.outputs.files_exists == 'true' && ${{ matrix.python-version }} == '3.7'
-            with:
-              file: coverage.xml
-              flags: ${{ steps.test.outputs.codecov_flag }}
-              fail_ci_if_error: false
-              token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
+      - name: Upload coverage from test to Codecov
+        uses: codecov/codecov-action@v2
+        if: steps.check_files.outputs.files_exists == 'true' && ${{ matrix.python-version }} == '3.7'
+        with:
+          file: coverage.xml
+          flags: ${{ steps.test.outputs.codecov_flag }}
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
 
   # just for blocking the merge until all parallel core-test are successful
   success-all-test:
