@@ -1,6 +1,7 @@
 import os
+from pathlib import Path
 
-from clip_server.model.clip import _download, available_models
+from .clip import _download, available_models
 
 _S3_BUCKET = 'https://clip-as-service.s3.us-east-2.amazonaws.com/models/onnx/'
 _MODELS = {
@@ -33,7 +34,7 @@ class CLIPNebullvmModel:
         **kwargs,
     ):
         from nebullvm.api.frontend.onnx import optimize_onnx_model
-        from pathlib import Path
+
         save_dir = os.path.expanduser("~/.cache/clip/nebullvm")
         Path(save_dir).mkdir(exist_ok=True)
         visual_save_dir = os.path.join(save_dir, "visual")
@@ -49,16 +50,16 @@ class CLIPNebullvmModel:
             input_sizes=[(3, self.pixel_size, self.pixel_size)],
             save_dir=visual_save_dir,
             ignore_compilers=["tvm"],
-            **general_kwargs
+            **general_kwargs,
         )
 
         self._textual_model = optimize_onnx_model(
             self._textual_path,
-            input_sizes=[(77, )],
+            input_sizes=[(77,)],
             save_dir=text_save_dir,
             input_types=["int"],
             ignore_compilers=["tvm"],
-            **general_kwargs
+            **general_kwargs,
         )
 
     def encode_image(self, onnx_image):
