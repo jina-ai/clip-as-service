@@ -7,6 +7,7 @@ from jina import Flow
 from clip_client.client import Client
 
 
+@pytest.mark.gpu
 @pytest.mark.parametrize(
     'inputs',
     [
@@ -30,8 +31,8 @@ from clip_client.client import Client
         ),
     ],
 )
-def test_docarray_inputs(make_torch_flow, inputs):
-    c = Client(server=f'grpc://0.0.0.0:{make_torch_flow.port}')
+def test_docarray_inputs(make_trt_flow, inputs):
+    c = Client(server=f'grpc://0.0.0.0:{make_trt_flow.port}')
     r = c.encode(inputs if not callable(inputs) else inputs())
     assert isinstance(r, DocumentArray)
     assert r.embeddings.shape
