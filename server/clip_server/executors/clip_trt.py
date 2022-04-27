@@ -1,5 +1,6 @@
 from multiprocessing.pool import ThreadPool
 from functools import partial
+import numpy as np
 from jina import Executor, requests, DocumentArray
 from jina.logging.logger import JinaLogger
 
@@ -58,7 +59,13 @@ class CLIPEncoder(Executor):
                 batch_size=self._minibatch_size,
                 pool=self._pool,
             ):
-                minibatch.embeddings = self._model.encode_image(minibatch.tensors)
+                minibatch.embeddings = (
+                    self._model.encode_image(minibatch.tensors)
+                    .detach()
+                    .cpu()
+                    .numpy()
+                    .astype(np.float32)
+                )
 
         # for text
         if _txt_da:
@@ -67,7 +74,13 @@ class CLIPEncoder(Executor):
                 batch_size=self._minibatch_size,
                 pool=self._pool,
             ):
-                minibatch.embeddings = self._model.encode_text(minibatch.tensors)
+                minibatch.embeddings = (
+                    self._model.encode_text(minibatch.tensors)
+                    .detach()
+                    .cpu()
+                    .numpy()
+                    .astype(np.float32)
+                )
                 minibatch.texts = _texts
 
         # drop tensors
