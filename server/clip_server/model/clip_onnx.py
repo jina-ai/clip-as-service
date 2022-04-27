@@ -1,7 +1,5 @@
 import os
 
-import onnxruntime as ort
-
 from .clip import _download, available_models
 
 _S3_BUCKET = 'https://clip-as-service.s3.us-east-2.amazonaws.com/models/onnx/'
@@ -37,6 +35,8 @@ class CLIPOnnxModel:
         self,
         **kwargs,
     ):
+        import onnxruntime as ort
+
         self._visual_session = ort.InferenceSession(self._visual_path, **kwargs)
         self._visual_session.disable_fallback()
 
