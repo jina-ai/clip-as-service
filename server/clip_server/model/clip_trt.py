@@ -52,7 +52,7 @@ class CLIPTensorRTModel:
 
         if compute_capacity != (8, 6):
             print(
-                f'The engine plan file is generated on an incompatible device, expecting compute {compute_capacity}'
+                f'The engine plan file is generated on an incompatible device, expecting compute {compute_capacity} '
                 'got compute 8.6, will rebuild the TensorRT engine.'
             )
             from clip_server.model.clip_onnx import CLIPOnnxModel
@@ -72,7 +72,7 @@ class CLIPTensorRTModel:
                 ),
                 max_shape=(
                     1024,
-                    MODEL_SIZE[self._name],
+                    3,
                     MODEL_SIZE[self._name],
                     MODEL_SIZE[self._name],
                 ),
@@ -81,7 +81,7 @@ class CLIPTensorRTModel:
                 int8=False,
             )
 
-            save_engine(visual_engine, self._visual_engine)
+            save_engine(visual_engine, self._visual_path)
 
             text_engine = build_engine(
                 runtime=runtime,
@@ -94,7 +94,7 @@ class CLIPTensorRTModel:
                 fp16=False,
                 int8=False,
             )
-            save_engine(text_engine, self._textual_engine)
+            save_engine(text_engine, self._textual_path)
 
         self._textual_engine = load_engine(runtime, self._textual_path)
         self._visual_engine = load_engine(runtime, self._visual_path)
