@@ -2,7 +2,7 @@
 
 CLIP-as-service is designed in a client-server architecture. A server is a long-running program that receives raw sentences and images from clients, and returns CLIP embeddings to the client. Additionally, `clip_server` is optimized for speed, low memory footprint and scalability.
 - Horizontal scaling: adding more replicas easily with one argument. 
-- Vertical scaling: using PyTorch JIT or ONNX runtime to speedup single GPU inference.
+- Vertical scaling: using PyTorch JIT, ONNX or TensorRT runtime to speedup single GPU inference.
 - Supporting gRPC, HTTP, Websocket protocols with their TLS counterparts, w/o compressions.
 
 This chapter introduces the API of the client. 
@@ -34,12 +34,20 @@ To use ONNX runtime for CLIP, you can run:
 ```bash
 pip install "clip_server[onnx]"
 
-python -m clip_server onnx_flow.yml
+python -m clip_server onnx-flow.yml
 ```
 
 One may wonder where is this `onnx_flow.yml` come from. Must be a typo? Believe me, just run it. It should work. I will explain this YAML file in the next section. 
 
-The procedure and UI of ONNX runtime would look the same as Pytorch runtime.
+We also support TensorRT runtime for CLIP, you can run:
+
+```bash
+pip install "clip_server[tensorrt]"
+
+python -m clip_server tensorrt-flow.yml
+```
+
+The procedure and UI of ONNX and TensorRT runtime would look the same as Pytorch runtime.
 
 
 
@@ -47,9 +55,10 @@ The procedure and UI of ONNX runtime would look the same as Pytorch runtime.
 
 You may notice that there is a YAML file in our last ONNX example. All configurations are stored in this file. In fact, `python -m clip_server` does **not support** any other argument besides a YAML file. So it is the only source of the truth of your configs. 
 
-And to answer your doubt, `clip_server` has two built-in YAML configs as a part of the package resources: one for PyTorch backend, one for ONNX backend. When you do `python -m clip_server` it loads the Pytorch config, and when you do `python -m clip_server onnx-flow.yml` it loads the ONNX config.
+And to answer your doubt, `clip_server` has three built-in YAML configs as a part of the package resources. When you do `python -m clip_server` it loads the Pytorch config, and when you do `python -m clip_server onnx-flow.yml` it loads the ONNX config.
+In the same way, when you do `python -m clip_server tensorrt-flow.yml` it loads the TensorRT config.
 
-Let's look at these two built-in YAML configs:
+Let's look at these three built-in YAML configs:
 
 ````{tab} torch-flow.yml
 
@@ -82,6 +91,24 @@ executors:
       metas:
         py_modules:
           - executors/clip_onnx.py
+```
+````
+
+
+````{tab} tensorrt-flow.yml
+
+```yaml
+jtype: Flow
+version: '1'
+with:
+  port: 51000
+executors:
+  - name: clip_r
+    uses:
+      jtype: CLIPEncoder
+      metas:
+        py_modules:
+          - executors/clip_trt.py
 ```
 ````
 
@@ -162,7 +189,7 @@ executors:
 
 ### CLIP model config
 
-For PyTorch & ONNX backend, you can set the following parameters via `with`:
+For all backends, you can set the following parameters via `with`:
 
 | Parameter | Description                                                                                                                    |
 |-----------|--------------------------------------------------------------------------------------------------------------------------------|
