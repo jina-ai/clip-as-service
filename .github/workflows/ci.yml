@@ -149,6 +149,7 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
+          fetch-depth: 2
       - name: Prepare enviroment
         run: |
           python -m pip install --upgrade pip
