@@ -131,18 +131,19 @@ jobs:
         if: steps.check_files.outputs.files_exists == 'true' && ${{ matrix.python-version }} == '3.7'
         with:
           file: coverage.xml
+          name: ${{ matrix.test-path }}-codecov
           flags: ${{ steps.test.outputs.codecov_flag }}
           fail_ci_if_error: false
           token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
 
   gpu-test:
     needs: prep-testbed
-    runs-on: [self-hosted, x64, gpu, linux]
+    runs-on: [self-hosted]
     strategy:
       fail-fast: false
       matrix:
         python-version: [ 3.7 ]
-        test-path: ${{fromJson(needs.prep-testbed.outputs.matrix)}}
+        test-path: tests/test_tensorrt.py
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}
@@ -159,7 +160,7 @@ jobs:
         id: test
         run: |
           pytest --suppress-no-test-exit-code --cov=clip_client --cov=clip_server --cov-report=xml \
-            -v -s -m "gpu" ${{ matrix.test-path }}
+            -v -s -m "gpu" ./tests/test_tensorrt.py
           echo "::set-output name=codecov_flag::cas"
         timeout-minutes: 30
         env:
@@ -175,10 +176,11 @@ jobs:
         if: steps.check_files.outputs.files_exists == 'true' && ${{ matrix.python-version }} == '3.7'
         with:
           file: coverage.xml
-          name: ${{ matrix.test-path }}-codecov
+          name: tensorrt-codecov
           flags: ${{ steps.test.outputs.codecov_flag }}
           fail_ci_if_error: false
           token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
+          verbose: true
 
   # just for blocking the merge until all parallel core-test are successful
   success-all-test:

@@ -37,7 +37,6 @@ def make_torch_flow(port_generator, request):
         yield f
 
 
-@pytest.mark.gpu
 @pytest.fixture(scope='session', params=['torch'])
 def make_trt_flow(port_generator, request):
     from clip_server.executors.clip_trt import CLIPEncoder
