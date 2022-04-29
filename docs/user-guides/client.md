@@ -45,11 +45,11 @@ Client provides {func}`~clip_client.client.Client.encode` function that allows y
 
 `.encode()` supports two basic input types:
 - **An iterable of `str`**, e.g. `List[str]`, `Tuple[str]`, `Generator[str]` are all acceptable.
-- **An iterable of [`docarray.Document`](https://docarray.jina.ai/fundamentals/document/)**, e.g. `List[Document]`, [`DocumentArray`](https://docarray.jina.ai/fundamentals/documentarray/), `Generator[Document]` are all acceptable.
+- **An iterable of [`docarray.Document`](https://docarray.jina.ai/fundamentals/document/?utm_source=clip-as-a-service)**, e.g. `List[Document]`, [`DocumentArray`](https://docarray.jina.ai/fundamentals/documentarray/?utm_source=clip-as-a-service), `Generator[Document]` are all acceptable.
 
 Depending on the input, the output of `.encode()` is different:
 - If the input is an iterable of `str`, then the output will be a `numpy.ndarray`.
-- If the input is an iterable of `Document`, then the output will be [`docarray.DocumentArray`](https://docarray.jina.ai/fundamentals/documentarray/).
+- If the input is an iterable of `Document`, then the output will be [`docarray.DocumentArray`](https://docarray.jina.ai/fundamentals/documentarray/?utm_source=clip-as-a-service).
 
 Now let's look at these two cases in details.
 
@@ -91,7 +91,7 @@ c.encode(
 ### Input as iterable of Documents
 
 ```{tip}
-This feature uses [DocArray](https://docarray.jina.ai), which is installed together with `clip_client` as an upstream dependency. You do not need to install DocArray separately.
+This feature uses [DocArray](https://docarray.jina.ai?utm_source=clip-as-a-service), which is installed together with `clip_client` as an upstream dependency. You do not need to install DocArray separately.
 ```
 
 If auto-detection on a list of raw string is too "sci-fi" to you, then you may use `docarray.Document` to make the input more explicit and organized. `Document` can be used as a container to easily represent a sentence or an image.
@@ -123,7 +123,7 @@ da = [
 r = c.encode(da)
 ```
 
-Instead of sending a list of Document, you can also wrap it with a [DocumentArray](https://docarray.jina.ai/fundamentals/documentarray/#) and then send it:
+Instead of sending a list of Document, you can also wrap it with a [DocumentArray](https://docarray.jina.ai/fundamentals/documentarray/?utm_source=clip-as-a-service#) and then send it:
 
 ```python
 r = c.encode(DocumentArray(da))
@@ -350,7 +350,7 @@ Under the hood, `.profile()` sends a single empty Document to the CLIP-server fo
 
 - From calling `client.encode()` to returning the results, everything counted, takes 16ms to finish.
 - Among them the time spent on the server is 4ms, the remaining 12ms is spent on the client-server communication, request packing, response unpacking.
-- During the 4ms server processing time, CLIP model takes 4ms, whereas the [Gateway](https://docs.jina.ai/fundamentals/architecture-overview/#architecture-overview) to CLIP communication takes no time.
+- During the 4ms server processing time, CLIP model takes 4ms, whereas the [Gateway](https://docs.jina.ai/fundamentals/architecture-overview/#architecture-overview?utm_source=clip-as-a-service) to CLIP communication takes no time.
 
 `.profile()` can also take a string argument and asks CLIP-server to encode it. This string can be a sentence, local/remote image file URI. For example:
 
