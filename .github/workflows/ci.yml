@@ -170,16 +170,30 @@ jobs:
         uses: andstor/file-existence-action@v1
         with:
           files: "coverage.xml"
+#      - name: Upload coverage from test to Codecov
+#        run: |
+#          curl -Os https://uploader.codecov.io/latest/linux/codecov
+#          chmod +x codecov
+#          ./codecov -t ${CODECOV_TOKEN} -n tensorrt-codecov -f coverage.xml
       - name: Upload coverage from test to Codecov
-        uses: codecov/codecov-action@v3
-        if: steps.check_files.outputs.files_exists == 'true' && ${{ matrix.python-version }} == '3.7'
-        with:
-          file: coverage.xml
-          name: tensorrt-codecov
-          flags: ${{ steps.test.outputs.codecov_flag }}
-          fail_ci_if_error: false
-          token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
-          verbose: true
+        run: |
+          curl -o codecov.sh -f https://codecov.io/bash || \
+            curl -o codecov.sh -f https://codecov.io/bash || \
+            curl -o codecov.sh -f https://codecov.io/bash
+          bash codecov.sh -t ${CODECOV_TOKEN} -n tensorrt-codecov -f coverage.xml
+
+        shell: bash
+
+#      - name: Upload coverage from test to Codecov
+#        uses: codecov/codecov-action@v3
+#        if: steps.check_files.outputs.files_exists == 'true' && ${{ matrix.python-version }} == '3.7'
+#        with:
+#          file: coverage.xml
+#          name: tensorrt-codecov
+#          flags: ${{ steps.test.outputs.codecov_flag }}
+#          fail_ci_if_error: false
+#          token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
+#          verbose: true
 
   # just for blocking the merge until all parallel core-test are successful
   success-all-test:
