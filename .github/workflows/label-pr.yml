@@ -22,7 +22,8 @@ jobs:
           repo-token: "${{ secrets.GITHUB_TOKEN }}"
       - id: docs_updated
         if: contains( github.event.pull_request.labels.*.name, 'area/docs')
-        run: echo '::set-output name=docs::true'
+        # FIXME: temp to disable netlify deploy
+        run: echo '::set-output name=docs::false'
     outputs:
       docs: ${{ steps.docs_updated.outputs.docs }}
 
