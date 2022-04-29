@@ -138,7 +138,7 @@ jobs:
 
   gpu-test:
     needs: prep-testbed
-    runs-on: [self-hosted]
+    runs-on: [self-hosted, x64, gpu, linux]
     strategy:
       fail-fast: false
       matrix:
