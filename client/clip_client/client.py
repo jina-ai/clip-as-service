@@ -397,3 +397,24 @@ class Client:
                 **self._get_rank_payload(docs, kwargs), on_done=self._gather_result
             )
         return self._results
+
+    async def arerank(self, docs: Iterable['Document'], **kwargs) -> 'DocumentArray':
+
+        self._prepare_streaming(
+            not kwargs.get('show_progress'),
+            total=len(docs),
+        )
+
+        async for da in self._async_client.post(**self._get_rank_payload(docs, kwargs)):
+            if not self._results:
+                self._pbar.start_task(self._r_task)
+            self._results.extend(da)
+            self._pbar.update(
+                self._r_task,
+                advance=len(da),
+                total_size=str(
+                    filesize.decimal(int(os.environ.get('JINA_GRPC_RECV_BYTES', '0')))
+                ),
+            )
+
+        return self._results
