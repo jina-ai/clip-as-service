@@ -1,7 +1,7 @@
-clip\_client.client module
+clip\_client.helper module
 ==========================
 
-.. automodule:: clip_client.client
+.. automodule:: clip_client.helper
    :members:
    :undoc-members:
    :show-inheritance:
