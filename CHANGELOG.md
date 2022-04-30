@@ -30,6 +30,7 @@
 
 
 
+
 <a name=release-note-0-0-3></a>
 ## Release Note (`0.0.3`)
 
@@ -677,4 +678,28 @@
 ### 🍹 Other Improvements
 
  - [[```d2c2c872```](https://github.com/jina-ai/clip-as-service/commit/d2c2c8729e0872b0c5e299916ae8cf58be7ec516)] __-__ __version__: the next version will be 0.3.5 (*Jina Dev Bot*)
+
+<a name=release-note-0-4-0></a>
+## Release Note (`0.4.0`)
+
+> Release time: 2022-04-30 20:25:29
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Han Xiao,  Jina Dev Bot,  🙇
+
+
+### 🆕 New Features
+
+ - [[```33efcb00```](https://github.com/jina-ai/clip-as-service/commit/33efcb00414f6cbf5f860bafe7cc183773e08241)] __-__ add async rerank (#701) (*Han Xiao*)
+ - [[```12d33c49```](https://github.com/jina-ai/clip-as-service/commit/12d33c49d5ac4d55a7351a442335f25218661dc8)] __-__ add async rerank (*Han Xiao*)
+
+### 🧼 Code Refactoring
+
+ - [[```050c34e0```](https://github.com/jina-ai/clip-as-service/commit/050c34e0906f9593aee054ac37a0a830478a3a3b)] __-__ use packaging instead of distutil (#700) (*Han Xiao*)
+
+### 🍹 Other Improvements
+
+ - [[```20e66b95```](https://github.com/jina-ai/clip-as-service/commit/20e66b953af17480e062a8e84719b5a6823ba648)] __-__ __version__: the next version will be 0.3.6 (*Jina Dev Bot*)
 
