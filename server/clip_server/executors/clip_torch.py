@@ -79,8 +79,8 @@ class CLIPEncoder(Executor):
         elif d.uri:
             _img_da.append(d)
 
-    @requests(on='/rerank')
-    async def rerank(self, docs: 'DocumentArray', parameters: Dict, **kwargs):
+    @requests(on='/rank')
+    async def rank(self, docs: 'DocumentArray', parameters: Dict, **kwargs):
         import torch
 
         _source = parameters.get('source', 'matches')

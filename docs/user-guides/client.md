@@ -255,15 +255,15 @@ asyncio.run(main())
 
 The final time cost will be less than `3s + time(t2)`.
 
-## Reranking
+## Ranking
 
 ```{tip}
 This feature is only available with `clip_server>=0.3.0` and the server is running with PyTorch backend.
 ```
 
-One can also rerank cross-modal matches via {meth}`~clip_client.client.Client.rerank`. First construct a cross-modal Document where the root contains an image and `.matches` contain sentences to rerank. One can also construct text-to-image rerank as below:
+One can also rank cross-modal matches via {meth}`~clip_client.client.Client.rank` or {meth}`~clip_client.client.Client.arank`. First construct a cross-modal Document where the root contains an image and `.matches` contain sentences to rerank. One can also construct text-to-image rerank as below:
 
-````{tab} Given image, rerank sentences
+````{tab} Given image, rank sentences
 
 ```python
 from docarray import Document
@@ -285,7 +285,7 @@ d = Document(
 
 ````
 
-````{tab} Given sentence, rerank images
+````{tab} Given sentence, rank images
 
 ```python
 from docarray import Document
@@ -304,13 +304,13 @@ d = Document(
 
 
 
-Then call `rerank`, you can feed it with multiple Documents as a list:
+Then call `rank`, you can feed it with multiple Documents as a list:
 
 ```python
 from clip_client import Client
 
 c = Client(server='grpc://demo-cas.jina.ai:51000')
-r = c.rerank([d])
+r = c.rank([d])
 
 print(r['@m', ['text', 'scores__clip_score__value']])
 ```
