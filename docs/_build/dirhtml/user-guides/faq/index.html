@@ -4,17 +4,19 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-<meta property="og:title" content="clip_client.helper module" />
+<meta property="og:title" content="FAQ" />
   
 <meta property="og:type" content="website" />
   
-<meta property="og:url" content="https://clip-as-service.jina.ai/api/clip_client.helper/" />
+<meta property="og:url" content="https://clip-as-service.jina.ai/user-guides/faq/" />
   
-<meta property="og:site_name" content="CLIP-as-service 0.3.3 Documentation" />
+<meta property="og:site_name" content="CLIP-as-service 0.3.4 Documentation" />
+  
+<meta property="og:description" content="This is a list of Frequently Asked Questions about CLIP-as-service. Feel free to suggest new entries! What is CLIP model?, Developed by OpenAI, CLIP (Contrastive Language-Image Pre-Training) is a neural network trained on a variety of (image, text) pairs. The original CLIP Github repository is he..." />
   
 <meta property="og:image" content="https://clip-as-service.jina.ai/_static/banner.png" />
   
-<meta property="og:image:alt" content="CLIP-as-service 0.3.3 Documentation" />
+<meta property="og:image:alt" content="CLIP-as-service 0.3.4 Documentation" />
   
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@JinaAI_">
@@ -33,11 +35,11 @@
 </script>
 
 <script async defer src="https://buttons.github.io/buttons.js"></script>
-    <link rel="index" title="Index" href="../../genindex/" /><link rel="search" title="Search" href="../../search/" /><link rel="next" title="Changelog" href="../../changelog/" /><link rel="prev" title="clip_client.client module" href="../clip_client.client/" />
-        <link rel="canonical" href="https://clip-as-service.jina.ai/api/clip_client.helper.html" />
+    <link rel="index" title="Index" href="../../genindex/" /><link rel="search" title="Search" href="../../search/" /><link rel="next" title="clip_client package" href="../../api/clip_client/" /><link rel="prev" title="Server API" href="../server/" />
+        <link rel="canonical" href="https://clip-as-service.jina.ai/user-guides/faq.html" />
 
     <link rel="shortcut icon" href="../../_static/favicon.png"/><meta name="generator" content="sphinx-4.5.0, furo 2022.04.07"/>
-        <title>clip_client.helper module - CLIP-as-service 0.3.3 documentation</title>
+        <title>FAQ - CLIP-as-service 0.3.4 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -170,7 +172,7 @@
         </div>
         <div class="header-center">
             <a href="../../">
-                <div class="brand">CLIP-as-service 0.3.3 documentation</div>
+                <div class="brand">CLIP-as-service 0.3.4 documentation</div>
             </a>
         </div>
         <div class="header-right">
@@ -220,16 +222,16 @@
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
     <p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../user-guides/client/">Client API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../user-guides/server/">Server API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../user-guides/faq/">FAQ</a></li>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../client/">Client API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../server/">Server API</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">FAQ</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Developer References</span></p>
-<ul class="current">
-<li class="toctree-l1 current has-children"><a class="reference internal" href="../clip_client/">clip_client package</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="../clip_client.client/">clip_client.client module</a></li>
-<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">clip_client.helper module</a></li>
+<ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../api/clip_client/">clip_client package</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../api/clip_client.client/">clip_client.client module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/clip_client.helper/">clip_client.helper module</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../changelog/">Changelog</a></li>
@@ -304,24 +306,52 @@
                     </label>
                 </div>
                 <article role="main">
-                    <section id="module-clip_client.helper">
-<span id="clip-client-helper-module"></span><h1>clip_client.helper module<a class="headerlink" href="#module-clip_client.helper" title="Permalink to this headline">#</a></h1>
-<dl class="py function">
-<dt class="sig sig-object py" id="clip_client.helper.is_latest_version">
-<span class="sig-prename descclassname"><span class="pre">clip_client.helper.</span></span><span class="sig-name descname"><span class="pre">is_latest_version</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">package</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">github_repo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/clip_client/helper/#is_latest_version"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#clip_client.helper.is_latest_version" title="Permalink to this definition">#</a></dt>
-<dd><p>Check if there is a latest version from Pypi, set env <cite>NO_VERSION_CHECK</cite> to disable it.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>package</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – package name if none auto-detected</p></li>
-<li><p><strong>github_repo</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – repo name that contains CHANGELOG if none then the same as package name</p></li>
+                    <section class="tex2jax_ignore mathjax_ignore" id="faq">
+<h1>FAQ<a class="headerlink" href="#faq" title="Permalink to this headline">#</a></h1>
+<p>This is a list of Frequently Asked Questions about CLIP-as-service. Feel free to suggest new entries!</p>
+<dl class="simple myst">
+<dt>What is CLIP model?</dt><dd><p>Developed by OpenAI, CLIP (Contrastive Language-Image Pre-Training) is a neural network trained on a variety of (image, text) pairs. The original CLIP Github repository <a class="reference external" href="https://github.com/openai/CLIP">is here</a>. The introduction of the CLIP model can <a class="reference external" href="https://openai.com/blog/clip/">be found here</a>.</p>
+</dd>
+<dt>Do I need to install <code class="docutils literal notranslate"><span class="pre">clip-server</span></code> and <code class="docutils literal notranslate"><span class="pre">clip-client</span></code> together?</dt><dd><p>No. You can install them separately on different machines. For example, on a GPU server, you just need <code class="docutils literal notranslate"><span class="pre">clip-server</span></code>; on your laptop, you just need <code class="docutils literal notranslate"><span class="pre">clip-client</span></code>.</p>
+</dd>
+<dt>What is CLIP-as-service based on? The codebase seems quite small</dt><dd><p>CLIP-as-service leverages features from <a class="reference external" href="https://github.com/jina-ai/jina">Jina</a>, which itself utilizes <a class="reference external" href="https://github.com/jina-ai/docarray">DocArray</a>. Thanks to them CLIP-as-service can be quickly built with solid infrastructure and rich features.</p>
+</dd>
+<dt>I had this AioRpcError, what should I do?</dt><dd><p>If you encounter the following errors, it means you client can not connect to the server.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>   GRPCClient@28632[E]:gRPC error: StatusCode.UNAVAILABLE failed to connect to all addresses
+the ongoing request is terminated as the server is not available or closed already
+</pre></div>
+</div>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>  AioRpcError: &lt;AioRpcError of RPC that terminated with:
+          status = StatusCode.UNAVAILABLE
+          details = "failed to connect to all addresses"
+          debug_error_string =
+  "{"created":"@1648074480.571952000","description":"Failed to pick subchannel",
+  "file":"src/core/ext/filters/client_channel/client_channel.cc","file_line":312
+  9,"referenced_errors":[{"created":"@1648074480.571952000","description":"faile
+  d to connect to all addresses","file":"src/core/lib/transport/error_utils.cc",
+  "file_line":163,"grpc_status":14}]}"
+</pre></div>
+</div>
+<p>You can try <code class="docutils literal notranslate"><span class="pre">.profile()</span></code> to <a class="reference internal" href="../client/#profiling"><span class="std std-ref">confirm it</span></a>. If it still throws the same error, then your connection is broken.</p>
+<p>While it is hard to pinpoint a network problem, also out of the scope of CLIP-as-service, we here provide you a checklist that may help you to diagnose the problem:</p>
+<ul class="simple">
+<li><p>Are the IP address, port, and protocol all correct?</p></li>
+<li><p>Is client and server under the same network, or a different network?</p></li>
+<li><p>Is your server down?</p></li>
+<li><p>Is server’s port open to public?</p></li>
+<li><p>Is there a firewall on the server side that restricts the port?</p></li>
+<li><p>Is there a firewall on the client side that restricts the port?</p></li>
+<li><p>Is the security group (on Cloud providers) correctly configured?</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+<dt>Why “CLIP-as-service” why not “CLIP-as-a-service”</dt><dd><p>Kind of pay homage to BERT-as-service. It is not about grammatically correct anyhow.</p>
+</dd>
+<dt>What happened to the BERT-as-service.</dt><dd><p>There has been no maintenance of BERT-as-service since Feb. 2019.</p>
+<p>CLIP-as-service is a huge upgrade of BERT-as-service, with more powerful universal embedding models that can handle both images and texts; and more solid and efficient microservice infrastructure developed in the last 2 years by Jina AI. The high-level API, especially the client side, is a drop-in replacement of the old BERT-as-service.</p>
+</dd>
+<dt>Where can I find the old codebase of BERT-as-service.</dt><dd><p>In the <a class="reference external" href="https://github.com/jina-ai/clip-as-service/tree/bert-as-service"><code class="docutils literal notranslate"><span class="pre">bert-as-service</span></code> branch</a> of the repository.</p>
 </dd>
 </dl>
-</dd></dl>
 </section>
 
                 </article>
@@ -329,18 +359,18 @@
             <footer>
                 
                 <div class="related-pages">
-                    <a class="next-page" href="../../changelog/">
+                    <a class="next-page" href="../../api/clip_client/">
                         <div class="page-info">
                             <div class="context">
                                 <span>Next</span>
                             </div>
-                            <div class="title">Changelog</div>
+                            <div class="title">clip_client package</div>
                         </div>
                         <svg>
                             <use href="#svg-arrow-right"></use>
                         </svg>
                     </a>
-                    <a class="prev-page" href="../clip_client.client/">
+                    <a class="prev-page" href="../server/">
                         <svg>
                             <use href="#svg-arrow-right"></use>
                         </svg>
@@ -349,7 +379,7 @@
                                 <span>Previous</span>
                             </div>
                             
-                            <div class="title">clip_client.client module</div>
+                            <div class="title">Server API</div>
                             
                         </div>
                     </a>
@@ -359,7 +389,7 @@
                         <div class="copyright">
                             Copyright &#169; Jina AI Limited. All rights reserved.
                         </div><div class="last-updated">
-                            Last updated on Apr 26, 2022</div>
+                            Last updated on Apr 30, 2022</div>
                     </div>
                     <div class="right-details">
                         <div class="social-btns">
