@@ -29,6 +29,7 @@
 
 
 
+
 <a name=release-note-0-0-3></a>
 ## Release Note (`0.0.3`)
 
@@ -653,4 +654,27 @@
 ### 🍹 Other Improvements
 
  - [[```dd508167```](https://github.com/jina-ai/clip-as-service/commit/dd5081672718a12e7aeede0400432e8f6a01a744)] __-__ __version__: the next version will be 0.3.4 (*Jina Dev Bot*)
+
+<a name=release-note-0-3-5></a>
+## Release Note (`0.3.5`)
+
+> Release time: 2022-04-30 18:55:10
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Han Xiao,  Jina Dev Bot,  🙇
+
+
+### 🐞 Bug fixes
+
+ - [[```8ac2e9bb```](https://github.com/jina-ai/clip-as-service/commit/8ac2e9bb68b96d1421f7e2ae6b01cec95aad3183)] __-__ __torch__: fix oom in rerank endpoint (#699) (*Han Xiao*)
+
+### 🧼 Code Refactoring
+
+ - [[```050c34e0```](https://github.com/jina-ai/clip-as-service/commit/050c34e0906f9593aee054ac37a0a830478a3a3b)] __-__ use packaging instead of distutil (#700) (*Han Xiao*)
+
+### 🍹 Other Improvements
+
+ - [[```d2c2c872```](https://github.com/jina-ai/clip-as-service/commit/d2c2c8729e0872b0c5e299916ae8cf58be7ec516)] __-__ __version__: the next version will be 0.3.5 (*Jina Dev Bot*)
 
