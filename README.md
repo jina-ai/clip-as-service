@@ -482,16 +482,16 @@ Fun time! Note, unlike the previous example, here the input is an image and the 
 </table>
 
 
-### Rerank image-text matches via CLIP model
+### Rank image-text matches via CLIP model
 
-From `0.3.0` CLIP-as-service adds a new `/rerank` endpoint that re-ranks cross-modal matches according to their joint likelihood in CLIP model. For example, given an image Document with some predefined sentence matches as below:
+From `0.3.0` CLIP-as-service adds a new `/rank` endpoint that re-ranks cross-modal matches according to their joint likelihood in CLIP model. For example, given an image Document with some predefined sentence matches as below:
 
 ```python
 from clip_client import Client
 from docarray import Document
 
 c = Client(server='grpc://demo-cas.jina.ai:51000')
-r = c.rerank(
+r = c.rank(
     [
         Document(
             uri='.github/README-img/rerank.png',
