@@ -224,7 +224,7 @@ gives:
 ## Install
 
 CLIP-as-service consists of two Python packages `clip-server` and `clip-client` that can be installed _independently_. Both require Python 3.7+. 
-`nebullvm` installation will need on some platforms python 
+
 
 ### Install server
 
