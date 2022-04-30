@@ -4,9 +4,9 @@ from multiprocessing.pool import ThreadPool
 from typing import Optional, List, Tuple, Dict
 
 import numpy as np
-from jina import Executor, requests, DocumentArray, Document
-
+import torch
 from clip_server.model import clip
+from jina import Executor, requests, DocumentArray
 
 
 class CLIPEncoder(Executor):
@@ -16,12 +16,10 @@ class CLIPEncoder(Executor):
         device: Optional[str] = None,
         jit: bool = False,
         num_worker_preprocess: int = 4,
-        minibatch_size: int = 64,
+        minibatch_size: int = 16,
         **kwargs,
     ):
         super().__init__(**kwargs)
-
-        import torch
 
         if not device:
             self._device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -83,6 +81,8 @@ class CLIPEncoder(Executor):
 
     @requests(on='/rerank')
     async def rerank(self, docs: 'DocumentArray', parameters: Dict, **kwargs):
+        import torch
+
         _source = parameters.get('source', 'matches')
         _get = lambda d: getattr(d, _source)
 
@@ -107,12 +107,24 @@ class CLIPEncoder(Executor):
                     f'`d.{_source}` must have more than one Documents to do ranking'
                 )
             else:
-                _img_da = self._preproc_image(_img_da)
-                _txt_da, texts = self._preproc_text(_txt_da)
+                _img_da = await self.encode(_img_da)
+                _txt_da = await self.encode(_txt_da)
+                _img_da.embeddings = torch.from_numpy(_img_da.embeddings)
+                _txt_da.embeddings = torch.from_numpy(_txt_da.embeddings)
 
-                logits_per_image, logits_per_text = self._model(
-                    _img_da.tensors, _txt_da.tensors
+                # normalized features
+                image_features = _img_da.embeddings / _img_da.embeddings.norm(
+                    dim=-1, keepdim=True
                 )
+                text_features = _txt_da.embeddings / _txt_da.embeddings.norm(
+                    dim=-1, keepdim=True
+                )
+
+                # cosine similarity as logits
+                logit_scale = self._model.logit_scale.exp()
+                logits_per_image = logit_scale * image_features @ text_features.t()
+                logits_per_text = logits_per_image.t()
+
                 probs_image = (
                     logits_per_image.softmax(dim=-1).cpu().detach().numpy().squeeze()
                 )
@@ -124,9 +136,8 @@ class CLIPEncoder(Executor):
                 elif len(_txt_da) == 1:
                     probs = probs_text
 
-                _txt_da.texts = texts
-                _img_da.tensors = None
-                _txt_da.tensors = None
+                _img_da.embeddings = None
+                _txt_da.embeddings = None
 
                 for c, v in zip(_get(d), probs):
                     c.scores['clip_score'].value = v
@@ -146,8 +157,6 @@ class CLIPEncoder(Executor):
         _txt_da = DocumentArray()
         for d in docs:
             self._split_img_txt_da(d, _img_da, _txt_da)
-
-        import torch
 
         with torch.inference_mode():
             # for image
@@ -181,3 +190,4 @@ class CLIPEncoder(Executor):
 
         # drop tensors
         docs.tensors = None
+        return docs

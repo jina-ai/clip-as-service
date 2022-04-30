@@ -29,7 +29,7 @@ class CLIPEncoder(Executor):
         name: str = 'ViT-B/32',
         device: Optional[str] = None,
         num_worker_preprocess: int = 4,
-        minibatch_size: int = 64,
+        minibatch_size: int = 16,
         **kwargs,
     ):
         super().__init__(**kwargs)
