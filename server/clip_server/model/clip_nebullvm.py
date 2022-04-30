@@ -74,15 +74,20 @@ class CLIPNebullvmModel:
 
 
 class EnvRunner:
-    def __init__(self, device: str):
+    def __init__(self, device: str, num_threads: int = None):
         self.device = device
         self.cuda_str = None
+        self.num_threads = num_threads
 
     def __enter__(self):
         if self.device == "cpu" and torch.cuda.is_available():
             self.cuda_str = os.environ.get("CUDA_VISIBLE_DEVICES") or "1"
             os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+        if self.num_threads is not None:
+            os.environ["NEBULLVM_THREADS_PER_MODEL"] = f"{self.num_threads}"
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if self.cuda_str is not None:
             os.environ["CUDA_VISIBLE_DEVICES"] = self.cuda_str
+        if self.num_threads is not None:
+            os.environ.pop("NEBULLVM_THREADS_PER_MODEL")

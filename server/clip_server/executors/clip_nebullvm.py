@@ -1,3 +1,4 @@
+import os
 import warnings
 from multiprocessing.pool import ThreadPool
 from typing import List, Tuple, Optional
@@ -42,11 +43,17 @@ class CLIPEncoder(Executor):
             self._device = 'cuda' if torch.cuda.is_available() else 'cpu'
         else:
             self._device = device
-
+        if not self._device.startswith('cuda') and (
+            'NEBULLVM_THREADS_PER_MODEL' not in os.environ
+            and hasattr(self.runtime_args, 'replicas')
+        ):
+            replicas = getattr(self.runtime_args, 'replicas', 1)
+            num_threads = max(1, torch.get_num_threads() // replicas)
+        else:
+            num_threads = None
         self._model = CLIPNebullvmModel(name, _SIZE[name])
-        if self._device == "cpu" and torch.cuda.is_available():
-            with EnvRunner(self._device):
-                self._model.optimize_models(batch_size=minibatch_size)
+        with EnvRunner(self._device, num_threads):
+            self._model.optimize_models(batch_size=minibatch_size)
 
     def _preproc_image(self, da: 'DocumentArray') -> 'DocumentArray':
         for d in da:
