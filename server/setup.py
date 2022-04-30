@@ -46,7 +46,7 @@ setup(
         'torch',
         'regex',
         'torchvision',
-        'jina>=3.3.',
+        'jina>=3.3.21',
         'docarray>=0.11.0',
         'packaging',
     ],
