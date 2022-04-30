@@ -1,6 +1,8 @@
 import os
 from pathlib import Path
 
+import torch.cuda
+
 from .clip import _download, available_models
 
 _S3_BUCKET = 'https://clip-as-service.s3.us-east-2.amazonaws.com/models/onnx/'
@@ -69,3 +71,18 @@ class CLIPNebullvmModel:
     def encode_text(self, onnx_text):
         (textual_output,) = self._textual_model(onnx_text)
         return textual_output
+
+
+class EnvRunner:
+    def __init__(self, device: str):
+        self.device = device
+        self.cuda_str = None
+
+    def __enter__(self):
+        if self.device == "cpu" and torch.cuda.is_available():
+            self.cuda_str = os.environ.get("CUDA_VISIBLE_DEVICES") or "1"
+            os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if self.cuda_str is not None:
+            os.environ["CUDA_VISIBLE_DEVICES"] = self.cuda_str

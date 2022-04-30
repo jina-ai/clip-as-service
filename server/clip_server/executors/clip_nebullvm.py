@@ -1,12 +1,13 @@
 import warnings
 from multiprocessing.pool import ThreadPool
 from typing import List, Tuple, Optional
-import numpy as np
 
+import numpy as np
+import torch
 from jina import Executor, requests, DocumentArray
 
 from clip_server.model import clip
-from clip_server.model.clip_nebullvm import CLIPNebullvmModel
+from clip_server.model.clip_nebullvm import CLIPNebullvmModel, EnvRunner
 
 _SIZE = {
     'RN50': 224,
@@ -25,6 +26,7 @@ class CLIPEncoder(Executor):
     def __init__(
         self,
         name: str = 'ViT-B/32',
+        device: Optional[str] = None,
         num_worker_preprocess: int = 4,
         minibatch_size: int = 64,
         **kwargs,
@@ -36,10 +38,15 @@ class CLIPEncoder(Executor):
         self._pool = ThreadPool(processes=num_worker_preprocess)
 
         self._minibatch_size = minibatch_size
+        if not device:
+            self._device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        else:
+            self._device = device
 
         self._model = CLIPNebullvmModel(name, _SIZE[name])
-
-        self._model.optimize_models(batch_size=minibatch_size)
+        if self._device == "cpu" and torch.cuda.is_available():
+            with EnvRunner(self._device):
+                self._model.optimize_models(batch_size=minibatch_size)
 
     def _preproc_image(self, da: 'DocumentArray') -> 'DocumentArray':
         for d in da:
