@@ -2,7 +2,7 @@ import json
 import os
 import sys
 import threading
-from distutils.version import LooseVersion
+from packaging.version import Version
 from urllib.request import Request, urlopen
 
 import pkg_resources
@@ -27,7 +27,7 @@ def _version_check(package: str = None, github_repo: str = None):
         if not github_repo:
             github_repo = package
 
-        cur_ver = LooseVersion(pkg_resources.get_distribution(package).version)
+        cur_ver = Version(pkg_resources.get_distribution(package).version)
         req = Request(
             f'https://pypi.python.org/pypi/{package}/json',
             headers={'User-Agent': 'Mozilla/5.0'},
@@ -37,9 +37,9 @@ def _version_check(package: str = None, github_repo: str = None):
         ) as resp:  # 'with' is important to close the resource after use
             j = json.load(resp)
             releases = j.get('releases', {})
-            latest_release_ver = list(
-                sorted(LooseVersion(v) for v in releases.keys() if '.dev' not in v)
-            )[-1]
+            latest_release_ver = max(
+                Version(v) for v in releases.keys() if '.dev' not in v
+            )
             if cur_ver < latest_release_ver:
                 print(
                     Panel(
