@@ -6,7 +6,7 @@ from typing import Optional, List, Tuple, Dict
 import numpy as np
 import torch
 from clip_server.model import clip
-from jina import Executor, requests, DocumentArray
+from jina import Executor, requests, DocumentArray, monitor
 
 
 class CLIPEncoder(Executor):
@@ -52,6 +52,7 @@ class CLIPEncoder(Executor):
 
         self._pool = ThreadPool(processes=num_worker_preprocess)
 
+    @monitor('preproc_images_seconds','Time preprocessing images')
     def _preproc_image(self, da: 'DocumentArray') -> 'DocumentArray':
         for d in da:
             if d.tensor is not None:
@@ -64,6 +65,7 @@ class CLIPEncoder(Executor):
         da.tensors = da.tensors.to(self._device)
         return da
 
+    @monitor('preproc_texts_seconds','Time preprocessing texts')
     def _preproc_text(self, da: 'DocumentArray') -> Tuple['DocumentArray', List[str]]:
         texts = da.texts
         da.tensors = clip.tokenize(texts).to(self._device)

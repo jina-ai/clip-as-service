@@ -2,6 +2,7 @@ jtype: Flow
 version: '1'
 with:
   port: 51000
+  monitoring: True
 executors:
   - name: clip_t
     uses:
@@ -9,3 +10,5 @@ executors:
       metas:
         py_modules:
           - executors/clip_torch.py
+    monitoring: true
+    port_monitoring: 9091
