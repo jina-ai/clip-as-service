@@ -1,3 +1,4 @@
+import contextlib
 import os
 import warnings
 from multiprocessing.pool import ThreadPool
@@ -7,6 +8,8 @@ import numpy as np
 import torch
 from clip_server.model import clip
 from jina import Executor, requests, DocumentArray
+
+from prometheus_client import Summary
 
 
 class CLIPEncoder(Executor):
@@ -52,23 +55,47 @@ class CLIPEncoder(Executor):
 
         self._pool = ThreadPool(processes=num_worker_preprocess)
 
+        self._summary_text = (
+            Summary(
+                'preproc_images_seconds',
+                'Time preprocessing images',
+                registry=self.runtime_args.metrics_registry,
+                namespace='jina',
+            ).time()
+            if self.runtime_args.metrics_registry
+            else contextlib.nullcontext()
+        )
+
+        self._summary_image = (
+            Summary(
+                'preproc_texts_seconds',
+                'Time preprocessing texts',
+                registry=self.runtime_args.metrics_registry,
+                namespace='jina',
+            ).time()
+            if self.runtime_args.metrics_registry
+            else contextlib.nullcontext()
+        )
+
     def _preproc_image(self, da: 'DocumentArray') -> 'DocumentArray':
-        for d in da:
-            if d.tensor is not None:
-                d.tensor = self._preprocess_tensor(d.tensor)
-            else:
-                if not d.blob and d.uri:
-                    # in case user uses HTTP protocol and send data via curl not using .blob (base64), but in .uri
-                    d.load_uri_to_blob()
-                d.tensor = self._preprocess_blob(d.blob)
-        da.tensors = da.tensors.to(self._device)
-        return da
+        with self._summary_image:
+            for d in da:
+                if d.tensor is not None:
+                    d.tensor = self._preprocess_tensor(d.tensor)
+                else:
+                    if not d.blob and d.uri:
+                        # in case user uses HTTP protocol and send data via curl not using .blob (base64), but in .uri
+                        d.load_uri_to_blob()
+                    d.tensor = self._preprocess_blob(d.blob)
+            da.tensors = da.tensors.to(self._device)
+            return da
 
     def _preproc_text(self, da: 'DocumentArray') -> Tuple['DocumentArray', List[str]]:
-        texts = da.texts
-        da.tensors = clip.tokenize(texts).to(self._device)
-        da[:, 'mime_type'] = 'text'
-        return da, texts
+        with self._summary_text:
+            texts = da.texts
+            da.tensors = clip.tokenize(texts).to(self._device)
+            da[:, 'mime_type'] = 'text'
+            return da, texts
 
     @staticmethod
     def _split_img_txt_da(d, _img_da, _txt_da):
