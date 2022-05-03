@@ -532,7 +532,7 @@ One can see now `a photo of a television studio` is ranked to the top with `clip
 
 ### Rank text-image matches via CLIP model
 
-In the DALL·E Flow project, CLIP is called for ranking the generated results from DALL·E. It has an Executor wrapped on top of `clip-client`, which calls the async version of `.rank()`:
+In the [DALL·E Flow](https://github.com/jina-ai/dalle-flow) project, CLIP is called for ranking the generated results from DALL·E. [It has an Executor wrapped on top of `clip-client`](https://github.com/jina-ai/dalle-flow/blob/main/executors/rerank/executor.py), which calls `.arank()` - the async version of `.rank()`:
 
 ```python
 from clip_client import Client
