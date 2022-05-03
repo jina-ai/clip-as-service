@@ -549,8 +549,9 @@ class ReRank(Executor):
         return await self._client.arank(docs)
 ```
 
+<p align="center">
 <img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/client-dalle.png?raw=true" alt="CLIP-as-service used in DALLE Flow" width="300px">
-     
+</p>
 
 Intrigued? That's only scratching the surface of what CLIP-as-service is capable of. [Read our docs to learn more](https://clip-as-service.jina.ai).
 
