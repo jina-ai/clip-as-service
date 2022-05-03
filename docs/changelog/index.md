@@ -4,7 +4,7 @@ CLIP-as-service follows semantic versioning. However, before the project reach 1
 
 This chapter only tracks the most important breaking changes and explain the rationale behind them.
 
-# 0.4.0: rename `rerank` concept to `rank`
+## 0.4.0: rename `rerank` concept to `rank`
 
 "Reranking" is a new feature introduced since 0.3.3. This feature allows user to rank and score `document.matches` in a cross-modal way. From 0.4.0, this feature as well as all related functions will refer it simply as "rank".
 

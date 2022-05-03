@@ -529,7 +529,27 @@ One can see now `a photo of a television studio` is ranked to the top with `clip
 </td>
 </tr>
 </table>
-     
+
+### Rank text-image matches via CLIP model
+
+In the DALL·E Flow project, CLIP is called for ranking the generated results from DALL·E. It has an Executor wrapped on top of `clip-client`, which calls the async version of `.rank()`:
+
+```python
+from clip_client import Client
+from jina import Executor, requests, DocumentArray
+
+
+class ReRank(Executor):
+    def __init__(self, clip_server: str, **kwargs):
+        super().__init__(**kwargs)
+        self._client = Client(server=clip_server)
+
+    @requests(on='/')
+    async def rerank(self, docs: DocumentArray, **kwargs):
+        return await self._client.arank(docs)
+```
+
+<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/client-dalle.png?raw=true" alt="CLIP-as-service used in DALLE Flow" width="300px">
      
 
 Intrigued? That's only scratching the surface of what CLIP-as-service is capable of. [Read our docs to learn more](https://clip-as-service.jina.ai).
