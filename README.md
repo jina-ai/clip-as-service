@@ -231,7 +231,7 @@ Let's build a simple prompt to allow a user to type sentence:
 while True:
     vec = c.encode([input('sentence> ')])
     r = da.find(query=vec, limit=9)
-    r.plot_image_sprites()
+    r[0].plot_image_sprites()
 ```
 
 #### Showcase
