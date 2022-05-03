@@ -1,12 +1,13 @@
 import os
 import warnings
+import time
 from multiprocessing.pool import ThreadPool
 from typing import Optional, List, Tuple, Dict
 
 import numpy as np
 import torch
 from clip_server.model import clip
-from jina import Executor, requests, DocumentArray, monitor
+from jina import Executor, requests, DocumentArray
 
 
 class CLIPEncoder(Executor):
@@ -52,8 +53,10 @@ class CLIPEncoder(Executor):
 
         self._pool = ThreadPool(processes=num_worker_preprocess)
 
-    @monitor('preproc_images_seconds','Time preprocessing images')
     def _preproc_image(self, da: 'DocumentArray') -> 'DocumentArray':
+
+        init_time = time.time()
+
         for d in da:
             if d.tensor is not None:
                 d.tensor = self._preprocess_tensor(d.tensor)
@@ -63,13 +66,27 @@ class CLIPEncoder(Executor):
                     d.load_uri_to_blob()
                 d.tensor = self._preprocess_blob(d.blob)
         da.tensors = da.tensors.to(self._device)
+
+        self.log(
+            time.time() - init_time,
+            'preproc_images_seconds',
+            'Time preprocessing images',
+        )
+
         return da
 
-    @monitor('preproc_texts_seconds','Time preprocessing texts')
     def _preproc_text(self, da: 'DocumentArray') -> Tuple['DocumentArray', List[str]]:
+
+        init_time = time.time()
+
         texts = da.texts
         da.tensors = clip.tokenize(texts).to(self._device)
         da[:, 'mime_type'] = 'text'
+
+        self.log(
+            time.time() - init_time, 'preproc_texts_seconds', 'Time preprocessing texts'
+        )
+
         return da, texts
 
     @staticmethod
