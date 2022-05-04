@@ -2,13 +2,15 @@ import os
 
 import pytest
 from clip_client import Client
-from clip_server.executors.clip_torch import CLIPEncoder
+from clip_server.executors.clip_torch import CLIPEncoder as TorchCLIPEncoder
+from clip_server.executors.clip_onnx import CLIPEncoder as ONNXCLILPEncoder
 from docarray import DocumentArray, Document
 
 
 @pytest.mark.asyncio
-async def test_torch_executor_rank_img2texts():
-    ce = CLIPEncoder()
+@pytest.mark.parametrize('encoder_class', [TorchCLIPEncoder, ONNXCLILPEncoder])
+async def test_torch_executor_rank_img2texts(encoder_class):
+    ce = encoder_class()
 
     da = DocumentArray.from_files(
         f'{os.path.dirname(os.path.abspath(__file__))}/**/*.jpg'
@@ -25,8 +27,9 @@ async def test_torch_executor_rank_img2texts():
 
 
 @pytest.mark.asyncio
-async def test_torch_executor_rank_text2imgs():
-    ce = CLIPEncoder()
+@pytest.mark.parametrize('encoder_class', [TorchCLIPEncoder, ONNXCLILPEncoder])
+async def test_torch_executor_rank_text2imgs(encoder_class):
+    ce = encoder_class()
     db = DocumentArray(
         [Document(text='hello, world!'), Document(text='goodbye, world!')]
     )
@@ -61,8 +64,8 @@ async def test_torch_executor_rank_text2imgs():
         ),
     ],
 )
-def test_docarray_inputs(make_torch_flow, d):
-    c = Client(server=f'grpc://0.0.0.0:{make_torch_flow.port}')
+def test_docarray_inputs(make_flow, d):
+    c = Client(server=f'grpc://0.0.0.0:{make_flow.port}')
     r = c.rank([d])
     assert isinstance(r, DocumentArray)
     rv = r['@m', 'scores__clip_score__value']
@@ -90,8 +93,8 @@ def test_docarray_inputs(make_torch_flow, d):
     ],
 )
 @pytest.mark.asyncio
-async def test_async_arank(make_torch_flow, d):
-    c = Client(server=f'grpc://0.0.0.0:{make_torch_flow.port}')
+async def test_async_arank(make_flow, d):
+    c = Client(server=f'grpc://0.0.0.0:{make_flow.port}')
     r = await c.arank([d])
     assert isinstance(r, DocumentArray)
     rv = r['@m', 'scores__clip_score__value']

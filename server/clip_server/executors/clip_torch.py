@@ -102,16 +102,18 @@ class CLIPEncoder(Executor):
                 logits_per_image = logit_scale * image_features @ text_features.t()
                 logits_per_text = logits_per_image.t()
 
-                probs_image = (
-                    logits_per_image.softmax(dim=-1).cpu().detach().numpy().squeeze()
-                )
-                probs_text = (
-                    logits_per_text.softmax(dim=-1).cpu().detach().numpy().squeeze()
-                )
                 if len(_img_da) == 1:
-                    probs = probs_image
+                    probs = (
+                        logits_per_image.softmax(dim=-1)
+                        .cpu()
+                        .detach()
+                        .numpy()
+                        .squeeze()
+                    )
                 elif len(_txt_da) == 1:
-                    probs = probs_text
+                    probs = (
+                        logits_per_text.softmax(dim=-1).cpu().detach().numpy().squeeze()
+                    )
 
                 _img_da.embeddings = None
                 _txt_da.embeddings = None
