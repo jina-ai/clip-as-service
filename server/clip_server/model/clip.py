@@ -37,6 +37,18 @@ _MODELS = {
     'ViT-L/14@336px': 'ViT-L-14-336px.pt',
 }
 
+MODEL_SIZE = {
+    'RN50': 224,
+    'RN101': 224,
+    'RN50x4': 288,
+    'RN50x16': 384,
+    'RN50x64': 448,
+    'ViT-B/32': 224,
+    'ViT-B/16': 224,
+    'ViT-L/14': 224,
+    'ViT-L/14@336px': 336,
+}
+
 
 def _download(url: str, root: str, with_resume: bool = True):
     os.makedirs(root, exist_ok=True)
@@ -223,7 +235,6 @@ def load(
             model.float()
         return (
             model,
-            _transform_blob(model.visual.input_resolution),
             _transform_ndarray(model.visual.input_resolution),
         )
 
@@ -292,7 +303,6 @@ def load(
 
     return (
         model,
-        _transform_blob(model.input_resolution.item()),
         _transform_ndarray(model.input_resolution.item()),
     )
 
