@@ -36,3 +36,33 @@ def test_docarray_inputs(make_trt_flow, inputs):
     r = c.encode(inputs if not callable(inputs) else inputs())
     assert isinstance(r, DocumentArray)
     assert r.embeddings.shape
+
+
+@pytest.mark.gpu
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    'd',
+    [
+        Document(
+            uri='https://docarray.jina.ai/_static/favicon.png',
+            matches=[Document(text='hello, world'), Document(text='goodbye, world')],
+        ),
+        Document(
+            text='hello, world',
+            matches=[
+                Document(uri='https://docarray.jina.ai/_static/favicon.png'),
+                Document(
+                    uri=f'{os.path.dirname(os.path.abspath(__file__))}/img/00000.jpg'
+                ),
+            ],
+        ),
+    ],
+)
+async def test_async_arank(make_trt_flow, d):
+    c = Client(server=f'grpc://0.0.0.0:{make_trt_flow.port}')
+    r = await c.arank([d])
+    assert isinstance(r, DocumentArray)
+    rv = r['@m', 'scores__clip_score__value']
+    for v in rv:
+        assert v is not None
+        assert v > 0
