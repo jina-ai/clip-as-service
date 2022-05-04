@@ -40,7 +40,7 @@ setup(
     long_description=_long_description,
     long_description_content_type='text/markdown',
     zip_safe=False,
-    setup_requires=['setuptools>=18.0', 'wheel', 'nvidia-pyindex'],
+    setup_requires=['setuptools>=18.0', 'wheel'],
     install_requires=[
         'ftfy',
         'torch',

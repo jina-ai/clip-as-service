@@ -37,15 +37,21 @@ pip install "clip_server[onnx]"
 python -m clip_server onnx-flow.yml
 ```
 
-One may wonder where is this `onnx_flow.yml` come from. Must be a typo? Believe me, just run it. It should work. I will explain this YAML file in the next section. 
-
 We also support TensorRT runtime for CLIP, you can run:
 
 ```bash
+# You must first install the nvidia-pyindex package, which is required in order to set up your pip installation 
+# to fetch additional Python modules from the NVIDIA NGC™ PyPI repo.
+pip install nvidia-pyindex
+
 pip install "clip_server[tensorrt]"
 
 python -m clip_server tensorrt-flow.yml
 ```
+
+One may wonder where is this `onnx-flow.yml` (or `tensorrt-flow.yml`) come from. Must be a typo? Believe me, just run it. It should work. I will explain this YAML file in the next section. 
+
+
 
 The procedure and UI of ONNX and TensorRT runtime would look the same as Pytorch runtime.
 

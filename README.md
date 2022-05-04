@@ -61,6 +61,10 @@ pip install "clip-server[onnx]"
 To run CLIP model via TensorRT
 
 ```bash
+# You must first install the nvidia-pyindex package, which is required in order to set up your pip installation 
+# to fetch additional Python modules from the NVIDIA NGC™ PyPI repo.
+pip install nvidia-pyindex
+
 pip install "clip-server[tensorrt]"
 ```
 
