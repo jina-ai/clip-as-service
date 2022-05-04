@@ -38,6 +38,8 @@ def test_docarray_inputs(make_trt_flow, inputs):
     assert r.embeddings.shape
 
 
+@pytest.mark.gpu
+@pytest.mark.asyncio
 @pytest.mark.parametrize(
     'd',
     [
@@ -56,7 +58,6 @@ def test_docarray_inputs(make_trt_flow, inputs):
         ),
     ],
 )
-@pytest.mark.asyncio
 async def test_async_arank(make_trt_flow, d):
     c = Client(server=f'grpc://0.0.0.0:{make_trt_flow.port}')
     r = await c.arank([d])
