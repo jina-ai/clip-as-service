@@ -1,11 +1,15 @@
 import os
 import warnings
+from functools import partial
+
 from multiprocessing.pool import ThreadPool
 from typing import Optional, List, Tuple, Dict
 
 import numpy as np
 import torch
 from clip_server.model import clip
+from clip_server.executors.helper import split_img_txt_da, preproc_image, preproc_text
+
 from jina import Executor, requests, DocumentArray
 
 
@@ -52,33 +56,6 @@ class CLIPEncoder(Executor):
 
         self._pool = ThreadPool(processes=num_worker_preprocess)
 
-    def _preproc_image(self, da: 'DocumentArray') -> 'DocumentArray':
-        for d in da:
-            if d.tensor is not None:
-                d.tensor = self._preprocess_tensor(d.tensor)
-            else:
-                if not d.blob and d.uri:
-                    # in case user uses HTTP protocol and send data via curl not using .blob (base64), but in .uri
-                    d.load_uri_to_blob()
-                d.tensor = self._preprocess_blob(d.blob)
-        da.tensors = da.tensors.to(self._device)
-        return da
-
-    def _preproc_text(self, da: 'DocumentArray') -> Tuple['DocumentArray', List[str]]:
-        texts = da.texts
-        da.tensors = clip.tokenize(texts).to(self._device)
-        da[:, 'mime_type'] = 'text'
-        return da, texts
-
-    @staticmethod
-    def _split_img_txt_da(d, _img_da, _txt_da):
-        if d.text:
-            _txt_da.append(d)
-        elif (d.blob is not None) or (d.tensor is not None):
-            _img_da.append(d)
-        elif d.uri:
-            _img_da.append(d)
-
     @requests(on='/rank')
     async def rank(self, docs: 'DocumentArray', parameters: Dict, **kwargs):
         import torch
@@ -89,10 +66,10 @@ class CLIPEncoder(Executor):
         for d in docs:
             _img_da = DocumentArray()
             _txt_da = DocumentArray()
-            self._split_img_txt_da(d, _img_da, _txt_da)
+            split_img_txt_da(d, _img_da, _txt_da)
 
             for c in _get(d):
-                self._split_img_txt_da(c, _img_da, _txt_da)
+                split_img_txt_da(c, _img_da, _txt_da)
 
             if len(_img_da) != 1 and len(_txt_da) != 1:
                 raise ValueError(
@@ -156,13 +133,18 @@ class CLIPEncoder(Executor):
         _img_da = DocumentArray()
         _txt_da = DocumentArray()
         for d in docs:
-            self._split_img_txt_da(d, _img_da, _txt_da)
+            split_img_txt_da(d, _img_da, _txt_da)
 
         with torch.inference_mode():
             # for image
             if _img_da:
                 for minibatch in _img_da.map_batch(
-                    self._preproc_image,
+                    partial(
+                        preproc_image,
+                        preprocess_fn=self._preprocess_tensor,
+                        device=self._device,
+                        return_np=False,
+                    ),
                     batch_size=self._minibatch_size,
                     pool=self._pool,
                 ):
@@ -176,7 +158,7 @@ class CLIPEncoder(Executor):
             # for text
             if _txt_da:
                 for minibatch, _texts in _txt_da.map_batch(
-                    self._preproc_text,
+                    partial(preproc_text, device=self._device, return_np=False),
                     batch_size=self._minibatch_size,
                     pool=self._pool,
                 ):
