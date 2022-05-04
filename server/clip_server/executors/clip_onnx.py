@@ -79,8 +79,6 @@ class CLIPEncoder(Executor):
 
     @requests(on='/rank')
     async def rank(self, docs: 'DocumentArray', parameters: Dict, **kwargs):
-        import torch
-
         _source = parameters.get('source', 'matches')
         _get = lambda d: getattr(d, _source)
 
