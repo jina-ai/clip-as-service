@@ -48,8 +48,7 @@ curl \
 -d '{"data":[{"text": "First do it"}, 
     {"text": "then do it right"}, 
     {"text": "then do it better"}, 
-    {"uri": "https://clip-as-service.jina.ai/
-    _static/favicon.png" }], 
+    {"uri": "https://picsum.photos/200"}], 
     "execEndpoint":"/"}'
 ```
 
@@ -67,8 +66,7 @@ r = c.encode(
         'First do it',
         'then do it right',
         'then do it better',
-        'https://clip-as-service.jina.ai/\
-            _static/favicon.png',
+        'https://picsum.photos/200',
     ]
 )
 print(r)
