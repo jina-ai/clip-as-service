@@ -193,7 +193,7 @@ Progress bar may not show up in the PyCharm debug terminal. This is an upstream 
 ```
 
 
-### Encode large number of Documents
+### Performance tip on large number of Documents
 
 Here are some suggestions when encoding large number of Documents:
 
@@ -213,8 +213,19 @@ Here are some suggestions when encoding large number of Documents:
 
     c.encode(iglob('**/*.png'))
     ```
-2. Adjust batch size.
-3. Turn on progressbar.
+2. Adjust `batch_size`.
+3. Turn on the progressbar.
+
+````{danger}
+In any case, avoiding the following coding:
+
+```python
+for d in big_list:
+    c.encode([d])
+```
+
+This is extremely slow as only one document is encoded at a time, it is a bad utilization of the network and not leveraging any duplex streaming.
+````
 
 
 ## Async encoding

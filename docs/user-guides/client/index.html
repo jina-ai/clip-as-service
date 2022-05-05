@@ -10,13 +10,13 @@
   
 <meta property="og:url" content="https://clip-as-service.jina.ai/user-guides/client/" />
   
-<meta property="og:site_name" content="CLIP-as-service 0.4.1 Documentation" />
+<meta property="og:site_name" content="CLIP-as-service 0.4.2 Documentation" />
   
 <meta property="og:description" content="CLIP-as-service is designed in a client-server architecture. A client sends images and texts to the server, and receives the embeddings from the server. Additionally, Client has many nice designs for speeding up the encoding on large amount of data: Streaming: request sending is not blocked by th..." />
   
 <meta property="og:image" content="https://clip-as-service.jina.ai/_images/client-pgbar.gif" />
   
-<meta property="og:image:alt" content="CLIP-as-service 0.4.1 Documentation" />
+<meta property="og:image:alt" content="CLIP-as-service 0.4.2 Documentation" />
   
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@JinaAI_">
@@ -39,7 +39,7 @@
         <link rel="canonical" href="https://clip-as-service.jina.ai/user-guides/client.html" />
 
     <link rel="shortcut icon" href="../../_static/favicon.png"/><meta name="generator" content="sphinx-4.5.0, furo 2022.04.07"/>
-        <title>Client API - CLIP-as-service 0.4.1 documentation</title>
+        <title>Client API - CLIP-as-service 0.4.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -172,7 +172,7 @@
         </div>
         <div class="header-center">
             <a href="../../">
-                <div class="brand">CLIP-as-service 0.4.1 documentation</div>
+                <div class="brand">CLIP-as-service 0.4.2 documentation</div>
             </a>
         </div>
         <div class="header-right">
@@ -505,8 +505,8 @@
 <p>Progress bar may not show up in the PyCharm debug terminal. This is an upstream issue of <code class="docutils literal notranslate"><span class="pre">rich</span></code> package.</p>
 </div>
 </section>
-<section id="encode-large-number-of-documents">
-<h3>Encode large number of Documents<a class="headerlink" href="#encode-large-number-of-documents" title="Permalink to this headline">#</a></h3>
+<section id="performance-tip-on-large-number-of-documents">
+<h3>Performance tip on large number of Documents<a class="headerlink" href="#performance-tip-on-large-number-of-documents" title="Permalink to this headline">#</a></h3>
 <p>Here are some suggestions when encoding large number of Documents:</p>
 <ol>
 <li><p>Use <code class="docutils literal notranslate"><span class="pre">Generator</span></code> as input to load data on-demand. You can put your data into a Generator and feed to <code class="docutils literal notranslate"><span class="pre">.encode</span></code>:</p>
@@ -526,9 +526,18 @@
 </pre></div>
 </div>
 </li>
-<li><p>Adjust batch size.</p></li>
-<li><p>Turn on progressbar.</p></li>
+<li><p>Adjust <code class="docutils literal notranslate"><span class="pre">batch_size</span></code>.</p></li>
+<li><p>Turn on the progressbar.</p></li>
 </ol>
+<div class="admonition danger">
+<p class="admonition-title">Danger</p>
+<p>In any case, avoiding the following coding:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">big_list</span><span class="p">:</span>
+    <span class="n">c</span><span class="o">.</span><span class="n">encode</span><span class="p">([</span><span class="n">d</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>This is extremely slow as only one document is encoded at a time, it is a bad utilization of the network and not leveraging any duplex streaming.</p>
+</div>
 </section>
 </section>
 <section id="async-encoding">
@@ -732,7 +741,7 @@
                         <div class="copyright">
                             Copyright &#169; Jina AI Limited. All rights reserved.
                         </div><div class="last-updated">
-                            Last updated on May 04, 2022</div>
+                            Last updated on May 05, 2022</div>
                     </div>
                     <div class="right-details">
                         <div class="social-btns">
@@ -771,7 +780,7 @@
 <li><a class="reference internal" href="#input-as-iterable-of-documents">Input as iterable of Documents</a></li>
 <li><a class="reference internal" href="#control-batch-size">Control batch size</a></li>
 <li><a class="reference internal" href="#show-progressbar">Show progressbar</a></li>
-<li><a class="reference internal" href="#encode-large-number-of-documents">Encode large number of Documents</a></li>
+<li><a class="reference internal" href="#performance-tip-on-large-number-of-documents">Performance tip on large number of Documents</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#async-encoding">Async encoding</a></li>

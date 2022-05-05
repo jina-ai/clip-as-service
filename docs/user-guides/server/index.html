@@ -10,13 +10,13 @@
   
 <meta property="og:url" content="https://clip-as-service.jina.ai/user-guides/server/" />
   
-<meta property="og:site_name" content="CLIP-as-service 0.4.1 Documentation" />
+<meta property="og:site_name" content="CLIP-as-service 0.4.2 Documentation" />
   
 <meta property="og:description" content="CLIP-as-service is designed in a client-server architecture. A server is a long-running program that receives raw sentences and images from clients, and returns CLIP embeddings to the client. Additionally, clip_server is optimized for speed, low memory footprint and scalability. Horizontal scalin..." />
   
 <meta property="og:image" content="https://clip-as-service.jina.ai/_images/server-start.gif" />
   
-<meta property="og:image:alt" content="CLIP-as-service 0.4.1 Documentation" />
+<meta property="og:image:alt" content="CLIP-as-service 0.4.2 Documentation" />
   
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@JinaAI_">
@@ -39,7 +39,7 @@
         <link rel="canonical" href="https://clip-as-service.jina.ai/user-guides/server.html" />
 
     <link rel="shortcut icon" href="../../_static/favicon.png"/><meta name="generator" content="sphinx-4.5.0, furo 2022.04.07"/>
-        <title>Server API - CLIP-as-service 0.4.1 documentation</title>
+        <title>Server API - CLIP-as-service 0.4.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -172,7 +172,7 @@
         </div>
         <div class="header-center">
             <a href="../../">
-                <div class="brand">CLIP-as-service 0.4.1 documentation</div>
+                <div class="brand">CLIP-as-service 0.4.2 documentation</div>
             </a>
         </div>
         <div class="header-right">
@@ -321,6 +321,8 @@
 </div>
 <section id="start-server">
 <h2>Start server<a class="headerlink" href="#start-server" title="Permalink to this headline">#</a></h2>
+<section id="start-a-pytorch-backed-server">
+<h3>Start a PyTorch-backed server<a class="headerlink" href="#start-a-pytorch-backed-server" title="Permalink to this headline">#</a></h3>
 <p>Unlike the client, server only has a CLI entrypoint. To start a server, run the following in the terminal:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python -m clip_server
 </pre></div>
@@ -330,24 +332,108 @@
 <figure class="align-default">
 <a class="reference internal image-reference" href="../../_images/server-start.gif"><img alt="../../_images/server-start.gif" src="../../_images/server-start.gif" style="width: 70%;"/></a>
 </figure>
+</section>
+<section id="start-a-onnx-backed-server">
+<h3>Start a ONNX-backed server<a class="headerlink" href="#start-a-onnx-backed-server" title="Permalink to this headline">#</a></h3>
 <p>To use ONNX runtime for CLIP, you can run:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install <span class="s2">"clip_server[onnx]"</span>
 
 python -m clip_server onnx-flow.yml
 </pre></div>
 </div>
-<p>We also support TensorRT runtime for CLIP, you can run:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># You must first install the nvidia-pyindex package, which is required in order to set up your pip installation </span>
-<span class="c1"># to fetch additional Python modules from the NVIDIA NGC™ PyPI repo.</span>
-pip install nvidia-pyindex
-
+</section>
+<section id="start-a-tensorrt-backed-server">
+<h3>Start a TensorRT-backed server<a class="headerlink" href="#start-a-tensorrt-backed-server" title="Permalink to this headline">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">nvidia-pyindex</span></code> package needs to be installed first. It allows your <code class="docutils literal notranslate"><span class="pre">pip</span></code> to fetch additional Python modules from the NVIDIA NGC™ PyPI repo:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install nvidia-pyindex
 pip install <span class="s2">"clip_server[tensorrt]"</span>
 
 python -m clip_server tensorrt-flow.yml
 </pre></div>
 </div>
-<p>One may wonder where is this <code class="docutils literal notranslate"><span class="pre">onnx-flow.yml</span></code> (or <code class="docutils literal notranslate"><span class="pre">tensorrt-flow.yml</span></code>) come from. Must be a typo? Believe me, just run it. It should work. I will explain this YAML file in the next section.</p>
+<p>One may wonder where is this <code class="docutils literal notranslate"><span class="pre">onnx-flow.yml</span></code> or <code class="docutils literal notranslate"><span class="pre">tensorrt-flow.yml</span></code> come from. Must be a typo? Believe me, just run it. It should just work. I will explain this YAML file in the next section.</p>
 <p>The procedure and UI of ONNX and TensorRT runtime would look the same as Pytorch runtime.</p>
+</section>
+</section>
+<section id="model-support">
+<h2>Model support<a class="headerlink" href="#model-support" title="Permalink to this headline">#</a></h2>
+<p>Open AI has released 9 models so far. <code class="docutils literal notranslate"><span class="pre">ViT-B/32</span></code> is used as default model in all runtimes. Due to the limitation of some runtime, not every runtime supports all nine models. Please also note that different model give different size of output dimensions. This will affect your downstream applications. For example, switching the model from one to another make your embedding incomparable, which breaks the downstream applications. Here is a list of supported models of each runtime and its corresponding size:</p>
+<div class="table-wrapper"><table border="1" class="docutils">
+<thead>
+<tr>
+<th>Model</th>
+<th>PyTorch</th>
+<th>ONNX</th>
+<th>TensorRT</th>
+<th>Output dimension</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>RN50</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>1024</td>
+</tr>
+<tr>
+<td>RN101</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>512</td>
+</tr>
+<tr>
+<td>RN50x4</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>640</td>
+</tr>
+<tr>
+<td>RN50x16</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+<td>768</td>
+</tr>
+<tr>
+<td>RN50x64</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+<td>1024</td>
+</tr>
+<tr>
+<td>ViT-B/32</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>512</td>
+</tr>
+<tr>
+<td>ViT-B/16</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>512</td>
+</tr>
+<tr>
+<td>ViT-L/14</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>768</td>
+</tr>
+<tr>
+<td>ViT-L/14-336px</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+<td>768</td>
+</tr>
+</tbody>
+</table></div>
 </section>
 <section id="yaml-config">
 <h2>YAML config<a class="headerlink" href="#yaml-config" title="Permalink to this headline">#</a></h2>
@@ -650,7 +736,7 @@ In the same way, when you do <code class="docutils literal notranslate"><span cl
                         <div class="copyright">
                             Copyright &#169; Jina AI Limited. All rights reserved.
                         </div><div class="last-updated">
-                            Last updated on May 04, 2022</div>
+                            Last updated on May 05, 2022</div>
                     </div>
                     <div class="right-details">
                         <div class="social-btns">
@@ -683,7 +769,13 @@ In the same way, when you do <code class="docutils literal notranslate"><span cl
                     <div class="toc-tree">
                         <ul>
 <li><a class="reference internal" href="#">Server API</a><ul>
-<li><a class="reference internal" href="#start-server">Start server</a></li>
+<li><a class="reference internal" href="#start-server">Start server</a><ul>
+<li><a class="reference internal" href="#start-a-pytorch-backed-server">Start a PyTorch-backed server</a></li>
+<li><a class="reference internal" href="#start-a-onnx-backed-server">Start a ONNX-backed server</a></li>
+<li><a class="reference internal" href="#start-a-tensorrt-backed-server">Start a TensorRT-backed server</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#model-support">Model support</a></li>
 <li><a class="reference internal" href="#yaml-config">YAML config</a><ul>
 <li><a class="reference internal" href="#clip-model-config">CLIP model config</a></li>
 <li><a class="reference internal" href="#executor-config">Executor config</a></li>
