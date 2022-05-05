@@ -13,6 +13,9 @@ You will need to install client first in Python 3.7+: `pip install clip-server`.
 
 ## Start server
 
+
+### Start a PyTorch-backed server
+
 Unlike the client, server only has a CLI entrypoint. To start a server, run the following in the terminal:
 
 ```bash
@@ -29,6 +32,8 @@ First time running will download the pretrained model (Pytorch `ViT-B/32` by def
 
 ```
 
+### Start a ONNX-backed server
+
 To use ONNX runtime for CLIP, you can run:
 
 ```bash
@@ -37,24 +42,37 @@ pip install "clip_server[onnx]"
 python -m clip_server onnx-flow.yml
 ```
 
-We also support TensorRT runtime for CLIP, you can run:
+
+### Start a TensorRT-backed server
+
+`nvidia-pyindex` package needs to be installed first. It allows your `pip` to fetch additional Python modules from the NVIDIA NGC™ PyPI repo:
 
 ```bash
-# You must first install the nvidia-pyindex package, which is required in order to set up your pip installation 
-# to fetch additional Python modules from the NVIDIA NGC™ PyPI repo.
 pip install nvidia-pyindex
-
 pip install "clip_server[tensorrt]"
 
 python -m clip_server tensorrt-flow.yml
 ```
 
-One may wonder where is this `onnx-flow.yml` (or `tensorrt-flow.yml`) come from. Must be a typo? Believe me, just run it. It should work. I will explain this YAML file in the next section. 
-
-
+One may wonder where is this `onnx-flow.yml` or `tensorrt-flow.yml` come from. Must be a typo? Believe me, just run it. It should just work. I will explain this YAML file in the next section. 
 
 The procedure and UI of ONNX and TensorRT runtime would look the same as Pytorch runtime.
 
+## Model support
+
+Open AI has released 9 models so far. `ViT-B/32` is used as default model in all runtimes. Due to the limitation of some runtime, not every runtime supports all nine models. Please also note that different model give different size of output dimensions. This will affect your downstream applications. For example, switching the model from one to another make your embedding incomparable, which breaks the downstream applications. Here is a list of supported models of each runtime and its corresponding size:
+
+| Model | PyTorch |  ONNX | TensorRT |  Output dimension | 
+| --- |---------| ---- | --- |--- |
+| RN50 | ✅ |✅ | ✅| 1024 | 
+| RN101 | ✅ |✅ | ✅| 512 | 
+| RN50x4 | ✅ |✅ | ✅| 640 |
+| RN50x16 | ✅ |✅ | ❌| 768 |
+| RN50x64 | ✅ |✅ | ❌| 1024 |
+| ViT-B/32  | ✅ |✅ | ✅| 512 |
+| ViT-B/16 | ✅ |✅ | ✅| 512 |
+| ViT-L/14 | ✅ |✅ | ✅| 768 |
+| ViT-L/14-336px | ✅ |✅ | ❌| 768 |
 
 
 ## YAML config
