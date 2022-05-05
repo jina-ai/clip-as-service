@@ -85,24 +85,36 @@ CLIP-as-service consists of two Python packages `clip-server` and `clip-client` 
 
 ### Install server
 
-Default to run CLIP model via PyTorch:
+<table>
+<tr>
+<td> Pytorch Runtime </td>
+<td> ONNX Runtime </td>
+<td> TensorRT Runtime </td>
+</tr>
+<tr>
+<td>
 
 ```bash
 pip install clip-server
 ```
 
-To run CLIP model via ONNX:
+</td>
+<td>
 
 ```bash
 pip install "clip-server[onnx]"
 ```
 
-To run CLIP model via TensorRT:
+</td>
+<td>
 
 ```bash
 pip install nvidia-pyindex 
 pip install "clip-server[tensorrt]"
 ```
+</td>
+</tr>
+</table>
 
 ### Install client
 
