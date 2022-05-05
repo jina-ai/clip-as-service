@@ -36,7 +36,7 @@ CLIP-as-service is a low-latency high-scalability service for embedding images a
 <table>
 <tr>
 <td> via HTTP </td>
-<td> via gRPC </td>
+<td> via gRPC ⚡⚡ </td>
 </tr>
 <tr>
 <td>
@@ -87,9 +87,9 @@ CLIP-as-service consists of two Python packages `clip-server` and `clip-client` 
 
 <table>
 <tr>
-<td> Pytorch Runtime </td>
-<td> ONNX Runtime </td>
-<td> TensorRT Runtime </td>
+<td> Pytorch Runtime ⚡ </td>
+<td> ONNX Runtime ⚡⚡</td>
+<td> TensorRT Runtime ⚡⚡⚡ </td>
 </tr>
 <tr>
 <td>
