@@ -35,8 +35,8 @@ CLIP-as-service is a low-latency high-scalability service for embedding images a
 
 <table>
 <tr>
-<td> Curl via HTTP (no install req.) </td>
-<td> Client via gRPC </td>
+<td> via HTTP </td>
+<td> via gRPC </td>
 </tr>
 <tr>
 <td>
@@ -47,7 +47,8 @@ curl -X POST http://demo-cas.jina.ai:51001/post \
     -d '{"data":[{"text": "First do it"}, 
         {"text": "then do it right"}, 
         {"text": "then do it better"}, 
-        {"uri": "https://clip-as-service.jina.ai/_static/favicon.png" }], "execEndpoint":"/"}'
+        {"uri": "https://clip-as-service.jina.ai/
+        _static/favicon.png" }], "execEndpoint":"/"}'
 ```
 
 </td>
