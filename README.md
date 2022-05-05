@@ -33,9 +33,31 @@ CLIP-as-service is a low-latency high-scalability service for embedding images a
 
 ## Try it!
 
+### Curl via HTTP
+
 ```bash
 curl -X POST http://demo-cas.jina.ai:51001/post -H 'Content-Type: application/json' \
-     -d '{"data":[{"text": "hello, world!"}, {"uri": "https://clip-as-service.jina.ai/_static/favicon.png" }], "execEndpoint":"/"}'
+     -d '{"data":[{"text": "First do it"}, {"text": "then do it right"}, {"text": "then do it better"}, {"uri": "https://clip-as-service.jina.ai/_static/favicon.png" }], "execEndpoint":"/"}'
+```
+
+### Client via gRPC
+
+```python
+# pip install clip-client
+from clip_client import Client
+
+c = Client('grpc://demo-cas.jina.ai:51000')
+
+print(
+    c.encode(
+        [
+            'First do it',
+            'then do it right',
+            'then do it better',
+            'https://clip-as-service.jina.ai/_static/favicon.png',
+        ]
+    )
+)
 ```
 
 <!-- end elevator-pitch -->
@@ -126,17 +148,6 @@ c.profile()
 
 You can change `0.0.0.0` to the intranet or public IP address to test the connectivity over private and public network. 
 
-### Demo server
-
-We provide a demo server for you to play with:
-
-```python
-from clip_client import Client
-
-c = Client('grpc://demo-cas.jina.ai:51000')
-
-print(c.encode(['First do it', 'then do it right', 'then do it better']))
-```
 
 ## Get Started
 
