@@ -49,7 +49,8 @@ curl \
     {"text": "then do it right"}, 
     {"text": "then do it better"}, 
     {"uri": "https://clip-as-service.jina.ai/
-    _static/favicon.png" }], "execEndpoint":"/"}'
+    _static/favicon.png" }], 
+    "execEndpoint":"/"}'
 ```
 
 </td>
@@ -61,16 +62,16 @@ from clip_client import Client
 
 c = Client('grpc://demo-cas.jina.ai:51000')
 
-print(
-    c.encode(
-        [
-            'First do it',
-            'then do it right',
-            'then do it better',
-            'https://clip-as-service.jina.ai/_static/favicon.png',
-        ]
-    )
+r = c.encode(
+    [
+        'First do it',
+        'then do it right',
+        'then do it better',
+        'https://clip-as-service.jina.ai/\
+            _static/favicon.png',
+    ]
 )
+print(r)
 ```
 </td>
 </tr>
