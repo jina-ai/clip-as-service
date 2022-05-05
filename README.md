@@ -33,6 +33,8 @@ CLIP-as-service is a low-latency high-scalability service for embedding images a
 
 ## Try it!
 
+An always-online demo server loaded with `ViT-L/14-336px` is there for you to play & test: 
+
 <table>
 <tr>
 <td> via HTTP </td>
@@ -185,7 +187,7 @@ You can change `0.0.0.0` to the intranet or public IP address to test the connec
    ```python
     from clip_client import Client
    
-    c = Client('grpc://87.105.159.191:51000')
+    c = Client('grpc://demo-cas.jina.ai:51000')
     ```
 3. To get sentence embedding:
     ```python    
@@ -243,14 +245,14 @@ da.plot_image_sprites()
 
 #### Encode images
 
-Start the server with `python -m clip_server`. Let's say it's at `87.105.159.191:51000` with `GRPC` protocol (you will get this information after running the server).
+Start the server with `python -m clip_server`. Let's say it's at `demo-cas.jina.ai:51000` with `GRPC` protocol (you will get this information after running the server).
 
 Create a Python client script:
 
 ```python
 from clip_client import Client
 
-c = Client(server='grpc://87.105.159.191:51000')
+c = Client(server='grpc://demo-cas.jina.ai:51000')
 
 da = c.encode(da, show_progress=True)
 ```
@@ -397,7 +399,7 @@ Now encode these 6,403 sentences, it may take 10 seconds or less depending on yo
 ```python
 from clip_client import Client
 
-c = Client('grpc://87.105.159.191:51000')
+c = Client('grpc://demo-cas.jina.ai:51000')
 
 r = c.encode(da, show_progress=True)
 ```
