@@ -52,7 +52,6 @@ class CLIPEncoder(Executor):
     @requests(on='/rank')
     async def rank(self, docs: 'DocumentArray', parameters: Dict, **kwargs):
         _source = parameters.get('source', 'matches')
-        _score = parameters.get('score', 'softmax')
 
         for d in docs:
             _img_da = DocumentArray()
@@ -93,22 +92,27 @@ class CLIPEncoder(Executor):
                 scores_per_image = scores_per_text.T
 
                 if len(_img_da) == 1:
-                    scores = scores_per_text
+                    cosine_scores = scores_per_text
                 elif len(_txt_da) == 1:
-                    scores = scores_per_image
+                    cosine_scores = scores_per_image
 
-                if _score == 'softmax':
-                    scores = numpy_softmax(self._logit_scale * scores)
+                softmax_scores = numpy_softmax(self._logit_scale * cosine_scores)
 
                 # squeeze scores
-                scores = scores[0]
+                softmax_scores = softmax_scores[0]
+                cosine_scores = cosine_scores[0]
 
                 # drop embeddings
                 _img_da.embeddings = None
                 _txt_da.embeddings = None
 
-                for c, v in zip(candidates, scores):
-                    c.scores['clip_score'].value = v
+                for c, p, o in zip(candidates, softmax_scores, cosine_scores):
+                    c.scores['clip_score'].value = p
+                    c.scores['clip_score'].op_name = 'softmax'
+
+                    c.scores['clip_score_cosine'].value = o
+                    c.scores['clip_score_cosine'].op_name = 'cosine'
+
                 setattr(
                     d,
                     _source,

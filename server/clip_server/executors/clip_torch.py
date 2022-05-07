@@ -62,7 +62,6 @@ class CLIPEncoder(Executor):
         import torch
 
         _source = parameters.get('source', 'matches')
-        _score = parameters.get('score', 'softmax')
 
         for d in docs:
             _img_da = DocumentArray()
@@ -105,22 +104,27 @@ class CLIPEncoder(Executor):
                 scores_per_image = scores_per_text.t()
 
                 if len(_img_da) == 1:
-                    scores = scores_per_text
+                    cosine_scores = scores_per_text
                 elif len(_txt_da) == 1:
-                    scores = scores_per_image
+                    cosine_scores = scores_per_image
 
-                if _score == 'softmax':
-                    scores = self._logit_scale * scores
-                    scores = scores.softmax(dim=-1)
+                softmax_scores = self._logit_scale * cosine_scores
+                softmax_scores = softmax_scores.softmax(dim=-1)
 
                 # squeeze scores
-                scores = scores.cpu().detach().numpy().squeeze()
+                cosine_scores = cosine_scores.cpu().detach().numpy().squeeze()
+                softmax_scores = softmax_scores.cpu().detach().numpy().squeeze()
 
                 _img_da.embeddings = None
                 _txt_da.embeddings = None
 
-                for c, v in zip(candidates, scores):
-                    c.scores['clip_score'].value = v
+                for c, p, o in zip(candidates, softmax_scores, cosine_scores):
+                    c.scores['clip_score'].value = p
+                    c.scores['clip_score'].op_name = 'softmax'
+
+                    c.scores['clip_score_cosine'].value = o
+                    c.scores['clip_score_cosine'].op_name = 'cosine'
+
                 setattr(
                     d,
                     _source,

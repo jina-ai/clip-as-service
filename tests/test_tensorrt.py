@@ -58,12 +58,16 @@ def test_docarray_inputs(make_trt_flow, inputs):
         ),
     ],
 )
-@pytest.mark.parametrize('score', ['probability', 'cosine'])
-async def test_async_arank(make_trt_flow, d, score):
+async def test_async_arank(make_trt_flow, d):
     c = Client(server=f'grpc://0.0.0.0:{make_trt_flow.port}')
-    r = await c.arank([d], score=score)
+    r = await c.arank([d])
     assert isinstance(r, DocumentArray)
     rv = r['@m', 'scores__clip_score__value']
+    for v in rv:
+        assert v is not None
+        assert v > 0
+
+    rv = r['@m', 'scores__clip_score_cosine__value']
     for v in rv:
         assert v is not None
         assert v > 0
