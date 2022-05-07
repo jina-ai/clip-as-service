@@ -6,7 +6,12 @@ from jina import Executor, requests, DocumentArray
 
 from clip_server.model import clip
 from clip_server.model.clip_trt import CLIPTensorRTModel
-from clip_server.executors.helper import split_img_txt_da, preproc_image, preproc_text
+from clip_server.executors.helper import (
+    split_img_txt_da,
+    preproc_image,
+    preproc_text,
+    numpy_softmax,
+)
 
 
 class CLIPEncoder(Executor):
@@ -44,6 +49,7 @@ class CLIPEncoder(Executor):
     @requests(on='/rank')
     async def rank(self, docs: 'DocumentArray', parameters: Dict, **kwargs):
         _source = parameters.get('source', 'matches')
+        _score = parameters.get('score', 'probability')
 
         for d in docs:
             _img_da = DocumentArray()
@@ -84,9 +90,15 @@ class CLIPEncoder(Executor):
                 scores_per_image = scores_per_text.T
 
                 if len(_img_da) == 1:
-                    scores = scores_per_text[0]
+                    scores = scores_per_text
                 elif len(_txt_da) == 1:
-                    scores = scores_per_image[0]
+                    scores = scores_per_image
+
+                if _score == 'probability':
+                    scores = numpy_softmax(scores)
+
+                # squeeze scores
+                scores = scores[0]
 
                 # drop embeddings
                 _img_da.embeddings = None

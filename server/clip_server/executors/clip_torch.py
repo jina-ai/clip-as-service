@@ -3,7 +3,7 @@ import warnings
 from functools import partial
 
 from multiprocessing.pool import ThreadPool
-from typing import Optional, List, Tuple, Dict
+from typing import Optional, Dict
 
 import numpy as np
 import torch
@@ -53,6 +53,7 @@ class CLIPEncoder(Executor):
         self._model, self._preprocess_tensor = clip.load(
             name, device=self._device, jit=jit
         )
+        self._logit_scale = self._model.logit_scale.exp()
 
         self._pool = ThreadPool(processes=num_worker_preprocess)
 
@@ -61,6 +62,7 @@ class CLIPEncoder(Executor):
         import torch
 
         _source = parameters.get('source', 'matches')
+        _score = parameters.get('score', 'probability')
 
         for d in docs:
             _img_da = DocumentArray()
@@ -98,14 +100,19 @@ class CLIPEncoder(Executor):
                     dim=-1, keepdim=True
                 )
 
-                # cosine similarity as rank score
+                # paired cosine between image and text
                 scores_per_text = image_features @ text_features.t()
                 scores_per_image = scores_per_text.t()
 
                 if len(_img_da) == 1:
-                    scores = scores_per_text.cpu().detach().numpy().squeeze()
+                    scores = scores_per_text
                 elif len(_txt_da) == 1:
-                    scores = scores_per_image.cpu().detach().numpy().squeeze()
+                    scores = scores_per_image
+
+                if _score == 'probability':
+                    scores = scores.softmax(dim=-1)
+
+                scores = scores.cpu().detach().numpy().squeeze()
 
                 _img_da.embeddings = None
                 _txt_da.embeddings = None

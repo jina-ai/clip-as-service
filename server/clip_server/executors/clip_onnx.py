@@ -10,7 +10,12 @@ from jina import Executor, requests, DocumentArray
 
 from clip_server.model import clip
 from clip_server.model.clip_onnx import CLIPOnnxModel
-from clip_server.executors.helper import split_img_txt_da, preproc_image, preproc_text
+from clip_server.executors.helper import (
+    split_img_txt_da,
+    preproc_image,
+    preproc_text,
+    numpy_softmax,
+)
 
 
 class CLIPEncoder(Executor):
@@ -30,6 +35,8 @@ class CLIPEncoder(Executor):
         self._minibatch_size = minibatch_size
 
         self._model = CLIPOnnxModel(name)
+        # Note: hard coded here since all of the pretrained clip model use the same logit_scale parameter
+        self._logit_scale = np.exp(4.60517)
 
         import torch
 
@@ -78,6 +85,7 @@ class CLIPEncoder(Executor):
     @requests(on='/rank')
     async def rank(self, docs: 'DocumentArray', parameters: Dict, **kwargs):
         _source = parameters.get('source', 'matches')
+        _score = parameters.get('score', 'probability')
 
         for d in docs:
             _img_da = DocumentArray()
@@ -113,14 +121,20 @@ class CLIPEncoder(Executor):
                     _txt_da.embeddings, axis=1, keepdims=True
                 )
 
-                # cosine similarity as rank score
+                # paired cosine similarity
                 scores_per_text = np.matmul(image_features, text_features.T)
                 scores_per_image = scores_per_text.T
 
                 if len(_img_da) == 1:
-                    scores = scores_per_text[0]
+                    scores = scores_per_text
                 elif len(_txt_da) == 1:
-                    scores = scores_per_image[0]
+                    scores = scores_per_image
+
+                if _score == 'probability':
+                    scores = numpy_softmax(scores)
+
+                # squeeze scores
+                scores = scores[0]
 
                 # drop embeddings
                 _img_da.embeddings = None
