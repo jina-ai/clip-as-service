@@ -46,6 +46,9 @@ class CLIPEncoder(Executor):
 
         self._model.start_engines()
 
+        # Note: hard coded here since all the pretrained clip model use the same logit_scale parameter
+        self._logit_scale = np.exp(4.60517)
+
     @requests(on='/rank')
     async def rank(self, docs: 'DocumentArray', parameters: Dict, **kwargs):
         _source = parameters.get('source', 'matches')
@@ -95,7 +98,7 @@ class CLIPEncoder(Executor):
                     scores = scores_per_image
 
                 if _score == 'probability':
-                    scores = numpy_softmax(scores)
+                    scores = numpy_softmax(self._logit_scale * scores)
 
                 # squeeze scores
                 scores = scores[0]

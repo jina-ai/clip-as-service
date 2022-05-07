@@ -35,7 +35,7 @@ class CLIPEncoder(Executor):
         self._minibatch_size = minibatch_size
 
         self._model = CLIPOnnxModel(name)
-        # Note: hard coded here since all of the pretrained clip model use the same logit_scale parameter
+        # Note: hard coded here since all the pretrained clip model use the same logit_scale parameter
         self._logit_scale = np.exp(4.60517)
 
         import torch
@@ -131,7 +131,7 @@ class CLIPEncoder(Executor):
                     scores = scores_per_image
 
                 if _score == 'probability':
-                    scores = numpy_softmax(scores)
+                    scores = numpy_softmax(self._logit_scale * scores)
 
                 # squeeze scores
                 scores = scores[0]

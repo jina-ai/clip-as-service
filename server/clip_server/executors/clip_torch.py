@@ -110,8 +110,10 @@ class CLIPEncoder(Executor):
                     scores = scores_per_image
 
                 if _score == 'probability':
+                    scores = self._logit_scale * scores
                     scores = scores.softmax(dim=-1)
 
+                # squeeze scores
                 scores = scores.cpu().detach().numpy().squeeze()
 
                 _img_da.embeddings = None
