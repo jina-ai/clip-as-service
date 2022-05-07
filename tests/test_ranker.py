@@ -92,10 +92,11 @@ def test_docarray_inputs(make_flow, d):
         ),
     ],
 )
+@pytest.mark.parametrize('score', ['probability', 'cosine'])
 @pytest.mark.asyncio
-async def test_async_arank(make_flow, d):
+async def test_async_arank(make_flow, d, score):
     c = Client(server=f'grpc://0.0.0.0:{make_flow.port}')
-    r = await c.arank([d])
+    r = await c.arank([d], score=score)
     assert isinstance(r, DocumentArray)
     rv = r['@m', 'scores__clip_score__value']
     for v in rv:
