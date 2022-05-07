@@ -85,7 +85,7 @@ class CLIPEncoder(Executor):
     @requests(on='/rank')
     async def rank(self, docs: 'DocumentArray', parameters: Dict, **kwargs):
         _source = parameters.get('source', 'matches')
-        _score = parameters.get('score', 'probability')
+        _score = parameters.get('score', 'softmax')
 
         for d in docs:
             _img_da = DocumentArray()
@@ -130,7 +130,7 @@ class CLIPEncoder(Executor):
                 elif len(_txt_da) == 1:
                     scores = scores_per_image
 
-                if _score == 'probability':
+                if _score == 'softmax':
                     scores = numpy_softmax(self._logit_scale * scores)
 
                 # squeeze scores
