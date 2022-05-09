@@ -33,6 +33,7 @@
 
 
 
+
 <a name=release-note-0-0-3></a>
 ## Release Note (`0.0.3`)
 
@@ -755,4 +756,30 @@
  - [[```706fa624```](https://github.com/jina-ai/clip-as-service/commit/706fa624cb567857e6bc024f52c93a10ab410651)] __-__ __docs__: update readme (*Han Xiao*)
  - [[```7fd04d2d```](https://github.com/jina-ai/clip-as-service/commit/7fd04d2d65dc033ccdec3b970046692816a84880)] __-__ __docs__: add cas async usage to readme (*Han Xiao*)
  - [[```90bb4c5c```](https://github.com/jina-ai/clip-as-service/commit/90bb4c5c70c5e51a1c29bf5aed2906d284c077f7)] __-__ __version__: the next version will be 0.4.2 (*Jina Dev Bot*)
+
+<a name=release-note-0-4-3></a>
+## Release Note (`0.4.3`)
+
+> Release time: 2022-05-09 10:23:15
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ felix-wang,  Roshan Jossy,  Han Xiao,  Jina Dev Bot,  🙇
+
+
+### 🐞 Bug fixes
+
+ - [[```bb520d14```](https://github.com/jina-ai/clip-as-service/commit/bb520d14b6c5172fce9a971b51c4125b60418119)] __-__ keep logit_scale on same device (#710) (*felix-wang*)
+ - [[```835eb13f```](https://github.com/jina-ai/clip-as-service/commit/835eb13fcb84d126b6a35e18b2fe0ef9d8b835b7)] __-__ use cosine as the rank score (#708) (*felix-wang*)
+
+### 📗 Documentation
+
+ - [[```da87d13a```](https://github.com/jina-ai/clip-as-service/commit/da87d13a753cdb394fe24a00af7e02f0dcc5fa00)] __-__ __tracking__: update external links&#39; source (#711) (*Roshan Jossy*)
+
+### 🍹 Other Improvements
+
+ - [[```099e2218```](https://github.com/jina-ai/clip-as-service/commit/099e2218a47bacb73afed2a7739b58f4e56c7c68)] __-__ __docs__: update readme (*Han Xiao*)
+ - [[```ce5806d3```](https://github.com/jina-ai/clip-as-service/commit/ce5806d33ccad1ef83106900b44da3e85eb0ce64)] __-__ update index html (#709) (*felix-wang*)
+ - [[```a1651079```](https://github.com/jina-ai/clip-as-service/commit/a16510799b648beb29bd422cdddc1e5dee5db061)] __-__ __version__: the next version will be 0.4.3 (*Jina Dev Bot*)
 
