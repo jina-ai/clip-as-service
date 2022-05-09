@@ -101,8 +101,8 @@ curl \
 -X POST http://demo-cas.jina.ai:51001/post \
 -H 'Content-Type: application/json' \
 -d '{"data":[{"uri": "https://picsum.photos/id/1/300/300",
-"matches": [{"text": "this is a woman in the photo"},
-            {"text": "this is a man in the photo"}]}],
+"matches": [{"text": "there is a woman in the photo"},
+            {"text": "there is a man in the photo"}]}],
             "execEndpoint":"/rank"}' \
 | jq ".data[].matches[] | (.text, .scores.clip_score.value)"
 ```
@@ -110,10 +110,10 @@ curl \
 gives:
 
 ```
-"this is a man in the photo"
-0.5785414576530457
-"this is a woman in the photo"
-0.4214586019515991
+"there is a woman in the photo"
+0.626907229423523
+"there is a man in the photo"
+0.37309277057647705
 ```
 
 </td>
