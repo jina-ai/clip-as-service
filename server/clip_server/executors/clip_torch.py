@@ -53,7 +53,7 @@ class CLIPEncoder(Executor):
         self._model, self._preprocess_tensor = clip.load(
             name, device=self._device, jit=jit
         )
-        self._logit_scale = self._model.logit_scale.exp()
+        self._logit_scale = self._model.logit_scale.exp().cpu()
 
         self._pool = ThreadPool(processes=num_worker_preprocess)
 
