@@ -1,15 +1,11 @@
-import os
-import warnings
-from functools import partial
+from typing import Dict
 from multiprocessing.pool import ThreadPool
-from typing import Optional, Dict
+from functools import partial
 import numpy as np
-import onnxruntime as ort
-
 from jina import Executor, requests, DocumentArray
 
 from clip_server.model import clip
-from clip_server.model.clip_onnx import CLIPOnnxModel
+from clip_server.model.clip_trt import CLIPTensorRTModel
 from clip_server.executors.helper import (
     split_img_txt_da,
     preproc_image,
@@ -22,9 +18,9 @@ class CLIPEncoder(Executor):
     def __init__(
         self,
         name: str = 'ViT-B/32',
-        device: Optional[str] = None,
+        device: str = 'cuda',
         num_worker_preprocess: int = 4,
-        minibatch_size: int = 16,
+        minibatch_size: int = 64,
         **kwargs,
     ):
         super().__init__(**kwargs)
@@ -33,54 +29,25 @@ class CLIPEncoder(Executor):
         self._pool = ThreadPool(processes=num_worker_preprocess)
 
         self._minibatch_size = minibatch_size
-
-        self._model = CLIPOnnxModel(name)
-        # Note: hard coded here since all the pretrained clip model use the same logit_scale parameter
-        self._logit_scale = np.exp(4.60517)
+        self._device = device
 
         import torch
 
-        if not device:
-            self._device = 'cuda' if torch.cuda.is_available() else 'cpu'
-        else:
-            self._device = device
-
-        # define the priority order for the execution providers
-        providers = ['CPUExecutionProvider']
-
-        # prefer CUDA Execution Provider over CPU Execution Provider
-        if self._device.startswith('cuda'):
-            providers.insert(0, 'CUDAExecutionProvider')
-            # TODO: support tensorrt
-            # providers.insert(0, 'TensorrtExecutionProvider')
-
-        sess_options = ort.SessionOptions()
-
-        # Enables all available optimizations including layout optimizations
-        sess_options.graph_optimization_level = (
-            ort.GraphOptimizationLevel.ORT_ENABLE_ALL
+        assert self._device.startswith('cuda'), (
+            f'can not perform inference on {self._device}'
+            f' with Nvidia TensorRT as backend'
         )
 
-        if not self._device.startswith('cuda') and (
-            'OMP_NUM_THREADS' not in os.environ
-            and hasattr(self.runtime_args, 'replicas')
-        ):
-            replicas = getattr(self.runtime_args, 'replicas', 1)
-            num_threads = max(1, torch.get_num_threads() // replicas)
-            if num_threads < 2:
-                warnings.warn(
-                    f'Too many replicas ({replicas}) vs too few threads {num_threads} may result in '
-                    f'sub-optimal performance.'
-                )
+        assert (
+            torch.cuda.is_available()
+        ), "CUDA/GPU is not available on Pytorch. Please check your CUDA installation"
 
-            # Run the operators in the graph in parallel (not support the CUDA Execution Provider)
-            sess_options.execution_mode = ort.ExecutionMode.ORT_PARALLEL
+        self._model = CLIPTensorRTModel(name)
 
-            # The number of threads used to parallelize the execution of the graph (across nodes)
-            sess_options.inter_op_num_threads = 1
-            sess_options.intra_op_num_threads = max(num_threads, 1)
+        self._model.start_engines()
 
-        self._model.start_sessions(sess_options=sess_options, providers=providers)
+        # Note: hard coded here since all the pretrained clip model use the same logit_scale parameter
+        self._logit_scale = np.exp(4.60517)
 
     @requests(on='/rank')
     async def rank(self, docs: 'DocumentArray', parameters: Dict, **kwargs):
@@ -120,7 +87,7 @@ class CLIPEncoder(Executor):
                     _txt_da.embeddings, axis=1, keepdims=True
                 )
 
-                # paired cosine similarity
+                # cosine similarity as rank score
                 scores_per_text = np.matmul(image_features, text_features.T)
                 scores_per_image = scores_per_text.T
 
@@ -132,8 +99,8 @@ class CLIPEncoder(Executor):
                 softmax_scores = numpy_softmax(self._logit_scale * cosine_scores)
 
                 # squeeze scores
-                cosine_scores = cosine_scores[0]
                 softmax_scores = softmax_scores[0]
+                cosine_scores = cosine_scores[0]
 
                 # drop embeddings
                 _img_da.embeddings = None
@@ -167,21 +134,36 @@ class CLIPEncoder(Executor):
         if _img_da:
             for minibatch in _img_da.map_batch(
                 partial(
-                    preproc_image, preprocess_fn=self._preprocess_tensor, return_np=True
+                    preproc_image,
+                    preprocess_fn=self._preprocess_tensor,
+                    device=self._device,
+                    return_np=False,
                 ),
                 batch_size=self._minibatch_size,
                 pool=self._pool,
             ):
-                minibatch.embeddings = self._model.encode_image(minibatch.tensors)
+                minibatch.embeddings = (
+                    self._model.encode_image(minibatch.tensors)
+                    .detach()
+                    .cpu()
+                    .numpy()
+                    .astype(np.float32)
+                )
 
         # for text
         if _txt_da:
             for minibatch, _texts in _txt_da.map_batch(
-                partial(preproc_text, return_np=True),
+                partial(preproc_text, device=self._device, return_np=False),
                 batch_size=self._minibatch_size,
                 pool=self._pool,
             ):
-                minibatch.embeddings = self._model.encode_text(minibatch.tensors)
+                minibatch.embeddings = (
+                    self._model.encode_text(minibatch.tensors)
+                    .detach()
+                    .cpu()
+                    .numpy()
+                    .astype(np.float32)
+                )
                 minibatch.texts = _texts
 
         # drop tensors

@@ -46,8 +46,9 @@ setup(
         'torch',
         'regex',
         'torchvision',
-        'jina>=3.2.10',
+        'jina>=3.3.21',
         'docarray>=0.11.0',
+        'packaging',
     ],
     extras_require={
         'onnx': [
@@ -55,6 +56,7 @@ setup(
             'onnx',
         ]
         + (['onnxruntime-gpu>=1.8.0'] if sys.platform != 'darwin' else []),
+        'tensorrt': ['nvidia-tensorrt'],
     },
     classifiers=[
         'Development Status :: 5 - Production/Stable',

@@ -332,7 +332,7 @@ class Client:
     def _prepare_rank_doc(d: 'Document', _source: str = 'matches'):
         _get = lambda d: getattr(d, _source)
         if not _get(d):
-            raise ValueError(f'`.rerank()` requires every doc to have `.{_source}`')
+            raise ValueError(f'`.rank()` requires every doc to have `.{_source}`')
         d = Client._prepare_single_doc(d)
         setattr(d, _source, [Client._prepare_single_doc(c) for c in _get(d)])
         return d
@@ -367,7 +367,7 @@ class Client:
 
     def _get_rank_payload(self, content, kwargs):
         return dict(
-            on='/rerank',
+            on='/rank',
             inputs=self._iter_rank_docs(
                 content, _source=kwargs.get('source', 'matches')
             ),
@@ -375,17 +375,17 @@ class Client:
             total_docs=len(content) if hasattr(content, '__len__') else None,
         )
 
-    def rerank(self, docs: Iterable['Document'], **kwargs) -> 'DocumentArray':
-        """Rerank image-text matches according to the server CLIP model.
+    def rank(self, docs: Iterable['Document'], **kwargs) -> 'DocumentArray':
+        """Rank image-text matches according to the server CLIP model.
 
         Given a Document with nested matches, where the root is image/text and the matches is in another modality, i.e.
-        text/image; this method reranks the matches according to the CLIP model.
+        text/image; this method ranks the matches according to the CLIP model.
 
         Each match now has a new score inside ``clip_score`` and matches are sorted descendingly according to this score.
         More details can be found in: https://github.com/openai/CLIP#usage
 
         :param docs: the input Documents
-        :return: the reranked Documents in a DocumentArray.
+        :return: the ranked Documents in a DocumentArray.
 
         """
         self._prepare_streaming(
@@ -396,4 +396,26 @@ class Client:
             self._client.post(
                 **self._get_rank_payload(docs, kwargs), on_done=self._gather_result
             )
+        return self._results
+
+    async def arank(self, docs: Iterable['Document'], **kwargs) -> 'DocumentArray':
+        from rich import filesize
+
+        self._prepare_streaming(
+            not kwargs.get('show_progress'),
+            total=len(docs),
+        )
+
+        async for da in self._async_client.post(**self._get_rank_payload(docs, kwargs)):
+            if not self._results:
+                self._pbar.start_task(self._r_task)
+            self._results.extend(da)
+            self._pbar.update(
+                self._r_task,
+                advance=len(da),
+                total_size=str(
+                    filesize.decimal(int(os.environ.get('JINA_GRPC_RECV_BYTES', '0')))
+                ),
+            )
+
         return self._results

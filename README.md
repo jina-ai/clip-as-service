@@ -19,7 +19,7 @@
 
 CLIP-as-service is a low-latency high-scalability service for embedding images and text. It can be easily integrated as a microservice into neural search solutions.
 
-⚡ **Fast**: Serve CLIP models with ONNX runtime and PyTorch JIT with 800QPS<sup>[*]</sup>. Non-blocking duplex streaming on requests and responses, designed for large data and long-running tasks. 
+⚡ **Fast**: Serve CLIP models with TensorRT, ONNX runtime and PyTorch w/o JIT with 800QPS<sup>[*]</sup>. Non-blocking duplex streaming on requests and responses, designed for large data and long-running tasks. 
 
 🫐 **Elastic**: Horizontally scale up and down multiple CLIP models on single GPU, with automatic load balancing.
 
@@ -31,14 +31,55 @@ CLIP-as-service is a low-latency high-scalability service for embedding images a
 
 <sup>[*] with default config (single replica, PyTorch no JIT) on GeForce RTX 3090. </sup>
 
+<!-- end elevator-pitch -->
+
 ## Try it!
 
+An always-online demo server loaded with `ViT-L/14-336px` is there for you to play & test: 
+
+<table>
+<tr>
+<td> via HTTP </td>
+<td> via gRPC ⚡⚡ </td>
+</tr>
+<tr>
+<td>
+
 ```bash
-curl -X POST http://demo-cas.jina.ai:51001/post -H 'Content-Type: application/json' \
-     -d '{"data":[{"text": "hello, world!"}, {"uri": "https://clip-as-service.jina.ai/_static/favicon.png" }], "execEndpoint":"/"}'
+curl \
+-X POST http://demo-cas.jina.ai:51001/post \
+-H 'Content-Type: application/json' \
+-d '{"data":[{"text": "First do it"}, 
+    {"text": "then do it right"}, 
+    {"text": "then do it better"}, 
+    {"uri": "https://picsum.photos/200"}], 
+    "execEndpoint":"/"}'
 ```
 
-<!-- end elevator-pitch -->
+</td>
+<td>
+
+```python
+# pip install clip-client
+from clip_client import Client
+
+c = Client('grpc://demo-cas.jina.ai:51000')
+
+r = c.encode(
+    [
+        'First do it',
+        'then do it right',
+        'then do it better',
+        'https://picsum.photos/200',
+    ]
+)
+print(r)
+```
+</td>
+</tr>
+</table>
+
+
 
 ## [Documentation](https://clip-as-service.jina.ai)
 
@@ -48,15 +89,36 @@ CLIP-as-service consists of two Python packages `clip-server` and `clip-client` 
 
 ### Install server
 
+<table>
+<tr>
+<td> Pytorch Runtime ⚡ </td>
+<td> ONNX Runtime ⚡⚡</td>
+<td> TensorRT Runtime ⚡⚡⚡ </td>
+</tr>
+<tr>
+<td>
+
 ```bash
 pip install clip-server
 ```
 
-To run CLIP model via ONNX (default is via PyTorch):
+</td>
+<td>
 
 ```bash
 pip install "clip-server[onnx]"
 ```
+
+</td>
+<td>
+
+```bash
+pip install nvidia-pyindex 
+pip install "clip-server[tensorrt]"
+```
+</td>
+</tr>
+</table>
 
 ### Install client
 
@@ -117,17 +179,6 @@ c.profile()
 
 You can change `0.0.0.0` to the intranet or public IP address to test the connectivity over private and public network. 
 
-### Demo server
-
-We provide a demo server for you to play with:
-
-```python
-from clip_client import Client
-
-c = Client('grpc://demo-cas.jina.ai:51000')
-
-print(c.encode(['First do it', 'then do it right', 'then do it better']))
-```
 
 ## Get Started
 
@@ -138,7 +189,7 @@ print(c.encode(['First do it', 'then do it right', 'then do it better']))
    ```python
     from clip_client import Client
    
-    c = Client('grpc://87.105.159.191:51000')
+    c = Client('grpc://0.0.0.0:51000')
     ```
 3. To get sentence embedding:
     ```python    
@@ -196,14 +247,14 @@ da.plot_image_sprites()
 
 #### Encode images
 
-Start the server with `python -m clip_server`. Let's say it's at `87.105.159.191:51000` with `GRPC` protocol (you will get this information after running the server).
+Start the server with `python -m clip_server`. Let's say it's at `0.0.0.0:51000` with `GRPC` protocol (you will get this information after running the server).
 
 Create a Python client script:
 
 ```python
 from clip_client import Client
 
-c = Client(server='grpc://87.105.159.191:51000')
+c = Client(server='grpc://0.0.0.0:51000')
 
 da = c.encode(da, show_progress=True)
 ```
@@ -231,7 +282,7 @@ Let's build a simple prompt to allow a user to type sentence:
 while True:
     vec = c.encode([input('sentence> ')])
     r = da.find(query=vec, limit=9)
-    r.plot_image_sprites()
+    r[0].plot_image_sprites()
 ```
 
 #### Showcase
@@ -350,7 +401,7 @@ Now encode these 6,403 sentences, it may take 10 seconds or less depending on yo
 ```python
 from clip_client import Client
 
-c = Client('grpc://87.105.159.191:51000')
+c = Client('grpc://0.0.0.0:51000')
 
 r = c.encode(da, show_progress=True)
 ```
@@ -482,16 +533,16 @@ Fun time! Note, unlike the previous example, here the input is an image and the 
 </table>
 
 
-### Rerank image-text matches via CLIP model
+### Rank image-text matches via CLIP model
 
-From `0.3.0` CLIP-as-service adds a new `/rerank` endpoint that re-ranks cross-modal matches according to their joint likelihood in CLIP model. For example, given an image Document with some predefined sentence matches as below:
+From `0.3.0` CLIP-as-service adds a new `/rank` endpoint that re-ranks cross-modal matches according to their joint likelihood in CLIP model. For example, given an image Document with some predefined sentence matches as below:
 
 ```python
 from clip_client import Client
 from docarray import Document
 
-c = Client(server='grpc://demo-cas.jina.ai:51000')
-r = c.rerank(
+c = Client(server='grpc://0.0.0.0:51000')
+r = c.rank(
     [
         Document(
             uri='.github/README-img/rerank.png',
@@ -529,8 +580,29 @@ One can see now `a photo of a television studio` is ranked to the top with `clip
 </td>
 </tr>
 </table>
-     
-     
+
+### Rank text-image matches via CLIP model
+
+In the [DALL·E Flow](https://github.com/jina-ai/dalle-flow) project, CLIP is called for ranking the generated results from DALL·E. [It has an Executor wrapped on top of `clip-client`](https://github.com/jina-ai/dalle-flow/blob/main/executors/rerank/executor.py), which calls `.arank()` - the async version of `.rank()`:
+
+```python
+from clip_client import Client
+from jina import Executor, requests, DocumentArray
+
+
+class ReRank(Executor):
+    def __init__(self, clip_server: str, **kwargs):
+        super().__init__(**kwargs)
+        self._client = Client(server=clip_server)
+
+    @requests(on='/')
+    async def rerank(self, docs: DocumentArray, **kwargs):
+        return await self._client.arank(docs)
+```
+
+<p align="center">
+<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/client-dalle.png?raw=true" alt="CLIP-as-service used in DALLE Flow" width="300px">
+</p>
 
 Intrigued? That's only scratching the surface of what CLIP-as-service is capable of. [Read our docs to learn more](https://clip-as-service.jina.ai).
 

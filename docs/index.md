@@ -5,6 +5,49 @@
 :end-before: <!-- end elevator-pitch -->
 ```
 
+## Try it!
+
+An always-online demo server loaded with `ViT-L/14-336px` is there for you to play & test: 
+
+````{tab} via HTTP
+
+```bash
+curl \
+-X POST http://demo-cas.jina.ai:51001/post \
+-H 'Content-Type: application/json' \
+-d '{"data":[{"text": "First do it"}, 
+    {"text": "then do it right"}, 
+    {"text": "then do it better"}, 
+    {"uri": "https://picsum.photos/200"}], 
+    "execEndpoint":"/"}'
+```
+
+````
+
+````{tab} via gRPC ⚡⚡
+
+```bash
+pip install clip-client
+```
+
+```python
+from clip_client import Client
+
+c = Client('grpc://demo-cas.jina.ai:51000')
+
+r = c.encode(
+    [
+        'First do it',
+        'then do it right',
+        'then do it better',
+        'https://picsum.photos/200',
+    ]
+)
+print(r)
+```
+
+````
+
 ## Install
 
 ![PyPI](https://img.shields.io/pypi/v/clip_client?color=%23ffffff&label=%20) is the latest version.
@@ -35,6 +78,16 @@ pip install "clip_server[onnx]"
 ````
 
 
+````{tab} Server with TensorRT support
+
+```bash
+pip install nvidia-pyindex 
+pip install "clip_server[tensorrt]"
+```
+
+````
+
+
 
 ## Quick check
 
@@ -51,6 +104,12 @@ python -m clip_server
 ````{tab} Run ONNX Server 
 ```bash
 python -m clip_server onnx-flow.yml
+```
+````
+
+````{tab} Run TensorRT Server 
+```bash
+python -m clip_server tensorrt-flow.yml
 ```
 ````
 

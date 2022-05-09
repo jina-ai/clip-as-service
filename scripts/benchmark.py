@@ -16,6 +16,9 @@ import warnings
 warnings.warn = warn
 
 
+np.random.seed(123)
+
+
 class BenchmarkClient(threading.Thread):
     def __init__(
         self,

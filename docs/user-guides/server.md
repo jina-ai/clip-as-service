@@ -2,7 +2,7 @@
 
 CLIP-as-service is designed in a client-server architecture. A server is a long-running program that receives raw sentences and images from clients, and returns CLIP embeddings to the client. Additionally, `clip_server` is optimized for speed, low memory footprint and scalability.
 - Horizontal scaling: adding more replicas easily with one argument. 
-- Vertical scaling: using PyTorch JIT or ONNX runtime to speedup single GPU inference.
+- Vertical scaling: using PyTorch JIT, ONNX or TensorRT runtime to speedup single GPU inference.
 - Supporting gRPC, HTTP, Websocket protocols with their TLS counterparts, w/o compressions.
 
 This chapter introduces the API of the client. 
@@ -12,6 +12,9 @@ You will need to install client first in Python 3.7+: `pip install clip-server`.
 ```
 
 ## Start server
+
+
+### Start a PyTorch-backed server
 
 Unlike the client, server only has a CLI entrypoint. To start a server, run the following in the terminal:
 
@@ -29,27 +32,57 @@ First time running will download the pretrained model (Pytorch `ViT-B/32` by def
 
 ```
 
+### Start a ONNX-backed server
+
 To use ONNX runtime for CLIP, you can run:
 
 ```bash
 pip install "clip_server[onnx]"
 
-python -m clip_server onnx_flow.yml
+python -m clip_server onnx-flow.yml
 ```
 
-One may wonder where is this `onnx_flow.yml` come from. Must be a typo? Believe me, just run it. It should work. I will explain this YAML file in the next section. 
 
-The procedure and UI of ONNX runtime would look the same as Pytorch runtime.
+### Start a TensorRT-backed server
 
+`nvidia-pyindex` package needs to be installed first. It allows your `pip` to fetch additional Python modules from the NVIDIA NGC™ PyPI repo:
+
+```bash
+pip install nvidia-pyindex
+pip install "clip_server[tensorrt]"
+
+python -m clip_server tensorrt-flow.yml
+```
+
+One may wonder where is this `onnx-flow.yml` or `tensorrt-flow.yml` come from. Must be a typo? Believe me, just run it. It should just work. I will explain this YAML file in the next section. 
+
+The procedure and UI of ONNX and TensorRT runtime would look the same as Pytorch runtime.
+
+## Model support
+
+Open AI has released 9 models so far. `ViT-B/32` is used as default model in all runtimes. Due to the limitation of some runtime, not every runtime supports all nine models. Please also note that different model give different size of output dimensions. This will affect your downstream applications. For example, switching the model from one to another make your embedding incomparable, which breaks the downstream applications. Here is a list of supported models of each runtime and its corresponding size:
+
+| Model | PyTorch |  ONNX | TensorRT |  Output dimension | 
+| --- |---------| ---- | --- |--- |
+| RN50 | ✅ |✅ | ✅| 1024 | 
+| RN101 | ✅ |✅ | ✅| 512 | 
+| RN50x4 | ✅ |✅ | ✅| 640 |
+| RN50x16 | ✅ |✅ | ❌| 768 |
+| RN50x64 | ✅ |✅ | ❌| 1024 |
+| ViT-B/32  | ✅ |✅ | ✅| 512 |
+| ViT-B/16 | ✅ |✅ | ✅| 512 |
+| ViT-L/14 | ✅ |✅ | ✅| 768 |
+| ViT-L/14-336px | ✅ |✅ | ❌| 768 |
 
 
 ## YAML config
 
 You may notice that there is a YAML file in our last ONNX example. All configurations are stored in this file. In fact, `python -m clip_server` does **not support** any other argument besides a YAML file. So it is the only source of the truth of your configs. 
 
-And to answer your doubt, `clip_server` has two built-in YAML configs as a part of the package resources: one for PyTorch backend, one for ONNX backend. When you do `python -m clip_server` it loads the Pytorch config, and when you do `python -m clip_server onnx-flow.yml` it loads the ONNX config.
+And to answer your doubt, `clip_server` has three built-in YAML configs as a part of the package resources. When you do `python -m clip_server` it loads the Pytorch config, and when you do `python -m clip_server onnx-flow.yml` it loads the ONNX config.
+In the same way, when you do `python -m clip_server tensorrt-flow.yml` it loads the TensorRT config.
 
-Let's look at these two built-in YAML configs:
+Let's look at these three built-in YAML configs:
 
 ````{tab} torch-flow.yml
 
@@ -85,7 +118,25 @@ executors:
 ```
 ````
 
-Basically, each YAML file defines a [Jina Flow](https://docs.jina.ai/fundamentals/flow/?utm_source=clip-as-a-service). The complete Jina Flow YAML syntax [can be found here](https://docs.jina.ai/fundamentals/flow/flow-yaml/#configure-flow-meta-information?utm_source=clip-as-a-service). General parameters of the Flow and Executor can be used here as well. But now we only highlight the most important parameters.
+
+````{tab} tensorrt-flow.yml
+
+```yaml
+jtype: Flow
+version: '1'
+with:
+  port: 51000
+executors:
+  - name: clip_r
+    uses:
+      jtype: CLIPEncoder
+      metas:
+        py_modules:
+          - executors/clip_trt.py
+```
+````
+
+Basically, each YAML file defines a [Jina Flow](https://docs.jina.ai/fundamentals/flow/). The complete Jina Flow YAML syntax [can be found here](https://docs.jina.ai/fundamentals/flow/flow-yaml/#configure-flow-meta-information). General parameters of the Flow and Executor can be used here as well. But now we only highlight the most important parameters.
 
 Looking at the YAML file again, we can put it into three subsections as below:
 
@@ -162,7 +213,7 @@ executors:
 
 ### CLIP model config
 
-For PyTorch & ONNX backend, you can set the following parameters via `with`:
+For all backends, you can set the following parameters via `with`:
 
 | Parameter | Description                                                                                                                    |
 |-----------|--------------------------------------------------------------------------------------------------------------------------------|
