@@ -1,0 +1,2 @@
+User-agent: *
+sitemap: https://clip-as-service.jina.ai/sitemap.xml
