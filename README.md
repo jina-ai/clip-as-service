@@ -85,6 +85,8 @@ print(r)
 
 There are four basic visual reasoning skills: object recognition, object counting, color recognition, and spatial relation understanding. Let's try some:
 
+> You need to install [`jq` (a JSON processor)](https://stedolan.github.io/jq/) to prettify the results.
+
 <table>
 <tr>
 <td> Image </td>
