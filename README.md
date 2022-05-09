@@ -37,6 +37,8 @@ CLIP-as-service is a low-latency high-scalability service for embedding images a
 
 An always-online demo server loaded with `ViT-L/14-336px` is there for you to play & test: 
 
+### Text & image embedding
+
 <table>
 <tr>
 <td> via HTTP </td>
@@ -79,6 +81,120 @@ print(r)
 </tr>
 </table>
 
+### Visual reasoning
+
+There are four basic visual reasoning skills: object recognition, object counting, color recognition, and spatial relation understanding. Let's try some:
+
+<table>
+<tr>
+<td> Image </td>
+<td> via HTTP </td>
+</tr>
+<tr>
+<td>
+<img src="https://picsum.photos/id/1/300/300">
+</td>
+<td>
+
+```bash
+curl \
+-X POST http://demo-cas.jina.ai:51001/post \
+-H 'Content-Type: application/json' \
+-d '{"data":[{"uri": "https://picsum.photos/id/1/300/300",
+"matches": [{"text": "this is a woman in the photo"},
+            {"text": "this is a man in the photo"}]}],
+            "execEndpoint":"/rank"}' \
+| jq ".data[].matches[] | (.text, .scores.clip_score.value)"
+```
+
+gives:
+
+```
+"this is a man in the photo"
+0.5785414576530457
+"this is a woman in the photo"
+0.4214586019515991
+```
+
+</td>
+</tr>
+<tr>
+<td>
+<img src="https://picsum.photos/id/133/300/300">
+</td>
+<td>
+
+```bash
+curl \
+-X POST http://demo-cas.jina.ai:51001/post \
+-H 'Content-Type: application/json' \
+-d '{"data":[{"uri": "https://picsum.photos/id/133/300/300",
+"matches": [{"text": "the blue car is on the left, the red car is on the right"},
+            {"text": "the blue car is on the right, the red car is on the left"},
+            {"text": "the blue car is on top of the red car"},
+            {"text": "the blue car is below the red car"}]}],
+            "execEndpoint":"/rank"}' \
+| jq ".data[].matches[] | (.text, .scores.clip_score.value)"
+```
+
+gives:
+```
+"the blue car is on the left, the red car is on the right"
+0.5232442617416382
+"the blue car is on the right, the red car is on the left"
+0.32878655195236206
+"the blue car is below the red car"
+0.11064132302999496
+"the blue car is on top of the red car"
+0.03732786327600479
+```
+
+</td>
+</tr>
+
+
+<tr>
+<td>
+<img src="https://picsum.photos/id/102/300/300">
+</td>
+<td>
+
+```bash
+curl \
+-X POST http://demo-cas.jina.ai:51001/post \
+-H 'Content-Type: application/json' \
+-d '{"data":[{"uri": "https://picsum.photos/id/102/300/300",
+"matches": [{"text": "this is a photo of one berry"},
+            {"text": "this is a photo of two berries"},
+            {"text": "this is a photo of three berries"},
+            {"text": "this is a photo of four berries"},
+            {"text": "this is a photo of five berries"},
+            {"text": "this is a photo of six berries"}]}],
+            "execEndpoint":"/rank"}' \
+| jq ".data[].matches[] | (.text, .scores.clip_score.value)"
+```
+
+gives:
+```
+"this is a photo of three berries"
+0.48507222533226013
+"this is a photo of four berries"
+0.2377079576253891
+"this is a photo of one berry"
+0.11304923892021179
+"this is a photo of five berries"
+0.0731358453631401
+"this is a photo of two berries"
+0.05045759305357933
+"this is a photo of six berries"
+0.04057715833187103
+```
+
+</td>
+</tr>
+
+
+</table>
 
 
 ## [Documentation](https://clip-as-service.jina.ai)
