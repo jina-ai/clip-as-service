@@ -10,7 +10,12 @@ from jina import Executor, requests, DocumentArray
 
 from clip_server.model import clip
 from clip_server.model.clip_onnx import CLIPOnnxModel
-from clip_server.executors.helper import split_img_txt_da, preproc_image, preproc_text
+from clip_server.executors.helper import (
+    split_img_txt_da,
+    preproc_image,
+    preproc_text,
+    numpy_softmax,
+)
 
 
 class CLIPEncoder(Executor):
@@ -20,7 +25,6 @@ class CLIPEncoder(Executor):
         device: Optional[str] = None,
         num_worker_preprocess: int = 4,
         minibatch_size: int = 16,
-        logit_scale: float = 4.60,
         **kwargs,
     ):
         super().__init__(**kwargs)
@@ -31,7 +35,8 @@ class CLIPEncoder(Executor):
         self._minibatch_size = minibatch_size
 
         self._model = CLIPOnnxModel(name)
-        self._logit_scale = logit_scale
+        # Note: hard coded here since all the pretrained clip model use the same logit_scale parameter
+        self._logit_scale = np.exp(4.60517)
 
         import torch
 
@@ -80,14 +85,15 @@ class CLIPEncoder(Executor):
     @requests(on='/rank')
     async def rank(self, docs: 'DocumentArray', parameters: Dict, **kwargs):
         _source = parameters.get('source', 'matches')
-        _get = lambda d: getattr(d, _source)
 
         for d in docs:
             _img_da = DocumentArray()
             _txt_da = DocumentArray()
             split_img_txt_da(d, _img_da, _txt_da)
 
-            for c in _get(d):
+            candidates = getattr(d, _source)
+
+            for c in candidates:
                 split_img_txt_da(c, _img_da, _txt_da)
 
             if len(_img_da) != 1 and len(_txt_da) != 1:
@@ -98,7 +104,7 @@ class CLIPEncoder(Executor):
                 raise ValueError(
                     f'`d` and `d.{_source}` must be in different modality, one is image one is text'
                 )
-            elif len(_get(d)) <= 1:
+            elif len(candidates) <= 1:
                 raise ValueError(
                     f'`d.{_source}` must have more than one Documents to do ranking'
                 )
@@ -114,37 +120,37 @@ class CLIPEncoder(Executor):
                     _txt_da.embeddings, axis=1, keepdims=True
                 )
 
-                # cosine similarity as logits
-                logit_scale = np.exp(self._logit_scale)
-                logits_per_image = logit_scale * np.matmul(
-                    image_features, text_features.T
-                )
-                logits_per_text = logits_per_image.T
-
-                def numpy_softmax(z):
-                    s = np.max(z, axis=1)
-                    s = s[:, np.newaxis]
-                    e_x = np.exp(z - s)
-                    div = np.sum(e_x, axis=1)
-                    div = div[:, np.newaxis]  # dito
-                    return e_x / div
+                # paired cosine similarity
+                scores_per_text = np.matmul(image_features, text_features.T)
+                scores_per_image = scores_per_text.T
 
                 if len(_img_da) == 1:
-                    probs = numpy_softmax(logits_per_image)[0]
+                    cosine_scores = scores_per_text
                 elif len(_txt_da) == 1:
-                    probs = numpy_softmax(logits_per_text)[0]
+                    cosine_scores = scores_per_image
+
+                softmax_scores = numpy_softmax(self._logit_scale * cosine_scores)
+
+                # squeeze scores
+                cosine_scores = cosine_scores[0]
+                softmax_scores = softmax_scores[0]
 
                 # drop embeddings
                 _img_da.embeddings = None
                 _txt_da.embeddings = None
 
-                for c, v in zip(_get(d), probs):
-                    c.scores['clip_score'].value = v
+                for c, p, o in zip(candidates, softmax_scores, cosine_scores):
+                    c.scores['clip_score'].value = p
+                    c.scores['clip_score'].op_name = 'softmax'
+
+                    c.scores['clip_score_cosine'].value = o
+                    c.scores['clip_score_cosine'].op_name = 'cosine'
+
                 setattr(
                     d,
                     _source,
                     sorted(
-                        _get(d),
+                        candidates,
                         key=lambda _m: _m.scores['clip_score'].value,
                         reverse=True,
                     ),

@@ -1,6 +1,7 @@
 import os
 
 import pytest
+import numpy as np
 from clip_client import Client
 from clip_server.executors.clip_torch import CLIPEncoder as TorchCLIPEncoder
 from clip_server.executors.clip_onnx import CLIPEncoder as ONNXCLILPEncoder
@@ -101,3 +102,9 @@ async def test_async_arank(make_flow, d):
     for v in rv:
         assert v is not None
         assert v > 0
+    np.testing.assert_almost_equal(sum(rv), 1.0)
+
+    rv = r['@m', 'scores__clip_score_cosine__value']
+    for v in rv:
+        assert v is not None
+        assert -1.0 <= v <= 1.0

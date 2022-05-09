@@ -3,7 +3,7 @@ import warnings
 from functools import partial
 
 from multiprocessing.pool import ThreadPool
-from typing import Optional, List, Tuple, Dict
+from typing import Optional, Dict
 
 import numpy as np
 import torch
@@ -53,6 +53,7 @@ class CLIPEncoder(Executor):
         self._model, self._preprocess_tensor = clip.load(
             name, device=self._device, jit=jit
         )
+        self._logit_scale = self._model.logit_scale.exp()
 
         self._pool = ThreadPool(processes=num_worker_preprocess)
 
@@ -61,14 +62,15 @@ class CLIPEncoder(Executor):
         import torch
 
         _source = parameters.get('source', 'matches')
-        _get = lambda d: getattr(d, _source)
 
         for d in docs:
             _img_da = DocumentArray()
             _txt_da = DocumentArray()
             split_img_txt_da(d, _img_da, _txt_da)
 
-            for c in _get(d):
+            candidates = getattr(d, _source)
+
+            for c in candidates:
                 split_img_txt_da(c, _img_da, _txt_da)
 
             if len(_img_da) != 1 and len(_txt_da) != 1:
@@ -79,7 +81,7 @@ class CLIPEncoder(Executor):
                 raise ValueError(
                     f'`d` and `d.{_source}` must be in different modality, one is image one is text'
                 )
-            elif len(_get(d)) <= 1:
+            elif len(candidates) <= 1:
                 raise ValueError(
                     f'`d.{_source}` must have more than one Documents to do ranking'
                 )
@@ -97,34 +99,37 @@ class CLIPEncoder(Executor):
                     dim=-1, keepdim=True
                 )
 
-                # cosine similarity as logits
-                logit_scale = self._model.logit_scale.exp()
-                logits_per_image = logit_scale * image_features @ text_features.t()
-                logits_per_text = logits_per_image.t()
+                # paired cosine between image and text
+                scores_per_text = image_features @ text_features.t()
+                scores_per_image = scores_per_text.t()
 
                 if len(_img_da) == 1:
-                    probs = (
-                        logits_per_image.softmax(dim=-1)
-                        .cpu()
-                        .detach()
-                        .numpy()
-                        .squeeze()
-                    )
+                    cosine_scores = scores_per_text
                 elif len(_txt_da) == 1:
-                    probs = (
-                        logits_per_text.softmax(dim=-1).cpu().detach().numpy().squeeze()
-                    )
+                    cosine_scores = scores_per_image
+
+                softmax_scores = self._logit_scale * cosine_scores
+                softmax_scores = softmax_scores.softmax(dim=-1)
+
+                # squeeze scores
+                cosine_scores = cosine_scores.cpu().detach().numpy().squeeze()
+                softmax_scores = softmax_scores.cpu().detach().numpy().squeeze()
 
                 _img_da.embeddings = None
                 _txt_da.embeddings = None
 
-                for c, v in zip(_get(d), probs):
-                    c.scores['clip_score'].value = v
+                for c, p, o in zip(candidates, softmax_scores, cosine_scores):
+                    c.scores['clip_score'].value = p
+                    c.scores['clip_score'].op_name = 'softmax'
+
+                    c.scores['clip_score_cosine'].value = o
+                    c.scores['clip_score_cosine'].op_name = 'cosine'
+
                 setattr(
                     d,
                     _source,
                     sorted(
-                        _get(d),
+                        candidates,
                         key=lambda _m: _m.scores['clip_score'].value,
                         reverse=True,
                     ),

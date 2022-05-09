@@ -6,6 +6,14 @@ if TYPE_CHECKING:
     from docarray import Document, DocumentArray
 
 
+def numpy_softmax(x: 'np.ndarray', axis: int = -1) -> 'np.ndarray':
+    max = np.max(x, axis=axis, keepdims=True)
+    e_x = np.exp(x - max)
+    div = np.sum(e_x, axis=axis, keepdims=True)
+    f_x = e_x / div
+    return f_x
+
+
 def preproc_image(
     da: 'DocumentArray',
     preprocess_fn: Callable,

@@ -1,6 +1,7 @@
 import os
 
 import pytest
+import numpy as np
 from docarray import Document, DocumentArray
 from jina import Flow
 
@@ -66,3 +67,9 @@ async def test_async_arank(make_trt_flow, d):
     for v in rv:
         assert v is not None
         assert v > 0
+    np.testing.assert_almost_equal(sum(rv), 1.0)
+
+    rv = r['@m', 'scores__clip_score_cosine__value']
+    for v in rv:
+        assert v is not None
+        assert -1.0 <= v <= 1.0
