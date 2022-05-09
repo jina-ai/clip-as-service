@@ -31,6 +31,8 @@ CLIP-as-service is a low-latency high-scalability service for embedding images a
 
 <sup>[*] with default config (single replica, PyTorch no JIT) on GeForce RTX 3090. </sup>
 
+<!-- end elevator-pitch -->
+
 ## Try it!
 
 An always-online demo server loaded with `ViT-L/14-336px` is there for you to play & test: 
@@ -77,7 +79,7 @@ print(r)
 </tr>
 </table>
 
-<!-- end elevator-pitch -->
+
 
 ## [Documentation](https://clip-as-service.jina.ai)
 

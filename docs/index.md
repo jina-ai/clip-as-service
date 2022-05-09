@@ -44,6 +44,49 @@ pip install "clip_server[tensorrt]"
 
 ````
 
+## Try it!
+
+
+An always-online demo server loaded with `ViT-L/14-336px` is there for you to play & test: 
+
+````{tab} via HTTP
+
+```bash
+curl \
+-X POST http://demo-cas.jina.ai:51001/post \
+-H 'Content-Type: application/json' \
+-d '{"data":[{"text": "First do it"}, 
+    {"text": "then do it right"}, 
+    {"text": "then do it better"}, 
+    {"uri": "https://picsum.photos/200"}], 
+    "execEndpoint":"/"}'
+```
+
+````
+
+````{tab} via gRPC ⚡⚡
+
+```bash
+pip install clip-client
+```
+
+```python
+from clip_client import Client
+
+c = Client('grpc://demo-cas.jina.ai:51000')
+
+r = c.encode(
+    [
+        'First do it',
+        'then do it right',
+        'then do it better',
+        'https://picsum.photos/200',
+    ]
+)
+print(r)
+```
+
+````
 
 ## Quick check
 
