@@ -35,6 +35,15 @@ pip install "clip_server[onnx]"
 ````
 
 
+````{tab} Server with TensorRT support
+
+```bash
+pip install nvidia-pyindex 
+pip install "clip_server[tensorrt]"
+```
+
+````
+
 
 ## Quick check
 
@@ -51,6 +60,12 @@ python -m clip_server
 ````{tab} Run ONNX Server 
 ```bash
 python -m clip_server onnx-flow.yml
+```
+````
+
+````{tab} Run TensorRT Server 
+```bash
+python -m clip_server tensorrt-flow.yml
 ```
 ````
 
