@@ -5,47 +5,7 @@
 :end-before: <!-- end elevator-pitch -->
 ```
 
-## Install
-
-![PyPI](https://img.shields.io/pypi/v/clip_client?color=%23ffffff&label=%20) is the latest version.
-
-Make sure you have Python 3.7+. You can install client and server independently. You **don't** have to install both: e.g. installing `clip_server` on a GPU machine and `clip_client` on a local laptop.
-
-````{tab} Client
-
-```bash
-pip install clip-client
-```
-
-````
-
-````{tab} Server
-
-```bash
-pip install clip-server
-```
-````
-
-````{tab} Server with ONNX support
-
-```bash
-pip install "clip_server[onnx]"
-```
-
-````
-
-
-````{tab} Server with TensorRT support
-
-```bash
-pip install nvidia-pyindex 
-pip install "clip_server[tensorrt]"
-```
-
-````
-
 ## Try it!
-
 
 An always-online demo server loaded with `ViT-L/14-336px` is there for you to play & test: 
 
@@ -87,6 +47,47 @@ print(r)
 ```
 
 ````
+
+## Install
+
+![PyPI](https://img.shields.io/pypi/v/clip_client?color=%23ffffff&label=%20) is the latest version.
+
+Make sure you have Python 3.7+. You can install client and server independently. You **don't** have to install both: e.g. installing `clip_server` on a GPU machine and `clip_client` on a local laptop.
+
+````{tab} Client
+
+```bash
+pip install clip-client
+```
+
+````
+
+````{tab} Server
+
+```bash
+pip install clip-server
+```
+````
+
+````{tab} Server with ONNX support
+
+```bash
+pip install "clip_server[onnx]"
+```
+
+````
+
+
+````{tab} Server with TensorRT support
+
+```bash
+pip install nvidia-pyindex 
+pip install "clip_server[tensorrt]"
+```
+
+````
+
+
 
 ## Quick check
 

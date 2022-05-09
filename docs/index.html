@@ -315,39 +315,11 @@
 <p>👒 <strong>Modern</strong>: Async client support. Easily switch between gRPC, HTTP, WebSocket protocols with TLS and compression.</p>
 <p>🍱 <strong>Integration</strong>: Smooth integration with neural search ecosystem including <a class="reference external" href="https://github.com/jina-ai/jina">Jina</a> and <a class="reference external" href="https://github.com/jina-ai/docarray">DocArray</a>. Build cross-modal and multi-modal solutions in no time.</p>
 <p><sup>[*] with default config (single replica, PyTorch no JIT) on GeForce RTX 3090. </sup></p>
-<section id="install">
-<h2>Install<a class="headerlink" href="#install" title="Permalink to this headline">#</a></h2>
-<p><img alt="PyPI" src="https://img.shields.io/pypi/v/clip_client?color=%23ffffff&amp;label=%20"/> is the latest version.</p>
-<p>Make sure you have Python 3.7+. You can install client and server independently. You <strong>don’t</strong> have to install both: e.g. installing <code class="docutils literal notranslate"><span class="pre">clip_server</span></code> on a GPU machine and <code class="docutils literal notranslate"><span class="pre">clip_client</span></code> on a local laptop.</p>
-<div class="tab-set docutils">
-<input checked="True" class="tab-input" id="tab-set--0-input--1" name="tab-set--0" type="radio"/><label class="tab-label" for="tab-set--0-input--1">Client</label><div class="tab-content docutils">
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install clip-client
-</pre></div>
-</div>
-</div>
-<input class="tab-input" id="tab-set--0-input--2" name="tab-set--0" type="radio"/><label class="tab-label" for="tab-set--0-input--2">Server</label><div class="tab-content docutils">
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install clip-server
-</pre></div>
-</div>
-</div>
-<input class="tab-input" id="tab-set--0-input--3" name="tab-set--0" type="radio"/><label class="tab-label" for="tab-set--0-input--3">Server with ONNX support</label><div class="tab-content docutils">
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install <span class="s2">"clip_server[onnx]"</span>
-</pre></div>
-</div>
-</div>
-<input class="tab-input" id="tab-set--0-input--4" name="tab-set--0" type="radio"/><label class="tab-label" for="tab-set--0-input--4">Server with TensorRT support</label><div class="tab-content docutils">
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install nvidia-pyindex 
-pip install <span class="s2">"clip_server[tensorrt]"</span>
-</pre></div>
-</div>
-</div>
-</div>
-</section>
 <section id="try-it">
 <h2>Try it!<a class="headerlink" href="#try-it" title="Permalink to this headline">#</a></h2>
 <p>An always-online demo server loaded with <code class="docutils literal notranslate"><span class="pre">ViT-L/14-336px</span></code> is there for you to play &amp; test:</p>
 <div class="tab-set docutils">
-<input checked="True" class="tab-input" id="tab-set--1-input--1" name="tab-set--1" type="radio"/><label class="tab-label" for="tab-set--1-input--1">via HTTP</label><div class="tab-content docutils">
+<input checked="True" class="tab-input" id="tab-set--0-input--1" name="tab-set--0" type="radio"/><label class="tab-label" for="tab-set--0-input--1">via HTTP</label><div class="tab-content docutils">
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl <span class="se">\</span>
 -X POST http://demo-cas.jina.ai:51001/post <span class="se">\</span>
 -H <span class="s1">'Content-Type: application/json'</span> <span class="se">\</span>
@@ -359,7 +331,7 @@ pip install <span class="s2">"clip_server[tensorrt]"</span>
 </pre></div>
 </div>
 </div>
-<input class="tab-input" id="tab-set--1-input--2" name="tab-set--1" type="radio"/><label class="tab-label" for="tab-set--1-input--2">via gRPC ⚡⚡</label><div class="tab-content docutils">
+<input class="tab-input" id="tab-set--0-input--2" name="tab-set--0" type="radio"/><label class="tab-label" for="tab-set--0-input--2">via gRPC ⚡⚡</label><div class="tab-content docutils">
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install clip-client
 </pre></div>
 </div>
@@ -376,6 +348,34 @@ pip install <span class="s2">"clip_server[tensorrt]"</span>
     <span class="p">]</span>
 <span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="install">
+<h2>Install<a class="headerlink" href="#install" title="Permalink to this headline">#</a></h2>
+<p><img alt="PyPI" src="https://img.shields.io/pypi/v/clip_client?color=%23ffffff&amp;label=%20"/> is the latest version.</p>
+<p>Make sure you have Python 3.7+. You can install client and server independently. You <strong>don’t</strong> have to install both: e.g. installing <code class="docutils literal notranslate"><span class="pre">clip_server</span></code> on a GPU machine and <code class="docutils literal notranslate"><span class="pre">clip_client</span></code> on a local laptop.</p>
+<div class="tab-set docutils">
+<input checked="True" class="tab-input" id="tab-set--1-input--1" name="tab-set--1" type="radio"/><label class="tab-label" for="tab-set--1-input--1">Client</label><div class="tab-content docutils">
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install clip-client
+</pre></div>
+</div>
+</div>
+<input class="tab-input" id="tab-set--1-input--2" name="tab-set--1" type="radio"/><label class="tab-label" for="tab-set--1-input--2">Server</label><div class="tab-content docutils">
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install clip-server
+</pre></div>
+</div>
+</div>
+<input class="tab-input" id="tab-set--1-input--3" name="tab-set--1" type="radio"/><label class="tab-label" for="tab-set--1-input--3">Server with ONNX support</label><div class="tab-content docutils">
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install <span class="s2">"clip_server[onnx]"</span>
+</pre></div>
+</div>
+</div>
+<input class="tab-input" id="tab-set--1-input--4" name="tab-set--1" type="radio"/><label class="tab-label" for="tab-set--1-input--4">Server with TensorRT support</label><div class="tab-content docutils">
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install nvidia-pyindex 
+pip install <span class="s2">"clip_server[tensorrt]"</span>
 </pre></div>
 </div>
 </div>
@@ -526,8 +526,8 @@ and <a class="reference external" href="https://youtube.com/c/jina-ai">live stre
                     <div class="toc-tree">
                         <ul>
 <li><a class="reference internal" href="#">Welcome to CLIP-as-service!</a><ul>
-<li><a class="reference internal" href="#install">Install</a></li>
 <li><a class="reference internal" href="#try-it">Try it!</a></li>
+<li><a class="reference internal" href="#install">Install</a></li>
 <li><a class="reference internal" href="#quick-check">Quick check</a><ul>
 <li><a class="reference internal" href="#start-the-server">Start the server</a></li>
 <li><a class="reference internal" href="#connect-from-client">Connect from client</a></li>
