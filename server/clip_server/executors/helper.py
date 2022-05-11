@@ -1,5 +1,7 @@
 from typing import Tuple, List, Callable, TYPE_CHECKING
+
 import numpy as np
+
 from clip_server.model import clip
 
 if TYPE_CHECKING:

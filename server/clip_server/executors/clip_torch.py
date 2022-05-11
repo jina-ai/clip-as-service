@@ -8,8 +8,14 @@ from typing import Optional, Dict
 import numpy as np
 import torch
 from clip_server.model import clip
-from clip_server.executors.helper import split_img_txt_da, preproc_image, preproc_text
+from clip_server.executors.helper import (
+    split_img_txt_da,
+    preproc_image,
+    preproc_text,
+    numpy_softmax,
+)
 
+from docarray.math.distance.numpy import cosine
 from jina import Executor, requests, DocumentArray
 
 
@@ -53,7 +59,7 @@ class CLIPEncoder(Executor):
         self._model, self._preprocess_tensor = clip.load(
             name, device=self._device, jit=jit
         )
-        self._logit_scale = self._model.logit_scale.exp()
+        self._logit_scale = self._model.logit_scale.exp().numpy().astype(np.float32)
 
         self._pool = ThreadPool(processes=num_worker_preprocess)
 
@@ -61,83 +67,50 @@ class CLIPEncoder(Executor):
     async def rank(self, docs: 'DocumentArray', parameters: Dict, **kwargs):
         import torch
 
-        _source = parameters.get('source', 'matches')
+        _source = parameters.get('source', '@m')
 
-        for d in docs:
-            _img_da = DocumentArray()
-            _txt_da = DocumentArray()
-            split_img_txt_da(d, _img_da, _txt_da)
+        queries = await self.encode(docs)
+        query_embeddings = queries.embeddings  # Q X D
 
-            candidates = getattr(d, _source)
+        candidates = await self.encode(docs[_source])
+        candidate_embeddings = (
+            candidates.embeddings
+        )  # C = Sum(C_q1, C_q2, C_q3,...) x D
 
-            for c in candidates:
-                split_img_txt_da(c, _img_da, _txt_da)
+        cosine_scores = cosine(
+            query_embeddings, candidate_embeddings
+        )  # Q x C Block matix
 
-            if len(_img_da) != 1 and len(_txt_da) != 1:
-                raise ValueError(
-                    f'`d.{_source}` must be all in same modality, either all images or all text'
-                )
-            elif not _img_da or not _txt_da:
-                raise ValueError(
-                    f'`d` and `d.{_source}` must be in different modality, one is image one is text'
-                )
-            elif len(candidates) <= 1:
-                raise ValueError(
-                    f'`d.{_source}` must have more than one Documents to do ranking'
-                )
-            else:
-                _img_da = await self.encode(_img_da)
-                _txt_da = await self.encode(_txt_da)
-                _img_da.embeddings = torch.from_numpy(_img_da.embeddings).to(
-                    self._device, non_blocking=True
-                )
-                _txt_da.embeddings = torch.from_numpy(_txt_da.embeddings).to(
-                    self._device, non_blocking=True
-                )
+        start_idx = 0
+        for q, _cosine_scores in zip(docs, cosine_scores):
 
-                # normalized features
-                image_features = _img_da.embeddings / _img_da.embeddings.norm(
-                    dim=-1, keepdim=True
-                )
-                text_features = _txt_da.embeddings / _txt_da.embeddings.norm(
-                    dim=-1, keepdim=True
-                )
+            _candidates = DocumentArray(q)[_source]
 
-                # paired cosine between image and text
-                scores_per_text = image_features @ text_features.t()
-                scores_per_image = scores_per_text.t()
+            end_idx = start_idx + len(_candidates)
 
-                if len(_img_da) == 1:
-                    cosine_scores = scores_per_text
-                elif len(_txt_da) == 1:
-                    cosine_scores = scores_per_image
+            _candidate_cosines = _cosine_scores[start_idx:end_idx]
+            _candidate_softmaxs = numpy_softmax(_candidate_cosines)
+            for c, _c_score, _s_score in zip(
+                _candidates, _candidate_cosines, _candidate_softmaxs
+            ):
+                c.scores['clip_score'].value = _s_score
+                c.scores['clip_score'].op_name = 'softmax'
 
-                softmax_scores = self._logit_scale * cosine_scores
-                softmax_scores = softmax_scores.softmax(dim=-1)
+                c.scores['clip_score_cosine'].value = _c_score
+                c.scores['clip_score_cosine'].op_name = 'cosine'
 
-                # squeeze scores
-                cosine_scores = cosine_scores.cpu().detach().numpy().squeeze()
-                softmax_scores = softmax_scores.cpu().detach().numpy().squeeze()
+            start_idx = end_idx
 
-                _img_da.embeddings = None
-                _txt_da.embeddings = None
-
-                for c, p, o in zip(candidates, softmax_scores, cosine_scores):
-                    c.scores['clip_score'].value = p
-                    c.scores['clip_score'].op_name = 'softmax'
-
-                    c.scores['clip_score_cosine'].value = o
-                    c.scores['clip_score_cosine'].op_name = 'cosine'
-
-                setattr(
-                    d,
-                    _source,
-                    sorted(
-                        candidates,
-                        key=lambda _m: _m.scores['clip_score'].value,
-                        reverse=True,
-                    ),
-                )
+            # sort!
+            setattr(
+                d,
+                _source,
+                sorted(
+                    candidates,
+                    key=lambda _m: _m.scores['clip_score'].value,
+                    reverse=True,
+                ),
+            )
 
     @requests
     async def encode(self, docs: 'DocumentArray', **kwargs):
