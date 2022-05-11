@@ -1,10 +1,9 @@
 from typing import Tuple, List, Callable
 
 import numpy as np
+from clip_server.model import clip
 from docarray import Document, DocumentArray
 from docarray.math.distance.numpy import cosine
-
-from clip_server.model import clip
 
 
 def numpy_softmax(x: 'np.ndarray', axis: int = -1) -> 'np.ndarray':
@@ -61,9 +60,9 @@ def split_img_txt_da(doc: 'Document', img_da: 'DocumentArray', txt_da: 'Document
         txt_da.append(doc)
 
 
-def set_rank(docs, _source, _logit_scale=np.exp(4.60517)):
+def set_rank(docs, _logit_scale=np.exp(4.60517)):
     queries = docs
-    candidates = docs[_source]
+    candidates = docs['@m']
 
     query_embeddings = queries.embeddings  # Q X D
     candidate_embeddings = candidates.embeddings  # C = Sum(C_q1, C_q2, C_q3,...) x D
@@ -73,7 +72,7 @@ def set_rank(docs, _source, _logit_scale=np.exp(4.60517)):
     start_idx = 0
     for q, _cosine_scores in zip(docs, cosine_scores):
 
-        _candidates = DocumentArray(q)[_source]
+        _candidates = q.matches
 
         end_idx = start_idx + len(_candidates)
 
@@ -94,7 +93,4 @@ def set_rank(docs, _source, _logit_scale=np.exp(4.60517)):
             _candidates, key=lambda _m: _m.scores['clip_score'].value, reverse=True
         )
 
-        if _source == '@m':
-            q.matches = final
-        elif _source == '@c':
-            q.chunks = final
+        q.matches = final
