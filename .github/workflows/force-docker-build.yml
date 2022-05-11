@@ -101,7 +101,7 @@ jobs:
           # https://github.com/kubernetes-sigs/azuredisk-csi-driver/pull/808/files
           docker run --privileged --rm tonistiigi/binfmt --uninstall qemu-aarch64
           docker run --rm --privileged tonistiigi/binfmt --install all
-      - name: Build and push CPU images
+      - name: CPU Build and push
         uses: docker/build-push-action@v2
         if: ${{ matrix.pip_tag }} != 'tensorrt' && ${{ matrix.engine_tag }} == ''
         with:
@@ -115,7 +115,7 @@ jobs:
             CAS_VERSION=${{env.CAS_VERSION}}
             VCS_REF=${{env.VCS_REF}}
             PIP_TAG=${{matrix.pip_tag}}
-      - name: Build and push CUDA images
+      - name: CUDA Build and push
         uses: docker/build-push-action@v2
         if: ${{ matrix.engine_tag }} == 'cuda'
         with:
