@@ -35,6 +35,7 @@
 
 
 
+
 <a name=release-note-0-0-3></a>
 ## Release Note (`0.0.3`)
 
@@ -811,4 +812,27 @@
 
  - [[```72d69c75```](https://github.com/jina-ai/clip-as-service/commit/72d69c75be20cc8126f9c406cb621d349b87ba3c)] __-__ __docs__: update readme (*Han Xiao*)
  - [[```f898c8ce```](https://github.com/jina-ai/clip-as-service/commit/f898c8ce73ea3884037b900ca45fda4a477efdce)] __-__ __version__: the next version will be 0.4.4 (*Jina Dev Bot*)
+
+<a name=release-note-0-4-5></a>
+## Release Note (`0.4.5`)
+
+> Release time: 2022-05-11 12:10:29
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Han Xiao,  Jina Dev Bot,  🙇
+
+
+### 🐞 Bug fixes
+
+ - [[```6ed4c484```](https://github.com/jina-ai/clip-as-service/commit/6ed4c484346e16846e0076d7bf99388c858581be)] __-__ convert distance to score (*Han Xiao*)
+
+### 🧼 Code Refactoring
+
+ - [[```59c06986```](https://github.com/jina-ai/clip-as-service/commit/59c06986387b59c0f536af08d0f6abed71cd7a41)] __-__ __server__: remove redundant logics of rank (#715) (*Han Xiao*)
+
+### 🍹 Other Improvements
+
+ - [[```d565d31f```](https://github.com/jina-ai/clip-as-service/commit/d565d31f80e4a289529477159eba07161c6c6066)] __-__ __version__: the next version will be 0.4.5 (*Jina Dev Bot*)
 
