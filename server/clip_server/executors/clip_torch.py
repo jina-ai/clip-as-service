@@ -1,16 +1,20 @@
 import os
 import warnings
 from functools import partial
-
 from multiprocessing.pool import ThreadPool
 from typing import Optional, Dict
 
 import numpy as np
 import torch
-from clip_server.model import clip
-from clip_server.executors.helper import split_img_txt_da, preproc_image, preproc_text
-
 from jina import Executor, requests, DocumentArray
+
+from clip_server.executors.helper import (
+    split_img_txt_da,
+    preproc_image,
+    preproc_text,
+    set_rank,
+)
+from clip_server.model import clip
 
 
 class CLIPEncoder(Executor):
@@ -53,91 +57,18 @@ class CLIPEncoder(Executor):
         self._model, self._preprocess_tensor = clip.load(
             name, device=self._device, jit=jit
         )
-        self._logit_scale = self._model.logit_scale.exp()
 
         self._pool = ThreadPool(processes=num_worker_preprocess)
 
     @requests(on='/rank')
     async def rank(self, docs: 'DocumentArray', parameters: Dict, **kwargs):
-        import torch
 
-        _source = parameters.get('source', 'matches')
+        _source = parameters.get('source', '@m')
 
-        for d in docs:
-            _img_da = DocumentArray()
-            _txt_da = DocumentArray()
-            split_img_txt_da(d, _img_da, _txt_da)
+        await self.encode(docs)
+        await self.encode(docs[_source])
 
-            candidates = getattr(d, _source)
-
-            for c in candidates:
-                split_img_txt_da(c, _img_da, _txt_da)
-
-            if len(_img_da) != 1 and len(_txt_da) != 1:
-                raise ValueError(
-                    f'`d.{_source}` must be all in same modality, either all images or all text'
-                )
-            elif not _img_da or not _txt_da:
-                raise ValueError(
-                    f'`d` and `d.{_source}` must be in different modality, one is image one is text'
-                )
-            elif len(candidates) <= 1:
-                raise ValueError(
-                    f'`d.{_source}` must have more than one Documents to do ranking'
-                )
-            else:
-                _img_da = await self.encode(_img_da)
-                _txt_da = await self.encode(_txt_da)
-                _img_da.embeddings = torch.from_numpy(_img_da.embeddings).to(
-                    self._device, non_blocking=True
-                )
-                _txt_da.embeddings = torch.from_numpy(_txt_da.embeddings).to(
-                    self._device, non_blocking=True
-                )
-
-                # normalized features
-                image_features = _img_da.embeddings / _img_da.embeddings.norm(
-                    dim=-1, keepdim=True
-                )
-                text_features = _txt_da.embeddings / _txt_da.embeddings.norm(
-                    dim=-1, keepdim=True
-                )
-
-                # paired cosine between image and text
-                scores_per_text = image_features @ text_features.t()
-                scores_per_image = scores_per_text.t()
-
-                if len(_img_da) == 1:
-                    cosine_scores = scores_per_text
-                elif len(_txt_da) == 1:
-                    cosine_scores = scores_per_image
-
-                softmax_scores = self._logit_scale * cosine_scores
-                softmax_scores = softmax_scores.softmax(dim=-1)
-
-                # squeeze scores
-                cosine_scores = cosine_scores.cpu().detach().numpy().squeeze()
-                softmax_scores = softmax_scores.cpu().detach().numpy().squeeze()
-
-                _img_da.embeddings = None
-                _txt_da.embeddings = None
-
-                for c, p, o in zip(candidates, softmax_scores, cosine_scores):
-                    c.scores['clip_score'].value = p
-                    c.scores['clip_score'].op_name = 'softmax'
-
-                    c.scores['clip_score_cosine'].value = o
-                    c.scores['clip_score_cosine'].op_name = 'cosine'
-
-                setattr(
-                    d,
-                    _source,
-                    sorted(
-                        candidates,
-                        key=lambda _m: _m.scores['clip_score'].value,
-                        reverse=True,
-                    ),
-                )
+        set_rank(docs, _source)
 
     @requests
     async def encode(self, docs: 'DocumentArray', **kwargs):
