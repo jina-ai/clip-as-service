@@ -39,7 +39,7 @@ def make_torch_flow(port_generator, request):
 
 @pytest.fixture(scope='session', params=['torch'])
 def make_trt_flow(port_generator, request):
-    from clip_server.executors.clip_trt import CLIPEncoder
+    from clip_server.executors.clip_tensorrt import CLIPEncoder
 
     f = Flow(port=port_generator()).add(name=request.param, uses=CLIPEncoder)
     with f:
