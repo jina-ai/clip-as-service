@@ -36,6 +36,7 @@
 
 
 
+
 <a name=release-note-0-0-3></a>
 ## Release Note (`0.0.3`)
 
@@ -835,4 +836,27 @@
 ### 🍹 Other Improvements
 
  - [[```d565d31f```](https://github.com/jina-ai/clip-as-service/commit/d565d31f80e4a289529477159eba07161c6c6066)] __-__ __version__: the next version will be 0.4.5 (*Jina Dev Bot*)
+
+<a name=release-note-0-4-6></a>
+## Release Note (`0.4.6`)
+
+> Release time: 2022-05-11 15:10:52
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Han Xiao,  Jina Dev Bot,  🙇
+
+
+### ⚡ Performance Improvements
+
+ - [[```cda93fdd```](https://github.com/jina-ai/clip-as-service/commit/cda93fdd648a64f16bd9f194079e3e9220629af2)] __-__ __server__: use await gather in rank function (*Han Xiao*)
+
+### 🐞 Bug fixes
+
+ - [[```6ed4c484```](https://github.com/jina-ai/clip-as-service/commit/6ed4c484346e16846e0076d7bf99388c858581be)] __-__ convert distance to score (*Han Xiao*)
+
+### 🍹 Other Improvements
+
+ - [[```06fcd07b```](https://github.com/jina-ai/clip-as-service/commit/06fcd07bcf208753de15f051339fd48a0e8186f9)] __-__ __version__: the next version will be 0.4.6 (*Jina Dev Bot*)
 
