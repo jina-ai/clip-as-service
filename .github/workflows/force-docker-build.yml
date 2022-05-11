@@ -76,10 +76,6 @@ jobs:
             echo "TAG_ALIAS=\
                             jinaai/clip_executor:${CAS_VERSION}${PIP_TAG}${ENGINE_TAG} \
                             " >> $GITHUB_ENV
-            
-#          else
-#            echo "Bad triggered_by: ${{ github.event.inputs.triggered_by }}!"
-#            exit 1
           else
             # test
             echo "Debugging Workflow!"
