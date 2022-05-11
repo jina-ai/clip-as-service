@@ -1,3 +1,4 @@
+import asyncio
 from functools import partial
 from multiprocessing.pool import ThreadPool
 from typing import Dict
@@ -51,8 +52,7 @@ class CLIPEncoder(Executor):
     async def rank(self, docs: 'DocumentArray', parameters: Dict, **kwargs):
         _source = parameters.get('source', '@m')
 
-        await self.encode(docs)
-        await self.encode(docs[_source])
+        await asyncio.gather(self.encode(docs), self.encode(docs[_source]))
 
         set_rank(docs, _source)
 

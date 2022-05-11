@@ -1,3 +1,4 @@
+import asyncio
 import os
 import warnings
 from functools import partial
@@ -65,8 +66,7 @@ class CLIPEncoder(Executor):
 
         _source = parameters.get('source', '@m')
 
-        await self.encode(docs)
-        await self.encode(docs[_source])
+        await asyncio.gather(self.encode(docs), self.encode(docs[_source]))
 
         set_rank(docs, _source)
 
