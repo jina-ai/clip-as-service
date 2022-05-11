@@ -67,7 +67,9 @@ def set_rank(docs, _source, _logit_scale=np.exp(4.60517)):
 
     query_embeddings = queries.embeddings  # Q X D
     candidate_embeddings = candidates.embeddings  # C = Sum(C_q1, C_q2, C_q3,...) x D
-    cosine_scores = cosine(query_embeddings, candidate_embeddings)  # Q x C Block matix
+    cosine_scores = 1 - cosine(
+        query_embeddings, candidate_embeddings
+    )  # Q x C Block matix
     start_idx = 0
     for q, _cosine_scores in zip(docs, cosine_scores):
 
