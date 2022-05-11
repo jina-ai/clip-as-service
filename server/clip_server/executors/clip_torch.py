@@ -1,4 +1,3 @@
-import asyncio
 import os
 import warnings
 from functools import partial
@@ -7,8 +6,6 @@ from typing import Optional, Dict
 
 import numpy as np
 import torch
-from jina import Executor, requests, DocumentArray
-
 from clip_server.executors.helper import (
     split_img_txt_da,
     preproc_image,
@@ -16,6 +13,7 @@ from clip_server.executors.helper import (
     set_rank,
 )
 from clip_server.model import clip
+from jina import Executor, requests, DocumentArray
 
 
 class CLIPEncoder(Executor):
@@ -64,11 +62,9 @@ class CLIPEncoder(Executor):
     @requests(on='/rank')
     async def rank(self, docs: 'DocumentArray', parameters: Dict, **kwargs):
 
-        _source = parameters.get('source', '@m')
+        await self.encode(docs['@r,m'])
 
-        await asyncio.gather(self.encode(docs), self.encode(docs[_source]))
-
-        set_rank(docs, _source)
+        set_rank(docs)
 
     @requests
     async def encode(self, docs: 'DocumentArray', **kwargs):
