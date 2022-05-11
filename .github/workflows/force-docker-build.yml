@@ -103,7 +103,7 @@ jobs:
           docker run --rm --privileged tonistiigi/binfmt --install all
       - name: Build and push CPU images
         uses: docker/build-push-action@v2
-        if: ${{ matrix.pip_tag }} != 'tensorrt' && ${{ matrix.engine_tag }} != 'cuda'
+        if: ${{ matrix.pip_tag }} != 'tensorrt' && ${{ matrix.engine_tag }} == ''
         with:
           context: .
           file: Dockerfiles/base.Dockerfile
