@@ -1,11 +1,10 @@
-from typing import Tuple, List, Callable, TYPE_CHECKING
+from typing import Tuple, List, Callable
 
 import numpy as np
+from docarray import Document, DocumentArray
+from docarray.math.distance.numpy import cosine
 
 from clip_server.model import clip
-
-if TYPE_CHECKING:
-    from docarray import Document, DocumentArray
 
 
 def numpy_softmax(x: 'np.ndarray', axis: int = -1) -> 'np.ndarray':
@@ -54,9 +53,48 @@ def preproc_text(
 
 
 def split_img_txt_da(doc: 'Document', img_da: 'DocumentArray', txt_da: 'DocumentArray'):
-    if doc.text:
-        txt_da.append(doc)
+    if doc.uri:
+        img_da.append(doc)
     elif doc.blob or (doc.tensor is not None):
         img_da.append(doc)
-    elif doc.uri:
-        img_da.append(doc)
+    elif doc.text:
+        txt_da.append(doc)
+
+
+def set_rank(docs, _source, _logit_scale=np.exp(4.60517)):
+    queries = docs
+    candidates = docs[_source]
+
+    query_embeddings = queries.embeddings  # Q X D
+    candidate_embeddings = candidates.embeddings  # C = Sum(C_q1, C_q2, C_q3,...) x D
+    cosine_scores = cosine(query_embeddings, candidate_embeddings)  # Q x C Block matix
+    start_idx = 0
+    for q, _cosine_scores in zip(docs, cosine_scores):
+
+        _candidates = DocumentArray(q)[_source]
+
+        end_idx = start_idx + len(_candidates)
+
+        _candidate_cosines = _cosine_scores[start_idx:end_idx]
+        _candidate_softmaxs = numpy_softmax(_logit_scale * _candidate_cosines)
+        for c, _c_score, _s_score in zip(
+            _candidates, _candidate_cosines, _candidate_softmaxs
+        ):
+            c.scores['clip_score'].value = _s_score
+            c.scores['clip_score'].op_name = 'softmax'
+
+            c.scores['clip_score_cosine'].value = _c_score
+            c.scores['clip_score_cosine'].op_name = 'cosine'
+
+        start_idx = end_idx
+
+        # sort!
+        setattr(
+            q,
+            _source,
+            sorted(
+                candidates,
+                key=lambda _m: _m.scores['clip_score'].value,
+                reverse=True,
+            ),
+        )

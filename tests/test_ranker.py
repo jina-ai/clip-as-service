@@ -1,11 +1,12 @@
 import os
 
-import pytest
 import numpy as np
-from clip_client import Client
-from clip_server.executors.clip_torch import CLIPEncoder as TorchCLIPEncoder
-from clip_server.executors.clip_onnx import CLIPEncoder as ONNXCLILPEncoder
+import pytest
 from docarray import DocumentArray, Document
+
+from clip_client import Client
+from clip_server.executors.clip_onnx import CLIPEncoder as ONNXCLILPEncoder
+from clip_server.executors.clip_torch import CLIPEncoder as TorchCLIPEncoder
 
 
 @pytest.mark.asyncio
@@ -45,6 +46,10 @@ async def test_torch_executor_rank_text2imgs(encoder_class):
     for d in db:
         for c in d.matches:
             assert c.scores['clip_score'].value is not None
+            assert c.scores['clip_score_cosine'].value is not None
+        np.testing.assert_almost_equal(
+            sum(c.scores['clip_score'].value for c in d.matches), 1
+        )
 
 
 @pytest.mark.parametrize(

@@ -1,22 +1,20 @@
 import os
 import warnings
 from functools import partial
-
 from multiprocessing.pool import ThreadPool
 from typing import Optional, Dict
 
 import numpy as np
 import torch
-from clip_server.model import clip
+from jina import Executor, requests, DocumentArray
+
 from clip_server.executors.helper import (
     split_img_txt_da,
     preproc_image,
     preproc_text,
-    numpy_softmax,
+    set_rank,
 )
-
-from docarray.math.distance.numpy import cosine
-from jina import Executor, requests, DocumentArray
+from clip_server.model import clip
 
 
 class CLIPEncoder(Executor):
@@ -59,58 +57,18 @@ class CLIPEncoder(Executor):
         self._model, self._preprocess_tensor = clip.load(
             name, device=self._device, jit=jit
         )
-        self._logit_scale = self._model.logit_scale.exp().numpy().astype(np.float32)
 
         self._pool = ThreadPool(processes=num_worker_preprocess)
 
     @requests(on='/rank')
     async def rank(self, docs: 'DocumentArray', parameters: Dict, **kwargs):
-        import torch
 
         _source = parameters.get('source', '@m')
 
-        queries = await self.encode(docs)
-        query_embeddings = queries.embeddings  # Q X D
+        await self.encode(docs)
+        await self.encode(docs[_source])
 
-        candidates = await self.encode(docs[_source])
-        candidate_embeddings = (
-            candidates.embeddings
-        )  # C = Sum(C_q1, C_q2, C_q3,...) x D
-
-        cosine_scores = cosine(
-            query_embeddings, candidate_embeddings
-        )  # Q x C Block matix
-
-        start_idx = 0
-        for q, _cosine_scores in zip(docs, cosine_scores):
-
-            _candidates = DocumentArray(q)[_source]
-
-            end_idx = start_idx + len(_candidates)
-
-            _candidate_cosines = _cosine_scores[start_idx:end_idx]
-            _candidate_softmaxs = numpy_softmax(_candidate_cosines)
-            for c, _c_score, _s_score in zip(
-                _candidates, _candidate_cosines, _candidate_softmaxs
-            ):
-                c.scores['clip_score'].value = _s_score
-                c.scores['clip_score'].op_name = 'softmax'
-
-                c.scores['clip_score_cosine'].value = _c_score
-                c.scores['clip_score_cosine'].op_name = 'cosine'
-
-            start_idx = end_idx
-
-            # sort!
-            setattr(
-                q,
-                _source,
-                sorted(
-                    candidates,
-                    key=lambda _m: _m.scores['clip_score'].value,
-                    reverse=True,
-                ),
-            )
+        set_rank(docs, _source)
 
     @requests
     async def encode(self, docs: 'DocumentArray', **kwargs):
