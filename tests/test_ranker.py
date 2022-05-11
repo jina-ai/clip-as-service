@@ -20,12 +20,18 @@ async def test_torch_executor_rank_img2texts(encoder_class):
     for d in da:
         d.matches.append(Document(text='hello, world!'))
         d.matches.append(Document(text='goodbye, world!'))
+        d.matches.append(Document(text='goodbye,!'))
+        d.matches.append(Document(text='good world!'))
+        d.matches.append(Document(text='good!'))
+        d.matches.append(Document(text='world!'))
 
     await ce.rank(da, {})
     print(da['@m', 'scores__clip_score__value'])
     for d in da:
         for c in d.matches:
             assert c.scores['clip_score'].value is not None
+        org_score = d.matches[:, 'scores__clip_score__value']
+        assert org_score == list(sorted(org_score, reverse=True))
 
 
 @pytest.mark.asyncio

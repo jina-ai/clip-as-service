@@ -88,13 +88,11 @@ def set_rank(docs, _source, _logit_scale=np.exp(4.60517)):
 
         start_idx = end_idx
 
-        # sort!
-        setattr(
-            q,
-            _source,
-            sorted(
-                candidates,
-                key=lambda _m: _m.scores['clip_score'].value,
-                reverse=True,
-            ),
+        final = sorted(
+            _candidates, key=lambda _m: _m.scores['clip_score'].value, reverse=True
         )
+
+        if _source == '@m':
+            q.matches = final
+        elif _source == '@c':
+            q.chunks = final
