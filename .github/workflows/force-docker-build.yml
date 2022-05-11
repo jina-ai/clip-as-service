@@ -1,18 +1,15 @@
 name: Manual Docker Build
 
 on:
-  pull_request:
-
-#on:
-#  workflow_dispatch:
-#    inputs:
-#      release_token:
-#        description: 'Your release token'
-#        required: true
-#      triggered_by:
-#        description: 'CD | TAG | MANUAL'
-#        required: false
-#        default: MANUAL
+  workflow_dispatch:
+    inputs:
+      release_token:
+        description: 'Your release token'
+        required: true
+      triggered_by:
+        description: 'CD | TAG | MANUAL'
+        required: false
+        default: MANUAL
 
 jobs:
   token-check:
@@ -108,7 +105,7 @@ jobs:
           context: .
           file: Dockerfiles/base.Dockerfile
           platforms: linux/amd64
-          push: false
+          push: true
           tags: ${{env.TAG_ALIAS}}
           build-args: |
             BUILD_DATE=${{env.BUILD_DATE}}
@@ -122,7 +119,7 @@ jobs:
           context: .
           file: Dockerfiles/cuda.Dockerfile
           platforms: linux/amd64
-          push: false
+          push: true
           tags: ${{env.TAG_ALIAS}}
           build-args: |
             BUILD_DATE=${{env.BUILD_DATE}}
