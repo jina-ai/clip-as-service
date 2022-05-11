@@ -1,15 +1,18 @@
 name: Manual Docker Build
 
+#on:
+#  workflow_dispatch:
+#    inputs:
+#      release_token:
+#        description: 'Your release token'
+#        required: true
+#      triggered_by:
+#        description: 'CD | TAG | MANUAL'
+#        required: false
+#        default: MANUAL
+
 on:
-  workflow_dispatch:
-    inputs:
-      release_token:
-        description: 'Your release token'
-        required: true
-      triggered_by:
-        description: 'CD | TAG | MANUAL'
-        required: false
-        default: MANUAL
+  pull_request:
 
 jobs:
   token-check:
@@ -99,8 +102,8 @@ jobs:
           docker run --privileged --rm tonistiigi/binfmt --uninstall qemu-aarch64
           docker run --rm --privileged tonistiigi/binfmt --install all
       - name: CPU Build and push
-        uses: docker/build-push-action@v2
         if: ${{ matrix.engine_tag }} == ''
+        uses: docker/build-push-action@v2
         with:
           context: .
           file: Dockerfiles/base.Dockerfile
@@ -113,8 +116,8 @@ jobs:
             VCS_REF=${{env.VCS_REF}}
             PIP_TAG=${{matrix.pip_tag}}
       - name: CUDA Build and push
-        uses: docker/build-push-action@v2
         if: ${{ matrix.engine_tag }} == 'cuda'
+        uses: docker/build-push-action@v2
         with:
           context: .
           file: Dockerfiles/cuda.Dockerfile
