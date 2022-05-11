@@ -13,6 +13,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN python3 -m pip install --default-timeout=1000 --no-cache-dir torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu113
 RUN python3 -m pip install --default-timeout=1000 --no-cache-dir "jina[standard]==${JINA_VERSION}"
 
+RUN python3 -m pip install nvidia-pyindex
+
 # copy will almost always invalid the cache
 COPY . /clip-as-service/
 
