@@ -132,7 +132,7 @@ executors:
       jtype: CLIPEncoder
       metas:
         py_modules:
-          - executors/clip_trt.py
+          - executors/clip_tensorrt.py
 ```
 ````
 
