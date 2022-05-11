@@ -29,7 +29,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        pip_tag: [ "", "onnx"]  # default: "" = torch
+        pip_tag: [ "", "onnx", "tensorrt"]  # default: "" = torch
         engine_tag: ["", "cuda"]  # default: "" = cpu
     steps:
       - uses: actions/checkout@v2
@@ -101,8 +101,9 @@ jobs:
           # https://github.com/kubernetes-sigs/azuredisk-csi-driver/pull/808/files
           docker run --privileged --rm tonistiigi/binfmt --uninstall qemu-aarch64
           docker run --rm --privileged tonistiigi/binfmt --install all
-      - name: Build and push
+      - name: Build and push CPU images
         uses: docker/build-push-action@v2
+        if: ${{ matrix.pip_tag }} != 'tensorrt' && ${{ matrix.engine_tag }} != 'cuda'
         with:
           context: .
           file: Dockerfiles/base.Dockerfile
@@ -114,4 +115,16 @@ jobs:
             CAS_VERSION=${{env.CAS_VERSION}}
             VCS_REF=${{env.VCS_REF}}
             PIP_TAG=${{matrix.pip_tag}}
-#          target: ${{env.BUILD_TARGET}}
+      - name: Build and push CUDA images
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: Dockerfiles/cuda.Dockerfile
+          platforms: linux/amd64
+          push: false
+          tags: ${{env.TAG_ALIAS}}
+          build-args: |
+            BUILD_DATE=${{env.BUILD_DATE}}
+            CAS_VERSION=${{env.CAS_VERSION}}
+            VCS_REF=${{env.VCS_REF}}
+            PIP_TAG=${{matrix.pip_tag}}
