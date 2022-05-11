@@ -74,10 +74,13 @@ def test_docarray_inputs(make_flow, d):
     c = Client(server=f'grpc://0.0.0.0:{make_flow.port}')
     r = c.rank([d])
     assert isinstance(r, DocumentArray)
-    rv = r['@m', 'scores__clip_score__value']
-    for v in rv:
-        assert v is not None
-        assert v > 0
+    rv1 = r['@m', 'scores__clip_score__value']
+    rv2 = r['@m', 'scores__clip_score_cosine__value']
+    for v1, v2 in zip(rv1, rv2):
+        assert v1 is not None
+        assert v1 > 0
+        assert v2 is not None
+        assert v2 > 0
 
 
 @pytest.mark.parametrize(
