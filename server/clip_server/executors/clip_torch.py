@@ -103,7 +103,7 @@ class CLIPEncoder(Executor):
 
             # sort!
             setattr(
-                d,
+                q,
                 _source,
                 sorted(
                     candidates,
