@@ -1,15 +1,18 @@
 name: Manual Docker Build
 
 on:
-  workflow_dispatch:
-    inputs:
-      release_token:
-        description: 'Your release token'
-        required: true
-      triggered_by:
-        description: 'CD | TAG | MANUAL'
-        required: false
-        default: MANUAL
+  pull_request:
+
+#on:
+#  workflow_dispatch:
+#    inputs:
+#      release_token:
+#        description: 'Your release token'
+#        required: true
+#      triggered_by:
+#        description: 'CD | TAG | MANUAL'
+#        required: false
+#        default: MANUAL
 
 jobs:
   token-check:
