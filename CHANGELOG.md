@@ -34,6 +34,7 @@
 
 
 
+
 <a name=release-note-0-0-3></a>
 ## Release Note (`0.0.3`)
 
@@ -782,4 +783,32 @@
  - [[```099e2218```](https://github.com/jina-ai/clip-as-service/commit/099e2218a47bacb73afed2a7739b58f4e56c7c68)] __-__ __docs__: update readme (*Han Xiao*)
  - [[```ce5806d3```](https://github.com/jina-ai/clip-as-service/commit/ce5806d33ccad1ef83106900b44da3e85eb0ce64)] __-__ update index html (#709) (*felix-wang*)
  - [[```a1651079```](https://github.com/jina-ai/clip-as-service/commit/a16510799b648beb29bd422cdddc1e5dee5db061)] __-__ __version__: the next version will be 0.4.3 (*Jina Dev Bot*)
+
+<a name=release-note-0-4-4></a>
+## Release Note (`0.4.4`)
+
+> Release time: 2022-05-11 12:00:46
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Han Xiao,  felix-wang,  Jina Dev Bot,  🙇
+
+
+### 🆕 New Features
+
+ - [[```edf0d862```](https://github.com/jina-ai/clip-as-service/commit/edf0d862228fb69ed7aa25e6ac71a322494c3c29)] __-__ add dockerfiles and cd workflow (#712) (*felix-wang*)
+
+### 🐞 Bug fixes
+
+ - [[```bb520d14```](https://github.com/jina-ai/clip-as-service/commit/bb520d14b6c5172fce9a971b51c4125b60418119)] __-__ keep logit_scale on same device (#710) (*felix-wang*)
+
+### 🧼 Code Refactoring
+
+ - [[```59c06986```](https://github.com/jina-ai/clip-as-service/commit/59c06986387b59c0f536af08d0f6abed71cd7a41)] __-__ __server__: remove redundant logics of rank (#715) (*Han Xiao*)
+
+### 🍹 Other Improvements
+
+ - [[```72d69c75```](https://github.com/jina-ai/clip-as-service/commit/72d69c75be20cc8126f9c406cb621d349b87ba3c)] __-__ __docs__: update readme (*Han Xiao*)
+ - [[```f898c8ce```](https://github.com/jina-ai/clip-as-service/commit/f898c8ce73ea3884037b900ca45fda4a477efdce)] __-__ __version__: the next version will be 0.4.4 (*Jina Dev Bot*)
 
