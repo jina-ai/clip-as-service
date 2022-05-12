@@ -41,7 +41,7 @@ An always-online demo server loaded with `ViT-L/14-336px` is there for you to pl
 
 <table>
 <tr>
-<td> via HTTP </td>
+<td> via HTTPS </td>
 <td> via gRPC ⚡⚡ </td>
 </tr>
 <tr>
@@ -49,7 +49,7 @@ An always-online demo server loaded with `ViT-L/14-336px` is there for you to pl
 
 ```bash
 curl \
--X POST http://demo-cas.jina.ai:51001/post \
+-X POST https://demo-cas.jina.ai:8443/post \
 -H 'Content-Type: application/json' \
 -d '{"data":[{"text": "First do it"}, 
     {"text": "then do it right"}, 
@@ -90,7 +90,7 @@ There are four basic visual reasoning skills: object recognition, object countin
 <table>
 <tr>
 <td> Image </td>
-<td> via HTTP </td>
+<td> via HTTPS </td>
 </tr>
 <tr>
 <td>
@@ -100,7 +100,7 @@ There are four basic visual reasoning skills: object recognition, object countin
 
 ```bash
 curl \
--X POST http://demo-cas.jina.ai:51001/post \
+-X POST https://demo-cas.jina.ai:8443/post \
 -H 'Content-Type: application/json' \
 -d '{"data":[{"uri": "https://picsum.photos/id/1/300/300",
 "matches": [{"text": "there is a woman in the photo"},
@@ -128,7 +128,7 @@ gives:
 
 ```bash
 curl \
--X POST http://demo-cas.jina.ai:51001/post \
+-X POST https://demo-cas.jina.ai:8443/post \
 -H 'Content-Type: application/json' \
 -d '{"data":[{"uri": "https://picsum.photos/id/133/300/300",
 "matches": [
@@ -164,7 +164,7 @@ gives:
 
 ```bash
 curl \
--X POST http://demo-cas.jina.ai:51001/post \
+-X POST https://demo-cas.jina.ai:8443/post \
 -H 'Content-Type: application/json' \
 -d '{"data":[{"uri": "https://picsum.photos/id/102/300/300",
 "matches": [{"text": "this is a photo of one berry"},

@@ -2,28 +2,6 @@
 <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
 
 <div id="demo-embed">
-    <table class="embeddingInput">
-
-        <tr>
-            <td>Hover on an image</td>
-            <td>
-                <div class="gallery">
-                    <img @mouseover="query='https://picsum.photos/id/'+image.id+'/50'" class="gallery-image"
-                         :src="'https://picsum.photos/id/'+image.id+'/80'" v-for="image in images">
-                </div>
-            </td>
-        </tr>
-        <tr>
-            <td>Input a sentence (or an image URL)</td>
-            <td><textarea v-model="query"
-                          placeholder="Input a sentence or an image URL"
-                          style="width: 80%"
-                          rows="6"
-                          maxlength="1000">
-            </textarea></td>
-        </tr>
-    </table>
-
 
     <div v-if="query && embedding" class="embeddingChart">
 
@@ -49,6 +27,33 @@
         </div>
 
     </div>
+
+
+    <table class="embeddingInput">
+
+        <tr>
+            <td>Input a sentence (or an image URL)</td>
+            <td><textarea v-model="query"
+                          placeholder="Input a sentence or an image URL"
+                          style="width: 80%"
+                          rows="6"
+                          maxlength="1000">
+            </textarea></td>
+        </tr>
+
+        <tr>
+            <td>Hover on an image to fill URL</td>
+            <td>
+                <div class="gallery">
+                    <img @mouseover="query='https://picsum.photos/id/'+image.id+'/50'" class="gallery-image"
+                         :src="'https://picsum.photos/id/'+image.id+'/80'" v-for="image in images">
+                </div>
+            </td>
+        </tr>
+
+    </table>
+
+
 </div>
 
 <style>
@@ -72,6 +77,10 @@
         max-height: 150px;
     }
 
+    .embeddingChart {
+        margin-top: 30px;
+        margin-bottom: 30px;
+    }
 
     .embeddingBlock {
         width: 8px;
@@ -107,7 +116,7 @@
     var app = new Vue({
         el: '#demo-embed',
         data: {
-            serverAddress: `http://demo-cas.jina.ai:51001`,
+            serverAddress: `https://demo-cas.jina.ai:8443`,
             query: 'First do it, then do it right, then do it better',
             embedding: [1, 1, 1],
             max_embed_value: 0,
@@ -178,8 +187,6 @@
                     date1 = new Date(data.routes[0].startTime)
                     date2 = new Date(data.routes[0].endTime)
                     app.elapsed = date2 - date1
-
-                    console.log('returned!')
 
                 }).fail(function () {
                     console.error("bad connection!")
