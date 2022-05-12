@@ -428,7 +428,7 @@ The embedding is inside `.data[].embedding`. If you have [jq](https://stedolan.g
 ---
 emphasize-lines: 4
 ---
-curl -X POST http://demo-cas.jina.ai:51001/post \
+curl -X POST https://demo-cas.jina.ai:8443/post \
      -H 'Content-Type: application/json' \
      -d '{"data":[{"text": "hello, world!"}, {"blob":"'"$( base64 test-1.jpeg)"'" }], "execEndpoint":"/"}' | \
      jq -c '.data[] | .embedding'

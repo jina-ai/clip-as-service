@@ -227,6 +227,10 @@
 <li class="toctree-l1"><a class="reference internal" href="user-guides/server/">Server API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="user-guides/faq/">FAQ</a></li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">Playground</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="playground/embedding/">Text &amp; Image Embedding</a></li>
+</ul>
 <p class="caption" role="heading"><span class="caption-text">Developer References</span></p>
 <ul>
 <li class="toctree-l1 has-children"><a class="reference internal" href="api/clip_client/">clip_client package</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -319,9 +323,9 @@
 <h2>Try it!<a class="headerlink" href="#try-it" title="Permalink to this headline">#</a></h2>
 <p>An always-online demo server loaded with <code class="docutils literal notranslate"><span class="pre">ViT-L/14-336px</span></code> is there for you to play &amp; test:</p>
 <div class="tab-set docutils">
-<input checked="True" class="tab-input" id="tab-set--0-input--1" name="tab-set--0" type="radio"/><label class="tab-label" for="tab-set--0-input--1">via HTTP</label><div class="tab-content docutils">
+<input checked="True" class="tab-input" id="tab-set--0-input--1" name="tab-set--0" type="radio"/><label class="tab-label" for="tab-set--0-input--1">via HTTPS</label><div class="tab-content docutils">
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl <span class="se">\</span>
--X POST http://demo-cas.jina.ai:51001/post <span class="se">\</span>
+-X POST https://demo-cas.jina.ai:8443/post <span class="se">\</span>
 -H <span class="s1">'Content-Type: application/json'</span> <span class="se">\</span>
 -d <span class="s1">'{"data":[{"text": "First do it"}, </span>
 <span class="s1">    {"text": "then do it right"}, </span>
@@ -461,6 +465,8 @@ and <a class="reference external" href="https://youtube.com/c/jina-ai">live stre
 <section id="join-us">
 <h2>Join Us<a class="headerlink" href="#join-us" title="Permalink to this headline">#</a></h2>
 <p>CLIP-as-service is backed by <a class="reference external" href="https://jina.ai">Jina AI</a> and licensed under <span class="xref myst">Apache-2.0</span>. <a class="reference external" href="https://jobs.jina.ai">We are actively hiring</a> AI engineers, solution engineers to build the next neural search ecosystem in open-source.</p>
+<div class="toctree-wrapper compound">
+</div>
 <div class="toctree-wrapper compound">
 </div>
 <div class="toctree-wrapper compound">

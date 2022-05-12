@@ -323,6 +323,30 @@ executors:
           - executors/clip_torch.py
 ```
 
+## Serving in HTTPS
+
+Your Flow YAML would look like the following:
+
+```{code-block} yaml
+---
+emphasize-lines: 4,5,7-10
+---
+jtype: Flow
+version: '1'
+with:
+  port: 8443
+  protocol: http
+  cors: true
+  uvicorn_kwargs:
+    ssl_keyfile_password: blahblah
+  ssl_certfile: cert.pem
+  ssl_keyfile: key.pem
+```
+
+Where `cert.pem` or `key.pem` represent both parts of a certificate, key being the private key to the certificate and crt being the signed certificate. It can be generated via [letsencrypt.org](https://letsencrypt.org/), which is a free ssl provider.
+
+Also note that note every port support HTTPS. Commonly support ports are: 443, 2053, 2083, 2087, 2096, 8443.
+
 ## Environment variables
 
 

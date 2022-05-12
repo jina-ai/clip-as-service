@@ -227,6 +227,10 @@
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Server API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../faq/">FAQ</a></li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">Playground</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../playground/embedding/">Text &amp; Image Embedding</a></li>
+</ul>
 <p class="caption" role="heading"><span class="caption-text">Developer References</span></p>
 <ul>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../api/clip_client/">clip_client package</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -685,6 +689,24 @@ In the same way, when you do <code class="docutils literal notranslate"><span cl
 </div>
 </section>
 </section>
+<section id="serving-in-https">
+<h2>Serving in HTTPS<a class="headerlink" href="#serving-in-https" title="Permalink to this headline">#</a></h2>
+<p>Your Flow YAML would look like the following:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">jtype</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Flow</span><span class="w"></span>
+<span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">'1'</span><span class="w"></span>
+<span class="nt">with</span><span class="p">:</span><span class="w"></span>
+<span class="hll"><span class="w">  </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8443</span><span class="w"></span>
+</span><span class="hll"><span class="w">  </span><span class="nt">protocol</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http</span><span class="w"></span>
+</span><span class="w">  </span><span class="nt">cors</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
+<span class="hll"><span class="w">  </span><span class="nt">uvicorn_kwargs</span><span class="p">:</span><span class="w"></span>
+</span><span class="hll"><span class="w">    </span><span class="nt">ssl_keyfile_password</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">blahblah</span><span class="w"></span>
+</span><span class="hll"><span class="w">  </span><span class="nt">ssl_certfile</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cert.pem</span><span class="w"></span>
+</span><span class="hll"><span class="w">  </span><span class="nt">ssl_keyfile</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">key.pem</span><span class="w"></span>
+</span></pre></div>
+</div>
+<p>Where <code class="docutils literal notranslate"><span class="pre">cert.pem</span></code> or <code class="docutils literal notranslate"><span class="pre">key.pem</span></code> represent both parts of a certificate, key being the private key to the certificate and crt being the signed certificate. It can be generated via <a class="reference external" href="https://letsencrypt.org/">letsencrypt.org</a>, which is a free ssl provider.</p>
+<p>Also note that note every port support HTTPS. Commonly support ports are: 443, 2053, 2083, 2087, 2096, 8443.</p>
+</section>
 <section id="environment-variables">
 <h2>Environment variables<a class="headerlink" href="#environment-variables" title="Permalink to this headline">#</a></h2>
 <p>To start a server with more verbose logging,</p>
@@ -782,6 +804,7 @@ In the same way, when you do <code class="docutils literal notranslate"><span cl
 <li><a class="reference internal" href="#flow-config">Flow config</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#serving-in-https">Serving in HTTPS</a></li>
 <li><a class="reference internal" href="#environment-variables">Environment variables</a></li>
 </ul>
 </li>

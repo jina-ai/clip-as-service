@@ -9,11 +9,11 @@
 
 An always-online demo server loaded with `ViT-L/14-336px` is there for you to play & test: 
 
-````{tab} via HTTP
+````{tab} via HTTPS
 
 ```bash
 curl \
--X POST http://demo-cas.jina.ai:51001/post \
+-X POST https://demo-cas.jina.ai:8443/post \
 -H 'Content-Type: application/json' \
 -d '{"data":[{"text": "First do it"}, 
     {"text": "then do it right"}, 
@@ -172,6 +172,13 @@ user-guides/faq
 ```
 
 
+```{toctree}
+:caption: Playground
+:hidden:
+
+playground/embedding
+
+```
 
 
 ```{toctree}

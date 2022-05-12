@@ -227,6 +227,10 @@
 <li class="toctree-l1"><a class="reference internal" href="../server/">Server API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../faq/">FAQ</a></li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">Playground</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../playground/embedding/">Text &amp; Image Embedding</a></li>
+</ul>
 <p class="caption" role="heading"><span class="caption-text">Developer References</span></p>
 <ul>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../api/clip_client/">clip_client package</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -693,7 +697,7 @@
 </pre></div>
 </div>
 <p>The embedding is inside <code class="docutils literal notranslate"><span class="pre">.data[].embedding</span></code>. If you have <a class="reference external" href="https://stedolan.github.io/jq/">jq</a> installed, you can easily filter the embeddings out via:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl -X POST http://demo-cas.jina.ai:51001/post <span class="se">\</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl -X POST https://demo-cas.jina.ai:8443/post <span class="se">\</span>
      -H <span class="s1">'Content-Type: application/json'</span> <span class="se">\</span>
      -d <span class="s1">'{"data":[{"text": "hello, world!"}, {"blob":"'</span><span class="s2">"</span><span class="k">$(</span> base64 test-1.jpeg<span class="k">)</span><span class="s2">"</span><span class="s1">'" }], "execEndpoint":"/"}'</span> <span class="p">|</span> <span class="se">\</span>
 <span class="hll">     jq -c <span class="s1">'.data[] | .embedding'</span>
