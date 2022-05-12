@@ -171,13 +171,7 @@ user-guides/faq
 
 ```
 
-```{toctree}
-:caption: Playground
-:hidden:
 
-playground/embedding
-
-```
 
 
 ```{toctree}
