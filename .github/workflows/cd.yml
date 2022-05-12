@@ -125,10 +125,10 @@ jobs:
         env:
           TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
           TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
-      - name: Build and push docker
+      - name: Build and push docker (.devN)
         uses: benc-uk/workflow-dispatch@v1
         with:
-          workflow: CD Docker Build
+          workflow: Manual Docker Build
           inputs: '{ "release_token": "${{ env.release_token }}", "triggered_by": "CD"}'
           token: ${{ secrets.JINA_DEV_BOT }}
         env:
