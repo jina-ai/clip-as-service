@@ -41,7 +41,7 @@ An always-online demo server loaded with `ViT-L/14-336px` is there for you to pl
 
 <table>
 <tr>
-<td> via HTTPS </td>
+<td> via HTTPS 🔐 </td>
 <td> via gRPC ⚡⚡ </td>
 </tr>
 <tr>
@@ -90,7 +90,7 @@ There are four basic visual reasoning skills: object recognition, object countin
 <table>
 <tr>
 <td> Image </td>
-<td> via HTTPS </td>
+<td> via HTTPS 🔐 </td>
 </tr>
 <tr>
 <td>

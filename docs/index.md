@@ -9,7 +9,7 @@
 
 An always-online demo server loaded with `ViT-L/14-336px` is there for you to play & test: 
 
-````{tab} via HTTPS
+````{tab} via HTTPS 🔐
 
 ```bash
 curl \
