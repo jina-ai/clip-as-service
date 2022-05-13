@@ -51,7 +51,7 @@ class Client:
             _scheme = 'websocket'  # temp fix for the core
 
         if _scheme in ('grpc', 'http', 'websocket'):
-            _kwargs = dict(host=r.hostname, port=_port, protocol=_scheme, https=_tls)
+            _kwargs = dict(host=r.hostname, port=_port, protocol=_scheme, tls=_tls)
 
             from jina import Client
 
