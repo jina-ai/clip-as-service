@@ -33,7 +33,7 @@ pip install clip-client
 ```python
 from clip_client import Client
 
-c = Client('grpc://demo-cas.jina.ai:51000')
+c = Client('grpcs://demo-cas.jina.ai:2096')
 
 r = c.encode(
     [

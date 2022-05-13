@@ -320,7 +320,7 @@ Then call `rank`, you can feed it with multiple Documents as a list:
 ```python
 from clip_client import Client
 
-c = Client(server='grpc://demo-cas.jina.ai:51000')
+c = Client(server='grpcs://demo-cas.jina.ai:2096')
 r = c.rank([d])
 
 print(r['@m', ['text', 'scores__clip_score__value']])

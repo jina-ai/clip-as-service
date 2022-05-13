@@ -42,7 +42,7 @@ An always-online demo server loaded with `ViT-L/14-336px` is there for you to pl
 <table>
 <tr>
 <td> via HTTPS 🔐 </td>
-<td> via gRPC ⚡⚡ </td>
+<td> via gRPC 🔐⚡⚡ </td>
 </tr>
 <tr>
 <td>
@@ -65,7 +65,7 @@ curl \
 # pip install clip-client
 from clip_client import Client
 
-c = Client('grpc://demo-cas.jina.ai:51000')
+c = Client('grpcs://demo-cas.jina.ai:2096')
 
 r = c.encode(
     [
