@@ -323,30 +323,6 @@ executors:
           - executors/clip_torch.py
 ```
 
-## Serving in HTTPS
-
-Your Flow YAML would look like the following:
-
-```{code-block} yaml
----
-emphasize-lines: 4,5,7-10
----
-jtype: Flow
-version: '1'
-with:
-  port: 8443
-  protocol: http
-  cors: true
-  uvicorn_kwargs:
-    ssl_keyfile_password: blahblah
-  ssl_certfile: cert.pem
-  ssl_keyfile: key.pem
-```
-
-Where `cert.pem` or `key.pem` represent both parts of a certificate, key being the private key to the certificate and crt being the signed certificate. It can be generated via [letsencrypt.org](https://letsencrypt.org/), which is a free ssl provider.
-
-Also note that note every port support HTTPS. Commonly support ports are: 443, 2053, 2083, 2087, 2096, 8443.
-
 ## Environment variables
 
 
@@ -366,3 +342,85 @@ To run CLIP-server on 3rd GPU,
 ```bash
 CUDA_VISIBLE_DEVICES=2 python -m clip_server
 ```
+
+### Serving on Multiple GPUs
+
+If you have multiple GPU devices, you can leverage them via `CUDA_VISIBLE_DEVICES=RR`. For example, if you have 3 GPUs and your Flow YAML says `replicas: 5`, then 
+
+```bash
+CUDA_VISIBLE_DEVICES=RR python -m clip_server
+```
+
+Will assign GPU devices to the following round-robin fashion:
+
+| GPU device | Replica ID |
+|------------|------------|
+| 0          | 0          |
+| 1          | 1          |
+| 2          | 2          |
+| 0          | 3          |
+| 1          | 4          |
+
+ 
+You can also restrict the visible devices in round-robin assigment by `CUDA_VISIBLE_DEVICES=RR0:2`, where `0:2` has the same meaning as Python slice. This will create the following assigment:
+
+| GPU device | Replica ID |
+|------------|------------|
+| 0          | 0          |
+| 1          | 1          |
+| 0          | 2          |
+| 1          | 3          |
+| 0          | 4          |
+
+
+```{tip}
+In pratice, we found it is unnecessary to run `clip_server` on multiple GPUs for two reasons:
+- A single replica even with largest `ViT-L/14-336px` takes only 3.5GB VRAM.
+- Real network traffic never utilizes GPU in 100%.
+
+Based on these two points, it makes more sense to have multiple replicas on a single GPU comparing to have multiple replicas on different GPU, which is kind of waste of resources. `clip_server` scales pretty well by interleaving the GPU time with mulitple replicas.
+```
+
+
+## Serving in HTTPS/gRPCs
+
+You can turn on TLS for HTTP and gRPC protocols. Your Flow YAML would look like the following:
+
+```{code-block} yaml
+---
+emphasize-lines: 4,5,7-10
+---
+jtype: Flow
+version: '1'
+with:
+  port: 8443
+  protocol: http
+  cors: true
+  uvicorn_kwargs:
+    ssl_keyfile_password: blahblah
+  ssl_certfile: cert.pem
+  ssl_keyfile: key.pem
+```
+
+Here, `protocol` can be either `http` or `grpc`; `cert.pem` or `key.pem` represent both parts of a certificate, key being the private key to the certificate and crt being the signed certificate. You can run the following command in terminal:
+
+```bash
+openssl req -newkey rsa:4096 -nodes -sha512 -x509 -days 3650 -nodes -out cert.pem -keyout key.pem -subj "/CN=demo-cas.jina.ai"
+```
+
+Note that if you are using `protocol: grpc` then `/CN=demo-cas.jina.ai` must strictly follow the IP address or the domain name of your server. Mismatch IP or domain name would throw an exception.
+
+Certificate and keys can be also generated via [letsencrypt.org](https://letsencrypt.org/), which is a free SSL provider.
+
+```{warning}
+Note that note every port support HTTPS. Commonly support ports are: `443`, `2053`, `2083`, `2087`, `2096`, `8443`.
+```
+
+```{warning}
+If you are using Cloudflare proxied DNS, please be aware:
+- you need to turn on gRPC support manually, [please follow the guide here](https://support.cloudflare.com/hc/en-us/articles/360050483011-Understanding-Cloudflare-gRPC-support);
+- the free tier of Cloudflare has 100s hard limit on the timeout, meaning sending big batch to a CPU server may throw 524 to the client-side.
+```
+
+
+

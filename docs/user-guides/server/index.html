@@ -10,13 +10,13 @@
   
 <meta property="og:url" content="https://clip-as-service.jina.ai/user-guides/server/" />
   
-<meta property="og:site_name" content="CLIP-as-service 0.4.8 Documentation" />
+<meta property="og:site_name" content="CLIP-as-service 0.4.9 Documentation" />
   
 <meta property="og:description" content="CLIP-as-service is designed in a client-server architecture. A server is a long-running program that receives raw sentences and images from clients, and returns CLIP embeddings to the client. Additionally, clip_server is optimized for speed, low memory footprint and scalability. Horizontal scalin..." />
   
 <meta property="og:image" content="https://clip-as-service.jina.ai/_images/server-start.gif" />
   
-<meta property="og:image:alt" content="CLIP-as-service 0.4.8 Documentation" />
+<meta property="og:image:alt" content="CLIP-as-service 0.4.9 Documentation" />
   
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@JinaAI_">
@@ -39,7 +39,7 @@
         <link rel="canonical" href="https://clip-as-service.jina.ai/user-guides/server.html" />
 
     <link rel="shortcut icon" href="../../_static/favicon.png"/><meta name="generator" content="sphinx-4.5.0, furo 2022.04.07"/>
-        <title>Server API - CLIP-as-service 0.4.8 documentation</title>
+        <title>Server API - CLIP-as-service 0.4.9 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -172,7 +172,7 @@
         </div>
         <div class="header-center">
             <a href="../../">
-                <div class="brand">CLIP-as-service 0.4.8 documentation</div>
+                <div class="brand">CLIP-as-service 0.4.9 documentation</div>
             </a>
         </div>
         <div class="header-right">
@@ -689,24 +689,6 @@ In the same way, when you do <code class="docutils literal notranslate"><span cl
 </div>
 </section>
 </section>
-<section id="serving-in-https">
-<h2>Serving in HTTPS<a class="headerlink" href="#serving-in-https" title="Permalink to this headline">#</a></h2>
-<p>Your Flow YAML would look like the following:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">jtype</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Flow</span><span class="w"></span>
-<span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">'1'</span><span class="w"></span>
-<span class="nt">with</span><span class="p">:</span><span class="w"></span>
-<span class="hll"><span class="w">  </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8443</span><span class="w"></span>
-</span><span class="hll"><span class="w">  </span><span class="nt">protocol</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http</span><span class="w"></span>
-</span><span class="w">  </span><span class="nt">cors</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
-<span class="hll"><span class="w">  </span><span class="nt">uvicorn_kwargs</span><span class="p">:</span><span class="w"></span>
-</span><span class="hll"><span class="w">    </span><span class="nt">ssl_keyfile_password</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">blahblah</span><span class="w"></span>
-</span><span class="hll"><span class="w">  </span><span class="nt">ssl_certfile</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cert.pem</span><span class="w"></span>
-</span><span class="hll"><span class="w">  </span><span class="nt">ssl_keyfile</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">key.pem</span><span class="w"></span>
-</span></pre></div>
-</div>
-<p>Where <code class="docutils literal notranslate"><span class="pre">cert.pem</span></code> or <code class="docutils literal notranslate"><span class="pre">key.pem</span></code> represent both parts of a certificate, key being the private key to the certificate and crt being the signed certificate. It can be generated via <a class="reference external" href="https://letsencrypt.org/">letsencrypt.org</a>, which is a free ssl provider.</p>
-<p>Also note that note every port support HTTPS. Commonly support ports are: 443, 2053, 2083, 2087, 2096, 8443.</p>
-</section>
 <section id="environment-variables">
 <h2>Environment variables<a class="headerlink" href="#environment-variables" title="Permalink to this headline">#</a></h2>
 <p>To start a server with more verbose logging,</p>
@@ -719,6 +701,118 @@ In the same way, when you do <code class="docutils literal notranslate"><span cl
 <p>To run CLIP-server on 3rd GPU,</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">2</span> python -m clip_server
 </pre></div>
+</div>
+<section id="serving-on-multiple-gpus">
+<h3>Serving on Multiple GPUs<a class="headerlink" href="#serving-on-multiple-gpus" title="Permalink to this headline">#</a></h3>
+<p>If you have multiple GPU devices, you can leverage them via <code class="docutils literal notranslate"><span class="pre">CUDA_VISIBLE_DEVICES=RR</span></code>. For example, if you have 3 GPUs and your Flow YAML says <code class="docutils literal notranslate"><span class="pre">replicas:</span> <span class="pre">5</span></code>, then</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span>RR python -m clip_server
+</pre></div>
+</div>
+<p>Will assign GPU devices to the following round-robin fashion:</p>
+<div class="table-wrapper"><table border="1" class="docutils">
+<thead>
+<tr>
+<th>GPU device</th>
+<th>Replica ID</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr>
+<td>2</td>
+<td>2</td>
+</tr>
+<tr>
+<td>0</td>
+<td>3</td>
+</tr>
+<tr>
+<td>1</td>
+<td>4</td>
+</tr>
+</tbody>
+</table></div>
+<p>You can also restrict the visible devices in round-robin assigment by <code class="docutils literal notranslate"><span class="pre">CUDA_VISIBLE_DEVICES=RR0:2</span></code>, where <code class="docutils literal notranslate"><span class="pre">0:2</span></code> has the same meaning as Python slice. This will create the following assigment:</p>
+<div class="table-wrapper"><table border="1" class="docutils">
+<thead>
+<tr>
+<th>GPU device</th>
+<th>Replica ID</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr>
+<td>0</td>
+<td>2</td>
+</tr>
+<tr>
+<td>1</td>
+<td>3</td>
+</tr>
+<tr>
+<td>0</td>
+<td>4</td>
+</tr>
+</tbody>
+</table></div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>In pratice, we found it is unnecessary to run <code class="docutils literal notranslate"><span class="pre">clip_server</span></code> on multiple GPUs for two reasons:</p>
+<ul class="simple">
+<li><p>A single replica even with largest <code class="docutils literal notranslate"><span class="pre">ViT-L/14-336px</span></code> takes only 3.5GB VRAM.</p></li>
+<li><p>Real network traffic never utilizes GPU in 100%.</p></li>
+</ul>
+<p>Based on these two points, it makes more sense to have multiple replicas on a single GPU comparing to have multiple replicas on different GPU, which is kind of waste of resources. <code class="docutils literal notranslate"><span class="pre">clip_server</span></code> scales pretty well by interleaving the GPU time with mulitple replicas.</p>
+</div>
+</section>
+</section>
+<section id="serving-in-https-grpcs">
+<h2>Serving in HTTPS/gRPCs<a class="headerlink" href="#serving-in-https-grpcs" title="Permalink to this headline">#</a></h2>
+<p>You can turn on TLS for HTTP and gRPC protocols. Your Flow YAML would look like the following:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">jtype</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Flow</span><span class="w"></span>
+<span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">'1'</span><span class="w"></span>
+<span class="nt">with</span><span class="p">:</span><span class="w"></span>
+<span class="hll"><span class="w">  </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8443</span><span class="w"></span>
+</span><span class="hll"><span class="w">  </span><span class="nt">protocol</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http</span><span class="w"></span>
+</span><span class="w">  </span><span class="nt">cors</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
+<span class="hll"><span class="w">  </span><span class="nt">uvicorn_kwargs</span><span class="p">:</span><span class="w"></span>
+</span><span class="hll"><span class="w">    </span><span class="nt">ssl_keyfile_password</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">blahblah</span><span class="w"></span>
+</span><span class="hll"><span class="w">  </span><span class="nt">ssl_certfile</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cert.pem</span><span class="w"></span>
+</span><span class="hll"><span class="w">  </span><span class="nt">ssl_keyfile</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">key.pem</span><span class="w"></span>
+</span></pre></div>
+</div>
+<p>Here, <code class="docutils literal notranslate"><span class="pre">protocol</span></code> can be either <code class="docutils literal notranslate"><span class="pre">http</span></code> or <code class="docutils literal notranslate"><span class="pre">grpc</span></code>; <code class="docutils literal notranslate"><span class="pre">cert.pem</span></code> or <code class="docutils literal notranslate"><span class="pre">key.pem</span></code> represent both parts of a certificate, key being the private key to the certificate and crt being the signed certificate. You can run the following command in terminal:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>openssl req -newkey rsa:4096 -nodes -sha512 -x509 -days <span class="m">3650</span> -nodes -out cert.pem -keyout key.pem -subj <span class="s2">"/CN=demo-cas.jina.ai"</span>
+</pre></div>
+</div>
+<p>Note that if you are using <code class="docutils literal notranslate"><span class="pre">protocol:</span> <span class="pre">grpc</span></code> then <code class="docutils literal notranslate"><span class="pre">/CN=demo-cas.jina.ai</span></code> must strictly follow the IP address or the domain name of your server. Mismatch IP or domain name would throw an exception.</p>
+<p>Certificate and keys can be also generated via <a class="reference external" href="https://letsencrypt.org/">letsencrypt.org</a>, which is a free SSL provider.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Note that note every port support HTTPS. Commonly support ports are: <code class="docutils literal notranslate"><span class="pre">443</span></code>, <code class="docutils literal notranslate"><span class="pre">2053</span></code>, <code class="docutils literal notranslate"><span class="pre">2083</span></code>, <code class="docutils literal notranslate"><span class="pre">2087</span></code>, <code class="docutils literal notranslate"><span class="pre">2096</span></code>, <code class="docutils literal notranslate"><span class="pre">8443</span></code>.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>If you are using Cloudflare proxied DNS, please be aware:</p>
+<ul class="simple">
+<li><p>you need to turn on gRPC support manually, <a class="reference external" href="https://support.cloudflare.com/hc/en-us/articles/360050483011-Understanding-Cloudflare-gRPC-support">please follow the guide here</a>;</p></li>
+<li><p>the free tier of Cloudflare has 100s hard limit on the timeout, meaning sending big batch to a CPU server may throw 524 to the client-side.</p></li>
+</ul>
 </div>
 </section>
 </section>
@@ -804,8 +898,11 @@ In the same way, when you do <code class="docutils literal notranslate"><span cl
 <li><a class="reference internal" href="#flow-config">Flow config</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#serving-in-https">Serving in HTTPS</a></li>
-<li><a class="reference internal" href="#environment-variables">Environment variables</a></li>
+<li><a class="reference internal" href="#environment-variables">Environment variables</a><ul>
+<li><a class="reference internal" href="#serving-on-multiple-gpus">Serving on Multiple GPUs</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#serving-in-https-grpcs">Serving in HTTPS/gRPCs</a></li>
 </ul>
 </li>
 </ul>
