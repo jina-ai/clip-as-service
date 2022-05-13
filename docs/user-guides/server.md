@@ -345,7 +345,7 @@ with:
 
 Where `cert.pem` or `key.pem` represent both parts of a certificate, key being the private key to the certificate and crt being the signed certificate. It can be generated via [letsencrypt.org](https://letsencrypt.org/), which is a free ssl provider.
 
-Also note that note every port support HTTPS. Commonly support ports are: 443, 2053, 2083, 2087, 2096, 8443.
+Not every port support HTTPS. Commonly support ports are: 443, 2053, 2083, 2087, 2096, 8443.
 
 ## Environment variables
 
