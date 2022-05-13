@@ -38,6 +38,7 @@
 
 
 
+
 <a name=release-note-0-0-3></a>
 ## Release Note (`0.0.3`)
 
@@ -880,4 +881,35 @@
 ### 🍹 Other Improvements
 
  - [[```66b14fc6```](https://github.com/jina-ai/clip-as-service/commit/66b14fc6f7e8abd3322d0a9e8e0bdfe942d187d3)] __-__ __version__: the next version will be 0.4.7 (*Jina Dev Bot*)
+
+<a name=release-note-0-4-8></a>
+## Release Note (`0.4.8`)
+
+> Release time: 2022-05-13 09:24:42
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Han Xiao,  numb3r3,  felix-wang,  Jina Dev Bot,  🙇
+
+
+### ⚡ Performance Improvements
+
+ - [[```72f1bc4a```](https://github.com/jina-ai/clip-as-service/commit/72f1bc4af0bc6ad01e645a889fd8ee505f986b42)] __-__ __server__: use await gather in rank function (#716) (*Han Xiao*)
+
+### 🐞 Bug fixes
+
+ - [[```65991a3f```](https://github.com/jina-ai/clip-as-service/commit/65991a3f9126b19c99f21e44cd3dd4227cbe80c7)] __-__ __client__: fix https args to tls (#722) (*Han Xiao*)
+ - [[```1002a913```](https://github.com/jina-ai/clip-as-service/commit/1002a9132120dbf52a0dd4700c740692c959a422)] __-__ docker release cd (#717) (*felix-wang*)
+ - [[```71d2c867```](https://github.com/jina-ai/clip-as-service/commit/71d2c867b5d45c8dfe42872b7e5697793be79f4b)] __-__ docker build push (#714) (*felix-wang*)
+
+### 🏁 Unit Test and CICD
+
+ - [[```38043676```](https://github.com/jina-ai/clip-as-service/commit/3804367632cccdc1f7fa1f5fc998f3530e1ee05c)] __-__ fix force release (*numb3r3*)
+
+### 🍹 Other Improvements
+
+ - [[```0da311e4```](https://github.com/jina-ai/clip-as-service/commit/0da311e4113b0afb60cb16779d86c48399c86f24)] __-__ __docs__: change http to https (*Han Xiao*)
+ - [[```741ad796```](https://github.com/jina-ai/clip-as-service/commit/741ad796be93df808a634a41105f2860751afc2d)] __-__ __docs__: add playground (*Han Xiao*)
+ - [[```a2b6d337```](https://github.com/jina-ai/clip-as-service/commit/a2b6d33738f3cea55e429db21691534c62c08320)] __-__ __version__: the next version will be 0.4.8 (*Jina Dev Bot*)
 
