@@ -44,6 +44,7 @@ jobs:
           pip install --no-cache-dir "server/[onnx]"
           pip install --no-cache-dir "server/[transformers]"
           pip install --no-cache-dir "server/[search]"
+          pip install --no-cache-dir "server/[nebullvm]"
       - name: Test
         id: test
         run: |
