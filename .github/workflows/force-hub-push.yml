@@ -44,32 +44,28 @@ jobs:
             echo "TAG_ALIAS=\
                             -t latest \
                             " >> $GITHUB_ENV
-#
-#          elif [[ "${{ github.event.inputs.triggered_by }}" == "TAG" ]]; then
-#            # on every tag release
-#            echo "TAG_ALIAS=\
-#                            -t latest \
-#                            -t ${CAS_VERSION} \
-#                            -t ${CAS_MINOR_VERSION} \
-#                            -t ${CAS_MAJOR_VERSION} \
-#                            " >> $GITHUB_ENV
-#
-#          elif [[ "${{ github.event.inputs.triggered_by }}" == "MANUAL" ]]; then
-#            # on every manual release
-#            echo "TAG_ALIAS=\
-#                            -t ${CAS_VERSION} \
-#                            " >> $GITHUB_ENV
-#          else
-#            echo "TAG_ALIAS=\
-#                            -t latest \
-#                            " >> $GITHUB_ENV
-          fi
-#          else
-#            echo "Bad triggered_by: ${{ github.event.inputs.triggered_by }}!"
-#            exit 1
-#          fi
 
-#          echo "CAS_VERSION=${CAS_VERSION}" >> $GITHUB_ENV
+          elif [[ "${{ github.event.inputs.triggered_by }}" == "TAG" ]]; then
+            # on every tag release
+            echo "TAG_ALIAS=\
+                            -t latest \
+                            -t ${CAS_VERSION} \
+                            -t ${CAS_MINOR_VERSION} \
+                            -t ${CAS_MAJOR_VERSION} \
+                            " >> $GITHUB_ENV
+
+          elif [[ "${{ github.event.inputs.triggered_by }}" == "MANUAL" ]]; then
+            # on every manual release
+            echo "TAG_ALIAS=\
+                            -t ${CAS_VERSION} \
+                            " >> $GITHUB_ENV
+          else
+            echo "TAG_ALIAS=\
+                            -t latest \
+                            " >> $GITHUB_ENV
+          fi
+
+          echo "CAS_VERSION=${CAS_VERSION}" >> $GITHUB_ENV
 
 #      - name: Push Torch Executor
 #        id: push_torch_executor
