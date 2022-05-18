@@ -39,11 +39,11 @@ jobs:
           CAS_MINOR_VERSION=${CAS_VERSION%.*}
           CAS_MAJOR_VERSION=${CAS_MINOR_VERSION%.*}
 
-#          if [[ "${{ github.event.inputs.triggered_by }}" == "CD" ]]; then
-#            # on every CD release
-#            echo "TAG_ALIAS=\
-#                            -t latest \
-#                            " >> $GITHUB_ENV
+          if [[ "${{ github.event.inputs.triggered_by }}" == "CD" ]]; then
+            # on every CD release
+            echo "TAG_ALIAS=\
+                            -t latest \
+                            " >> $GITHUB_ENV
 #
 #          elif [[ "${{ github.event.inputs.triggered_by }}" == "TAG" ]]; then
 #            # on every tag release
@@ -63,7 +63,7 @@ jobs:
 #            echo "TAG_ALIAS=\
 #                            -t latest \
 #                            " >> $GITHUB_ENV
-#          fi
+          fi
 #          else
 #            echo "Bad triggered_by: ${{ github.event.inputs.triggered_by }}!"
 #            exit 1
