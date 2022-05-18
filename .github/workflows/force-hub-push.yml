@@ -72,7 +72,6 @@ jobs:
         run: |
           python -m pip install --upgrade jina
 
-          echo "Prepare executor YAML config file ..."
           echo "\
           jtype: CLIPEncoder\n\
           metas:\n\
@@ -80,13 +79,13 @@ jobs:
               - executors/clip_torch.py\n\
           " > ./server/clip_server/config.yml
 
-          echo "\
-          manifest_version: 1\n\
-          name: CASTorchEncoder\n\
-          description: Embed images and sentences into fixed-length vectors with CLIP\n\
-          url: https://github.com/jina-ai/clip-as-service\n\
-          keywords: [clip, pytorch, clip-model, clip-as-service]\n\
-          " > ./server/clip_server/manifest.yml
+#          echo "\
+#          manifest_version: 1\n\
+#          name: CASTorchEncoder\n\
+#          description: Embed images and sentences into fixed-length vectors with CLIP\n\
+#          url: https://github.com/jina-ai/clip-as-service\n\
+#          keywords: [clip, pytorch, clip-model, clip-as-service]\n\
+#          " > ./server/clip_server/manifest.yml
 
           echo "\
           torch\n\
