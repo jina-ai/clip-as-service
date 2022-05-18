@@ -26,8 +26,6 @@ jobs:
   regular-release:
     needs: token-check
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
     steps:
       - uses: actions/checkout@v2
       - name: Set envs and versions
