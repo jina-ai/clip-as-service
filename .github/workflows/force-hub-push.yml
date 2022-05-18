@@ -65,6 +65,7 @@ jobs:
             echo "TAG_ALIAS=\
                             -t latest \
                             " >> $GITHUB_ENV
+          fi
 #          else
 #            echo "Bad triggered_by: ${{ github.event.inputs.triggered_by }}!"
 #            exit 1
