@@ -67,25 +67,22 @@ class CLIPEncoder(Executor):
         # for image
         if _img_da:
             for minibatch in _img_da.map_batch(
-                    partial(
-                        preproc_image, preprocess_fn=self._preprocess_tensor,
-                        return_np=True
-                    ),
-                    batch_size=self._minibatch_size,
-                    pool=self._pool,
+                partial(
+                    preproc_image, preprocess_fn=self._preprocess_tensor, return_np=True
+                ),
+                batch_size=self._minibatch_size,
+                pool=self._pool,
             ):
-                minibatch.embeddings = self._model.encode_image(
-                    minibatch.tensors)
+                minibatch.embeddings = self._model.encode_image(minibatch.tensors)
 
         # for text
         if _txt_da:
             for minibatch, _texts in _txt_da.map_batch(
-                    partial(preproc_text, return_np=True),
-                    batch_size=self._minibatch_size,
-                    pool=self._pool,
+                partial(preproc_text, return_np=True),
+                batch_size=self._minibatch_size,
+                pool=self._pool,
             ):
-                minibatch.embeddings = self._model.encode_text(
-                    minibatch.tensors)
+                minibatch.embeddings = self._model.encode_text(minibatch.tensors)
                 minibatch.texts = _texts
 
         # drop tensors
