@@ -28,77 +28,77 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Set envs and versions
-        run: |
-          VCS_REF=${{ github.ref }}
-          echo "VCS_REF=$VCS_REF" >> $GITHUB_ENV
-          echo "Will push $VCS_REF"
-
-          CAS_VERSION=$(sed -n '/^__version__/p' ./server/clip_server/__init__.py | cut -d \' -f2)
-          V_CAS_VERSION=v${CAS_VERSION}
-          CAS_MINOR_VERSION=${CAS_VERSION%.*}
-          CAS_MAJOR_VERSION=${CAS_MINOR_VERSION%.*}
-
-          if [[ "${{ github.event.inputs.triggered_by }}" == "CD" ]]; then
-            # on every CD release
-            echo "TAG_ALIAS=\
-                            -t latest \
-                            " >> $GITHUB_ENV
-
-          elif [[ "${{ github.event.inputs.triggered_by }}" == "TAG" ]]; then
-            # on every tag release
-            echo "TAG_ALIAS=\
-                            -t latest, \
-                            -t ${CAS_VERSION}, \
-                            -t ${CAS_MINOR_VERSION}, \
-                            -t ${CAS_MAJOR_VERSION} \
-                            " >> $GITHUB_ENV
-            
-          elif [[ "${{ github.event.inputs.triggered_by }}" == "MANUAL" ]]; then
-            # on every manual release
-            echo "TAG_ALIAS=\
-                            -t ${CAS_VERSION} \
-                            " >> $GITHUB_ENV
-          else:
-            echo "TAG_ALIAS=\
-                            -t latest \
-                            " >> $GITHUB_ENV
-          fi
-#          else
-#            echo "Bad triggered_by: ${{ github.event.inputs.triggered_by }}!"
-#            exit 1
+#      - name: Set envs and versions
+#        run: |
+#          VCS_REF=${{ github.ref }}
+#          echo "VCS_REF=$VCS_REF" >> $GITHUB_ENV
+#          echo "Will push $VCS_REF"
+#
+#          CAS_VERSION=$(sed -n '/^__version__/p' ./server/clip_server/__init__.py | cut -d \' -f2)
+#          V_CAS_VERSION=v${CAS_VERSION}
+#          CAS_MINOR_VERSION=${CAS_VERSION%.*}
+#          CAS_MAJOR_VERSION=${CAS_MINOR_VERSION%.*}
+#
+#          if [[ "${{ github.event.inputs.triggered_by }}" == "CD" ]]; then
+#            # on every CD release
+#            echo "TAG_ALIAS=\
+#                            -t latest \
+#                            " >> $GITHUB_ENV
+#
+#          elif [[ "${{ github.event.inputs.triggered_by }}" == "TAG" ]]; then
+#            # on every tag release
+#            echo "TAG_ALIAS=\
+#                            -t latest \
+#                            -t ${CAS_VERSION} \
+#                            -t ${CAS_MINOR_VERSION} \
+#                            -t ${CAS_MAJOR_VERSION} \
+#                            " >> $GITHUB_ENV
+#
+#          elif [[ "${{ github.event.inputs.triggered_by }}" == "MANUAL" ]]; then
+#            # on every manual release
+#            echo "TAG_ALIAS=\
+#                            -t ${CAS_VERSION} \
+#                            " >> $GITHUB_ENV
+#          else:
+#            echo "TAG_ALIAS=\
+#                            -t latest \
+#                            " >> $GITHUB_ENV
 #          fi
-
-          echo "CAS_VERSION=${CAS_VERSION}" >> $GITHUB_ENV
-
-      - name: Push Torch Executor
-        id: push_torch_executor
-        run: |
-          python -m pip install --upgrade jina
-          
-          cd server/clip_server
-          
-          echo "Prepare executor YAML config file ..."
-          echo "\
-          jtype: CLIPEncoder\n\
-          metas:\n\
-            py_modules:\n\
-              - executors/clip_torch.py\n\
-          " > config.yml
-          
-          echo "\
-          manifest_version: 1\n\
-          name: CASTorchEncoder\n\
-          description: Embed images and sentences into fixed-length vectors with CLIP\n\
-          url: https://github.com/jina-ai/clip-as-service\n\
-          keywords: [clip, pytorch, clip-model, clip-as-service]\n\
-          " > manifest.yml
-          
-          echo "\
-          torch\n\
-          torchvision\n\
-          " > requirements.txt
-          
-          # For debugging
-          echo "jina hub push . ${{env.TAG_ALIAS}}"
-          
+##          else
+##            echo "Bad triggered_by: ${{ github.event.inputs.triggered_by }}!"
+##            exit 1
+##          fi
+#
+#          echo "CAS_VERSION=${CAS_VERSION}" >> $GITHUB_ENV
+#
+#      - name: Push Torch Executor
+#        id: push_torch_executor
+#        run: |
+#          python -m pip install --upgrade jina
+#
+#          cd server/clip_server
+#
+#          echo "Prepare executor YAML config file ..."
+#          echo "\
+#          jtype: CLIPEncoder\n\
+#          metas:\n\
+#            py_modules:\n\
+#              - executors/clip_torch.py\n\
+#          " > config.yml
+#
+#          echo "\
+#          manifest_version: 1\n\
+#          name: CASTorchEncoder\n\
+#          description: Embed images and sentences into fixed-length vectors with CLIP\n\
+#          url: https://github.com/jina-ai/clip-as-service\n\
+#          keywords: [clip, pytorch, clip-model, clip-as-service]\n\
+#          " > manifest.yml
+#
+#          echo "\
+#          torch\n\
+#          torchvision\n\
+#          " > requirements.txt
+#
+#          # For debugging
+#          echo "jina hub push . ${{env.TAG_ALIAS}}"
+#
