@@ -69,7 +69,7 @@ jobs:
 #            exit 1
 #          fi
 
-          echo "CAS_VERSION=${CAS_VERSION}" >> $GITHUB_ENV
+#          echo "CAS_VERSION=${CAS_VERSION}" >> $GITHUB_ENV
 
 #      - name: Push Torch Executor
 #        id: push_torch_executor
