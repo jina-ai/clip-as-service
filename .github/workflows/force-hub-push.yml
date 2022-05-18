@@ -28,16 +28,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-#      - name: Set envs and versions
-#        run: |
-#          VCS_REF=${{ github.ref }}
-#          echo "VCS_REF=$VCS_REF" >> $GITHUB_ENV
-#          echo "Will push $VCS_REF"
-#
-#          CAS_VERSION=$(sed -n '/^__version__/p' ./server/clip_server/__init__.py | cut -d \' -f2)
-#          V_CAS_VERSION=v${CAS_VERSION}
-#          CAS_MINOR_VERSION=${CAS_VERSION%.*}
-#          CAS_MAJOR_VERSION=${CAS_MINOR_VERSION%.*}
+      - name: Set envs and versions
+        run: |
+          VCS_REF=${{ github.ref }}
+          echo "VCS_REF=$VCS_REF" >> $GITHUB_ENV
+          echo "Will push $VCS_REF"
+
+          CAS_VERSION=$(sed -n '/^__version__/p' ./server/clip_server/__init__.py | cut -d \' -f2)
+          V_CAS_VERSION=v${CAS_VERSION}
+          CAS_MINOR_VERSION=${CAS_VERSION%.*}
+          CAS_MAJOR_VERSION=${CAS_MINOR_VERSION%.*}
 #
 #          if [[ "${{ github.event.inputs.triggered_by }}" == "CD" ]]; then
 #            # on every CD release
