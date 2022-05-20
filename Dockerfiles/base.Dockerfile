@@ -21,10 +21,6 @@ COPY . /clip-as-service/
 
 RUN echo '\
 jtype: CLIPEncoder\n\
-with:\n\
-  name: ${{ env.MODEL_NAME }}\n\
-  device: ${{ env.DEVICE }}\n\
-  minibatch_size: ${{ env.MINIBATCH_SIZE }}\n\
 metas:\n\
   py_modules:\n\
     - server/clip_server/executors/clip_${{ env.ENGINE }}.py\n\
