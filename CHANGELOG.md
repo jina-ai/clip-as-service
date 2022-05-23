@@ -39,6 +39,7 @@
 
 
 
+
 <a name=release-note-0-0-3></a>
 ## Release Note (`0.0.3`)
 
@@ -912,4 +913,29 @@
  - [[```0da311e4```](https://github.com/jina-ai/clip-as-service/commit/0da311e4113b0afb60cb16779d86c48399c86f24)] __-__ __docs__: change http to https (*Han Xiao*)
  - [[```741ad796```](https://github.com/jina-ai/clip-as-service/commit/741ad796be93df808a634a41105f2860751afc2d)] __-__ __docs__: add playground (*Han Xiao*)
  - [[```a2b6d337```](https://github.com/jina-ai/clip-as-service/commit/a2b6d33738f3cea55e429db21691534c62c08320)] __-__ __version__: the next version will be 0.4.8 (*Jina Dev Bot*)
+
+<a name=release-note-0-4-9></a>
+## Release Note (`0.4.9`)
+
+> Release time: 2022-05-23 15:13:23
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Han Xiao,  numb3r3,  felix-wang,  Jina Dev Bot,  🙇
+
+
+### 🐞 Bug fixes
+
+ - [[```a7311fbf```](https://github.com/jina-ai/clip-as-service/commit/a7311fbf6ae6e988b78924fea239a9c8236dd8ff)] __-__ __server__: recover original contents of the input da (#726) (*Han Xiao*)
+ - [[```42ef75b1```](https://github.com/jina-ai/clip-as-service/commit/42ef75b185369c1ffd64f8ea5a7b0fca8c8656b2)] __-__ __server__: remove embeddings to save bandwidth (*Han Xiao*)
+ - [[```2d2da147```](https://github.com/jina-ai/clip-as-service/commit/2d2da147c3781233dc3812e2e7dfebbcbeb5f20e)] __-__ docker push cd (*numb3r3*)
+ - [[```994635fa```](https://github.com/jina-ai/clip-as-service/commit/994635fabc84293b05adff123263a0d276812202)] __-__ k8s dockerize  (#725) (*felix-wang*)
+ - [[```d12c5115```](https://github.com/jina-ai/clip-as-service/commit/d12c5115c946497b4ddf03a759a63c4040bcf8c7)] __-__ docker file (#719) (*felix-wang*)
+ - [[```65991a3f```](https://github.com/jina-ai/clip-as-service/commit/65991a3f9126b19c99f21e44cd3dd4227cbe80c7)] __-__ __client__: fix https args to tls (#722) (*Han Xiao*)
+
+### 🍹 Other Improvements
+
+ - [[```b6adcf8b```](https://github.com/jina-ai/clip-as-service/commit/b6adcf8be6a087d446e833478a0ac05a7900c24b)] __-__ __docs__: add multi gpu setting (*Han Xiao*)
+ - [[```3d8c552a```](https://github.com/jina-ai/clip-as-service/commit/3d8c552a721a52fb374f73fcc9725f7d06e2383f)] __-__ __version__: the next version will be 0.4.9 (*Jina Dev Bot*)
 
