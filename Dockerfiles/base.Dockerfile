@@ -4,7 +4,7 @@ ARG JINA_VERSION=3.3.25
 FROM jinaai/jina:${JINA_VERSION}-py38-standard
 
 ARG PIP_TAG
-ARG DL_ENGINE=torch
+ARG BACKEND_TAG=torch
 
 # constant, wont invalidate cache
 LABEL org.opencontainers.image.vendor="Jina AI Limited" \
@@ -24,7 +24,7 @@ RUN echo "\
 jtype: CLIPEncoder\n\
 metas:\n\
   py_modules:\n\
-    - server/clip_server/executors/clip_$DL_ENGINE.py\n\
+    - server/clip_server/executors/clip_$BACKEND_TAG.py\n\
 " > /tmp/config.yml
 
 RUN cd /clip-as-service && \

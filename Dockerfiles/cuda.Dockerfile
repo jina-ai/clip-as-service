@@ -5,7 +5,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 ARG JINA_VERSION=3.3.25
 ARG PIP_TAG
-ARG DL_ENGINE=torch
+ARG BACKEND_TAG=torch
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-setuptools python3-wheel python3-pip \
@@ -26,7 +26,7 @@ with:\n\
   device: cuda\n\
 metas:\n\
   py_modules:\n\
-    - server/clip_server/executors/clip_$DL_ENGINE.py\n\
+    - server/clip_server/executors/clip_$BACKEND_TAG.py\n\
 " > /tmp/config.yml
 
 RUN cd /clip-as-service && \
