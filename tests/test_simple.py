@@ -77,3 +77,28 @@ def test_docarray_inputs(make_flow, inputs, port_generator):
     r = c.encode(inputs if not callable(inputs) else inputs())
     assert isinstance(r, DocumentArray)
     assert r.embeddings.shape
+
+
+@pytest.mark.parametrize(
+    'inputs',
+    [
+        DocumentArray([Document(text='hello, world'), Document(text='goodbye, world')]),
+        DocumentArray(
+            [
+                Document(
+                    uri='https://docarray.jina.ai/_static/favicon.png',
+                    text='hello, world',
+                ),
+            ]
+        ),
+        DocumentArray.from_files(
+            f'{os.path.dirname(os.path.abspath(__file__))}/**/*.jpg'
+        ),
+    ],
+)
+def test_docarray_preserve_original_inputs(make_flow, inputs, port_generator):
+    c = Client(server=f'grpc://0.0.0.0:{make_flow.port}')
+    r = c.encode(inputs if not callable(inputs) else inputs())
+    assert isinstance(r, DocumentArray)
+    assert r.embeddings.shape
+    assert r.contents == inputs.contents

@@ -1,4 +1,4 @@
-from typing import Tuple, List, Callable
+from typing import Tuple, List, Callable, Any
 
 import numpy as np
 from docarray import Document, DocumentArray
@@ -20,7 +20,9 @@ def preproc_image(
     preprocess_fn: Callable,
     device: str = 'cpu',
     return_np: bool = False,
-) -> 'DocumentArray':
+) -> Tuple['DocumentArray', List[Any]]:
+    contents = da.contents
+
     for d in da:
         if d.blob:
             d.convert_blob_to_image_tensor()
@@ -34,14 +36,16 @@ def preproc_image(
         da.tensors = da.tensors.cpu().numpy().astype(np.float32)
     else:
         da.tensors = da.tensors.to(device)
-    return da
+
+    return da, contents
 
 
 def preproc_text(
     da: 'DocumentArray', device: str = 'cpu', return_np: bool = False
-) -> Tuple['DocumentArray', List[str]]:
-    texts = da.texts
-    da.tensors = clip.tokenize(texts).detach()
+) -> Tuple['DocumentArray', List[Any]]:
+    contents = da.contents
+
+    da.tensors = clip.tokenize(contents).detach()
 
     if return_np:
         da.tensors = da.tensors.cpu().numpy().astype(np.int64)
@@ -49,7 +53,7 @@ def preproc_text(
         da.tensors = da.tensors.to(device)
 
     da[:, 'mime_type'] = 'text'
-    return da, texts
+    return da, contents
 
 
 def split_img_txt_da(doc: 'Document', img_da: 'DocumentArray', txt_da: 'DocumentArray'):
@@ -90,10 +94,10 @@ def set_rank(docs, _logit_scale=np.exp(4.60517)):
 
         start_idx = end_idx
 
+        _candidates.embeddings = None  # remove embedding to save bandwidth
+
         final = sorted(
             _candidates, key=lambda _m: _m.scores['clip_score'].value, reverse=True
         )
-
-        final.embeddings = None  # remove embedding to save bandwidth
 
         q.matches = final
