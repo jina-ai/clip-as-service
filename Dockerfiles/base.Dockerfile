@@ -4,6 +4,7 @@ ARG JINA_VERSION=3.3.25
 FROM jinaai/jina:${JINA_VERSION}-py38-standard
 
 ARG PIP_TAG
+ARG DL_ENGINE=torch
 
 # constant, wont invalidate cache
 LABEL org.opencontainers.image.vendor="Jina AI Limited" \
@@ -19,12 +20,12 @@ RUN pip3 install --no-cache-dir torch torchvision torchaudio --extra-index-url h
 # copy will almost always invalid the cache
 COPY . /clip-as-service/
 
-RUN echo '\
+RUN echo "\
 jtype: CLIPEncoder\n\
 metas:\n\
   py_modules:\n\
-    - server/clip_server/executors/clip_${{ env.ENGINE }}.py\n\
-' > /tmp/config.yml
+    - server/clip_server/executors/clip_$DL_ENGINE.py\n\
+" > /tmp/config.yml
 
 RUN cd /clip-as-service && \
     if [ -n "$PIP_TAG" ]; then pip3 install --no-cache-dir server/"[$PIP_TAG]" ; fi && \

@@ -5,6 +5,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 ARG JINA_VERSION=3.3.25
 ARG PIP_TAG
+ARG DL_ENGINE=torch
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-setuptools python3-wheel python3-pip \
@@ -19,12 +20,14 @@ RUN python3 -m pip install nvidia-pyindex
 COPY . /clip-as-service/
 
 
-RUN echo '\
+RUN echo "\
 jtype: CLIPEncoder\n\
+with:\n\
+  device: cuda\n\
 metas:\n\
   py_modules:\n\
-    - server/clip_server/executors/clip_${{ env.ENGINE }}.py\n\
-' > /tmp/config.yml
+    - server/clip_server/executors/clip_$DL_ENGINE.py\n\
+" > /tmp/config.yml
 
 RUN cd /clip-as-service && \
     if [ -n "${PIP_TAG}" ]; then python3 -m pip install --no-cache-dir server/"[${PIP_TAG}]" ; fi && \
