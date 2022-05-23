@@ -115,8 +115,8 @@ jobs:
             BUILD_DATE=${{env.BUILD_DATE}}
             CAS_VERSION=${{env.CAS_VERSION}}
             VCS_REF=${{env.VCS_REF}}
-            PIP_TAG=${{matrix.pip_tag}}
             BACKEND_TAG=${{env.BACKEND_TAG}}
+            PIP_TAG=${{matrix.pip_tag}}
       - name: CUDA Build and push
         id: cuda_docker_build
         if: ${{ matrix.engine_tag == 'cuda' }}
@@ -133,5 +133,5 @@ jobs:
             BUILD_DATE=${{env.BUILD_DATE}}
             CAS_VERSION=${{env.CAS_VERSION}}
             VCS_REF=${{env.VCS_REF}}
-            PIP_TAG=${{matrix.pip_tag}}
             BACKEND_TAG=${{env.BACKEND_TAG}}
+            PIP_TAG=${{matrix.pip_tag}}
