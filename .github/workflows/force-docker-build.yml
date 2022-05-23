@@ -50,8 +50,10 @@ jobs:
           fi
 
           PIP_TAG=${{ matrix.pip_tag }}
+          BACKEND_TAG=torch
           if [ -n "${PIP_TAG}" ]; then
               PIP_TAG=-${PIP_TAG}
+              BACKEND_TAG=${PIP_TAG}
           fi
 
           if [[ "${{ github.event.inputs.triggered_by }}" == "CD" ]]; then
@@ -80,6 +82,7 @@ jobs:
           fi
 
           echo "CAS_VERSION=${CAS_VERSION}" >> $GITHUB_ENV
+          echo "BACKEND_TAG=${BACKEND_TAG}" >> $GITHUB_ENV
 
       - name: Set up Docker Buildx
         id: buildx
@@ -113,6 +116,7 @@ jobs:
             CAS_VERSION=${{env.CAS_VERSION}}
             VCS_REF=${{env.VCS_REF}}
             PIP_TAG=${{matrix.pip_tag}}
+            BACKEND_TAG=${{env.BACKEND_TAG}}
       - name: CUDA Build and push
         id: cuda_docker_build
         if: ${{ matrix.engine_tag == 'cuda' }}
@@ -130,3 +134,4 @@ jobs:
             CAS_VERSION=${{env.CAS_VERSION}}
             VCS_REF=${{env.VCS_REF}}
             PIP_TAG=${{matrix.pip_tag}}
+            BACKEND_TAG=${{env.BACKEND_TAG}}
