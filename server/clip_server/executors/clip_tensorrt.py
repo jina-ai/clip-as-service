@@ -3,6 +3,8 @@ from multiprocessing.pool import ThreadPool
 from typing import Dict
 
 import numpy as np
+from jina import Executor, requests, DocumentArray
+
 from clip_server.executors.helper import (
     split_img_txt_da,
     preproc_image,
@@ -11,7 +13,6 @@ from clip_server.executors.helper import (
 )
 from clip_server.model import clip
 from clip_server.model.clip_trt import CLIPTensorRTModel
-from jina import Executor, requests, DocumentArray
 
 
 class CLIPEncoder(Executor):
@@ -61,7 +62,7 @@ class CLIPEncoder(Executor):
 
         # for image
         if _img_da:
-            for minibatch in _img_da.map_batch(
+            for minibatch, _contents in _img_da.map_batch(
                 partial(
                     preproc_image,
                     preprocess_fn=self._preprocess_tensor,
@@ -78,6 +79,9 @@ class CLIPEncoder(Executor):
                     .numpy()
                     .astype(np.float32)
                 )
+                # recover original content
+                for _d, _ct in zip(minibatch, _contents):
+                    _d.content = _ct
 
         # for text
         if _txt_da:
@@ -93,7 +97,9 @@ class CLIPEncoder(Executor):
                     .numpy()
                     .astype(np.float32)
                 )
-                minibatch.texts = _texts
+                # recover original content
+                for _d, _ct in zip(minibatch, _contents):
+                    _d.content = _ct
 
         # drop tensors
         docs.tensors = None
