@@ -103,8 +103,9 @@ class CLIPEncoder(Executor):
             ):
                 minibatch.embeddings = self._model.encode_image(minibatch.tensors)
                 # recover original content
-                for _d, _ct in zip(minibatch, _contents):
-                    _d.content = _ct
+                if _contents:
+                    for _d, _ct in zip(minibatch, _contents):
+                        _d.content = _ct
 
         # for text
         if _txt_da:
@@ -115,8 +116,9 @@ class CLIPEncoder(Executor):
             ):
                 minibatch.embeddings = self._model.encode_text(minibatch.tensors)
                 # recover original content
-                for _d, _ct in zip(minibatch, _contents):
-                    _d.content = _ct
+                if _contents:
+                    for _d, _ct in zip(minibatch, _contents):
+                        _d.content = _ct
 
         # drop tensors
         docs.tensors = None

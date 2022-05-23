@@ -94,10 +94,10 @@ def set_rank(docs, _logit_scale=np.exp(4.60517)):
 
         start_idx = end_idx
 
+        _candidates.embeddings = None  # remove embedding to save bandwidth
+
         final = sorted(
             _candidates, key=lambda _m: _m.scores['clip_score'].value, reverse=True
         )
-
-        final.embeddings = None  # remove embedding to save bandwidth
 
         q.matches = final

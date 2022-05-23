@@ -80,12 +80,13 @@ class CLIPEncoder(Executor):
                     .astype(np.float32)
                 )
                 # recover original content
-                for _d, _ct in zip(minibatch, _contents):
-                    _d.content = _ct
+                if _contents:
+                    for _d, _ct in zip(minibatch, _contents):
+                        _d.content = _ct
 
         # for text
         if _txt_da:
-            for minibatch, _texts in _txt_da.map_batch(
+            for minibatch, _contents in _txt_da.map_batch(
                 partial(preproc_text, device=self._device, return_np=False),
                 batch_size=self._minibatch_size,
                 pool=self._pool,
@@ -98,8 +99,9 @@ class CLIPEncoder(Executor):
                     .astype(np.float32)
                 )
                 # recover original content
-                for _d, _ct in zip(minibatch, _contents):
-                    _d.content = _ct
+                if _contents:
+                    for _d, _ct in zip(minibatch, _contents):
+                        _d.content = _ct
 
         # drop tensors
         docs.tensors = None
