@@ -1,9 +1,10 @@
 from typing import Tuple, List, Callable
 
 import numpy as np
-from clip_server.model import clip
 from docarray import Document, DocumentArray
 from docarray.math.distance.numpy import cosine
+
+from clip_server.model import clip
 
 
 def numpy_softmax(x: 'np.ndarray', axis: int = -1) -> 'np.ndarray':
@@ -92,5 +93,7 @@ def set_rank(docs, _logit_scale=np.exp(4.60517)):
         final = sorted(
             _candidates, key=lambda _m: _m.scores['clip_score'].value, reverse=True
         )
+
+        final.embeddings = None  # remove embedding to save bandwidth
 
         q.matches = final
