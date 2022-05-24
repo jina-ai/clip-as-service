@@ -40,6 +40,7 @@
 
 
 
+
 <a name=release-note-0-0-3></a>
 ## Release Note (`0.0.3`)
 
@@ -938,4 +939,24 @@
 
  - [[```b6adcf8b```](https://github.com/jina-ai/clip-as-service/commit/b6adcf8be6a087d446e833478a0ac05a7900c24b)] __-__ __docs__: add multi gpu setting (*Han Xiao*)
  - [[```3d8c552a```](https://github.com/jina-ai/clip-as-service/commit/3d8c552a721a52fb374f73fcc9725f7d06e2383f)] __-__ __version__: the next version will be 0.4.9 (*Jina Dev Bot*)
+
+<a name=release-note-0-4-10></a>
+## Release Note (`0.4.10`)
+
+> Release time: 2022-05-24 07:46:48
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Han Xiao,  Jina Dev Bot,  🙇
+
+
+### 🐞 Bug fixes
+
+ - [[```0054b47c```](https://github.com/jina-ai/clip-as-service/commit/0054b47cf12043b0bf493424ec22defa9448a9be)] __-__ __server__: fix content assignment (#727) (*Han Xiao*)
+ - [[```a7311fbf```](https://github.com/jina-ai/clip-as-service/commit/a7311fbf6ae6e988b78924fea239a9c8236dd8ff)] __-__ __server__: recover original contents of the input da (#726) (*Han Xiao*)
+
+### 🍹 Other Improvements
+
+ - [[```926621bc```](https://github.com/jina-ai/clip-as-service/commit/926621bc97972694caff79700c5b70031a2677c1)] __-__ __version__: the next version will be 0.4.10 (*Jina Dev Bot*)
 
