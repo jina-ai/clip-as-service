@@ -6,8 +6,6 @@ from typing import Optional, Dict
 
 import numpy as np
 import torch
-from jina import Executor, requests, DocumentArray
-
 from clip_server.executors.helper import (
     split_img_txt_da,
     preproc_image,
@@ -15,6 +13,7 @@ from clip_server.executors.helper import (
     set_rank,
 )
 from clip_server.model import clip
+from jina import Executor, requests, DocumentArray
 
 
 class CLIPEncoder(Executor):
@@ -95,9 +94,12 @@ class CLIPEncoder(Executor):
                     )
 
                     # recover original content
-                    if _contents:
+                    try:
+                        _ = iter(_contents)
                         for _d, _ct in zip(minibatch, _contents):
                             _d.content = _ct
+                    except TypeError:
+                        pass
 
             # for text
             if _txt_da:
@@ -114,9 +116,12 @@ class CLIPEncoder(Executor):
                     )
 
                     # recover original content
-                    if _contents:
+                    try:
+                        _ = iter(_contents)
                         for _d, _ct in zip(minibatch, _contents):
                             _d.content = _ct
+                    except TypeError:
+                        pass
 
         # drop tensors
         docs.tensors = None
