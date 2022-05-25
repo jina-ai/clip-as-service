@@ -280,9 +280,9 @@ with:
   port: 51000
 executors:
   - name: clip_t
+    replicas: 4
     uses:
       jtype: CLIPEncoder
-      replicas: 4
       metas:
         py_modules:
           - executors/clip_torch.py
@@ -361,7 +361,7 @@ Will assign GPU devices to the following round-robin fashion:
 | 0          | 3          |
 | 1          | 4          |
 
- 
+
 You can also restrict the visible devices in round-robin assigment by `CUDA_VISIBLE_DEVICES=RR0:2`, where `0:2` has the same meaning as Python slice. This will create the following assigment:
 
 | GPU device | Replica ID |
