@@ -271,18 +271,17 @@ To scale to 4 CLIP replicas, simply adding `replicas: 4` under `uses:`:
 
 ```{code-block} yaml
 ---
-emphasize-lines: 9
+emphasize-lines: 7
 ---
-
 jtype: Flow
 version: '1'
 with:
   port: 51000
 executors:
   - name: clip_t
+    replicas: 4
     uses:
       jtype: CLIPEncoder
-      replicas: 4
       metas:
         py_modules:
           - executors/clip_torch.py
@@ -315,9 +314,9 @@ with:
   prefetch: 10
 executors:
   - name: clip_t
+    replicas: 4
     uses:
       jtype: CLIPEncoder
-      replicas: 4
       metas:
         py_modules:
           - executors/clip_torch.py
