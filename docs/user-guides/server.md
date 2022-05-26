@@ -360,7 +360,7 @@ Will assign GPU devices to the following round-robin fashion:
 | 0          | 3          |
 | 1          | 4          |
 
- 
+
 You can also restrict the visible devices in round-robin assigment by `CUDA_VISIBLE_DEVICES=RR0:2`, where `0:2` has the same meaning as Python slice. This will create the following assigment:
 
 | GPU device | Replica ID |
