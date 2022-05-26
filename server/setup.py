@@ -42,6 +42,7 @@ setup(
     zip_safe=False,
     setup_requires=['setuptools>=18.0', 'wheel'],
     install_requires=[
+        'protobuf>=3.13.0,<=3.20.1',
         'ftfy',
         'torch',
         'regex',
