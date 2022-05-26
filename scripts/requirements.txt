@@ -1,0 +1,5 @@
+ftfy
+torch
+regex
+torchvision
+packaging

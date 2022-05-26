@@ -3,7 +3,7 @@ ARG CUDA_VERSION=11.4.2
 FROM nvcr.io/nvidia/cuda:${CUDA_VERSION}-cudnn8-runtime-ubuntu20.04
 ENV DEBIAN_FRONTEND=noninteractive
 
-ARG JINA_VERSION=3.3.25
+ARG JINA_VERSION=3.4.0
 ARG PIP_TAG
 ARG BACKEND_TAG=torch
 

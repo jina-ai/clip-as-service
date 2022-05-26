@@ -71,27 +71,32 @@ jobs:
         id: push_torch_executor
         run: |
           python -m pip install --upgrade jina
+          
+          # FIX the import issue
+          echo "\
+          from .executors.clip_torch import CLIPEncoder\n\
+          " >> server/clip_server/__init__.py 
 
           echo "\
           jtype: CLIPEncoder\n\
           metas:\n\
             py_modules:\n\
-              - executors/clip_torch.py\n\
-          " > ./server/clip_server/config.yml
+              - server/clip_server/__init__.py\n\
+          " > config.yml
 
           echo "\
           manifest_version: 1\n\
           name: CASTorchEncoder\n\
           description: Embed images and sentences into fixed-length vectors with CLIP\n\
           url: https://github.com/jina-ai/clip-as-service\n\
-          keywords: [clip, pytorch, clip-model, clip-as-service]\n\
-          " > ./server/clip_server/manifest.yml
-
-          echo "\
-          torch\n\
-          torchvision\n\
-          " > requirements.txt
+          keywords: [clip, clip-model, clip-as-service]\n\
+          " > manifest.yml
+          
+          cp scripts/requirements.txt requirements.txt
+          
+          cp Dockerfiles/base.Dockerfile Dockerfile
+          cp Dockerfiles/cuda.Dockerfile Dockerfile.gpu
 
           # For debugging
-          echo "jina hub push ./server/clip_server ${{env.TAG_ALIAS}}"
+          echo "jina hub push . ${{env.TAG_ALIAS}}"
 
