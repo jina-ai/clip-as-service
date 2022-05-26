@@ -46,7 +46,7 @@ setup(
         'torch',
         'regex',
         'torchvision',
-        'jina>=3.3.21',
+        'jina>=3.4.0',
         'docarray>=0.11.0',
         'packaging',
         'prometheus-client',
