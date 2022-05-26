@@ -4,7 +4,7 @@ import numpy as np
 from docarray import Document, DocumentArray
 from docarray.math.distance.numpy import cosine
 
-from clip_server.model import clip
+from ..model import clip
 
 
 def numpy_softmax(x: 'np.ndarray', axis: int = -1) -> 'np.ndarray':
