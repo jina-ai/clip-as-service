@@ -85,9 +85,6 @@ class CLIPEncoder(Executor):
         for d in docs:
             split_img_txt_da(d, _img_da, _txt_da)
 
-        self._img_docs_counter.inc(len(_img_da))
-        self._txt_docs_counter.inc(len(_txt_da))
-
         with torch.inference_mode():
             # for image
             if _img_da:
