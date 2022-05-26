@@ -74,8 +74,6 @@ class CLIPEncoder(Executor):
 
     @requests(on='/rank')
     async def rank(self, docs: 'DocumentArray', parameters: Dict, **kwargs):
-        self._rank_docs_counter.inc(len(docs))
-
         await self.encode(docs['@r,m'])
 
         set_rank(docs)
