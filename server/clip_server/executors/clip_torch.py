@@ -13,7 +13,7 @@ from clip_server.executors.helper import (
     set_rank,
 )
 from clip_server.model import clip
-from jina import Executor, requests, DocumentArray
+from jina import Executor, requests, DocumentArray, monitor
 
 
 class CLIPEncoder(Executor):
@@ -59,8 +59,22 @@ class CLIPEncoder(Executor):
 
         self._pool = ThreadPool(processes=num_worker_preprocess)
 
+    @monitor()
+    def _preproc_images(self, docs: 'DocumentArray'):
+        return preproc_image(
+            docs,
+            preprocess_fn=self._preprocess_tensor,
+            device=self._device,
+            return_np=False,
+        )
+
+    @monitor()
+    def _preproc_texts(self, docs: 'DocumentArray'):
+        return preproc_text(docs, device=self._device, return_np=False)
+
     @requests(on='/rank')
     async def rank(self, docs: 'DocumentArray', parameters: Dict, **kwargs):
+        self._rank_docs_counter.inc(len(docs))
 
         await self.encode(docs['@r,m'])
 
@@ -73,16 +87,14 @@ class CLIPEncoder(Executor):
         for d in docs:
             split_img_txt_da(d, _img_da, _txt_da)
 
+        self._img_docs_counter.inc(len(_img_da))
+        self._txt_docs_counter.inc(len(_txt_da))
+
         with torch.inference_mode():
             # for image
             if _img_da:
                 for minibatch, _contents in _img_da.map_batch(
-                    partial(
-                        preproc_image,
-                        preprocess_fn=self._preprocess_tensor,
-                        device=self._device,
-                        return_np=False,
-                    ),
+                    self._preproc_images,
                     batch_size=self._minibatch_size,
                     pool=self._pool,
                 ):
@@ -104,7 +116,7 @@ class CLIPEncoder(Executor):
             # for text
             if _txt_da:
                 for minibatch, _contents in _txt_da.map_batch(
-                    partial(preproc_text, device=self._device, return_np=False),
+                    self._preproc_texts,
                     batch_size=self._minibatch_size,
                     pool=self._pool,
                 ):
