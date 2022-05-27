@@ -41,6 +41,7 @@
 
 
 
+
 <a name=release-note-0-0-3></a>
 ## Release Note (`0.0.3`)
 
@@ -959,4 +960,34 @@
 ### 🍹 Other Improvements
 
  - [[```926621bc```](https://github.com/jina-ai/clip-as-service/commit/926621bc97972694caff79700c5b70031a2677c1)] __-__ __version__: the next version will be 0.4.10 (*Jina Dev Bot*)
+
+<a name=release-note-0-4-11></a>
+## Release Note (`0.4.11`)
+
+> Release time: 2022-05-27 07:44:46
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ samsja,  Shubham Goel,  Han Xiao,  Ziniu Yu,  Roshan Jossy,  Jina Dev Bot,  🙇
+
+
+### 🆕 New Features
+
+ - [[```60a986a0```](https://github.com/jina-ai/clip-as-service/commit/60a986a07921b2374fdc64dccde7e1ec1e728cdb)] __-__ add monitoring (#674) (*samsja*)
+
+### 🐞 Bug fixes
+
+ - [[```59f48e60```](https://github.com/jina-ai/clip-as-service/commit/59f48e60a286344f66f37aea46b0b1b148ca90f4)] __-__ windows file name conflict (#729) (*Ziniu Yu*)
+ - [[```0054b47c```](https://github.com/jina-ai/clip-as-service/commit/0054b47cf12043b0bf493424ec22defa9448a9be)] __-__ __server__: fix content assignment (#727) (*Han Xiao*)
+
+### 📗 Documentation
+
+ - [[```2f3a2077```](https://github.com/jina-ai/clip-as-service/commit/2f3a207734c829e6baa94dfa5715dc8d5c3f12de)] __-__ __tracking__: remove utm source in links (#728) (*Roshan Jossy*)
+
+### 🍹 Other Improvements
+
+ - [[```c7c96251```](https://github.com/jina-ai/clip-as-service/commit/c7c9625163d97ca3a6ad2b845309bad9e34e5d87)] __-__ Corrected replicas indentation in server.md (#731) (*Shubham Goel*)
+ - [[```8d112275```](https://github.com/jina-ai/clip-as-service/commit/8d1122754dc53c75bce75e313ee74796bd9614e7)] __-__ fix docs (*Han Xiao*)
+ - [[```7323d99e```](https://github.com/jina-ai/clip-as-service/commit/7323d99edd7814ece9ed8f5c0adce949047c987d)] __-__ __version__: the next version will be 0.4.11 (*Jina Dev Bot*)
 
