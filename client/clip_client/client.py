@@ -34,8 +34,6 @@ class Client:
             r = urlparse(server)
             _port = r.port
             _scheme = r.scheme
-            if not _port:
-                raise
             if not _scheme:
                 raise
         except:
