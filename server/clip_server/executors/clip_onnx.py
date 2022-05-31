@@ -13,7 +13,7 @@ from clip_server.executors.helper import (
 )
 from clip_server.model import clip
 from clip_server.model.clip_onnx import CLIPOnnxModel
-from jina import Executor, requests, DocumentArray, monitor
+from jina import Executor, requests, DocumentArray
 
 
 class CLIPEncoder(Executor):
@@ -78,15 +78,6 @@ class CLIPEncoder(Executor):
 
         self._model.start_sessions(sess_options=sess_options, providers=providers)
 
-    @monitor()
-    def _preproc_images(self, docs: 'DocumentArray'):
-        return preproc_image(
-            docs, preprocess_fn=self._preprocess_tensor, return_np=True
-        )
-
-    @monitor()
-    def _preproc_texts(self, docs: 'DocumentArray'):
-        return preproc_text(docs, return_np=True)
 
     @requests(on='/rank')
     async def rank(self, docs: 'DocumentArray', parameters: Dict, **kwargs):
@@ -104,7 +95,9 @@ class CLIPEncoder(Executor):
         # for image
         if _img_da:
             for minibatch, _contents in _img_da.map_batch(
-                self._preproc_images,
+                    partial(
+                        preproc_image, preprocess_fn=self._preprocess_tensor, return_np=True
+                    ),
                 batch_size=self._minibatch_size,
                 pool=self._pool,
             ):
@@ -120,7 +113,7 @@ class CLIPEncoder(Executor):
                     # for text
         if _txt_da:
             for minibatch, _contents in _txt_da.map_batch(
-                self._preproc_texts,
+                    partial(preproc_text, return_np=True),
                 batch_size=self._minibatch_size,
                 pool=self._pool,
             ):

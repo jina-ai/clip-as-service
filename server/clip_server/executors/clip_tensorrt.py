@@ -11,7 +11,7 @@ from clip_server.executors.helper import (
 )
 from clip_server.model import clip
 from clip_server.model.clip_trt import CLIPTensorRTModel
-from jina import Executor, requests, DocumentArray, monitor
+from jina import Executor, requests, DocumentArray
 
 
 class CLIPEncoder(Executor):
@@ -46,19 +46,6 @@ class CLIPEncoder(Executor):
 
         self._model.start_engines()
 
-    @monitor()
-    def _preproc_images(self, docs: 'DocumentArray'):
-        return preproc_image(
-            docs,
-            preprocess_fn=self._preprocess_tensor,
-            device=self._device,
-            return_np=False,
-        )
-
-    @monitor()
-    def _preproc_texts(self, docs: 'DocumentArray'):
-        return preproc_text(docs, device=self._device, return_np=False)
-
     @requests(on='/rank')
     async def rank(self, docs: 'DocumentArray', parameters: Dict, **kwargs):
         await self.encode(docs['@r,m'])
@@ -75,7 +62,12 @@ class CLIPEncoder(Executor):
         # for image
         if _img_da:
             for minibatch, _contents in _img_da.map_batch(
-                self._preproc_images,
+                    partial(
+                        preproc_image,
+                        preprocess_fn=self._preprocess_tensor,
+                        device=self._device,
+                        return_np=False,
+                    ),
                 batch_size=self._minibatch_size,
                 pool=self._pool,
             ):
@@ -97,7 +89,7 @@ class CLIPEncoder(Executor):
                     # for text
         if _txt_da:
             for minibatch, _contents in _txt_da.map_batch(
-                self._preproc_texts,
+                partial(preproc_text, device=self._device, return_np=False),
                 batch_size=self._minibatch_size,
                 pool=self._pool,
             ):
