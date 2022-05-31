@@ -1,4 +1,3 @@
-from functools import partial
 from multiprocessing.pool import ThreadPool
 from typing import Dict
 
