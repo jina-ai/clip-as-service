@@ -59,7 +59,7 @@ class CLIPEncoder(Executor):
 
         self._pool = ThreadPool(processes=num_worker_preprocess)
 
-    @monitor()
+    @monitor(name='preprocess_images_seconds')
     def _preproc_images(self, docs: 'DocumentArray'):
         return preproc_image(
             docs,
@@ -68,9 +68,21 @@ class CLIPEncoder(Executor):
             return_np=False,
         )
 
-    @monitor()
+    @monitor(name='preprocess_texts_seconds')
     def _preproc_texts(self, docs: 'DocumentArray'):
         return preproc_text(docs, device=self._device, return_np=False)
+
+    @monitor(name='encode_images_seconds')
+    def _encode_images(self, docs: 'DocumentArray'):
+        docs.embeddings = (
+            self._model.encode_image(docs.tensors).cpu().numpy().astype(np.float32)
+        )
+
+    @monitor(name='encode_texts_seconds')
+    def _encode_texts(self, docs: 'DocumentArray'):
+        docs.embeddings = (
+            self._model.encode_text(docs.tensors).cpu().numpy().astype(np.float32)
+        )
 
     @requests(on='/rank')
     async def rank(self, docs: 'DocumentArray', parameters: Dict, **kwargs):
@@ -93,12 +105,8 @@ class CLIPEncoder(Executor):
                     batch_size=self._minibatch_size,
                     pool=self._pool,
                 ):
-                    minibatch.embeddings = (
-                        self._model.encode_image(minibatch.tensors)
-                        .cpu()
-                        .numpy()
-                        .astype(np.float32)
-                    )
+
+                    self._encode_images(minibatch)
 
                     # recover original content
                     try:
@@ -115,12 +123,7 @@ class CLIPEncoder(Executor):
                     batch_size=self._minibatch_size,
                     pool=self._pool,
                 ):
-                    minibatch.embeddings = (
-                        self._model.encode_text(minibatch.tensors)
-                        .cpu()
-                        .numpy()
-                        .astype(np.float32)
-                    )
+                    self._encode_texts(minibatch)
 
                     # recover original content
                     try:
