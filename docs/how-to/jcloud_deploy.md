@@ -1,10 +1,7 @@
-# Deploy CLIP Encoder on JCloud
+# Deploy on JCloud
 
 This tutorial shows how to deploy CLIP Encoder on JCloud. 
 Click [here](https://github.com/jina-ai/jcloud) for more information on JCloud usage.
-
-## Deploy on JCloud
-
 A sample YAML file of a [Jina Flow](https://docs.jina.ai/fundamentals/flow/) to run minimum CLIP Encoder is given as
 
 ```yaml
