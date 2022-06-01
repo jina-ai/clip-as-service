@@ -42,6 +42,7 @@
 
 
 
+
 <a name=release-note-0-0-3></a>
 ## Release Note (`0.0.3`)
 
@@ -990,4 +991,32 @@
  - [[```c7c96251```](https://github.com/jina-ai/clip-as-service/commit/c7c9625163d97ca3a6ad2b845309bad9e34e5d87)] __-__ Corrected replicas indentation in server.md (#731) (*Shubham Goel*)
  - [[```8d112275```](https://github.com/jina-ai/clip-as-service/commit/8d1122754dc53c75bce75e313ee74796bd9614e7)] __-__ fix docs (*Han Xiao*)
  - [[```7323d99e```](https://github.com/jina-ai/clip-as-service/commit/7323d99edd7814ece9ed8f5c0adce949047c987d)] __-__ __version__: the next version will be 0.4.11 (*Jina Dev Bot*)
+
+<a name=release-note-0-4-12></a>
+## Release Note (`0.4.12`)
+
+> Release time: 2022-06-01 08:28:41
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ felix-wang,  Ziniu Yu,  Jina Dev Bot,  samsja,  🙇
+
+
+### 🆕 New Features
+
+ - [[```60a986a0```](https://github.com/jina-ai/clip-as-service/commit/60a986a07921b2374fdc64dccde7e1ec1e728cdb)] __-__ add monitoring (#674) (*samsja*)
+
+### 🐞 Bug fixes
+
+ - [[```bb8c4ce0```](https://github.com/jina-ai/clip-as-service/commit/bb8c4ce01de76d2be63444a517e90b530422110e)] __-__ better monitoring (#738) (*felix-wang*)
+ - [[```751cf9de```](https://github.com/jina-ai/clip-as-service/commit/751cf9de0d8bb727c44ecaf7950a3658b868399d)] __-__ does not require port (#735) (*Ziniu Yu*)
+
+### 📗 Documentation
+
+ - [[```5e06667a```](https://github.com/jina-ai/clip-as-service/commit/5e06667ac9afef335b98b72a58ba0d28985d9b18)] __-__ update monitoring feature (#737) (*felix-wang*)
+
+### 🍹 Other Improvements
+
+ - [[```b523c624```](https://github.com/jina-ai/clip-as-service/commit/b523c62468dd6088095b00b5335160c57a1cb25e)] __-__ __version__: the next version will be 0.4.12 (*Jina Dev Bot*)
 
