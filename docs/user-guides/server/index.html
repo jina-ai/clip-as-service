@@ -10,13 +10,13 @@
   
 <meta property="og:url" content="https://clip-as-service.jina.ai/user-guides/server/" />
   
-<meta property="og:site_name" content="CLIP-as-service 0.4.11 Documentation" />
+<meta property="og:site_name" content="CLIP-as-service 0.4.12 Documentation" />
   
 <meta property="og:description" content="CLIP-as-service is designed in a client-server architecture. A server is a long-running program that receives raw sentences and images from clients, and returns CLIP embeddings to the client. Additionally, clip_server is optimized for speed, low memory footprint and scalability. Horizontal scalin..." />
   
 <meta property="og:image" content="https://clip-as-service.jina.ai/_images/server-start.gif" />
   
-<meta property="og:image:alt" content="CLIP-as-service 0.4.11 Documentation" />
+<meta property="og:image:alt" content="CLIP-as-service 0.4.12 Documentation" />
   
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@JinaAI_">
@@ -39,7 +39,7 @@
         <link rel="canonical" href="https://clip-as-service.jina.ai/user-guides/server.html" />
 
     <link rel="shortcut icon" href="../../_static/favicon.png"/><meta name="generator" content="sphinx-4.5.0, furo 2022.04.07"/>
-        <title>Server API - CLIP-as-service 0.4.11 documentation</title>
+        <title>Server API - CLIP-as-service 0.4.12 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -172,7 +172,7 @@
         </div>
         <div class="header-center">
             <a href="../../">
-                <div class="brand">CLIP-as-service 0.4.11 documentation</div>
+                <div class="brand">CLIP-as-service 0.4.12 documentation</div>
             </a>
         </div>
         <div class="header-right">
@@ -318,10 +318,10 @@
 <li><p>Vertical scaling: using PyTorch JIT, ONNX or TensorRT runtime to speedup single GPU inference.</p></li>
 <li><p>Supporting gRPC, HTTP, Websocket protocols with their TLS counterparts, w/o compressions.</p></li>
 </ul>
-<p>This chapter introduces the API of the client.</p>
+<p>This chapter introduces the API of the server.</p>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-<p>You will need to install client first in Python 3.7+: <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">clip-server</span></code>.</p>
+<p>You will need to install server first in Python 3.7+: <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">clip-server</span></code>.</p>
 </div>
 <section id="start-server">
 <h2>Start server<a class="headerlink" href="#start-server" title="Permalink to this headline">#</a></h2>
@@ -781,6 +781,41 @@ In the same way, when you do <code class="docutils literal notranslate"><span cl
 </div>
 </section>
 </section>
+<section id="monitoring-with-prometheus">
+<h2>Monitoring with Prometheus<a class="headerlink" href="#monitoring-with-prometheus" title="Permalink to this headline">#</a></h2>
+<p>To monitor the performance of the service, you can enable the monitoring feature in the Flow YAML:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">jtype</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Flow</span><span class="w"></span>
+<span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">'1'</span><span class="w"></span>
+<span class="nt">with</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">51000</span><span class="w"></span>
+<span class="hll"><span class="w">  </span><span class="nt">monitoring</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span><span class="w"></span>
+</span><span class="hll"><span class="w">  </span><span class="nt">port_monitoring</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">9090</span><span class="w"></span>
+</span><span class="nt">executors</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">clip_t</span><span class="w"></span>
+<span class="w">    </span><span class="nt">uses</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="nt">jtype</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CLIPEncoder</span><span class="w"></span>
+<span class="w">      </span><span class="nt">metas</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">py_modules</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">executors/clip_torch.py</span><span class="w"></span>
+<span class="hll"><span class="w">    </span><span class="nt">monitoring</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
+</span><span class="hll"><span class="w">    </span><span class="nt">port_monitoring</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">9091</span><span class="w"></span>
+</span></pre></div>
+</div>
+<p>Then, you will get</p>
+<figure class="align-default">
+<a class="reference internal image-reference" href="../../_images/server-start-monitoring.gif"><img alt="../../_images/server-start-monitoring.gif" src="../../_images/server-start-monitoring.gif" style="width: 80%;"/></a>
+</figure>
+<p>As shown in the above example, this Flow will create two metrics exposing endpoints:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">http://localhost:9090</span></code>  for the gateway</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">http://localhost:9091</span></code>  for the encoder</p></li>
+</ul>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>To visualize your metrics through a dashboard, we recommend Grafana https://grafana.com/.</p>
+</div>
+<p>Click <a class="reference external" href="https://docs.jina.ai/fundamentals/flow/monitoring-flow/">here</a> for more information on monitoring in a Flow.</p>
+</section>
 <section id="serving-in-https-grpcs">
 <h2>Serving in HTTPS/gRPCs<a class="headerlink" href="#serving-in-https-grpcs" title="Permalink to this headline">#</a></h2>
 <p>You can turn on TLS for HTTP and gRPC protocols. Your Flow YAML would look like the following:</p>
@@ -852,7 +887,7 @@ In the same way, when you do <code class="docutils literal notranslate"><span cl
                         <div class="copyright">
                             Copyright &#169; Jina AI Limited. All rights reserved.
                         </div><div class="last-updated">
-                            Last updated on May 27, 2022</div>
+                            Last updated on Jun 01, 2022</div>
                     </div>
                     <div class="right-details">
                         <div class="social-btns">
@@ -902,6 +937,7 @@ In the same way, when you do <code class="docutils literal notranslate"><span cl
 <li><a class="reference internal" href="#serving-on-multiple-gpus">Serving on Multiple GPUs</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#monitoring-with-prometheus">Monitoring with Prometheus</a></li>
 <li><a class="reference internal" href="#serving-in-https-grpcs">Serving in HTTPS/gRPCs</a></li>
 </ul>
 </li>

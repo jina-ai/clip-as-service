@@ -5,10 +5,10 @@ CLIP-as-service is designed in a client-server architecture. A server is a long-
 - Vertical scaling: using PyTorch JIT, ONNX or TensorRT runtime to speedup single GPU inference.
 - Supporting gRPC, HTTP, Websocket protocols with their TLS counterparts, w/o compressions.
 
-This chapter introduces the API of the client. 
+This chapter introduces the API of the server. 
 
 ```{tip}
-You will need to install client first in Python 3.7+: `pip install clip-server`.
+You will need to install server first in Python 3.7+: `pip install clip-server`.
 ```
 
 ## Start server
@@ -380,6 +380,48 @@ In pratice, we found it is unnecessary to run `clip_server` on multiple GPUs for
 Based on these two points, it makes more sense to have multiple replicas on a single GPU comparing to have multiple replicas on different GPU, which is kind of waste of resources. `clip_server` scales pretty well by interleaving the GPU time with mulitple replicas.
 ```
 
+## Monitoring with Prometheus
+
+To monitor the performance of the service, you can enable the monitoring feature in the Flow YAML:
+
+```{code-block} yaml
+---
+emphasize-lines: 5,6,14,15
+---
+
+jtype: Flow
+version: '1'
+with:
+  port: 51000
+  monitoring: True
+  port_monitoring: 9090
+executors:
+  - name: clip_t
+    uses:
+      jtype: CLIPEncoder
+      metas:
+        py_modules:
+          - executors/clip_torch.py
+    monitoring: true
+    port_monitoring: 9091
+```
+
+Then, you will get
+
+```{figure} images/server-start-monitoring.gif
+:width: 80%
+
+```
+
+As shown in the above example, this Flow will create two metrics exposing endpoints:
+- `http://localhost:9090`  for the gateway
+- `http://localhost:9091`  for the encoder
+
+```{tip}
+To visualize your metrics through a dashboard, we recommend Grafana https://grafana.com/. 
+```
+
+Click [here](https://docs.jina.ai/fundamentals/flow/monitoring-flow/) for more information on monitoring in a Flow. 
 
 ## Serving in HTTPS/gRPCs
 
