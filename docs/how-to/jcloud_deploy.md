@@ -43,7 +43,9 @@ Run the following Python script:
 ```python
 from clip_client import Client
 
-c = Client('grpcs://<your_flow_id>.wolf.jina.ai') # This is the URL you get from previous step
+c = Client(
+    'grpcs://<your_flow_id>.wolf.jina.ai'
+)  # This is the URL you get from previous step
 
 r = c.encode(
     [
