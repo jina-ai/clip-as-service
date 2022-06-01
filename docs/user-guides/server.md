@@ -5,10 +5,10 @@ CLIP-as-service is designed in a client-server architecture. A server is a long-
 - Vertical scaling: using PyTorch JIT, ONNX or TensorRT runtime to speedup single GPU inference.
 - Supporting gRPC, HTTP, Websocket protocols with their TLS counterparts, w/o compressions.
 
-This chapter introduces the API of the client. 
+This chapter introduces the API of the server. 
 
 ```{tip}
-You will need to install client first in Python 3.7+: `pip install clip-server`.
+You will need to install server first in Python 3.7+: `pip install clip-server`.
 ```
 
 ## Start server
