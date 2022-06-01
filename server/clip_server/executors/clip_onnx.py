@@ -1,6 +1,5 @@
 import os
 import warnings
-from functools import partial
 from multiprocessing.pool import ThreadPool
 from typing import Optional, Dict
 
@@ -47,8 +46,6 @@ class CLIPEncoder(Executor):
         # prefer CUDA Execution Provider over CPU Execution Provider
         if self._device.startswith('cuda'):
             providers.insert(0, 'CUDAExecutionProvider')
-            # TODO: support tensorrt
-            # providers.insert(0, 'TensorrtExecutionProvider')
 
         sess_options = ort.SessionOptions()
 
