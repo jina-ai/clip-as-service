@@ -417,6 +417,10 @@ As shown in the above example, this Flow will create two metrics exposing endpoi
 - `http://localhost:9090`  for the gateway
 - `http://localhost:9091`  for the encoder
 
+```{tip}
+To visualize your metrics through a dashboard, we recommend Grafana https://grafana.com/. 
+```
+
 Click [here](https://docs.jina.ai/fundamentals/flow/monitoring-flow/) for more information on monitoring in a Flow. 
 
 ## Serving in HTTPS/gRPCs
