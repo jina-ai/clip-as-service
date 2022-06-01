@@ -383,10 +383,12 @@ Based on these two points, it makes more sense to have multiple replicas on a si
 ## Monitoring with Prometheus
 
 To monitor the performance of the service, you can enable the monitoring feature in the Flow YAML:
+
 ```{code-block} yaml
 ---
-emphasize-lines:5,6,14,15
+emphasize-lines: 5,6,14,15
 ---
+
 jtype: Flow
 version: '1'
 with:
@@ -404,10 +406,13 @@ executors:
     port_monitoring: 9091
 ```
 
+Then, you will get
+
 ```{figure} images/server-start-monitoring.gif
 :width: 80%
 
 ```
+
 As shown in the above example, this Flow will create two metrics exposing endpoints:
 - `http://localhost:9090`  for the gateway
 - `http://localhost:9091`  for the encoder
