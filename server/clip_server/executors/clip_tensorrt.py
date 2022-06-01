@@ -46,7 +46,7 @@ class CLIPEncoder(Executor):
 
         self._model.start_engines()
 
-    @monitor(name='preprocess_images')
+    @monitor(name='preprocess_images_seconds')
     def _preproc_images(self, docs: 'DocumentArray'):
         return preproc_image(
             docs,
@@ -55,11 +55,11 @@ class CLIPEncoder(Executor):
             return_np=False,
         )
 
-    @monitor(name='preprocess_texts')
+    @monitor(name='preprocess_texts_seconds')
     def _preproc_texts(self, docs: 'DocumentArray'):
         return preproc_text(docs, device=self._device, return_np=False)
 
-    @monitor(name='encode_images')
+    @monitor(name='encode_images_seconds')
     def _encode_images(self, docs: 'DocumentArray'):
         docs.embeddings = (
             self._model.encode_image(docs.tensors)
@@ -69,7 +69,7 @@ class CLIPEncoder(Executor):
             .astype(np.float32)
         )
 
-    @monitor(name='encode_texts')
+    @monitor(name='encode_texts_seconds')
     def _encode_texts(self, docs: 'DocumentArray'):
         docs.embeddings = (
             self._model.encode_text(docs.tensors)
