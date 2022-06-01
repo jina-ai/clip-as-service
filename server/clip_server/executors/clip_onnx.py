@@ -88,6 +88,14 @@ class CLIPEncoder(Executor):
     def _preproc_texts(self, docs: 'DocumentArray'):
         return preproc_text(docs, return_np=True)
 
+    @monitor()
+    def _encode_images(self, docs: 'DocumentArray'):
+        docs.embeddings = self._model.encode_image(docs.tensors)
+
+    @monitor()
+    def _encode_texts(self, docs: 'DocumentArray'):
+        docs.embeddings = self._model.encode_text(docs.tensors)
+
     @requests(on='/rank')
     async def rank(self, docs: 'DocumentArray', parameters: Dict, **kwargs):
         await self.encode(docs['@r,m'])
@@ -108,7 +116,8 @@ class CLIPEncoder(Executor):
                 batch_size=self._minibatch_size,
                 pool=self._pool,
             ):
-                minibatch.embeddings = self._model.encode_image(minibatch.tensors)
+                self._encode_images(minibatch)
+
                 # recover original content
                 try:
                     _ = iter(_contents)
@@ -124,7 +133,7 @@ class CLIPEncoder(Executor):
                 batch_size=self._minibatch_size,
                 pool=self._pool,
             ):
-                minibatch.embeddings = self._model.encode_text(minibatch.tensors)
+                self._encode_texts(minibatch)
                 # recover original content
                 try:
                     _ = iter(_contents)

@@ -59,6 +59,26 @@ class CLIPEncoder(Executor):
     def _preproc_texts(self, docs: 'DocumentArray'):
         return preproc_text(docs, device=self._device, return_np=False)
 
+    @monitor()
+    def _encode_images(self, docs: 'DocumentArray'):
+        docs.embeddings = (
+            self._model.encode_image(docs.tensors)
+            .detach()
+            .cpu()
+            .numpy()
+            .astype(np.float32)
+        )
+
+    @monitor()
+    def _encode_texts(self, docs: 'DocumentArray'):
+        docs.embeddings = (
+            self._model.encode_text(docs.tensors)
+            .detach()
+            .cpu()
+            .numpy()
+            .astype(np.float32)
+        )
+
     @requests(on='/rank')
     async def rank(self, docs: 'DocumentArray', parameters: Dict, **kwargs):
         await self.encode(docs['@r,m'])
@@ -79,13 +99,8 @@ class CLIPEncoder(Executor):
                 batch_size=self._minibatch_size,
                 pool=self._pool,
             ):
-                minibatch.embeddings = (
-                    self._model.encode_image(minibatch.tensors)
-                    .detach()
-                    .cpu()
-                    .numpy()
-                    .astype(np.float32)
-                )
+                self._encode_images(minibatch)
+
                 # recover original content
                 try:
                     _ = iter(_contents)
@@ -101,13 +116,8 @@ class CLIPEncoder(Executor):
                 batch_size=self._minibatch_size,
                 pool=self._pool,
             ):
-                minibatch.embeddings = (
-                    self._model.encode_text(minibatch.tensors)
-                    .detach()
-                    .cpu()
-                    .numpy()
-                    .astype(np.float32)
-                )
+                self._encode_texts(minibatch)
+
                 # recover original content
                 try:
                     _ = iter(_contents)
