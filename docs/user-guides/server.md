@@ -418,7 +418,7 @@ As shown in the above example, this Flow will create two metrics exposing endpoi
 - `http://localhost:9091`  for the encoder
 
 
-To visualize your metrics, we can import this [Grafana](https://grafana.com/) dashboard ([JSON](https://clip-as-service.jina.ai/_static/cas-grafana.json)), you will get:
+To visualize your metrics, we can import this [Grafana](https://grafana.com/) dashboard ([JSON](_static/cas-grafana.json)), you will get:
 
 ```{figure} images/grafana-dashboard.png
 :width: 80%
