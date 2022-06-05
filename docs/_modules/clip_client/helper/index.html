@@ -5,10 +5,10 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex/" /><link rel="search" title="Search" href="../../../search/" />
         <link rel="canonical" href="https://clip-as-service.jina.ai/_modules/clip_client/helper.html" />
 
-    <link rel="shortcut icon" href="../../../_static/favicon.png"/><meta name="generator" content="sphinx-4.5.0, furo 2022.04.07"/>
+    <link rel="shortcut icon" href="../../../_static/favicon.png"/><meta name="generator" content="sphinx-4.5.0, furo 2022.06.04.1"/>
         <title>clip_client.helper - CLIP-as-service 0.4.13 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/tabs.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/design-style.b7bb847fb20b106c3d81b95245e65545.min.css" />
@@ -293,29 +293,29 @@
     <span class="k">try</span><span class="p">:</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">package</span><span class="p">:</span>
-            <span class="n">package</span> <span class="o">=</span> <span class="nb">vars</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="vm">__name__</span><span class="p">])[</span><span class="s1">'__package__'</span><span class="p">]</span>
+            <span class="n">package</span> <span class="o">=</span> <span class="nb">vars</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="vm">__name__</span><span class="p">])[</span><span class="s1">&#39;__package__&#39;</span><span class="p">]</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">github_repo</span><span class="p">:</span>
             <span class="n">github_repo</span> <span class="o">=</span> <span class="n">package</span>
 
         <span class="n">cur_ver</span> <span class="o">=</span> <span class="n">Version</span><span class="p">(</span><span class="n">pkg_resources</span><span class="o">.</span><span class="n">get_distribution</span><span class="p">(</span><span class="n">package</span><span class="p">)</span><span class="o">.</span><span class="n">version</span><span class="p">)</span>
         <span class="n">req</span> <span class="o">=</span> <span class="n">Request</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s1">'https://pypi.python.org/pypi/</span><span class="si">{</span><span class="n">package</span><span class="si">}</span><span class="s1">/json'</span><span class="p">,</span>
-            <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s1">'User-Agent'</span><span class="p">:</span> <span class="s1">'Mozilla/5.0'</span><span class="p">},</span>
+            <span class="sa">f</span><span class="s1">&#39;https://pypi.python.org/pypi/</span><span class="si">{</span><span class="n">package</span><span class="si">}</span><span class="s1">/json&#39;</span><span class="p">,</span>
+            <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;User-Agent&#39;</span><span class="p">:</span> <span class="s1">&#39;Mozilla/5.0&#39;</span><span class="p">},</span>
         <span class="p">)</span>
         <span class="k">with</span> <span class="n">urlopen</span><span class="p">(</span>
             <span class="n">req</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">1</span>
-        <span class="p">)</span> <span class="k">as</span> <span class="n">resp</span><span class="p">:</span>  <span class="c1"># 'with' is important to close the resource after use</span>
+        <span class="p">)</span> <span class="k">as</span> <span class="n">resp</span><span class="p">:</span>  <span class="c1"># &#39;with&#39; is important to close the resource after use</span>
             <span class="n">j</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">resp</span><span class="p">)</span>
-            <span class="n">releases</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'releases'</span><span class="p">,</span> <span class="p">{})</span>
+            <span class="n">releases</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;releases&#39;</span><span class="p">,</span> <span class="p">{})</span>
             <span class="n">latest_release_ver</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
-                <span class="n">Version</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">releases</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="s1">'.dev'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">v</span>
+                <span class="n">Version</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">releases</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="s1">&#39;.dev&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">v</span>
             <span class="p">)</span>
             <span class="k">if</span> <span class="n">cur_ver</span> <span class="o">&lt;</span> <span class="n">latest_release_ver</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span>
                     <span class="n">Panel</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s1">'You are using [b]</span><span class="si">{</span><span class="n">package</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">cur_ver</span><span class="si">}</span><span class="s1">[/b], but [bold green]</span><span class="si">{</span><span class="n">latest_release_ver</span><span class="si">}</span><span class="s1">[/] is available. '</span>
-                        <span class="sa">f</span><span class="s1">'You may upgrade it via [b]pip install -U </span><span class="si">{</span><span class="n">package</span><span class="si">}</span><span class="s1">[/b]. [link=https://github.com/jina-ai/</span><span class="si">{</span><span class="n">github_repo</span><span class="si">}</span><span class="s1">/releases]Read Changelog here[/link].'</span><span class="p">,</span>
-                        <span class="n">title</span><span class="o">=</span><span class="s1">':new: New version available!'</span><span class="p">,</span>
+                        <span class="sa">f</span><span class="s1">&#39;You are using [b]</span><span class="si">{</span><span class="n">package</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">cur_ver</span><span class="si">}</span><span class="s1">[/b], but [bold green]</span><span class="si">{</span><span class="n">latest_release_ver</span><span class="si">}</span><span class="s1">[/] is available. &#39;</span>
+                        <span class="sa">f</span><span class="s1">&#39;You may upgrade it via [b]pip install -U </span><span class="si">{</span><span class="n">package</span><span class="si">}</span><span class="s1">[/b]. [link=https://github.com/jina-ai/</span><span class="si">{</span><span class="n">github_repo</span><span class="si">}</span><span class="s1">/releases]Read Changelog here[/link].&#39;</span><span class="p">,</span>
+                        <span class="n">title</span><span class="o">=</span><span class="s1">&#39;:new: New version available!&#39;</span><span class="p">,</span>
                         <span class="n">width</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
                     <span class="p">)</span>
                 <span class="p">)</span>
@@ -325,11 +325,11 @@
 
 
 <div class="viewcode-block" id="is_latest_version"><a class="viewcode-back" href="../../../api/clip_client.helper/#clip_client.helper.is_latest_version">[docs]</a><span class="k">def</span> <span class="nf">is_latest_version</span><span class="p">(</span><span class="n">package</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">github_repo</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="sd">"""Check if there is a latest version from Pypi, set env `NO_VERSION_CHECK` to disable it.</span>
+    <span class="sd">&quot;&quot;&quot;Check if there is a latest version from Pypi, set env `NO_VERSION_CHECK` to disable it.</span>
 
 <span class="sd">    :param package: package name if none auto-detected</span>
 <span class="sd">    :param github_repo: repo name that contains CHANGELOG if none then the same as package name</span>
-<span class="sd">    """</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">_version_check</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">package</span><span class="p">,</span> <span class="n">github_repo</span><span class="p">))</span><span class="o">.</span><span class="n">start</span><span class="p">()</span></div>
 </pre></div>
@@ -346,7 +346,7 @@
                         <div class="copyright">
                             Copyright &#169; Jina AI Limited. All rights reserved.
                         </div><div class="last-updated">
-                            Last updated on Jun 02, 2022</div>
+                            Last updated on Jun 05, 2022</div>
                     </div>
                     <div class="right-details">
                         <div class="social-btns">
