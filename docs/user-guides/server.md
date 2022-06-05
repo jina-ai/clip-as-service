@@ -342,7 +342,7 @@ To run CLIP-server on 3rd GPU,
 CUDA_VISIBLE_DEVICES=2 python -m clip_server
 ```
 
-### Serving on Multiple GPUs
+### Serve on Multiple GPUs
 
 If you have multiple GPU devices, you can leverage them via `CUDA_VISIBLE_DEVICES=RR`. For example, if you have 3 GPUs and your Flow YAML says `replicas: 5`, then 
 
@@ -380,9 +380,9 @@ In pratice, we found it is unnecessary to run `clip_server` on multiple GPUs for
 Based on these two points, it makes more sense to have multiple replicas on a single GPU comparing to have multiple replicas on different GPU, which is kind of waste of resources. `clip_server` scales pretty well by interleaving the GPU time with mulitple replicas.
 ```
 
-## Monitoring with Prometheus
+## Monitor with Prometheus and Grafana
 
-To monitor the performance of the service, you can enable the monitoring feature in the Flow YAML:
+To monitor the performance of the service, you can enable the Prometheus metrics in the Flow YAML:
 
 ```{code-block} yaml
 ---
@@ -406,19 +406,21 @@ executors:
     port_monitoring: 9091
 ```
 
-Then, you will get
+This enables Prometheus metrics on both Gateway and the CLIP Executor.
+
+Running it gives you:
 
 ```{figure} images/server-start-monitoring.gif
 :width: 80%
 
 ```
 
-As shown in the above example, this Flow will create two metrics exposing endpoints:
-- `http://localhost:9090`  for the gateway
-- `http://localhost:9091`  for the encoder
+which exposes two additional endpoints:
+- `http://localhost:9090`  for the Gateway
+- `http://localhost:9091`  for the CLIP Executor
 
 
-To visualize your metrics, we can import this [Grafana](https://grafana.com/) dashboard ([JSON](https://clip-as-service.jina.ai/_static/cas-grafana.json)), you will get:
+To visualize the metrics in Grafana, you can import this [JSON file of an example dashboard](https://clip-as-service.jina.ai/_static/cas-grafana.json). You will get something as follows:
 
 ```{figure} images/grafana-dashboard.png
 :width: 80%
@@ -426,12 +428,11 @@ To visualize your metrics, we can import this [Grafana](https://grafana.com/) da
 ```
 
 
+For more information on monitoring a Flow, [please read here](https://docs.jina.ai/fundamentals/flow/monitoring-flow/). 
 
-Click [here](https://docs.jina.ai/fundamentals/flow/monitoring-flow/) for more information on monitoring in a Flow. 
+## Serve with TLS
 
-## Serving in HTTPS/gRPCs
-
-You can turn on TLS for HTTP and gRPC protocols. Your Flow YAML would look like the following:
+You can turn on TLS for HTTP and gRPC protocols. Your Flow YAML should be changed to the following:
 
 ```{code-block} yaml
 ---
@@ -469,5 +470,21 @@ If you are using Cloudflare proxied DNS, please be aware:
 - the free tier of Cloudflare has 100s hard limit on the timeout, meaning sending big batch to a CPU server may throw 524 to the client-side.
 ```
 
+When the server is successfully running, you can connect to it via client by setting `server` to `https://` or `grpcs://` as follows:
+
+```python
+from clip_client import Client
+
+c = Client('grpcs://demo-cas.jina.ai:2096')
+
+r = c.encode(
+    [
+        'First do it',
+        'then do it right',
+        'then do it better',
+        'https://picsum.photos/200',
+    ]
+)
+```
 
 
