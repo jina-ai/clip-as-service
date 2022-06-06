@@ -171,13 +171,6 @@ user-guides/faq
 
 ```
 
-```{toctree}
-:caption: How-to
-:hidden:
-
-how-to/jcloud_deploy
-```
-
 
 ```{toctree}
 :caption: Playground

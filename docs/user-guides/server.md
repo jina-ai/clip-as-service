@@ -486,5 +486,72 @@ r = c.encode(
     ]
 )
 ```
+### Deploy on JCloud
+
+You can deploy CLIPEncoder on JCloud. 
+We will use CLIPTorchEncoder as an example.
+A minimum YAML file `flow.yml` is as follows:
+
+```yaml
+jtype: Flow
+executors:
+  - name: CLIPTorchEncoder # The name of the encoder
+    uses: jinahub+docker://CLIPTorchEncoder
+```
+
+```{warning}
+All Executors' `uses` must follow the format `jinahub+docker://MyExecutor` (from [Jina Hub](https://hub.jina.ai)) to avoid any local file dependencies.
+```
+
+To deploy,
+
+```bash
+$ jc deploy flow.yml
+```
+
+Here `jc deploy` is the command to deploy a Jina project.
+Learn more about [JCloud usage](https://github.com/jina-ai/jcloud).
 
 
+The Flow is successfully deployed when you see:
+
+<p align="center">
+<img src="../_static/jc-deploy.png" width="50%">
+</p>
+
+### Connect from Client
+
+
+```python
+from clip_client import Client
+
+c = Client(
+    'grpcs://9f5ce2da96.wolf.jina.ai'
+)  # This is the URL you get from previous step
+
+r = c.encode(
+    [
+        'First do it',
+        'then do it right',
+        'then do it better',
+        'https://picsum.photos/200',
+    ]
+)
+print(r)
+```
+
+will give you:
+
+```text
+[[ 0.03480401 -0.23519686  0.01041038 ... -0.5229086  -0.10081214
+   -0.08695138]
+ [-0.0683605  -0.00324154  0.01490371 ... -0.50309485 -0.06193433
+   -0.08574048]
+ [ 0.15041807 -0.07933374 -0.06650036 ... -0.46410388 -0.08535041
+   0.04270519]
+ [-0.16183889  0.10636599 -0.2062868  ... -0.41244072  0.19485454
+   0.05658712]]
+```
+
+
+It means the client and the JCloud server are now connected. Well done!
