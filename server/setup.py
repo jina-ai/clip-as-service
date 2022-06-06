@@ -51,6 +51,7 @@ setup(
         'docarray>=0.11.0',
         'packaging',
         'prometheus-client',
+        'transformers>=4.16.2',
     ],
     extras_require={
         'onnx': [

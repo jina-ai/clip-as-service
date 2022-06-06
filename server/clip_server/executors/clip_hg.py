@@ -1,10 +1,19 @@
 from copy import deepcopy
+import os
+import warnings
 from typing import Any, Dict, Optional, Sequence
-
+from multiprocessing.pool import ThreadPool
+import numpy as np
 import torch
-from docarray import DocumentArray
-from jina import Executor, requests
+from jina import Executor, requests, DocumentArray, monitor
 from transformers import CLIPFeatureExtractor, CLIPModel, CLIPTokenizer
+from clip_server.executors.helper import (
+    split_img_txt_da,
+    preproc_image,
+    preproc_text,
+    set_rank,
+)
+from clip_server.model import clip
 
 
 class CLIPEncoder(Executor):
@@ -19,7 +28,8 @@ class CLIPEncoder(Executor):
         device: str = 'cpu',
         overwrite_embeddings: bool = False,
         traversal_paths: str = '@r',
-        batch_size: int = 32,
+        num_worker_preprocess: int = 4,
+        minibatch_size: int = 32,
         *args,
         **kwargs,
     ):
@@ -49,13 +59,13 @@ class CLIPEncoder(Executor):
             can be overwritten if the same parameter is passed to the request.
         :param traversal_paths: Default traversal paths for encoding, used if
             the traversal path is not passed as a parameter with the request.
-        :param batch_size: Default batch size for encoding, used if the
+        :param minibatch_size: Default batch size for encoding, used if the
             batch size is not passed as a parameter with the request.
         """
         super().__init__(*args, **kwargs)
         self.overwrite_embeddings = overwrite_embeddings
         self.traversal_paths = traversal_paths
-        self.batch_size = batch_size
+        self._minibatch_size = minibatch_size
         self.pretrained_model_name_or_path = pretrained_model_name_or_path
         self.base_tokenizer_model = (
             base_tokenizer_model or pretrained_model_name_or_path
@@ -66,12 +76,37 @@ class CLIPEncoder(Executor):
         )
         self.max_length = max_length
 
-        self.device = device
+        # self.device = device
+        ###
+        if not device:
+            self._device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        else:
+            self._device = device
+
+        if not self._device.startswith('cuda') and (
+            'OMP_NUM_THREADS' not in os.environ
+            and hasattr(self.runtime_args, 'replicas')
+        ):
+            replicas = getattr(self.runtime_args, 'replicas', 1)
+            num_threads = max(1, torch.get_num_threads() // replicas)
+            if num_threads < 2:
+                warnings.warn(
+                    f'Too many replicas ({replicas}) vs too few threads {num_threads} may result in '
+                    f'sub-optimal performance.'
+                )
+
+                # NOTE: make sure to set the threads right after the torch import,
+                # and `torch.set_num_threads` always take precedence over environment variables `OMP_NUM_THREADS`.
+                # For more details, please see https://pytorch.org/docs/stable/generated/torch.set_num_threads.html
+                # FIXME: This hack would harm the performance in K8S deployment.
+                torch.set_num_threads(max(num_threads, 1))
+                torch.set_num_interop_threads(1)
+        ###
         self.vision_preprocessor = CLIPFeatureExtractor.from_pretrained(
             self.base_feature_extractor
         )
         self.tokenizer = CLIPTokenizer.from_pretrained(self.base_tokenizer_model)
-        self.model = CLIPModel.from_pretrained(self.pretrained_model_name_or_path)
+        self._model = CLIPModel.from_pretrained(self.pretrained_model_name_or_path)
 
         if finetuned_checkpoint_path:
             if finetuned_checkpoint_path.startswith(
@@ -82,12 +117,67 @@ class CLIPEncoder(Executor):
                 )
             else:
                 state_dict = torch.load(finetuned_checkpoint_path, map_location='cpu')
-            self.model.load_state_dict(state_dict)
+            self._model.load_state_dict(state_dict)
 
-        self.model.eval().to(device)
+        self._model.eval().to(self._device)
+
+        ###
+        self._pool = ThreadPool(processes=num_worker_preprocess)
+        ###
+
+    @monitor(name='preprocess_images_seconds')
+    def _preproc_images(self, docs: 'DocumentArray'):
+        contents = docs.contents
+        tensors_batch = []
+        for d in docs:
+            if d.blob:
+                d_tmp = deepcopy(d)
+                d_tmp.convert_blob_to_image_tensor()
+                tensor = d_tmp.tensor
+            elif d.tensor is not None:
+                tensor = d.tensor
+            else:
+                d_tmp = deepcopy(d)
+                d_tmp.load_uri_to_image_tensor()
+                tensor = d_tmp.tensor
+            tensors_batch.append(tensor)
+        if self.use_default_preprocessing:
+            docs.tensors = self._preprocess_images(tensors_batch)['pixel_values']
+        else:
+            docs.tensors = torch.tensor(
+                tensors_batch, dtype=torch.float32, device=self._device
+            )
+        return docs, contents
+
+    @monitor(name='encode_images_seconds')
+    def _encode_images(self, docs: DocumentArray):
+        docs.embeddings = (
+            self._model.get_image_features(docs.tensors)
+            .cpu()
+            .numpy()
+            .astype(np.float32)
+        )
+
+    @monitor(name='preprocess_texts_seconds')
+    def _preproc_texts(self, docs: 'DocumentArray'):
+        contents = docs.contents
+        docs.tensors = self._tokenize_texts(docs.texts)['input_ids']
+        return docs, contents
+
+    @monitor(name='encode_texts_seconds')
+    def _encode_texts(self, docs: 'DocumentArray'):
+        docs.embeddings = (
+            self._model.get_text_features(docs.tensors).cpu().numpy().astype(np.float32)
+        )
+
+    @requests(on='/rank')
+    async def rank(self, docs: 'DocumentArray', parameters: Dict, **kwargs):
+        await self.encode(docs['@r,m'])
+
+        set_rank(docs)
 
     @requests
-    def encode(self, docs: DocumentArray, parameters: Dict[str, Any], **_):
+    async def encode(self, docs: DocumentArray, parameters: Dict[str, Any], **_):
         """
         Encode all documents with `text` or image content using the corresponding CLIP
         encoder. Store the embeddings in the `embedding` attribute. Documents with
@@ -111,71 +201,117 @@ class CLIPEncoder(Executor):
             absence their corresponding default values are used.
         """
         traversal_paths = parameters.get('traversal_paths', self.traversal_paths)
-        batch_size = parameters.get('batch_size', self.batch_size)
+        batch_size = parameters.get('batch_size', self._minibatch_size)
         overwrite_embeddings = parameters.get(
             'overwrite_embeddings', self.overwrite_embeddings
         )
-        text_docs = DocumentArray(
-            filter(
-                lambda x: (
-                    bool(x.text) and (overwrite_embeddings or x.embedding is None)
-                ),
-                docs[traversal_paths],
-            )
-        )
-        image_docs = DocumentArray(
-            filter(
-                lambda x: (
-                    (x.tensor is not None or x.blob != b'' or x.uri)
-                    and (overwrite_embeddings or x.embedding is None)
-                ),
-                docs[traversal_paths],
-            )
-        )
+        _img_da = DocumentArray()
+        _txt_da = DocumentArray()
+        for d in docs:
+            split_img_txt_da(d, _img_da, _txt_da)
+
+        # text_docs = DocumentArray(
+        #     filter(
+        #         lambda x: (
+        #             bool(x.text) and (overwrite_embeddings or x.embedding is None)
+        #         ),
+        #         docs[traversal_paths],
+        #     )
+        # )
+        # image_docs = DocumentArray(
+        #     filter(
+        #         lambda x: (
+        #             (x.tensor is not None or x.blob != b'' or x.uri)
+        #             and (overwrite_embeddings or x.embedding is None)
+        #         ),
+        #         docs[traversal_paths],
+        #     )
+        # )
 
         with torch.inference_mode():
-            for batch in text_docs.batch(batch_size=batch_size):
-                self._encode_texts(batch)
+            # for batch in _txt_da.batch(batch_size=batch_size):
+            #     self._encode_texts(batch)
 
-            for batch in image_docs.batch(batch_size=batch_size):
-                self._encode_images(batch)
+            # for batch in _img_da.batch(batch_size=batch_size):
+            #     self._encode_images(batch)
 
-    def _encode_images(self, batch: DocumentArray):
-        """Encode images using the CLIP image encoder."""
-        tensors_batch = []
-        for d in batch:
-            if d.blob != b'':
-                d_tmp = deepcopy(d)
-                d_tmp.convert_blob_to_image_tensor()
-                tensor = d_tmp.tensor
-            elif d.tensor is not None:
-                tensor = d.tensor
-            else:
-                # must be uri
-                d_tmp = deepcopy(d)
-                d_tmp.load_uri_to_image_tensor()
-                tensor = d_tmp.tensor
-            tensors_batch.append(tensor)
-        if self.use_default_preprocessing:
-            tensor = self._preprocess_images(tensors_batch)
-        else:
-            tensor = {
-                'pixel_values': torch.tensor(
-                    batch.tensors, dtype=torch.float32, device=self.device
-                )
-            }
+            # for image
+            if _img_da:
+                for minibatch, _contents in _img_da.map_batch(
+                    self._preproc_images,
+                    batch_size=self._minibatch_size,
+                    pool=self._pool,
+                ):
 
-        embeddings = self.model.get_image_features(**tensor)
-        embeddings = embeddings.cpu().numpy()
-        batch.embeddings = embeddings
+                    self._encode_images(minibatch)
 
-    def _encode_texts(self, batch: DocumentArray):
-        """Encode texts using the CLIP text encoder."""
-        text_batch = batch.texts
-        input_tokens = self._tokenize_texts(text_batch)
-        embeddings = self.model.get_text_features(**input_tokens).cpu().numpy()
-        for doc, embedding in zip(batch, embeddings):
-            doc.embedding = embedding
+                    # recover original content
+                    try:
+                        _ = iter(_contents)
+                        for _d, _ct in zip(minibatch, _contents):
+                            _d.content = _ct
+                    except TypeError:
+                        pass
+
+            # for text
+            if _txt_da:
+                for minibatch, _contents in _txt_da.map_batch(
+                    self._preproc_texts,
+                    batch_size=self._minibatch_size,
+                    pool=self._pool,
+                ):
+                    self._encode_texts(minibatch)
+
+                    # recover original content
+                    try:
+                        _ = iter(_contents)
+                        for _d, _ct in zip(minibatch, _contents):
+                            _d.content = _ct
+                    except TypeError:
+                        pass
+
+        # drop tensors
+        docs.tensors = None
+        return docs
+
+    # @monitor(name='encode_images_seconds')
+    # def _encode_images(self, docs: DocumentArray):
+    #     """Encode images using the CLIP image encoder."""
+    #     tensors_batch = []
+    #     for d in docs:
+    #         if d.blob != b'':
+    #             d_tmp = deepcopy(d)
+    #             d_tmp.convert_blob_to_image_tensor()
+    #             tensor = d_tmp.tensor
+    #         elif d.tensor is not None:
+    #             tensor = d.tensor
+    #         else:
+    #             # must be uri
+    #             d_tmp = deepcopy(d)
+    #             d_tmp.load_uri_to_image_tensor()
+    #             tensor = d_tmp.tensor
+    #         print(tensor.shape)
+    #         print(tensor)
+    #         tensors_batch.append(tensor)
+    #     if self.use_default_preprocessing:
+    #         tensor = self._preprocess_images(tensors_batch)
+    #     else:
+    #         tensor = {
+    #             'pixel_values': torch.tensor(
+    #                 docs.tensors, dtype=torch.float32, device=self._device
+    #             )
+    #         }
+    #
+    #     # put below to other place
+    #     docs.embeddings = self._model.get_image_features(**tensor).cpu().numpy()
+
+    # def _encode_texts(self, batch: DocumentArray):
+    #     """Encode texts using the CLIP text encoder."""
+    #     text_batch = batch.texts
+    #     input_tokens = self._tokenize_texts(text_batch)
+    #     embeddings = self._model.get_text_features(**input_tokens).cpu().numpy()
+    #     for doc, embedding in zip(batch, embeddings):
+    #         doc.embedding = embedding
 
     def _preprocess_images(self, images):
         """Preprocess images."""
@@ -183,7 +319,7 @@ class CLIPEncoder(Executor):
             images=images,
             return_tensors='pt',
         )
-        return {k: v.to(torch.device(self.device)) for k, v in x.items()}
+        return {k: v.to(torch.device(self._device)) for k, v in x.items()}
 
     def _tokenize_texts(self, texts: Sequence[str]):
         """Tokenize texts."""
@@ -194,4 +330,4 @@ class CLIPEncoder(Executor):
             truncation=True,
             return_tensors='pt',
         )
-        return {k: v.to(self.device) for k, v in x.items()}
+        return {k: v.to(self._device) for k, v in x.items()}
