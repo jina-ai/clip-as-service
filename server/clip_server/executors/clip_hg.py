@@ -27,7 +27,6 @@ class CLIPEncoder(Executor):
         max_length: int = 77,
         device: str = 'cpu',
         overwrite_embeddings: bool = False,
-        traversal_paths: str = '@r',
         num_worker_preprocess: int = 4,
         minibatch_size: int = 32,
         *args,
@@ -57,14 +56,11 @@ class CLIPEncoder(Executor):
         :param overwrite_embeddings: Whether to overwrite existing embeddings. By
             default docs that have embeddings already are not processed. This value
             can be overwritten if the same parameter is passed to the request.
-        :param traversal_paths: Default traversal paths for encoding, used if
-            the traversal path is not passed as a parameter with the request.
         :param minibatch_size: Default batch size for encoding, used if the
             batch size is not passed as a parameter with the request.
         """
         super().__init__(*args, **kwargs)
         self.overwrite_embeddings = overwrite_embeddings
-        self.traversal_paths = traversal_paths
         self._minibatch_size = minibatch_size
         self.pretrained_model_name_or_path = pretrained_model_name_or_path
         self.base_tokenizer_model = (
@@ -77,7 +73,6 @@ class CLIPEncoder(Executor):
         self.max_length = max_length
 
         # self.device = device
-        ###
         if not device:
             self._device = 'cuda' if torch.cuda.is_available() else 'cpu'
         else:
@@ -101,7 +96,7 @@ class CLIPEncoder(Executor):
                 # FIXME: This hack would harm the performance in K8S deployment.
                 torch.set_num_threads(max(num_threads, 1))
                 torch.set_num_interop_threads(1)
-        ###
+
         self.vision_preprocessor = CLIPFeatureExtractor.from_pretrained(
             self.base_feature_extractor
         )
@@ -121,9 +116,7 @@ class CLIPEncoder(Executor):
 
         self._model.eval().to(self._device)
 
-        ###
         self._pool = ThreadPool(processes=num_worker_preprocess)
-        ###
 
     @monitor(name='preprocess_images_seconds')
     def _preproc_images(self, docs: 'DocumentArray'):
@@ -177,7 +170,7 @@ class CLIPEncoder(Executor):
         set_rank(docs)
 
     @requests
-    async def encode(self, docs: DocumentArray, parameters: Dict[str, Any], **_):
+    async def encode(self, docs: DocumentArray, **kwargs):
         """
         Encode all documents with `text` or image content using the corresponding CLIP
         encoder. Store the embeddings in the `embedding` attribute. Documents with
@@ -196,45 +189,13 @@ class CLIPEncoder(Executor):
             the CLIP model was trained on images of the size ``224 x 224``, and that
             they are of the shape ``[3, H, W]``  with ``dtype=float32``. They should
             also be normalized (values between 0 and 1).
-        :param parameters: A dictionary that contains parameters to control encoding.
-            The accepted keys are ``traversal_paths`` and ``batch_size`` - in their
-            absence their corresponding default values are used.
         """
-        traversal_paths = parameters.get('traversal_paths', self.traversal_paths)
-        batch_size = parameters.get('batch_size', self._minibatch_size)
-        overwrite_embeddings = parameters.get(
-            'overwrite_embeddings', self.overwrite_embeddings
-        )
         _img_da = DocumentArray()
         _txt_da = DocumentArray()
         for d in docs:
             split_img_txt_da(d, _img_da, _txt_da)
 
-        # text_docs = DocumentArray(
-        #     filter(
-        #         lambda x: (
-        #             bool(x.text) and (overwrite_embeddings or x.embedding is None)
-        #         ),
-        #         docs[traversal_paths],
-        #     )
-        # )
-        # image_docs = DocumentArray(
-        #     filter(
-        #         lambda x: (
-        #             (x.tensor is not None or x.blob != b'' or x.uri)
-        #             and (overwrite_embeddings or x.embedding is None)
-        #         ),
-        #         docs[traversal_paths],
-        #     )
-        # )
-
         with torch.inference_mode():
-            # for batch in _txt_da.batch(batch_size=batch_size):
-            #     self._encode_texts(batch)
-
-            # for batch in _img_da.batch(batch_size=batch_size):
-            #     self._encode_images(batch)
-
             # for image
             if _img_da:
                 for minibatch, _contents in _img_da.map_batch(
