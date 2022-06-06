@@ -56,6 +56,7 @@ class CLIPEncoder(Executor):
         :param overwrite_embeddings: Whether to overwrite existing embeddings. By
             default docs that have embeddings already are not processed. This value
             can be overwritten if the same parameter is passed to the request.
+        :param num_worker_preprocess: Number of cpu processes used in preprocessing step.
         :param minibatch_size: Default batch size for encoding, used if the
             batch size is not passed as a parameter with the request.
         """
@@ -115,7 +116,6 @@ class CLIPEncoder(Executor):
             self._model.load_state_dict(state_dict)
 
         self._model.eval().to(self._device)
-
         self._pool = ThreadPool(processes=num_worker_preprocess)
 
     @monitor(name='preprocess_images_seconds')
