@@ -488,8 +488,7 @@ r = c.encode(
 ```
 ### Deploy on JCloud
 
-You can deploy CLIPEncoder on JCloud. 
-We will use CLIPTorchEncoder as an example.
+You can deploy CLIPTorchEncoder on JCloud. 
 A minimum YAML file `flow.yml` is as follows:
 
 ```yaml
@@ -509,7 +508,7 @@ To deploy,
 $ jc deploy flow.yml
 ```
 
-Here `jc deploy` is the command to deploy a Jina project.
+Here `jc deploy` is the command to deploy a Jina project to JCloud.
 Learn more about [JCloud usage](https://github.com/jina-ai/jcloud).
 
 
