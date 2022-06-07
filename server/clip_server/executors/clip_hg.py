@@ -1,19 +1,17 @@
-from copy import deepcopy
 import os
 import warnings
-from typing import Any, Dict, Optional, Sequence
 from multiprocessing.pool import ThreadPool
+from typing import Dict, Optional, Sequence
 import numpy as np
 import torch
-from jina import Executor, requests, DocumentArray, monitor
+from copy import deepcopy
 from transformers import CLIPFeatureExtractor, CLIPModel, CLIPTokenizer
 from clip_server.executors.helper import (
     split_img_txt_da,
-    preproc_image,
-    preproc_text,
     set_rank,
 )
 from clip_server.model import clip
+from jina import Executor, requests, DocumentArray, monitor
 
 
 class CLIPEncoder(Executor):
@@ -124,16 +122,10 @@ class CLIPEncoder(Executor):
         tensors_batch = []
         for d in docs:
             if d.blob:
-                d_tmp = deepcopy(d)
-                d_tmp.convert_blob_to_image_tensor()
-                tensor = d_tmp.tensor
-            elif d.tensor is not None:
-                tensor = d.tensor
-            else:
-                d_tmp = deepcopy(d)
-                d_tmp.load_uri_to_image_tensor()
-                tensor = d_tmp.tensor
-            tensors_batch.append(tensor)
+                d.convert_blob_to_image_tensor()
+            elif d.uri:
+                d.load_uri_to_image_tensor()
+            tensors_batch.append(d.tensor)
         if self.use_default_preprocessing:
             docs.tensors = self._preprocess_images(tensors_batch)['pixel_values']
         else:
@@ -234,45 +226,6 @@ class CLIPEncoder(Executor):
         # drop tensors
         docs.tensors = None
         return docs
-
-    # @monitor(name='encode_images_seconds')
-    # def _encode_images(self, docs: DocumentArray):
-    #     """Encode images using the CLIP image encoder."""
-    #     tensors_batch = []
-    #     for d in docs:
-    #         if d.blob != b'':
-    #             d_tmp = deepcopy(d)
-    #             d_tmp.convert_blob_to_image_tensor()
-    #             tensor = d_tmp.tensor
-    #         elif d.tensor is not None:
-    #             tensor = d.tensor
-    #         else:
-    #             # must be uri
-    #             d_tmp = deepcopy(d)
-    #             d_tmp.load_uri_to_image_tensor()
-    #             tensor = d_tmp.tensor
-    #         print(tensor.shape)
-    #         print(tensor)
-    #         tensors_batch.append(tensor)
-    #     if self.use_default_preprocessing:
-    #         tensor = self._preprocess_images(tensors_batch)
-    #     else:
-    #         tensor = {
-    #             'pixel_values': torch.tensor(
-    #                 docs.tensors, dtype=torch.float32, device=self._device
-    #             )
-    #         }
-    #
-    #     # put below to other place
-    #     docs.embeddings = self._model.get_image_features(**tensor).cpu().numpy()
-
-    # def _encode_texts(self, batch: DocumentArray):
-    #     """Encode texts using the CLIP text encoder."""
-    #     text_batch = batch.texts
-    #     input_tokens = self._tokenize_texts(text_batch)
-    #     embeddings = self._model.get_text_features(**input_tokens).cpu().numpy()
-    #     for doc, embedding in zip(batch, embeddings):
-    #         doc.embedding = embedding
 
     def _preprocess_images(self, images):
         """Preprocess images."""
