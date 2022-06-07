@@ -62,17 +62,17 @@ The procedure and UI of ONNX and TensorRT runtime would look the same as Pytorch
 
 Open AI has released 9 models so far. `ViT-B/32` is used as default model in all runtimes. Due to the limitation of some runtime, not every runtime supports all nine models. Please also note that different model give different size of output dimensions. This will affect your downstream applications. For example, switching the model from one to another make your embedding incomparable, which breaks the downstream applications. Here is a list of supported models of each runtime and its corresponding size:
 
-| Model | PyTorch |  ONNX | TensorRT |  Output dimension | 
-| --- |---------| ---- | --- |--- |
-| RN50 | ✅ |✅ | ✅| 1024 | 
-| RN101 | ✅ |✅ | ✅| 512 | 
-| RN50x4 | ✅ |✅ | ✅| 640 |
-| RN50x16 | ✅ |✅ | ❌| 768 |
-| RN50x64 | ✅ |✅ | ❌| 1024 |
-| ViT-B/32  | ✅ |✅ | ✅| 512 |
-| ViT-B/16 | ✅ |✅ | ✅| 512 |
-| ViT-L/14 | ✅ |✅ | ✅| 768 |
-| ViT-L/14-336px | ✅ |✅ | ❌| 768 |
+| Model          | PyTorch | ONNX | TensorRT | Output dimension | Disk Usage | Peak Memory Usage | 
+|----------------|---------|------|----------|------------------|------------|-------------------|
+| RN50           | ✅       | ✅    | ✅        | 1024             | 
+| RN101          | ✅       | ✅    | ✅        | 512              | 
+| RN50x4         | ✅       | ✅    | ✅        | 640              |
+| RN50x16        | ✅       | ✅    | ❌        | 768              |
+| RN50x64        | ✅       | ✅    | ❌        | 1024             |
+| ViT-B/32       | ✅       | ✅    | ✅        | 512              |
+| ViT-B/16       | ✅       | ✅    | ✅        | 512              |
+| ViT-L/14       | ✅       | ✅    | ✅        | 768              |
+| ViT-L/14-336px | ✅       | ✅    | ❌        | 768              |
 
 
 ## YAML config
