@@ -486,7 +486,7 @@ r = c.encode(
     ]
 )
 ```
-### Deploy on JCloud
+## Deploy on JCloud
 
 You can deploy CLIPTorchEncoder on JCloud. 
 A minimum YAML file `flow.yml` is as follows:
