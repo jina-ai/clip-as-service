@@ -51,7 +51,6 @@ setup(
         'docarray>=0.11.0',
         'packaging',
         'prometheus-client',
-        'transformers>=4.16.2',
     ],
     extras_require={
         'onnx': [
@@ -60,6 +59,7 @@ setup(
         ]
         + (['onnxruntime-gpu>=1.8.0'] if sys.platform != 'darwin' else []),
         'tensorrt': ['nvidia-tensorrt'],
+        'hg': ['transformers>=4.16.2'],
     },
     classifiers=[
         'Development Status :: 5 - Production/Stable',
