@@ -488,7 +488,7 @@ r = c.encode(
 ```
 ## Deploy on JCloud
 
-You can deploy CLIPTorchEncoder on JCloud. 
+You can deploy `CLIPTorchEncoder` on JCloud. 
 A minimum YAML file `flow.yml` is as follows:
 
 ```yaml
@@ -526,7 +526,7 @@ The Flow is successfully deployed when you see:
 from clip_client import Client
 
 c = Client(
-    'grpcs://9f5ce2da96.wolf.jina.ai'
+    'grpcs://174eb69ba3.wolf.jina.ai'
 )  # This is the URL you get from previous step
 
 r = c.encode(
