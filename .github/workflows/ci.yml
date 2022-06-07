@@ -114,6 +114,7 @@ jobs:
           python -m pip install wheel pytest pytest-cov
           pip install --no-cache-dir "client/[test]"
           pip install --no-cache-dir "server/[onnx]"
+          pip install --no-cache-dir "server/[huggingface]"
       - name: Test
         id: test
         run: |
