@@ -515,7 +515,7 @@ Learn more about [JCloud usage](https://github.com/jina-ai/jcloud).
 The Flow is successfully deployed when you see:
 
 ```{figure} images/jc-deploy.png
-:width: 80%
+:width: 60%
 
 ```
 
