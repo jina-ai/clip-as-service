@@ -4,7 +4,6 @@ from multiprocessing.pool import ThreadPool
 from typing import Dict, Optional, Sequence
 import numpy as np
 import torch
-from copy import deepcopy
 from transformers import CLIPFeatureExtractor, CLIPModel, CLIPTokenizer
 from clip_server.executors.helper import (
     split_img_txt_da,
