@@ -519,15 +519,13 @@ The Flow is successfully deployed when you see:
 
 ```
 
-### Connect from Client
+After deploying on jcloud, you can connect to it via client by setting  `grpcs://` as follows:
 
 
 ```python
 from clip_client import Client
 
-c = Client(
-    'grpcs://174eb69ba3.wolf.jina.ai'
-)  # This is the URL you get from previous step
+c = Client('grpcs://174eb69ba3.wolf.jina.ai')  # This is the URL you get from previous step
 
 r = c.encode(
     [
