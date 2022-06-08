@@ -39,7 +39,7 @@ def make_torch_flow(port_generator, request):
         yield f
 
 
-@pytest.fixture(scope='session', params=['torch'])
+@pytest.fixture(scope='session', params=['tensorrt'])
 def make_trt_flow(port_generator, request):
     from clip_server.executors.clip_tensorrt import CLIPEncoder
 
@@ -48,10 +48,23 @@ def make_trt_flow(port_generator, request):
         yield f
 
 
-# @pytest.fixture(scope='session', params=['hg'])
-# def make_hg_flow(port_generator, request):
-#     from clip_server.executors.clip_hg import CLIPEncoder
-#
-#     f = Flow(port=port_generator()).add(name=request.param, uses=CLIPEncoder)
-#     with f:
-#         yield f
+@pytest.fixture(scope='session', params=['hg'])
+def make_hg_flow(port_generator, request):
+    from clip_server.executors.clip_hg import CLIPEncoder
+
+    f = Flow(port=port_generator()).add(name=request.param, uses=CLIPEncoder)
+    with f:
+        yield f
+
+
+@pytest.fixture(scope='session', params=['hg'])
+def make_hg_flow_no_default(port_generator, request):
+    from clip_server.executors.clip_hg import CLIPEncoder
+
+    f = Flow(port=port_generator()).add(
+        name=request.param,
+        uses=CLIPEncoder,
+        uses_with={'use_default_preprocessing': False},
+    )
+    with f:
+        yield f

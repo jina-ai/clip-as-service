@@ -223,7 +223,8 @@ class CLIPEncoder(Executor):
                         pass
 
         # drop tensors
-        docs.tensors = None
+        if self.use_default_preprocessing:
+            docs.tensors = None
         return docs
 
     def _preprocess_images(self, images):
