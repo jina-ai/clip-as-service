@@ -194,8 +194,6 @@ class CLIPEncoder(Executor):
                     batch_size=self._minibatch_size,
                     pool=self._pool,
                 ):
-
-                    self._encode_images(minibatch)
                     with self.monitor('encode_images_seconds'):
                         minibatch.embeddings = (
                             self._model.get_image_features(**batch_data)
