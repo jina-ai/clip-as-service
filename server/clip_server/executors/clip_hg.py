@@ -49,15 +49,11 @@ class CLIPEncoder(Executor):
             use 77 as the max length.
         :param device: Pytorch device to put the model on, e.g. 'cpu', 'cuda',
             'cuda:1'.
-        :param overwrite_embeddings: Whether to overwrite existing embeddings. By
-            default docs that have embeddings already are not processed. This value
-            can be overwritten if the same parameter is passed to the request.
         :param num_worker_preprocess: Number of cpu processes used in preprocessing step.
         :param minibatch_size: Default batch size for encoding, used if the
             batch size is not passed as a parameter with the request.
         """
         super().__init__(*args, **kwargs)
-        self._overwrite_embeddings = overwrite_embeddings
         self._minibatch_size = minibatch_size
 
         self._use_default_preprocessing = use_default_preprocessing
@@ -164,9 +160,8 @@ class CLIPEncoder(Executor):
     async def encode(self, docs: DocumentArray, **kwargs):
         """
         Encode all documents with `text` or image content using the corresponding CLIP
-        encoder. Store the embeddings in the `embedding` attribute. Documents with
-        existing embeddings are not processed unless `overwrite_embeddings` is set to
-        True.
+        encoder. Store the embeddings in the `embedding` attribute.
+
         :param docs: Documents sent to the encoder. The image docs must have
             ``tensor`` of the
             shape ``Height x Width x 3``. By default, the input ``tensor`` must
