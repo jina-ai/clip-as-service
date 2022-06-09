@@ -140,14 +140,14 @@ class CLIPEncoder(Executor):
 
     def _preproc_texts(self, docs: 'DocumentArray'):
         with self.monitor('preprocess_texts_seconds'):
-            data = self._tokenizer(
+            batch_data = self._tokenizer(
                 docs.texts,
                 max_length=self._max_length,
                 padding='longest',
                 truncation=True,
                 return_tensors='pt',
             )
-            batch_data = {k: v.to(self._device) for k, v in data.items()}
+            batch_data = {k: v.to(self._device) for k, v in batch_data.items()}
             return docs, batch_data
 
     @requests(on='/rank')
