@@ -106,7 +106,10 @@ class CLIPEncoder(Executor):
         self._pool = ThreadPool(processes=num_worker_preprocess)
 
     def _preproc_images(self, docs: 'DocumentArray'):
-        with self.monitor('preprocess_images_seconds'):
+        with self.monitor(
+            name='preprocess_images_seconds',
+            documentation='images preprocess time in seconds',
+        ):
             tensors_batch = []
 
             for d in docs:
@@ -139,7 +142,10 @@ class CLIPEncoder(Executor):
             return docs, batch_data
 
     def _preproc_texts(self, docs: 'DocumentArray'):
-        with self.monitor('preprocess_texts_seconds'):
+        with self.monitor(
+            name='preprocess_texts_seconds',
+            documentation='texts preprocess time in seconds',
+        ):
             batch_data = self._tokenizer(
                 docs.texts,
                 max_length=self._max_length,
@@ -189,7 +195,10 @@ class CLIPEncoder(Executor):
                     batch_size=self._minibatch_size,
                     pool=self._pool,
                 ):
-                    with self.monitor('encode_images_seconds'):
+                    with self.monitor(
+                        name='encode_images_seconds',
+                        documentation='images encode time in seconds',
+                    ):
                         minibatch.embeddings = (
                             self._model.get_image_features(**batch_data)
                             .cpu()
@@ -204,7 +213,10 @@ class CLIPEncoder(Executor):
                     batch_size=self._minibatch_size,
                     pool=self._pool,
                 ):
-                    with self.monitor('encode_texts_seconds'):
+                    with self.monitor(
+                        name='encode_texts_seconds',
+                        documentation='texts encode time in seconds',
+                    ):
                         minibatch.embeddings = (
                             self._model.get_text_features(**batch_data)
                             .cpu()
