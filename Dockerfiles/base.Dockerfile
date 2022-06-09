@@ -1,5 +1,5 @@
 # !!! An ARG declared before a FROM is outside of a build stage, so it can’t be used in any instruction after a FROM
-ARG JINA_VERSION=3.4.0
+ARG JINA_VERSION=3.6.0
 
 FROM jinaai/jina:${JINA_VERSION}-py38-standard
 

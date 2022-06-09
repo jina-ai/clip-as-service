@@ -4,7 +4,7 @@ ARG TENSORRT_VERSION=22.04
 
 FROM nvcr.io/nvidia/tensorrt:${TENSORRT_VERSION}-py3
 
-ARG JINA_VERSION=3.3.25
+ARG JINA_VERSION=3.6.0
 ARG PIP_VERSION
 
 RUN pip3 install --default-timeout=1000 --no-cache-dir torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu113

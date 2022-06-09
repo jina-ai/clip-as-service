@@ -2,4 +2,5 @@ ftfy
 torch
 regex
 torchvision
-packaging
+protobuf>=3.13.0,<=3.20.1
+prometheus-client
