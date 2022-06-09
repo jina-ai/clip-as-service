@@ -46,7 +46,10 @@ class CLIPEncoder(Executor):
         self._model.start_engines()
 
     def _preproc_images(self, docs: 'DocumentArray'):
-        with self.monitor('preprocess_images_seconds'):
+        with self.monitor(
+            name='preprocess_images_seconds',
+            documentation='images preprocess time in seconds',
+        ):
             return preproc_image(
                 docs,
                 preprocess_fn=self._preprocess_tensor,
@@ -55,7 +58,10 @@ class CLIPEncoder(Executor):
             )
 
     def _preproc_texts(self, docs: 'DocumentArray'):
-        with self.monitor('preprocess_texts_seconds'):
+        with self.monitor(
+            name='preprocess_texts_seconds',
+            documentation='texts preprocess time in seconds',
+        ):
             return preproc_text(docs, device=self._device, return_np=False)
 
     @requests(on='/rank')
@@ -78,7 +84,10 @@ class CLIPEncoder(Executor):
                 batch_size=self._minibatch_size,
                 pool=self._pool,
             ):
-                with self.monitor('encode_images_seconds'):
+                with self.monitor(
+                    name='encode_images_seconds',
+                    documentation='images encode time in seconds',
+                ):
                     minibatch.embeddings = (
                         self._model.encode_image(minibatch.tensors)
                         .detach()
@@ -102,7 +111,10 @@ class CLIPEncoder(Executor):
                 batch_size=self._minibatch_size,
                 pool=self._pool,
             ):
-                with self.monitor('encode_texts_seconds'):
+                with self.monitor(
+                    name='encode_texts_seconds',
+                    documentation='texts encode time in seconds',
+                ):
                     minibatch.embeddings = (
                         self._model.encode_text(minibatch.tensors)
                         .detach()
