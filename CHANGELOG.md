@@ -44,6 +44,7 @@
 
 
 
+
 <a name=release-note-0-0-3></a>
 ## Release Note (`0.0.3`)
 
@@ -1050,4 +1051,27 @@
  - [[```4b88e992```](https://github.com/jina-ai/clip-as-service/commit/4b88e99263a29903312f52bae01465b44b7a0cce)] __-__ fix docs (*Han Xiao*)
  - [[```b130d645```](https://github.com/jina-ai/clip-as-service/commit/b130d645409b044df6f1e0bcda78b42e79cb98d9)] __-__ add grafana dashboard (#741) (*felix-wang*)
  - [[```12ede839```](https://github.com/jina-ai/clip-as-service/commit/12ede83996f62af8c549a1d6621ae1dd32b7de7d)] __-__ __version__: the next version will be 0.4.13 (*Jina Dev Bot*)
+
+<a name=release-note-0-4-14></a>
+## Release Note (`0.4.14`)
+
+> Release time: 2022-06-09 13:39:46
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ felix-wang,  Jina Dev Bot,  🙇
+
+
+### 🐞 Bug fixes
+
+ - [[```752202f8```](https://github.com/jina-ai/clip-as-service/commit/752202f8b730d0ab8785a703fc719dacfbe2993b)] __-__ monitor documentation (#745) (*felix-wang*)
+
+### 🧼 Code Refactoring
+
+ - [[```5eb5d7e8```](https://github.com/jina-ai/clip-as-service/commit/5eb5d7e8ed6f924c6560bb850edb08bbd809ff09)] __-__ monitor (#743) (*felix-wang*)
+
+### 🍹 Other Improvements
+
+ - [[```06097f20```](https://github.com/jina-ai/clip-as-service/commit/06097f2098190b5a8a40fc82354b642730e617e0)] __-__ __version__: the next version will be 0.4.14 (*Jina Dev Bot*)
 
