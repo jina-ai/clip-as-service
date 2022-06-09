@@ -10,7 +10,7 @@ from clip_server.executors.helper import (
 )
 from clip_server.model import clip
 from clip_server.model.clip_trt import CLIPTensorRTModel
-from jina import Executor, requests, DocumentArray, monitor
+from jina import Executor, requests, DocumentArray
 
 
 class CLIPEncoder(Executor):
@@ -45,38 +45,18 @@ class CLIPEncoder(Executor):
 
         self._model.start_engines()
 
-    @monitor(name='preprocess_images_seconds')
     def _preproc_images(self, docs: 'DocumentArray'):
-        return preproc_image(
-            docs,
-            preprocess_fn=self._preprocess_tensor,
-            device=self._device,
-            return_np=False,
-        )
+        with self.monitor('preprocess_images_seconds'):
+            return preproc_image(
+                docs,
+                preprocess_fn=self._preprocess_tensor,
+                device=self._device,
+                return_np=False,
+            )
 
-    @monitor(name='preprocess_texts_seconds')
     def _preproc_texts(self, docs: 'DocumentArray'):
-        return preproc_text(docs, device=self._device, return_np=False)
-
-    @monitor(name='encode_images_seconds')
-    def _encode_images(self, docs: 'DocumentArray'):
-        docs.embeddings = (
-            self._model.encode_image(docs.tensors)
-            .detach()
-            .cpu()
-            .numpy()
-            .astype(np.float32)
-        )
-
-    @monitor(name='encode_texts_seconds')
-    def _encode_texts(self, docs: 'DocumentArray'):
-        docs.embeddings = (
-            self._model.encode_text(docs.tensors)
-            .detach()
-            .cpu()
-            .numpy()
-            .astype(np.float32)
-        )
+        with self.monitor('preprocess_texts_seconds'):
+            return preproc_text(docs, device=self._device, return_np=False)
 
     @requests(on='/rank')
     async def rank(self, docs: 'DocumentArray', parameters: Dict, **kwargs):
@@ -98,7 +78,14 @@ class CLIPEncoder(Executor):
                 batch_size=self._minibatch_size,
                 pool=self._pool,
             ):
-                self._encode_images(minibatch)
+                with self.monitor('encode_images_seconds'):
+                    minibatch.embeddings = (
+                        self._model.encode_image(minibatch.tensors)
+                        .detach()
+                        .cpu()
+                        .numpy()
+                        .astype(np.float32)
+                    )
 
                 # recover original content
                 try:
@@ -108,14 +95,21 @@ class CLIPEncoder(Executor):
                 except TypeError:
                     pass
 
-                    # for text
+        # for text
         if _txt_da:
             for minibatch, _contents in _txt_da.map_batch(
                 self._preproc_texts,
                 batch_size=self._minibatch_size,
                 pool=self._pool,
             ):
-                self._encode_texts(minibatch)
+                with self.monitor('encode_texts_seconds'):
+                    minibatch.embeddings = (
+                        self._model.encode_text(minibatch.tensors)
+                        .detach()
+                        .cpu()
+                        .numpy()
+                        .astype(np.float32)
+                    )
 
                 # recover original content
                 try:
@@ -125,7 +119,7 @@ class CLIPEncoder(Executor):
                 except TypeError:
                     pass
 
-                    # drop tensors
+        # drop tensors
         docs.tensors = None
 
         return docs

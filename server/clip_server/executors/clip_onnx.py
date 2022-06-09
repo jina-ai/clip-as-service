@@ -12,7 +12,7 @@ from clip_server.executors.helper import (
 )
 from clip_server.model import clip
 from clip_server.model.clip_onnx import CLIPOnnxModel
-from jina import Executor, requests, DocumentArray, monitor
+from jina import Executor, requests, DocumentArray
 
 
 class CLIPEncoder(Executor):
@@ -75,23 +75,15 @@ class CLIPEncoder(Executor):
 
         self._model.start_sessions(sess_options=sess_options, providers=providers)
 
-    @monitor(name='preprocess_images_seconds')
     def _preproc_images(self, docs: 'DocumentArray'):
-        return preproc_image(
-            docs, preprocess_fn=self._preprocess_tensor, return_np=True
-        )
+        with self.monitor('preprocess_images_seconds'):
+            return preproc_image(
+                docs, preprocess_fn=self._preprocess_tensor, return_np=True
+            )
 
-    @monitor(name='preprocess_texts_seconds')
     def _preproc_texts(self, docs: 'DocumentArray'):
-        return preproc_text(docs, return_np=True)
-
-    @monitor(name='encode_images_seconds')
-    def _encode_images(self, docs: 'DocumentArray'):
-        docs.embeddings = self._model.encode_image(docs.tensors)
-
-    @monitor(name='encode_texts_seconds')
-    def _encode_texts(self, docs: 'DocumentArray'):
-        docs.embeddings = self._model.encode_text(docs.tensors)
+        with self.monitor('preprocess_texts_seconds'):
+            return preproc_text(docs, return_np=True)
 
     @requests(on='/rank')
     async def rank(self, docs: 'DocumentArray', parameters: Dict, **kwargs):
@@ -113,7 +105,8 @@ class CLIPEncoder(Executor):
                 batch_size=self._minibatch_size,
                 pool=self._pool,
             ):
-                self._encode_images(minibatch)
+                with self.monitor('encode_images_seconds'):
+                    minibatch.embeddings = self._model.encode_image(minibatch.tensors)
 
                 # recover original content
                 try:
@@ -130,7 +123,9 @@ class CLIPEncoder(Executor):
                 batch_size=self._minibatch_size,
                 pool=self._pool,
             ):
-                self._encode_texts(minibatch)
+                with self.monitor('encode_texts_seconds'):
+                    minibatch.embeddings = self._model.encode_text(minibatch.tensors)
+
                 # recover original content
                 try:
                     _ = iter(_contents)

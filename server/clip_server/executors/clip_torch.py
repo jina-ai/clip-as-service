@@ -12,7 +12,7 @@ from clip_server.executors.helper import (
     set_rank,
 )
 from clip_server.model import clip
-from jina import Executor, requests, DocumentArray, monitor
+from jina import Executor, requests, DocumentArray
 
 
 class CLIPEncoder(Executor):
@@ -47,7 +47,6 @@ class CLIPEncoder(Executor):
             # NOTE: make sure to set the threads right after the torch import,
             # and `torch.set_num_threads` always take precedence over environment variables `OMP_NUM_THREADS`.
             # For more details, please see https://pytorch.org/docs/stable/generated/torch.set_num_threads.html
-            # FIXME: This hack would harm the performance in K8S deployment.
             torch.set_num_threads(max(num_threads, 1))
             torch.set_num_interop_threads(1)
 
@@ -58,30 +57,18 @@ class CLIPEncoder(Executor):
 
         self._pool = ThreadPool(processes=num_worker_preprocess)
 
-    @monitor(name='preprocess_images_seconds')
     def _preproc_images(self, docs: 'DocumentArray'):
-        return preproc_image(
-            docs,
-            preprocess_fn=self._preprocess_tensor,
-            device=self._device,
-            return_np=False,
-        )
+        with self.monitor(name='preprocess_images_seconds'):
+            return preproc_image(
+                docs,
+                preprocess_fn=self._preprocess_tensor,
+                device=self._device,
+                return_np=False,
+            )
 
-    @monitor(name='preprocess_texts_seconds')
     def _preproc_texts(self, docs: 'DocumentArray'):
-        return preproc_text(docs, device=self._device, return_np=False)
-
-    @monitor(name='encode_images_seconds')
-    def _encode_images(self, docs: 'DocumentArray'):
-        docs.embeddings = (
-            self._model.encode_image(docs.tensors).cpu().numpy().astype(np.float32)
-        )
-
-    @monitor(name='encode_texts_seconds')
-    def _encode_texts(self, docs: 'DocumentArray'):
-        docs.embeddings = (
-            self._model.encode_text(docs.tensors).cpu().numpy().astype(np.float32)
-        )
+        with self.monitor(name='preprocess_texts_seconds'):
+            return preproc_text(docs, device=self._device, return_np=False)
 
     @requests(on='/rank')
     async def rank(self, docs: 'DocumentArray', parameters: Dict, **kwargs):
@@ -104,8 +91,13 @@ class CLIPEncoder(Executor):
                     batch_size=self._minibatch_size,
                     pool=self._pool,
                 ):
-
-                    self._encode_images(minibatch)
+                    with self.monitor('encode_images_seconds'):
+                        minibatch.embeddings = (
+                            self._model.encode_image(minibatch.tensors)
+                            .cpu()
+                            .numpy()
+                            .astype(np.float32)
+                        )
 
                     # recover original content
                     try:
@@ -122,7 +114,13 @@ class CLIPEncoder(Executor):
                     batch_size=self._minibatch_size,
                     pool=self._pool,
                 ):
-                    self._encode_texts(minibatch)
+                    with self.monitor('encode_texts_seconds'):
+                        minibatch.embeddings = (
+                            self._model.encode_text(minibatch.tensors)
+                            .cpu()
+                            .numpy()
+                            .astype(np.float32)
+                        )
 
                     # recover original content
                     try:
