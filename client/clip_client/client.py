@@ -190,6 +190,8 @@ class Client:
         parameters = {}
         if 'traversal_paths' in kwargs:
             parameters['traversal_paths'] = kwargs['traversal_paths']
+        if 'batch_size' in kwargs:
+            parameters['minibatch_size'] = kwargs['batch_size']
 
         payload = dict(
             on='/',
