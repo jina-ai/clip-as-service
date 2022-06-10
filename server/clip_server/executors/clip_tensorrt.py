@@ -19,7 +19,8 @@ class CLIPEncoder(Executor):
         name: str = 'ViT-B/32',
         device: str = 'cuda',
         num_worker_preprocess: int = 4,
-        minibatch_size: int = 64,
+        minibatch_size: int = 32,
+        traversal_paths: str = '@r',
         **kwargs,
     ):
         super().__init__(**kwargs)
@@ -28,6 +29,8 @@ class CLIPEncoder(Executor):
         self._pool = ThreadPool(processes=num_worker_preprocess)
 
         self._minibatch_size = minibatch_size
+        self._traversal_paths = traversal_paths
+
         self._device = device
 
         import torch
@@ -71,17 +74,20 @@ class CLIPEncoder(Executor):
         set_rank(docs)
 
     @requests
-    async def encode(self, docs: 'DocumentArray', **kwargs):
+    async def encode(self, docs: 'DocumentArray', parameters: Dict = {}, **kwargs):
+        traversal_paths = parameters.get('traversal_paths', self._traversal_paths)
+        minibatch_size = parameters.get('minibatch_size', self._minibatch_size)
+
         _img_da = DocumentArray()
         _txt_da = DocumentArray()
-        for d in docs:
+        for d in docs[traversal_paths]:
             split_img_txt_da(d, _img_da, _txt_da)
 
         # for image
         if _img_da:
-            for minibatch, _contents in _img_da.map_batch(
+            for minibatch, batch_data in _img_da.map_batch(
                 self._preproc_images,
-                batch_size=self._minibatch_size,
+                batch_size=minibatch_size,
                 pool=self._pool,
             ):
                 with self.monitor(
@@ -89,26 +95,18 @@ class CLIPEncoder(Executor):
                     documentation='images encode time in seconds',
                 ):
                     minibatch.embeddings = (
-                        self._model.encode_image(minibatch.tensors)
+                        self._model.encode_image(batch_data)
                         .detach()
                         .cpu()
                         .numpy()
                         .astype(np.float32)
                     )
 
-                # recover original content
-                try:
-                    _ = iter(_contents)
-                    for _d, _ct in zip(minibatch, _contents):
-                        _d.content = _ct
-                except TypeError:
-                    pass
-
         # for text
         if _txt_da:
-            for minibatch, _contents in _txt_da.map_batch(
+            for minibatch, batch_data in _txt_da.map_batch(
                 self._preproc_texts,
-                batch_size=self._minibatch_size,
+                batch_size=minibatch_size,
                 pool=self._pool,
             ):
                 with self.monitor(
@@ -116,22 +114,11 @@ class CLIPEncoder(Executor):
                     documentation='texts encode time in seconds',
                 ):
                     minibatch.embeddings = (
-                        self._model.encode_text(minibatch.tensors)
+                        self._model.encode_text(batch_data)
                         .detach()
                         .cpu()
                         .numpy()
                         .astype(np.float32)
                     )
-
-                # recover original content
-                try:
-                    _ = iter(_contents)
-                    for _d, _ct in zip(minibatch, _contents):
-                        _d.content = _ct
-                except TypeError:
-                    pass
-
-        # drop tensors
-        docs.tensors = None
 
         return docs
