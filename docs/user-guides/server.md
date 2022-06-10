@@ -136,7 +136,7 @@ executors:
 ```
 ````
 
-Basically, each YAML file defines a [Jina Flow](https://docs.jina.ai/fundamentals/flow/). The complete Jina Flow YAML syntax [can be found here](https://docs.jina.ai/fundamentals/flow/flow-yaml/#configure-flow-meta-information). General parameters of the Flow and Executor can be used here as well. But now we only highlight the most important parameters.
+Basically, each YAML file defines a [Jina Flow](https://docs.jina.ai/fundamentals/flow/). The complete Jina Flow YAML syntax [can be found here](https://docs.jina.ai/fundamentals/flow/yaml-spec/). General parameters of the Flow and Executor can be used here as well. But now we only highlight the most important parameters.
 
 Looking at the YAML file again, we can put it into three subsections as below:
 
@@ -509,7 +509,7 @@ $ jc deploy flow.yml
 ```
 
 Here `jc deploy` is the command to deploy a Jina project to JCloud.
-Learn more about [JCloud usage](https://github.com/jina-ai/jcloud).
+Learn more about [JCloud usage](https://docs.jina.ai/fundamentals/jcloud/).
 
 
 The Flow is successfully deployed when you see:
