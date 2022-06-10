@@ -132,7 +132,7 @@ class Client:
 
     @property
     def _unboxed_result(self):
-        if self._results.embeddings is None:
+        if self._return_plain and self._results.embeddings is None:
             raise ValueError(
                 'empty embedding returned from the server. '
                 'This often due to a mis-config of the server, '
@@ -167,6 +167,9 @@ class Client:
                     yield c
                 elif c.tensor is not None:
                     yield c
+                elif len(c.chunks) > 0 or len(c.matches) > 0:
+                    self._return_plain = False
+                    yield c
                 else:
                     raise TypeError(f'unsupported input type {c!r} {c.content_type}')
             else:
@@ -184,12 +187,18 @@ class Client:
                 )
 
     def _get_post_payload(self, content, kwargs):
-        return dict(
+        parameters = {}
+        if 'traversal_paths' in kwargs:
+            parameters['traversal_paths'] = kwargs['traversal_paths']
+
+        payload = dict(
             on='/',
             inputs=self._iter_doc(content),
-            request_size=kwargs.get('batch_size', 8),
+            request_size=kwargs.get('batch_size', 32),
+            parameters=parameters,
             total_docs=len(content) if hasattr(content, '__len__') else None,
         )
+        return payload
 
     def profile(self, content: Optional[str] = '') -> Dict[str, float]:
         """Profiling a single query's roundtrip including network and computation latency. Results is summarized in a table.
