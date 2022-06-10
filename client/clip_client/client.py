@@ -132,7 +132,7 @@ class Client:
 
     @property
     def _unboxed_result(self):
-        if self._return_plain and self._results.embeddings is None:
+        if self._results.embeddings is None:
             raise ValueError(
                 'empty embedding returned from the server. '
                 'This often due to a mis-config of the server, '
