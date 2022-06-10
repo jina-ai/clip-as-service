@@ -509,7 +509,7 @@ $ jc deploy flow.yml
 ```
 
 Here `jc deploy` is the command to deploy a Jina project to JCloud.
-Learn more about [JCloud usage](https://github.com/jina-ai/jcloud).
+Learn more about [JCloud usage](https://docs.jina.ai/fundamentals/jcloud/).
 
 
 The Flow is successfully deployed when you see:
