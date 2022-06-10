@@ -159,7 +159,7 @@ class Client:
                     yield Document(text=c)
             elif isinstance(c, Document):
                 self._return_plain = False
-                if c.content_type in ('text', 'blob'):
+                if c.content_type in ('text', 'blob', 'tensor'):
                     yield c
                 elif not c.blob and c.uri:
                     c.load_uri_to_blob()
