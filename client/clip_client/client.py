@@ -181,15 +181,10 @@ class Client:
                 )
 
     def _get_post_payload(self, content, kwargs):
-        parameters = {}
-        if 'batch_size' in kwargs:
-            parameters['minibatch_size'] = kwargs['batch_size']
-
         return dict(
             on='/',
             inputs=self._iter_doc(content),
             request_size=kwargs.get('batch_size', 32),
-            parameters=parameters,
             total_docs=len(content) if hasattr(content, '__len__') else None,
         )
 
