@@ -21,7 +21,7 @@ class CLIPEncoder(Executor):
         name: str = 'ViT-B/32',
         device: Optional[str] = None,
         num_worker_preprocess: int = 4,
-        minibatch_size: int = 256,
+        minibatch_size: int = 32,
         traversal_paths: str = '@r',
         **kwargs,
     ):

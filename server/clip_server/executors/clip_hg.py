@@ -23,7 +23,7 @@ class CLIPEncoder(Executor):
         max_length: int = 77,
         device: str = 'cpu',
         num_worker_preprocess: int = 4,
-        minibatch_size: int = 256,
+        minibatch_size: int = 32,
         traversal_paths: str = '@r',
         *args,
         **kwargs,

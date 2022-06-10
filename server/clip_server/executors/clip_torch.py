@@ -22,7 +22,7 @@ class CLIPEncoder(Executor):
         device: Optional[str] = None,
         jit: bool = False,
         num_worker_preprocess: int = 4,
-        minibatch_size: int = 256,
+        minibatch_size: int = 32,
         traversal_paths: str = '@r',
         **kwargs,
     ):
