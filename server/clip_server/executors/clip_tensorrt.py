@@ -19,7 +19,7 @@ class CLIPEncoder(Executor):
         name: str = 'ViT-B/32',
         device: str = 'cuda',
         num_worker_preprocess: int = 4,
-        minibatch_size: int = 256,
+        minibatch_size: int = 32,
         **kwargs,
     ):
         super().__init__(**kwargs)
