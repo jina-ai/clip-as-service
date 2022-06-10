@@ -102,29 +102,3 @@ def test_docarray_preserve_original_inputs(make_flow, inputs, port_generator):
     assert isinstance(r, DocumentArray)
     assert r.embeddings.shape
     assert r.contents == inputs.contents
-
-
-@pytest.mark.parametrize(
-    'inputs',
-    [
-        DocumentArray([Document(text='hello, world'), Document(text='goodbye, world')]),
-        DocumentArray(
-            [
-                Document(
-                    uri='https://docarray.jina.ai/_static/favicon.png',
-                    text='hello, world',
-                ),
-            ]
-        ),
-        DocumentArray.from_files(
-            f'{os.path.dirname(os.path.abspath(__file__))}/**/*.jpg'
-        ),
-    ],
-)
-def test_docarray_traversal(make_flow, inputs, port_generator):
-    da = DocumentArray.empty(1)
-    da[0].chunks = inputs
-
-    c = Client(server=f'grpc://0.0.0.0:{make_flow.port}')
-    r = c.encode(da, traversal_paths='@c')
-    assert r[0].chunks.embeddings.shape[0] == len(inputs)
