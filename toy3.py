@@ -9,23 +9,20 @@ def do_something(docs):
     server_url = 'grpc://0.0.0.0:51001'
 
     da = docs.post(server_url)
-    # print(docs[0].uri)
-    # print('old match ids', docs[0].matches[:, ('id', 'text')])
-    # print('-' * 30)
-    # print('new match ids', da[0].matches[:, ('id', 'text')], len(da[0].embedding))
-    # print('*' * 30)
+
+    print(f'before: {[d.id for d in docs]} +++ {[d.matches[0].text for d in docs]}')
+    print(f'after: {[d.id for d in da]} +++ {[d.matches[0].text for d in da]}')
     return da
 
 
 if __name__ == '__main__':
     tag = sys.argv[1]
     # uri = 'https://raw.githubusercontent.com/jina-ai/clip-as-service/main/.github/README-img/Hurst-began-again.png'
-    rid = uuid.uuid1()
     da = DocumentArray()
     for _ in range(20):
         da.append(
             Document(
-                id=f'{tag}-{_}', text='hello', matches=[Document(text=f'{str(rid)}')]
+                id=f'{tag}-{_}', text='hello', matches=[Document(text=f'{tag}+{_}')]
             )
         )
     do_something(da)
