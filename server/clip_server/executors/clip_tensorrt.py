@@ -65,7 +65,7 @@ class CLIPEncoder(Executor):
             return preproc_text(docs, device=self._device, return_np=False)
 
     @requests(on='/rank')
-    async def rank(self, docs: 'DocumentArray', **kwargs):
+    async def rank(self, docs: 'DocumentArray', parameters: Dict, **kwargs):
         await self.encode(docs['@r,m'])
 
         set_rank(docs)
