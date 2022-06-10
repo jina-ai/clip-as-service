@@ -20,6 +20,7 @@ class CLIPEncoder(Executor):
         device: str = 'cuda',
         num_worker_preprocess: int = 4,
         minibatch_size: int = 32,
+        traversal_paths: str = '@r',
         **kwargs,
     ):
         super().__init__(**kwargs)
@@ -28,6 +29,8 @@ class CLIPEncoder(Executor):
         self._pool = ThreadPool(processes=num_worker_preprocess)
 
         self._minibatch_size = minibatch_size
+        self._traversal_paths = traversal_paths
+
         self._device = device
 
         import torch
