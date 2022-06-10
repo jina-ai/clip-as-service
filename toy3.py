@@ -11,7 +11,7 @@ def do_something(docs):
     print(docs[0].uri)
     print('old match ids', docs[0].matches[:, ('id', 'text')])
     print('-' * 30)
-    print('new match ids', da[0].matches[:, ('id', 'text')])
+    print('new match ids', da[0].matches[:, ('id', 'text')], len(da[0].embedding))
     print('*' * 30)
     return da
 
@@ -21,6 +21,6 @@ if __name__ == '__main__':
     rid = uuid.uuid1()
     da = DocumentArray()
     doc = Document(uri=uri, matches=[Document(text=f'{str(rid)}')])
-    for _ in range(200):
+    for _ in range(20):
         da.append(doc)
     do_something(da)

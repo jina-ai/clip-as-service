@@ -1,6 +1,7 @@
 import time
 import random
-from jina import Executor, requests, DocumentArray
+import numpy as np
+from jina import Executor, requests, DocumentArray, Flow
 
 
 class Toy2(Executor):
@@ -8,11 +9,15 @@ class Toy2(Executor):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-    @requests(on='/')
-    def encode(self, docs: DocumentArray, **kwargs):
-        time.sleep(random.random())
+    @requests
+    async def encode(self, docs: DocumentArray, **kwargs):
+        for d in docs:
+            d.embedding = np.random.rand(100)
+        time.sleep(random.random()*3)
         return docs
 
 
 if __name__ == '__main__':
-    Toy2.serve(port=51000)
+    f = Flow(port=51000).add(uses=Toy2, replicas=4)
+    with f:
+        f.block()
