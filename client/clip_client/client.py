@@ -132,7 +132,7 @@ class Client:
 
     @property
     def _unboxed_result(self):
-        if self._return_plain and self._results.embeddings is None:
+        if self._results.embeddings is None:
             raise ValueError(
                 'empty embedding returned from the server. '
                 'This often due to a mis-config of the server, '
@@ -158,13 +158,14 @@ class Client:
                 else:
                     yield Document(text=c)
             elif isinstance(c, Document):
-                self._return_plain = False
-                if c.content_type in ('text', 'blob', 'tensor'):
+                if c.content_type in ('text', 'blob'):
+                    self._return_plain = False
                     yield c
                 elif not c.blob and c.uri:
                     c.load_uri_to_blob()
+                    self._return_plain = False
                     yield c
-                elif len(c.chunks) > 0 or len(c.matches) > 0:
+                elif c.tensor is not None:
                     yield c
                 else:
                     raise TypeError(f'unsupported input type {c!r} {c.content_type}')
@@ -183,17 +184,10 @@ class Client:
                 )
 
     def _get_post_payload(self, content, kwargs):
-        parameters = {}
-        if 'traversal_paths' in kwargs:
-            parameters['traversal_paths'] = kwargs['traversal_paths']
-        if 'batch_size' in kwargs:
-            parameters['minibatch_size'] = kwargs['batch_size']
-
         return dict(
             on='/',
             inputs=self._iter_doc(content),
-            request_size=kwargs.get('batch_size', 32),
-            parameters=parameters,
+            request_size=kwargs.get('batch_size', 8),
             total_docs=len(content) if hasattr(content, '__len__') else None,
         )
 

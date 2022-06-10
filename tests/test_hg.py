@@ -22,4 +22,6 @@ from clip_client.client import Client
 def test_batch_no_preprocessing(make_hg_flow_no_default, inputs, port_generator):
     c = Client(server=f'grpc://0.0.0.0:{make_hg_flow_no_default.port}')
     r = c.encode(inputs if not callable(inputs) else inputs())
-    assert r.embeddings.shape == (len(r), 512)
+    assert len(r) == 2
+    assert r[0].shape == (512,)
+    assert r[0].dtype == np.float32
