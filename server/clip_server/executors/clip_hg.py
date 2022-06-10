@@ -113,33 +113,36 @@ class CLIPEncoder(Executor):
             name='preprocess_images_seconds',
             documentation='images preprocess time in seconds',
         ):
-            tensors_batch = []
-
-            for d in docs:
-                content = d.content
-
-                if d.blob:
-                    d.convert_blob_to_image_tensor()
-                elif d.tensor is None and d.uri:
-                    # in case user uses HTTP protocol and send data via curl not using .blob (base64), but in .uri
-                    d.load_uri_to_image_tensor()
-
-                tensors_batch.append(d.tensor)
-
-                # recover content
-                d.content = content
-
             if self._use_default_preprocessing:
+                tensors_batch = []
+
+                for d in docs:
+                    content = d.content
+
+                    if d.blob:
+                        d.convert_blob_to_image_tensor()
+                    elif d.tensor is None and d.uri:
+                        # in case user uses HTTP protocol and send data via curl not using .blob (base64), but in .uri
+                        d.load_uri_to_image_tensor()
+
+                    tensors_batch.append(d.tensor)
+
+                    # recover content
+                    d.content = content
+
                 batch_data = self._vision_preprocessor(
                     images=tensors_batch,
                     return_tensors='pt',
                 )
-                batch_data = {k: v.to(self._device) for k, v in batch_data.items()}
+                batch_data = {
+                    k: v.type(torch.float32).to(self._device)
+                    for k, v in batch_data.items()
+                }
 
             else:
                 batch_data = {
                     'pixel_values': torch.tensor(
-                        tensors_batch, dtype=torch.float32, device=self._device
+                        docs.tensors, dtype=torch.float32, device=self._device
                     )
                 }
 
