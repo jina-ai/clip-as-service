@@ -158,17 +158,13 @@ class Client:
                 else:
                     yield Document(text=c)
             elif isinstance(c, Document):
+                self._return_plain = False
                 if c.content_type in ('text', 'blob'):
-                    self._return_plain = False
                     yield c
                 elif not c.blob and c.uri:
                     c.load_uri_to_blob()
-                    self._return_plain = False
-                    yield c
-                elif c.tensor is not None:
                     yield c
                 elif len(c.chunks) > 0 or len(c.matches) > 0:
-                    self._return_plain = False
                     yield c
                 else:
                     raise TypeError(f'unsupported input type {c!r} {c.content_type}')
@@ -193,14 +189,13 @@ class Client:
         if 'batch_size' in kwargs:
             parameters['minibatch_size'] = kwargs['batch_size']
 
-        payload = dict(
+        return dict(
             on='/',
             inputs=self._iter_doc(content),
             request_size=kwargs.get('batch_size', 32),
             parameters=parameters,
             total_docs=len(content) if hasattr(content, '__len__') else None,
         )
-        return payload
 
     def profile(self, content: Optional[str] = '') -> Dict[str, float]:
         """Profiling a single query's roundtrip including network and computation latency. Results is summarized in a table.
