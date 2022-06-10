@@ -80,13 +80,13 @@ class CLIPEncoder(Executor):
             return preproc_text(docs, device=self._device, return_np=False)
 
     @requests(on='/rank')
-    async def rank(self, docs: 'DocumentArray', parameters: Dict, **kwargs):
+    async def rank(self, docs: 'DocumentArray', **kwargs):
         await self.encode(docs['@r,m'])
 
         set_rank(docs)
 
     @requests
-    async def encode(self, docs: 'DocumentArray', parameters: Dict, **kwargs):
+    async def encode(self, docs: 'DocumentArray', parameters: Dict = {}, **kwargs):
         traversal_paths = parameters.get('traversal_paths', self._traversal_paths)
         minibatch_size = parameters.get('minibatch_size', self._minibatch_size)
 

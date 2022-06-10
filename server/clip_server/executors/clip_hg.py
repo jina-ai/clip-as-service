@@ -164,13 +164,13 @@ class CLIPEncoder(Executor):
             return docs, batch_data
 
     @requests(on='/rank')
-    async def rank(self, docs: 'DocumentArray', parameters: Dict, **kwargs):
+    async def rank(self, docs: 'DocumentArray', **kwargs):
         await self.encode(docs['@r,m'])
 
         set_rank(docs)
 
     @requests
-    async def encode(self, docs: DocumentArray, parameters: Dict, **kwargs):
+    async def encode(self, docs: DocumentArray, parameters: Dict = {}, **kwargs):
         """
         Encode all documents with `text` or image content using the corresponding CLIP
         encoder. Store the embeddings in the `embedding` attribute.
