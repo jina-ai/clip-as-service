@@ -164,8 +164,6 @@ class Client:
                 elif not c.blob and c.uri:
                     c.load_uri_to_blob()
                     yield c
-                elif len(c.chunks) > 0 or len(c.matches) > 0:
-                    yield c
                 else:
                     raise TypeError(f'unsupported input type {c!r} {c.content_type}')
             else:
@@ -184,8 +182,6 @@ class Client:
 
     def _get_post_payload(self, content, kwargs):
         parameters = {}
-        if 'traversal_paths' in kwargs:
-            parameters['traversal_paths'] = kwargs['traversal_paths']
         if 'batch_size' in kwargs:
             parameters['minibatch_size'] = kwargs['batch_size']
 

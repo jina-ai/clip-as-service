@@ -125,6 +125,8 @@ def test_docarray_traversal(make_flow, inputs, port_generator):
     da = DocumentArray.empty(1)
     da[0].chunks = inputs
 
-    c = Client(server=f'grpc://0.0.0.0:{make_flow.port}')
-    r = c.encode(da, traversal_paths='@c')
+    from jina import Client as _Client
+
+    c = _Client(host=f'grpc://0.0.0.0', port=make_flow.port)
+    r = c.post(on='/', inputs=da, parameters={'traversal_paths': '@c'})
     assert r[0].chunks.embeddings.shape[0] == len(inputs)
