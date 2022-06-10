@@ -38,10 +38,10 @@ def preproc_image(
         # recover doc content
         d.content = content
 
-    tensors_batch = torch.tensor(tensors_batch, dtype=torch.float32)
+    tensors_batch = torch.stack(tensors_batch).type(torch.float32)
 
     if return_np:
-        tensors_batch = tensors_batch.cpu().numpy().astype(np.float32)
+        tensors_batch = tensors_batch.cpu().numpy()
     else:
         tensors_batch = tensors_batch.to(device)
 
