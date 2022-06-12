@@ -13,7 +13,7 @@ class Toy1(Executor):
 
     @requests(on='/')
     async def do_something(self, docs: DocumentArray, **kwargs):
-        results = [i async for i in self._client.post(on='/encode', inputs=docs)][0]
+        results = [i async for i in self._client.post(on='/encode', inputs=docs, request_size=2)][0]
         # results = await self._client.aencode(docs)
 
         # results vs docs
