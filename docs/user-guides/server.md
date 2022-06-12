@@ -64,7 +64,7 @@ Open AI has released 9 models so far. `ViT-B/32` is used as default model in all
 
 | Model          | PyTorch | ONNX | TensorRT | Output dimension | Disk Usage | Peak Memory Usage | 
 |----------------|---------|------|----------|------------------|------------|-------------------|
-| RN50           | ✅       | ✅    | ✅        | 1024             | 
+| RN50           | ✅       | ✅    | ✅        | 1024             | 528056
 | RN101          | ✅       | ✅    | ✅        | 512              | 
 | RN50x4         | ✅       | ✅    | ✅        | 640              |
 | RN50x16        | ✅       | ✅    | ❌        | 768              |
