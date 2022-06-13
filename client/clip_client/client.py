@@ -13,10 +13,12 @@ from typing import (
     Dict,
 )
 from urllib.parse import urlparse
+from functools import partial
+from docarray import DocumentArray
 
 if TYPE_CHECKING:
     import numpy as np
-    from docarray import DocumentArray, Document
+    from docarray import Document
 
 
 class Client:
@@ -109,19 +111,20 @@ class Client:
             not kwargs.get('show_progress'),
             total=len(content) if hasattr(content, '__len__') else None,
         )
+        results = DocumentArray()
         with self._pbar:
             self._client.post(
-                **self._get_post_payload(content, kwargs), on_done=self._gather_result
+                **self._get_post_payload(content, kwargs), on_done=partial(self._gather_result, results=results)
             )
-        return self._unboxed_result
+        return self._unboxed_result(results, self._return_plain)
 
-    def _gather_result(self, r):
+    def _gather_result(self, r, results):
         from rich import filesize
 
-        if not self._results:
+        if not results:
             self._pbar.start_task(self._r_task)
         r = r.data.docs
-        self._results.extend(r)
+        results.extend(r)
         self._pbar.update(
             self._r_task,
             advance=len(r),
@@ -130,15 +133,15 @@ class Client:
             ),
         )
 
-    @property
-    def _unboxed_result(self):
-        if self._results.embeddings is None:
+    @staticmethod
+    def _unboxed_result(results, return_plain):
+        if results.embeddings is None:
             raise ValueError(
                 'empty embedding returned from the server. '
                 'This often due to a mis-config of the server, '
                 'restarting the server or changing the serving port number often solves the problem'
             )
-        return self._results.embeddings if self._return_plain else self._results
+        return results.embeddings if return_plain else results
 
     def _iter_doc(self, content) -> Generator['Document', None, None]:
         from rich import filesize
@@ -271,12 +274,13 @@ class Client:
             total=len(content) if hasattr(content, '__len__') else None,
         )
 
+        results = DocumentArray()
         async for da in self._async_client.post(
             **self._get_post_payload(content, kwargs)
         ):
-            if not self._results:
+            if not results:
                 self._pbar.start_task(self._r_task)
-            self._results.extend(da)
+            results.extend(da)
             self._pbar.update(
                 self._r_task,
                 advance=len(da),
@@ -285,7 +289,7 @@ class Client:
                 ),
             )
 
-        return self._unboxed_result
+        return self._unboxed_result(results, self._return_plain)
 
     def _prepare_streaming(self, disable, total):
 
@@ -308,10 +312,6 @@ class Client:
         self._r_task = self._pbar.add_task(
             ':arrow_down: Recv', total=total, total_size=0, start=False
         )
-
-        from docarray import DocumentArray
-
-        self._results = DocumentArray()
 
     @staticmethod
     def _prepare_single_doc(d: 'Document'):
@@ -389,11 +389,12 @@ class Client:
             not kwargs.get('show_progress'),
             total=len(docs),
         )
+        results = DocumentArray()
         with self._pbar:
             self._client.post(
-                **self._get_rank_payload(docs, kwargs), on_done=self._gather_result
+                **self._get_rank_payload(docs, kwargs), on_done=partial(self._gather_result, results=results)
             )
-        return self._results
+        return results
 
     async def arank(self, docs: Iterable['Document'], **kwargs) -> 'DocumentArray':
         from rich import filesize
@@ -402,11 +403,11 @@ class Client:
             not kwargs.get('show_progress'),
             total=len(docs),
         )
-
+        results = DocumentArray()
         async for da in self._async_client.post(**self._get_rank_payload(docs, kwargs)):
-            if not self._results:
+            if not results:
                 self._pbar.start_task(self._r_task)
-            self._results.extend(da)
+            results.extend(da)
             self._pbar.update(
                 self._r_task,
                 advance=len(da),
@@ -415,4 +416,4 @@ class Client:
                 ),
             )
 
-        return self._results
+        return results
