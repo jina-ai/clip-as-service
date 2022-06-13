@@ -62,17 +62,17 @@ The procedure and UI of ONNX and TensorRT runtime would look the same as Pytorch
 
 Open AI has released 9 models so far. `ViT-B/32` is used as default model in all runtimes. Due to the limitation of some runtime, not every runtime supports all nine models. Please also note that different model give different size of output dimensions. This will affect your downstream applications. For example, switching the model from one to another make your embedding incomparable, which breaks the downstream applications. Below is a list of supported models of each runtime and its corresponding size. We also include a sample disk usage and peak memory usage when running with a single Nvidia TITAN RTX GPU with 24 GB memory and with a batch size of 256.
 
-| Model          | PyTorch | ONNX | TensorRT | Output Dimension | Disk Usage (MB) | Peak RAM Usage (MB) | Peak VRAM Usage(GB) |
+| Model          | PyTorch | ONNX | TensorRT | Output Dimension | Disk Usage (MB) | Peak RAM Usage (GB) | Peak VRAM Usage(GB) |
 |----------------|---------|------|----------|------------------|-----------------|---------------------|---------------------|
-| RN50           | ✅       | ✅    | ✅        | 1024             | 256             | 3044                | 4.25                |
-| RN101          | ✅       | ✅    | ✅        | 512              | 292             | 3120                | 4.28                |
-| RN50x4         | ✅       | ✅    | ✅        | 640              | 422             | 3254                | 6.92                |
-| RN50x16        | ✅       | ✅    | ❌        | 768              | 661             | 3632                | 13.01               |
-| RN50x64        | ✅       | ✅    | ❌        | 1024             | 1382            | 4043                | 20.26               |
-| ViT-B/32       | ✅       | ✅    | ✅        | 512              | 351             | 3252                | 2.19                |
-| ViT-B/16       | ✅       | ✅    | ✅        | 512              | 354             | 3249                | 3.90                |
-| ViT-L/14       | ✅       | ✅    | ✅        | 768              | 933             | 3728                | 5.38                |
-| ViT-L/14-336px | ✅       | ✅    | ❌        | 768              | 934             | 3762                | 11.36               |
+| RN50           | ✅       | ✅    | ✅        | 1024             | 256             | 2.97                | 4.25                |
+| RN101          | ✅       | ✅    | ✅        | 512              | 292             | 3.05                | 4.28                |
+| RN50x4         | ✅       | ✅    | ✅        | 640              | 422             | 3.18                | 6.92                |
+| RN50x16        | ✅       | ✅    | ❌        | 768              | 661             | 3.55                | 13.01               |
+| RN50x64        | ✅       | ✅    | ❌        | 1024             | 1382            | 3.95                | 20.26               |
+| ViT-B/32       | ✅       | ✅    | ✅        | 512              | 351             | 3.18                | 2.19                |
+| ViT-B/16       | ✅       | ✅    | ✅        | 512              | 354             | 3.17                | 3.90                |
+| ViT-L/14       | ✅       | ✅    | ✅        | 768              | 933             | 3.64                | 5.38                |
+| ViT-L/14-336px | ✅       | ✅    | ❌        | 768              | 934             | 3.67                | 11.36               |
 
 
 ## YAML config
@@ -136,7 +136,7 @@ executors:
 ```
 ````
 
-Basically, each YAML file defines a [Jina Flow](https://docs.jina.ai/fundamentals/flow/). The complete Jina Flow YAML syntax [can be found here](https://docs.jina.ai/fundamentals/flow/yaml-spec/). General parameters of the Flow and Executor can be used here as well. But now we only highlight the most important parameters.
+Basically, each YAML file defines a [Jina Flow](https://docs.jina.ai/fundamentals/flow/). The complete Jina Flow YAML syntax [can be found here](https://docs.jina.ai/fundamentals/flow/flow-yaml/#configure-flow-meta-information). General parameters of the Flow and Executor can be used here as well. But now we only highlight the most important parameters.
 
 Looking at the YAML file again, we can put it into three subsections as below:
 
