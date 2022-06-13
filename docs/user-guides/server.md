@@ -60,19 +60,19 @@ The procedure and UI of ONNX and TensorRT runtime would look the same as Pytorch
 
 ## Model support
 
-Open AI has released 9 models so far. `ViT-B/32` is used as default model in all runtimes. Due to the limitation of some runtime, not every runtime supports all nine models. Please also note that different model give different size of output dimensions. This will affect your downstream applications. For example, switching the model from one to another make your embedding incomparable, which breaks the downstream applications. Here is a list of supported models of each runtime and its corresponding size:
+Open AI has released 9 models so far. `ViT-B/32` is used as default model in all runtimes. Due to the limitation of some runtime, not every runtime supports all nine models. Please also note that different model give different size of output dimensions. This will affect your downstream applications. For example, switching the model from one to another make your embedding incomparable, which breaks the downstream applications. Below is a list of supported models of each runtime and its corresponding size. We also include a sample disk usage and peak memory usage when running with a single Nvidia RTX Titan GPU with 24 GB memory and with a batch size of 256.
 
 | Model          | PyTorch | ONNX | TensorRT | Output dimension | Disk Usage (MB) | Peak Memory Usage (GB) | 
 |----------------|---------|------|----------|------------------|-----------------|------------------------|
-| RN50           | ✅       | ✅    | ✅        | 1024             | 256             | 0                      |
-| RN101          | ✅       | ✅    | ✅        | 512              | 292             | 0                      |
-| RN50x4         | ✅       | ✅    | ✅        | 640              | 422             | 0                      |
-| RN50x16        | ✅       | ✅    | ❌        | 768              | 661             | 0                      |
-| RN50x64        | ✅       | ✅    | ❌        | 1024             | 1382            | 0                      |
-| ViT-B/32       | ✅       | ✅    | ✅        | 512              | 351             | 0                      |
-| ViT-B/16       | ✅       | ✅    | ✅        | 512              | 354             | 0                      |
-| ViT-L/14       | ✅       | ✅    | ✅        | 768              | 933             | 0                      |
-| ViT-L/14-336px | ✅       | ✅    | ❌        | 768              | 934             | 0                      |
+| RN50           | ✅       | ✅    | ✅        | 1024             | 256             | 4347                   |
+| RN101          | ✅       | ✅    | ✅        | 512              | 292             | 4385                   |
+| RN50x4         | ✅       | ✅    | ✅        | 640              | 422             | 7085                   |
+| RN50x16        | ✅       | ✅    | ❌        | 768              | 661             | 13323                  |
+| RN50x64        | ✅       | ✅    | ❌        | 1024             | 1382            | 20.26                  |
+| ViT-B/32       | ✅       | ✅    | ✅        | 512              | 351             | 2241                   |
+| ViT-B/16       | ✅       | ✅    | ✅        | 512              | 354             | 3991                   |
+| ViT-L/14       | ✅       | ✅    | ✅        | 768              | 933             | 5509                   |
+| ViT-L/14-336px | ✅       | ✅    | ❌        | 768              | 934             | 11629                  |
 
 
 ## YAML config
