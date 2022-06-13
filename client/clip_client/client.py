@@ -184,7 +184,9 @@ class Client:
         return dict(
             on='/',
             inputs=self._iter_doc(content),
-            request_size=kwargs.get('batch_size', 32),
+            request_size=kwargs.get(
+                'batch_size', 8
+            ),  # the default `batch_size` is very subjective. i would set it 8 based on 2 considerations (1) play safe on most GPUs (2) ease the load to our demo server
             total_docs=len(content) if hasattr(content, '__len__') else None,
         )
 

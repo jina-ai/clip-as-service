@@ -19,7 +19,7 @@ class CLIPEncoder(Executor):
         finetuned_checkpoint_path: Optional[str] = None,
         base_feature_extractor: Optional[str] = None,
         base_tokenizer_model: Optional[str] = None,
-        use_default_preprocessing: bool = True,
+        preprocessing: bool = True,
         max_length: int = 77,
         device: str = 'cpu',
         num_worker_preprocess: int = 4,
@@ -41,7 +41,7 @@ class CLIPEncoder(Executor):
             Defaults to ``pretrained_model_name_or_path`` if None.
         :param base_tokenizer_model: Base tokenizer model.
             Defaults to ``pretrained_model_name_or_path`` if None.
-        :param use_default_preprocessing: Whether to use the `base_feature_extractor`
+        :param preprocessing: Whether to use the `base_feature_extractor`
             on images (tensors) before encoding them. If you disable this, you must
             ensure that the images you pass in have the correct format, see the
             ``encode`` method for details.
@@ -58,7 +58,7 @@ class CLIPEncoder(Executor):
         super().__init__(*args, **kwargs)
         self._minibatch_size = minibatch_size
 
-        self._use_default_preprocessing = use_default_preprocessing
+        self._preprocessing = preprocessing
         self._max_length = max_length
         self._traversal_paths = traversal_paths
 
@@ -113,7 +113,7 @@ class CLIPEncoder(Executor):
             name='preprocess_images_seconds',
             documentation='images preprocess time in seconds',
         ):
-            if self._use_default_preprocessing:
+            if self._preprocessing:
                 tensors_batch = []
 
                 for d in docs:
@@ -179,10 +179,10 @@ class CLIPEncoder(Executor):
             ``tensor`` of the
             shape ``Height x Width x 3``. By default, the input ``tensor`` must
             be an ``ndarray`` with ``dtype=uint8`` or ``dtype=float32``.
-            If you set ``use_default_preprocessing=True`` when creating this encoder,
+            If you set ``preprocessing=True`` when creating this encoder,
             then the ``tensor`` arrays should have the shape ``[H, W, 3]``, and be in
             the RGB color format with ``dtype=uint8``.
-            If you set ``use_default_preprocessing=False`` when creating this encoder,
+            If you set ``preprocessing=False`` when creating this encoder,
             then you need to ensure that the images you pass in are already
             pre-processed. This means that they are all the same size (for batching) -
             the CLIP model was trained on images of the size ``224 x 224``, and that
