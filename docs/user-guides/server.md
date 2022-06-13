@@ -62,17 +62,17 @@ The procedure and UI of ONNX and TensorRT runtime would look the same as Pytorch
 
 Open AI has released 9 models so far. `ViT-B/32` is used as default model in all runtimes. Due to the limitation of some runtime, not every runtime supports all nine models. Please also note that different model give different size of output dimensions. This will affect your downstream applications. For example, switching the model from one to another make your embedding incomparable, which breaks the downstream applications. Here is a list of supported models of each runtime and its corresponding size:
 
-| Model          | PyTorch | ONNX | TensorRT | Output dimension | Disk Usage | Peak Memory Usage | 
-|----------------|---------|------|----------|------------------|------------|-------------------|
-| RN50           | ✅       | ✅    | ✅        | 1024             | 528056 | 1.02GB            |
-| RN101          | ✅       | ✅    | ✅        | 512              | 585752 | 1.23GB            |
-| RN50x4         | ✅       | ✅    | ✅        | 640              | 847616 | 1.65GB            |
-| RN50x16        | ✅       | ✅    | ❌        | 768              | 1311224 | 2.34GB            |
-| RN50x64        | ✅       | ✅    | ❌        | 1024             | 2667032 | 3.71GB |
-| ViT-B/32       | ✅       | ✅    | ✅        | 512              | 727824 | 1.20GB |
-| ViT-B/16       | ✅       | ✅    | ✅        | 512              | 689600 | 1.38GB |
-| ViT-L/14       | ✅       | ✅    | ✅        | 768              | 1797424 | 
-| ViT-L/14-336px | ✅       | ✅    | ❌        | 768              |
+| Model          | PyTorch | ONNX | TensorRT | Output dimension | Disk Usage (MB) | Peak Memory Usage (GB) | 
+|----------------|---------|------|----------|------------------|-----------------|------------------------|
+| RN50           | ✅       | ✅    | ✅        | 1024             | 256             | 0                      |
+| RN101          | ✅       | ✅    | ✅        | 512              | 292             | 0                      |
+| RN50x4         | ✅       | ✅    | ✅        | 640              | 422             | 0                      |
+| RN50x16        | ✅       | ✅    | ❌        | 768              | 661             | 0                      |
+| RN50x64        | ✅       | ✅    | ❌        | 1024             | 1382            | 0                      |
+| ViT-B/32       | ✅       | ✅    | ✅        | 512              | 351             | 0                      |
+| ViT-B/16       | ✅       | ✅    | ✅        | 512              | 354             | 0                      |
+| ViT-L/14       | ✅       | ✅    | ✅        | 768              | 933             | 0                      |
+| ViT-L/14-336px | ✅       | ✅    | ❌        | 768              | 934             | 0                      |
 
 
 ## YAML config
