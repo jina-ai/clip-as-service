@@ -45,6 +45,7 @@
 
 
 
+
 <a name=release-note-0-0-3></a>
 ## Release Note (`0.0.3`)
 
@@ -1074,4 +1075,32 @@
 ### 🍹 Other Improvements
 
  - [[```06097f20```](https://github.com/jina-ai/clip-as-service/commit/06097f2098190b5a8a40fc82354b642730e617e0)] __-__ __version__: the next version will be 0.4.14 (*Jina Dev Bot*)
+
+<a name=release-note-0-4-15></a>
+## Release Note (`0.4.15`)
+
+> Release time: 2022-06-13 13:06:16
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Han Xiao,  felix-wang,  Ziniu Yu,  Jina Dev Bot,  🙇
+
+
+### 🆕 New Features
+
+ - [[```e022bd46```](https://github.com/jina-ai/clip-as-service/commit/e022bd46c8c1773620f635148cb999e23ff7167e)] __-__ add traversal paths (#750) (*felix-wang*)
+ - [[```4fe5a1b1```](https://github.com/jina-ai/clip-as-service/commit/4fe5a1b1dc9672be98638ba57023936b5ed69a6c)] __-__ add traversal paths (#748) (*felix-wang*)
+
+### 🐞 Bug fixes
+
+ - [[```752202f8```](https://github.com/jina-ai/clip-as-service/commit/752202f8b730d0ab8785a703fc719dacfbe2993b)] __-__ monitor documentation (#745) (*felix-wang*)
+
+### 🍹 Other Improvements
+
+ - [[```dab8341e```](https://github.com/jina-ai/clip-as-service/commit/dab8341e9ffb0716eb8c17477534ef91f19d8c5d)] __-__ add cas on colab section (*Han Xiao*)
+ - [[```29bd68a4```](https://github.com/jina-ai/clip-as-service/commit/29bd68a4bc1f17c34016d45901858c65c8cf5623)] __-__ add replicas field in all yamls (*Han Xiao*)
+ - [[```d5be8c2f```](https://github.com/jina-ai/clip-as-service/commit/d5be8c2f85e47fcafa7587f3e75b76fbc42300e5)] __-__ Revert &#34;feat: add traversal paths (#748)&#34; (#749) (*Han Xiao*)
+ - [[```7f2d8fe8```](https://github.com/jina-ai/clip-as-service/commit/7f2d8fe88643ae71e5d8b38547faa32570886e46)] __-__ update links in docs (#747) (*Ziniu Yu*)
+ - [[```52a8b0a6```](https://github.com/jina-ai/clip-as-service/commit/52a8b0a6c62204d37556f31fd79fd1ee621b45e3)] __-__ __version__: the next version will be 0.4.15 (*Jina Dev Bot*)
 
