@@ -71,7 +71,7 @@ Open AI has released 9 models so far. `ViT-B/32` is used as default model in all
 | RN50x64        | ✅       | ✅    | ❌        | 1024             | 2667032 | 3.71GB |
 | ViT-B/32       | ✅       | ✅    | ✅        | 512              | 727824 | 1.20GB |
 | ViT-B/16       | ✅       | ✅    | ✅        | 512              | 689600 | 1.38GB |
-| ViT-L/14       | ✅       | ✅    | ✅        | 768              |
+| ViT-L/14       | ✅       | ✅    | ✅        | 768              | 1797424 | 
 | ViT-L/14-336px | ✅       | ✅    | ❌        | 768              |
 
 
