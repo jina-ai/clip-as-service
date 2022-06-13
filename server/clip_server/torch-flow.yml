@@ -9,3 +9,4 @@ executors:
       metas:
         py_modules:
           - executors/clip_torch.py
+    replicas: 1

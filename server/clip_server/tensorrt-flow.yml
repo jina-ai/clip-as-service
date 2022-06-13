@@ -9,3 +9,4 @@ executors:
       metas:
         py_modules:
           - executors/clip_tensorrt.py
+    replicas: 1
