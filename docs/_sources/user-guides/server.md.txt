@@ -136,7 +136,7 @@ executors:
 ```
 ````
 
-Basically, each YAML file defines a [Jina Flow](https://docs.jina.ai/fundamentals/flow/). The complete Jina Flow YAML syntax [can be found here](https://docs.jina.ai/fundamentals/flow/flow-yaml/#configure-flow-meta-information). General parameters of the Flow and Executor can be used here as well. But now we only highlight the most important parameters.
+Basically, each YAML file defines a [Jina Flow](https://docs.jina.ai/fundamentals/flow/). The complete Jina Flow YAML syntax [can be found here](https://docs.jina.ai/fundamentals/flow/yaml-spec/). General parameters of the Flow and Executor can be used here as well. But now we only highlight the most important parameters.
 
 Looking at the YAML file again, we can put it into three subsections as below:
 
@@ -486,70 +486,118 @@ r = c.encode(
     ]
 )
 ```
-## Deploy on JCloud
 
-You can deploy `CLIPTorchEncoder` on JCloud. 
-A minimum YAML file `flow.yml` is as follows:
+[//]: # (## Deploy on JCloud)
 
-```yaml
-jtype: Flow
-executors:
-  - name: CLIPTorchEncoder # The name of the encoder
-    uses: jinahub+docker://CLIPTorchEncoder
-```
+[//]: # ()
+[//]: # (You can deploy `CLIPTorchEncoder` on JCloud. )
 
-```{warning}
-All Executors' `uses` must follow the format `jinahub+docker://MyExecutor` (from [Jina Hub](https://hub.jina.ai)) to avoid any local file dependencies.
-```
+[//]: # (A minimum YAML file `flow.yml` is as follows:)
 
-To deploy,
+[//]: # ()
+[//]: # (```yaml)
 
-```bash
-$ jc deploy flow.yml
-```
+[//]: # (jtype: Flow)
 
-Here `jc deploy` is the command to deploy a Jina project to JCloud.
-Learn more about [JCloud usage](https://github.com/jina-ai/jcloud).
+[//]: # (executors:)
 
+[//]: # (  - name: CLIPTorchEncoder # The name of the encoder)
 
-The Flow is successfully deployed when you see:
+[//]: # (    uses: jinahub+docker://CLIPTorchEncoder)
 
-```{figure} images/jc-deploy.png
-:width: 60%
+[//]: # (```)
 
-```
+[//]: # ()
+[//]: # (```{warning})
 
-After deploying on jcloud, you can connect to it via client by setting  `grpcs://` as follows:
+[//]: # (All Executors' `uses` must follow the format `jinahub+docker://MyExecutor` &#40;from [Jina Hub]&#40;https://hub.jina.ai&#41;&#41; to avoid any local file dependencies.)
 
+[//]: # (```)
 
-```python
-from clip_client import Client
+[//]: # ()
+[//]: # (To deploy,)
 
-c = Client('grpcs://174eb69ba3.wolf.jina.ai')  # This is the URL you get from previous step
+[//]: # ()
+[//]: # (```bash)
 
-r = c.encode(
-    [
-        'First do it',
-        'then do it right',
-        'then do it better',
-        'https://picsum.photos/200',
-    ]
-)
-print(r)
-```
+[//]: # ($ jc deploy flow.yml)
 
-will give you:
+[//]: # (```)
 
-```text
-[[ 0.03480401 -0.23519686  0.01041038 ... -0.5229086  -0.10081214
-   -0.08695138]
- [-0.0683605  -0.00324154  0.01490371 ... -0.50309485 -0.06193433
-   -0.08574048]
- [ 0.15041807 -0.07933374 -0.06650036 ... -0.46410388 -0.08535041
-   0.04270519]
- [-0.16183889  0.10636599 -0.2062868  ... -0.41244072  0.19485454
-   0.05658712]]
-```
+[//]: # ()
+[//]: # (Here `jc deploy` is the command to deploy a Jina project to JCloud.)
 
+[//]: # (Learn more about [JCloud usage]&#40;https://docs.jina.ai/fundamentals/jcloud/&#41;.)
 
-It means the client and the JCloud server are now connected. Well done!
+[//]: # ()
+[//]: # ()
+[//]: # (The Flow is successfully deployed when you see:)
+
+[//]: # ()
+[//]: # (```{figure} images/jc-deploy.png)
+
+[//]: # (:width: 60%)
+
+[//]: # ()
+[//]: # (```)
+
+[//]: # ()
+[//]: # (After deploying on jcloud, you can connect to it via client by setting  `grpcs://` as follows:)
+
+[//]: # ()
+[//]: # ()
+[//]: # (```python)
+
+[//]: # (from clip_client import Client)
+
+[//]: # ()
+[//]: # (c = Client&#40;'grpcs://174eb69ba3.wolf.jina.ai'&#41;  # This is the URL you get from previous step)
+
+[//]: # ()
+[//]: # (r = c.encode&#40;)
+
+[//]: # (    [)
+
+[//]: # (        'First do it',)
+
+[//]: # (        'then do it right',)
+
+[//]: # (        'then do it better',)
+
+[//]: # (        'https://picsum.photos/200',)
+
+[//]: # (    ])
+
+[//]: # (&#41;)
+
+[//]: # (print&#40;r&#41;)
+
+[//]: # (```)
+
+[//]: # ()
+[//]: # (will give you:)
+
+[//]: # ()
+[//]: # (```text)
+
+[//]: # ([[ 0.03480401 -0.23519686  0.01041038 ... -0.5229086  -0.10081214)
+
+[//]: # (   -0.08695138])
+
+[//]: # ( [-0.0683605  -0.00324154  0.01490371 ... -0.50309485 -0.06193433)
+
+[//]: # (   -0.08574048])
+
+[//]: # ( [ 0.15041807 -0.07933374 -0.06650036 ... -0.46410388 -0.08535041)
+
+[//]: # (   0.04270519])
+
+[//]: # ( [-0.16183889  0.10636599 -0.2062868  ... -0.41244072  0.19485454)
+
+[//]: # (   0.05658712]])
+
+[//]: # (```)
+
+[//]: # ()
+[//]: # ()
+[//]: # (It means the client and the JCloud server are now connected. Well done!)

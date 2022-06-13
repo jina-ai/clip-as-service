@@ -2,16 +2,51 @@
 <html class="no-js" lang="en">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../genindex/" /><link rel="search" title="Search" href="#" />
-        <link rel="canonical" href="https://clip-as-service.jina.ai/search.html" />
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <link rel="shortcut icon" href="../_static/favicon.png"/><meta name="generator" content="sphinx-4.5.0, furo 2022.06.04.1"/><title>Search - CLIP-as-service 0.4.15 documentation</title><link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
-    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/tabs.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/design-style.b7bb847fb20b106c3d81b95245e65545.min.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
-    <link rel="stylesheet" type="text/css" href="../_static/main.css" />
+<meta property="og:title" content="Host on Google Colab" />
+  
+<meta property="og:type" content="website" />
+  
+<meta property="og:url" content="https://clip-as-service.jina.ai/playground/colab/" />
+  
+<meta property="og:site_name" content="CLIP-as-service 0.4.15 Documentation" />
+  
+<meta property="og:description" content="As Jina is fully compatible to Google Colab, CLIP-as-service can be run smoothly on Colab as well. One can host clip_server on Google Colab by leveraging its free GPU/TPU resources and open up to 4 replicas of ViT-L/14-336px. Then you can send request from local to the server for embedding, ranki..." />
+  
+<meta property="og:image" content="https://clip-as-service.jina.ai/_images/colab-banner.png" />
+  
+<meta property="og:image:alt" content="CLIP-as-service 0.4.15 Documentation" />
+  
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JinaAI_">
+<meta name="twitter:creator" content="@JinaAI_">
+<meta name="description" content="Embed images and sentences into fixed-length vectors via CLIP.">
+<meta property="og:description" content="CLIP-as-service is a low-latency high-scalability embedding service for images and texts. It can be easily integrated as a microservice into neural search solutions.">
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-E63SXVNDXZ"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-E63SXVNDXZ');
+</script>
+
+<script async defer src="https://buttons.github.io/buttons.js"></script>
+    <link rel="index" title="Index" href="../../genindex/" /><link rel="search" title="Search" href="../../search/" /><link rel="next" title="clip_client package" href="../../api/clip_client/" /><link rel="prev" title="Text &amp; Image Embedding" href="../embedding/" />
+        <link rel="canonical" href="https://clip-as-service.jina.ai/playground/colab.html" />
+
+    <link rel="shortcut icon" href="../../_static/favicon.png"/><meta name="generator" content="sphinx-4.5.0, furo 2022.06.04.1"/>
+        <title>Host on Google Colab - CLIP-as-service 0.4.15 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/design-style.b7bb847fb20b106c3d81b95245e65545.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/main.css" />
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta2/css/all.min.css" />
     
     
@@ -136,7 +171,7 @@
             </label>
         </div>
         <div class="header-center">
-            <a href="../">
+            <a href="../../">
                 <div class="brand">CLIP-as-service 0.4.15 documentation</div>
             </a>
         </div>
@@ -168,11 +203,11 @@
     <aside class="sidebar-drawer">
         <div class="sidebar-container">
             
-            <div class="sidebar-sticky"><a class="sidebar-brand" href="../">
+            <div class="sidebar-sticky"><a class="sidebar-brand" href="../../">
   
   <div class="sidebar-logo-container">
-    <img class="sidebar-logo only-light" src="../_static/logo-light.svg" alt="Light Logo" />
-    <img class="sidebar-logo only-dark" src="../_static/logo-dark.svg" alt="Dark Logo" />
+    <img class="sidebar-logo only-light" src="../../_static/logo-light.svg" alt="Light Logo" />
+    <img class="sidebar-logo only-dark" src="../../_static/logo-dark.svg" alt="Dark Logo" />
   </div>
   
   
@@ -180,7 +215,7 @@
 <div class="sd-d-flex-row sd-align-major-spaced">
   <a class="github-button" href="https://github.com/jina-ai/clip-as-service" data-icon="octicon-star" data-show-count="true" aria-label="Star jina-ai/jina on GitHub" style="opacity: 0;">Star</a>
   
-</div><form class="sidebar-search-container" method="get" action="#" role="search">
+</div><form class="sidebar-search-container" method="get" action="../../search/" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
   <input type="hidden" name="area" value="default">
@@ -188,55 +223,55 @@
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
     <p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../user-guides/client/">Client API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../user-guides/server/">Server API</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../user-guides/faq/">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user-guides/client/">Client API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user-guides/server/">Server API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user-guides/faq/">FAQ</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Playground</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../playground/embedding/">Text &amp; Image Embedding</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../playground/colab/">Host on Google Colab</a></li>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../embedding/">Text &amp; Image Embedding</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Host on Google Colab</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Developer References</span></p>
 <ul>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../api/clip_client/">clip_client package</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../api/clip_client.client/">clip_client.client module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api/clip_client.helper/">clip_client.helper module</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../api/clip_client/">clip_client package</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../api/clip_client.client/">clip_client.client module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/clip_client.helper/">clip_client.helper module</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../changelog/">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog/">Changelog</a></li>
 </ul>
 
     <p class="caption" role="heading"><span class="caption-text">Ecosystem</span></p>
     <ul>
         <li class="toctree-l1">
             <a class="reference external" href="https://docs.jina.ai">
-                <img class="sidebar-ecosys-logo only-light-line" src="../_static/search-light.svg">
-                <img class="sidebar-ecosys-logo only-dark-line" src="../_static/search-dark.svg">
+                <img class="sidebar-ecosys-logo only-light-line" src="../../_static/search-light.svg">
+                <img class="sidebar-ecosys-logo only-dark-line" src="../../_static/search-dark.svg">
                 Jina</a></li>
         <li class="toctree-l1"><a class="reference external" href="https://hub.jina.ai">
-            <img class="sidebar-ecosys-logo only-light-line" src="../_static/hub-light.svg">
-            <img class="sidebar-ecosys-logo only-dark-line" src="../_static/hub-dark.svg">
+            <img class="sidebar-ecosys-logo only-light-line" src="../../_static/hub-light.svg">
+            <img class="sidebar-ecosys-logo only-dark-line" src="../../_static/hub-dark.svg">
             Jina Hub</a></li>
         <li class="toctree-l1"><a class="reference external" href="https://finetuner.jina.ai">
-            <img class="sidebar-ecosys-logo only-light-line" src="../_static/finetuner-light.svg">
-            <img class="sidebar-ecosys-logo only-dark-line" src="../_static/finetuner-dark.svg">
+            <img class="sidebar-ecosys-logo only-light-line" src="../../_static/finetuner-light.svg">
+            <img class="sidebar-ecosys-logo only-dark-line" src="../../_static/finetuner-dark.svg">
             Finetuner</a></li>
         <li class="toctree-l1"><a class="reference external" href="https://docarray.jina.ai">
-            <img class="sidebar-ecosys-logo only-light-line" src="../_static/docarray-light.svg">
-            <img class="sidebar-ecosys-logo only-dark-line" src="../_static/docarray-dark.svg">
+            <img class="sidebar-ecosys-logo only-light-line" src="../../_static/docarray-light.svg">
+            <img class="sidebar-ecosys-logo only-dark-line" src="../../_static/docarray-dark.svg">
             DocArray</a></li>
         <li class="toctree-l1"><a class="reference internal" href="#">
-            <img class="sidebar-ecosys-logo only-light-line" src="../_static/cas-light.svg">
-            <img class="sidebar-ecosys-logo only-dark-line" src="../_static/cas-dark.svg">
+            <img class="sidebar-ecosys-logo only-light-line" src="../../_static/cas-light.svg">
+            <img class="sidebar-ecosys-logo only-dark-line" src="../../_static/cas-dark.svg">
             CLIP-as-service</a></li>
         <li class="toctree-l1"><a class="reference external" href="https://github.com/jina-ai/jcloud">
-            <img class="sidebar-ecosys-logo only-light-line" src="../_static/JCloud-light.svg">
-            <img class="sidebar-ecosys-logo only-dark-line" src="../_static/JCloud-dark.svg">
+            <img class="sidebar-ecosys-logo only-light-line" src="../../_static/JCloud-light.svg">
+            <img class="sidebar-ecosys-logo only-dark-line" src="../../_static/JCloud-dark.svg">
             JCloud</a></li>
         <li class="toctree-l1"><a class="reference external" href="https://now.jina.ai">
-            <img class="sidebar-ecosys-logo only-light-line" src="../_static/now-light.svg">
-            <img class="sidebar-ecosys-logo only-dark-line" src="../_static/now-dark.svg">
+            <img class="sidebar-ecosys-logo only-light-line" src="../../_static/now-light.svg">
+            <img class="sidebar-ecosys-logo only-dark-line" src="../../_static/now-dark.svg">
             NOW</a></li>
     </ul>
 </div>
@@ -280,25 +315,56 @@
                     </label>
                 </div>
                 <article role="main">
-                    
-<noscript>
-<div class="admonition error">
-  <p class="admonition-title">Error</p>
-  <p>
-    Please activate JavaScript to enable the search functionality.
-  </p>
+                    <section class="tex2jax_ignore mathjax_ignore" id="host-on-google-colab">
+<h1>Host on Google Colab<a class="headerlink" href="#host-on-google-colab" title="Permalink to this headline">#</a></h1>
+<figure class="align-default">
+<a class="reference internal image-reference" href="https://clip-as-service.jina.ai/_images/colab-banner.png"><img alt="https://clip-as-service.jina.ai/_images/colab-banner.png" src="https://clip-as-service.jina.ai/_images/colab-banner.png" style="width: 0.0%;" /></a>
+</figure>
+<figure class="align-default">
+<a class="reference internal image-reference" href="../../_images/colab-banner.png"><img alt="../../_images/colab-banner.png" src="../../_images/colab-banner.png" style="width: 0.0%; height: 0.0px;" /></a>
+</figure>
+<p>As <a class="reference external" href="https://docs.jina.ai/how-to/google-colab/">Jina is fully compatible to Google Colab</a>, CLIP-as-service can be run smoothly on Colab as well. One can host <code class="docutils literal notranslate"><span class="pre">clip_server</span></code> on Google Colab by leveraging its free GPU/TPU resources and open up to 4 replicas of <code class="docutils literal notranslate"><span class="pre">ViT-L/14-336px</span></code>. Then you can send request from local to the server for embedding, ranking and reasoning tasks.</p>
+<p>Specifically, the architecture is illustrated below:</p>
+<figure class="align-default">
+<a class="reference internal image-reference" href="../../_images/cas-on-colab.svg"><img alt="../../_images/cas-on-colab.svg" src="../../_images/cas-on-colab.svg" width="70%" /></a>
+</figure>
+<p class="sd-text-center"><a class="sd-sphinx-override sd-btn sd-text-wrap sd-btn-primary reference external" href="https://colab.research.google.com/github/jina-ai/clip-as-service/blob/main/docs/playground/cas-on-colab.ipynb"><span><svg version="1.1" width="1.0em" height="1.0em" class="sd-octicon sd-octicon-link-external" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M10.604 1h4.146a.25.25 0 01.25.25v4.146a.25.25 0 01-.427.177L13.03 4.03 9.28 7.78a.75.75 0 01-1.06-1.06l3.75-3.75-1.543-1.543A.25.25 0 0110.604 1zM3.75 2A1.75 1.75 0 002 3.75v8.5c0 .966.784 1.75 1.75 1.75h8.5A1.75 1.75 0 0014 12.25v-3.5a.75.75 0 00-1.5 0v3.5a.25.25 0 01-.25.25h-8.5a.25.25 0 01-.25-.25v-8.5a.25.25 0 01.25-.25h3.5a.75.75 0 000-1.5h-3.5z"></path></svg> Open the notebook on Google Colab </span></a></p>
+<p>Please follow the walk-through there. Enjoy the free GPU/TPU to build your awesome Jina applications!</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Hosing service on Google Colab is not recommended if you server aims to be long-live or permanent. It is often used for quick experimentm, demostration or simply leveraging its GPU/TPU. For stable, secure and free hosting of Jina apps, please check out <a class="reference external" href="https://docs.jina.ai/fundamentals/jcloud/">Jcloud</a>.</p>
 </div>
-</noscript>
-
-<div id="search-results"></div>
+</section>
 
                 </article>
             </div>
             <footer>
                 
                 <div class="related-pages">
-                    
-                    
+                    <a class="next-page" href="../../api/clip_client/">
+                        <div class="page-info">
+                            <div class="context">
+                                <span>Next</span>
+                            </div>
+                            <div class="title">clip_client package</div>
+                        </div>
+                        <svg>
+                            <use href="#svg-arrow-right"></use>
+                        </svg>
+                    </a>
+                    <a class="prev-page" href="../embedding/">
+                        <svg>
+                            <use href="#svg-arrow-right"></use>
+                        </svg>
+                        <div class="page-info">
+                            <div class="context">
+                                <span>Previous</span>
+                            </div>
+                            
+                            <div class="title">Text &amp; Image Embedding</div>
+                            
+                        </div>
+                    </a>
                 </div>
                 <div class="bottom-of-page">
                     <div class="left-details">
@@ -333,18 +399,15 @@
     </div>
 </div>
 <img referrerpolicy="no-referrer-when-downgrade"
-     src="https://static.scarf.sh/a.png?x-pxid=2823e771-0e1e-4320-8fde-48bc48e53262"/><script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-    <script src="../_static/jquery.js"></script>
-    <script src="../_static/underscore.js"></script>
-    <script src="../_static/doctools.js"></script>
-    <script src="../_static/scripts/furo.js"></script>
-    <script src="../_static/clipboard.min.js"></script>
-    <script src="../_static/copybutton.js"></script>
-    <script src="../_static/tabs.js"></script>
-    <script src="../_static/design-tabs.js"></script>
+     src="https://static.scarf.sh/a.png?x-pxid=2823e771-0e1e-4320-8fde-48bc48e53262"/><script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/scripts/furo.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script src="../../_static/tabs.js"></script>
+    <script src="../../_static/design-tabs.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.min.js"></script>
-    
-<script src="../_static/searchtools.js"></script>
-<script src="../_static/language_data.js"></script>
-<script src="../searchindex.js"></script></body>
+    </body>
 </html>

@@ -177,7 +177,7 @@ user-guides/faq
 :hidden:
 
 playground/embedding
-
+playground/colab
 ```
 
 

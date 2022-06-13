@@ -10,13 +10,13 @@
   
 <meta property="og:url" content="https://clip-as-service.jina.ai/user-guides/server/" />
   
-<meta property="og:site_name" content="CLIP-as-service 0.4.14 Documentation" />
+<meta property="og:site_name" content="CLIP-as-service 0.4.15 Documentation" />
   
 <meta property="og:description" content="CLIP-as-service is designed in a client-server architecture. A server is a long-running program that receives raw sentences and images from clients, and returns CLIP embeddings to the client. Additionally, clip_server is optimized for speed, low memory footprint and scalability. Horizontal scalin..." />
   
 <meta property="og:image" content="https://clip-as-service.jina.ai/_images/server-start.gif" />
   
-<meta property="og:image:alt" content="CLIP-as-service 0.4.14 Documentation" />
+<meta property="og:image:alt" content="CLIP-as-service 0.4.15 Documentation" />
   
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@JinaAI_">
@@ -39,7 +39,7 @@
         <link rel="canonical" href="https://clip-as-service.jina.ai/user-guides/server.html" />
 
     <link rel="shortcut icon" href="../../_static/favicon.png"/><meta name="generator" content="sphinx-4.5.0, furo 2022.06.04.1"/>
-        <title>Server API - CLIP-as-service 0.4.14 documentation</title>
+        <title>Server API - CLIP-as-service 0.4.15 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -172,7 +172,7 @@
         </div>
         <div class="header-center">
             <a href="../../">
-                <div class="brand">CLIP-as-service 0.4.14 documentation</div>
+                <div class="brand">CLIP-as-service 0.4.15 documentation</div>
             </a>
         </div>
         <div class="header-right">
@@ -230,6 +230,7 @@
 <p class="caption" role="heading"><span class="caption-text">Playground</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../playground/embedding/">Text &amp; Image Embedding</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../playground/colab/">Host on Google Colab</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Developer References</span></p>
 <ul>
@@ -268,6 +269,10 @@
             <img class="sidebar-ecosys-logo only-light-line" src="../../_static/JCloud-light.svg">
             <img class="sidebar-ecosys-logo only-dark-line" src="../../_static/JCloud-dark.svg">
             JCloud</a></li>
+        <li class="toctree-l1"><a class="reference external" href="https://now.jina.ai">
+            <img class="sidebar-ecosys-logo only-light-line" src="../../_static/now-light.svg">
+            <img class="sidebar-ecosys-logo only-dark-line" src="../../_static/now-dark.svg">
+            NOW</a></li>
     </ul>
 </div>
 </div>
@@ -492,7 +497,7 @@ In the same way, when you do <code class="docutils literal notranslate"><span cl
 </div>
 </div>
 </div>
-<p>Basically, each YAML file defines a <a class="reference external" href="https://docs.jina.ai/fundamentals/flow/">Jina Flow</a>. The complete Jina Flow YAML syntax <a class="reference external" href="https://docs.jina.ai/fundamentals/flow/flow-yaml/#configure-flow-meta-information">can be found here</a>. General parameters of the Flow and Executor can be used here as well. But now we only highlight the most important parameters.</p>
+<p>Basically, each YAML file defines a <a class="reference external" href="https://docs.jina.ai/fundamentals/flow/">Jina Flow</a>. The complete Jina Flow YAML syntax <a class="reference external" href="https://docs.jina.ai/fundamentals/flow/yaml-spec/">can be found here</a>. General parameters of the Flow and Executor can be used here as well. But now we only highlight the most important parameters.</p>
 <p>Looking at the YAML file again, we can put it into three subsections as below:</p>
 <div class="tab-set docutils">
 <input checked="True" class="tab-input" id="tab-set--1-input--1" name="tab-set--1" type="radio"><label class="tab-label" for="tab-set--1-input--1">CLIP model config</label><div class="tab-content docutils">
@@ -866,59 +871,6 @@ In the same way, when you do <code class="docutils literal notranslate"><span cl
 </pre></div>
 </div>
 </section>
-<section id="deploy-on-jcloud">
-<h2>Deploy on JCloud<a class="headerlink" href="#deploy-on-jcloud" title="Permalink to this headline">#</a></h2>
-<p>You can deploy <code class="docutils literal notranslate"><span class="pre">CLIPTorchEncoder</span></code> on JCloud.
-A minimum YAML file <code class="docutils literal notranslate"><span class="pre">flow.yml</span></code> is as follows:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">jtype</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Flow</span><span class="w"></span>
-<span class="nt">executors</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CLIPTorchEncoder</span><span class="w"> </span><span class="c1"># The name of the encoder</span><span class="w"></span>
-<span class="w">    </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jinahub+docker://CLIPTorchEncoder</span><span class="w"></span>
-</pre></div>
-</div>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>All Executors’ <code class="docutils literal notranslate"><span class="pre">uses</span></code> must follow the format <code class="docutils literal notranslate"><span class="pre">jinahub+docker://MyExecutor</span></code> (from <a class="reference external" href="https://hub.jina.ai">Jina Hub</a>) to avoid any local file dependencies.</p>
-</div>
-<p>To deploy,</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ jc deploy flow.yml
-</pre></div>
-</div>
-<p>Here <code class="docutils literal notranslate"><span class="pre">jc</span> <span class="pre">deploy</span></code> is the command to deploy a Jina project to JCloud.
-Learn more about <a class="reference external" href="https://github.com/jina-ai/jcloud">JCloud usage</a>.</p>
-<p>The Flow is successfully deployed when you see:</p>
-<figure class="align-default">
-<a class="reference internal image-reference" href="../../_images/jc-deploy.png"><img alt="../../_images/jc-deploy.png" src="../../_images/jc-deploy.png" style="width: 60%;" /></a>
-</figure>
-<p>After deploying on jcloud, you can connect to it via client by setting  <code class="docutils literal notranslate"><span class="pre">grpcs://</span></code> as follows:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">clip_client</span> <span class="kn">import</span> <span class="n">Client</span>
-
-<span class="n">c</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span><span class="s1">&#39;grpcs://174eb69ba3.wolf.jina.ai&#39;</span><span class="p">)</span>  <span class="c1"># This is the URL you get from previous step</span>
-
-<span class="n">r</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span>
-    <span class="p">[</span>
-        <span class="s1">&#39;First do it&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;then do it right&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;then do it better&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;https://picsum.photos/200&#39;</span><span class="p">,</span>
-    <span class="p">]</span>
-<span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>will give you:</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>[[ 0.03480401 -0.23519686  0.01041038 ... -0.5229086  -0.10081214
-   -0.08695138]
- [-0.0683605  -0.00324154  0.01490371 ... -0.50309485 -0.06193433
-   -0.08574048]
- [ 0.15041807 -0.07933374 -0.06650036 ... -0.46410388 -0.08535041
-   0.04270519]
- [-0.16183889  0.10636599 -0.2062868  ... -0.41244072  0.19485454
-   0.05658712]]
-</pre></div>
-</div>
-<p>It means the client and the JCloud server are now connected. Well done!</p>
-</section>
 </section>
 
                 </article>
@@ -956,7 +908,7 @@ Learn more about <a class="reference external" href="https://github.com/jina-ai/
                         <div class="copyright">
                             Copyright &#169; Jina AI Limited. All rights reserved.
                         </div><div class="last-updated">
-                            Last updated on Jun 09, 2022</div>
+                            Last updated on Jun 13, 2022</div>
                     </div>
                     <div class="right-details">
                         <div class="social-btns">
@@ -1008,7 +960,6 @@ Learn more about <a class="reference external" href="https://github.com/jina-ai/
 </li>
 <li><a class="reference internal" href="#monitor-with-prometheus-and-grafana">Monitor with Prometheus and Grafana</a></li>
 <li><a class="reference internal" href="#serve-with-tls">Serve with TLS</a></li>
-<li><a class="reference internal" href="#deploy-on-jcloud">Deploy on JCloud</a></li>
 </ul>
 </li>
 </ul>
