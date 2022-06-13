@@ -64,7 +64,7 @@ def make_hg_flow_no_default(port_generator, request):
     f = Flow(port=port_generator()).add(
         name=request.param,
         uses=CLIPEncoder,
-        uses_with={'use_default_preprocessing': False},
+        uses_with={'preprocessing': False},
     )
     with f:
         yield f

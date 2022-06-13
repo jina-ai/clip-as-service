@@ -19,12 +19,12 @@ class CLIPEncoder(Executor):
         finetuned_checkpoint_path: Optional[str] = None,
         base_feature_extractor: Optional[str] = None,
         base_tokenizer_model: Optional[str] = None,
-        use_default_preprocessing: bool = True,
+        preprocessing: bool = True,
         max_length: int = 77,
         device: str = 'cpu',
-        overwrite_embeddings: bool = False,
         num_worker_preprocess: int = 4,
         minibatch_size: int = 32,
+        traversal_paths: str = '@r',
         *args,
         **kwargs,
     ):
@@ -41,7 +41,7 @@ class CLIPEncoder(Executor):
             Defaults to ``pretrained_model_name_or_path`` if None.
         :param base_tokenizer_model: Base tokenizer model.
             Defaults to ``pretrained_model_name_or_path`` if None.
-        :param use_default_preprocessing: Whether to use the `base_feature_extractor`
+        :param preprocessing: Whether to use the `base_feature_extractor`
             on images (tensors) before encoding them. If you disable this, you must
             ensure that the images you pass in have the correct format, see the
             ``encode`` method for details.
@@ -52,12 +52,15 @@ class CLIPEncoder(Executor):
         :param num_worker_preprocess: Number of cpu processes used in preprocessing step.
         :param minibatch_size: Default batch size for encoding, used if the
             batch size is not passed as a parameter with the request.
+        :param traversal_paths: Default traversal paths for encoding, used if
+            the traversal path is not passed as a parameter with the request.
         """
         super().__init__(*args, **kwargs)
         self._minibatch_size = minibatch_size
 
-        self._use_default_preprocessing = use_default_preprocessing
+        self._preprocessing = preprocessing
         self._max_length = max_length
+        self._traversal_paths = traversal_paths
 
         # self.device = device
         if not device:
@@ -110,32 +113,36 @@ class CLIPEncoder(Executor):
             name='preprocess_images_seconds',
             documentation='images preprocess time in seconds',
         ):
-            tensors_batch = []
+            if self._preprocessing:
+                tensors_batch = []
 
-            for d in docs:
-                content = d.content
+                for d in docs:
+                    content = d.content
 
-                if d.blob:
-                    d.convert_blob_to_image_tensor()
-                elif d.uri:
-                    d.load_uri_to_image_tensor()
+                    if d.blob:
+                        d.convert_blob_to_image_tensor()
+                    elif d.tensor is None and d.uri:
+                        # in case user uses HTTP protocol and send data via curl not using .blob (base64), but in .uri
+                        d.load_uri_to_image_tensor()
 
-                tensors_batch.append(d.tensor)
+                    tensors_batch.append(d.tensor)
 
-                # recover content
-                d.content = content
+                    # recover content
+                    d.content = content
 
-            if self._use_default_preprocessing:
                 batch_data = self._vision_preprocessor(
                     images=tensors_batch,
                     return_tensors='pt',
                 )
-                batch_data = {k: v.to(self._device) for k, v in batch_data.items()}
+                batch_data = {
+                    k: v.type(torch.float32).to(self._device)
+                    for k, v in batch_data.items()
+                }
 
             else:
                 batch_data = {
                     'pixel_values': torch.tensor(
-                        tensors_batch, dtype=torch.float32, device=self._device
+                        docs.tensors, dtype=torch.float32, device=self._device
                     )
                 }
 
@@ -163,7 +170,7 @@ class CLIPEncoder(Executor):
         set_rank(docs)
 
     @requests
-    async def encode(self, docs: DocumentArray, **kwargs):
+    async def encode(self, docs: DocumentArray, parameters: Dict = {}, **kwargs):
         """
         Encode all documents with `text` or image content using the corresponding CLIP
         encoder. Store the embeddings in the `embedding` attribute.
@@ -172,19 +179,26 @@ class CLIPEncoder(Executor):
             ``tensor`` of the
             shape ``Height x Width x 3``. By default, the input ``tensor`` must
             be an ``ndarray`` with ``dtype=uint8`` or ``dtype=float32``.
-            If you set ``use_default_preprocessing=True`` when creating this encoder,
+            If you set ``preprocessing=True`` when creating this encoder,
             then the ``tensor`` arrays should have the shape ``[H, W, 3]``, and be in
             the RGB color format with ``dtype=uint8``.
-            If you set ``use_default_preprocessing=False`` when creating this encoder,
+            If you set ``preprocessing=False`` when creating this encoder,
             then you need to ensure that the images you pass in are already
             pre-processed. This means that they are all the same size (for batching) -
             the CLIP model was trained on images of the size ``224 x 224``, and that
             they are of the shape ``[3, H, W]``  with ``dtype=float32``. They should
             also be normalized (values between 0 and 1).
+        :param parameters: A dictionary that contains parameters to control encoding.
+            The accepted keys are ``traversal_paths`` and ``minibatch_size`` - in their
+            absence their corresponding default values are used.
         """
+
+        traversal_paths = parameters.get('traversal_paths', self._traversal_paths)
+        minibatch_size = parameters.get('minibatch_size', self._minibatch_size)
+
         _img_da = DocumentArray()
         _txt_da = DocumentArray()
-        for d in docs:
+        for d in docs[traversal_paths]:
             split_img_txt_da(d, _img_da, _txt_da)
 
         with torch.inference_mode():
@@ -192,7 +206,7 @@ class CLIPEncoder(Executor):
             if _img_da:
                 for minibatch, batch_data in _img_da.map_batch(
                     self._preproc_images,
-                    batch_size=self._minibatch_size,
+                    batch_size=minibatch_size,
                     pool=self._pool,
                 ):
                     with self.monitor(
@@ -210,7 +224,7 @@ class CLIPEncoder(Executor):
             if _txt_da:
                 for minibatch, batch_data in _txt_da.map_batch(
                     self._preproc_texts,
-                    batch_size=self._minibatch_size,
+                    batch_size=minibatch_size,
                     pool=self._pool,
                 ):
                     with self.monitor(

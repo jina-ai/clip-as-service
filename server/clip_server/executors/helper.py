@@ -1,5 +1,5 @@
 from typing import Tuple, List, Callable, Any
-
+import torch
 import numpy as np
 from docarray import Document, DocumentArray
 from docarray.math.distance.numpy import cosine
@@ -21,39 +21,46 @@ def preproc_image(
     device: str = 'cpu',
     return_np: bool = False,
 ) -> Tuple['DocumentArray', List[Any]]:
-    contents = da.contents
+
+    tensors_batch = []
 
     for d in da:
+        content = d.content
+
         if d.blob:
             d.convert_blob_to_image_tensor()
         elif d.tensor is None and d.uri:
             # in case user uses HTTP protocol and send data via curl not using .blob (base64), but in .uri
             d.load_uri_to_image_tensor()
 
-        d.tensor = preprocess_fn(d.tensor).detach()
+        tensors_batch.append(preprocess_fn(d.tensor).detach())
+
+        # recover doc content
+        d.content = content
+
+    tensors_batch = torch.stack(tensors_batch).type(torch.float32)
 
     if return_np:
-        da.tensors = da.tensors.cpu().numpy().astype(np.float32)
+        tensors_batch = tensors_batch.cpu().numpy()
     else:
-        da.tensors = da.tensors.to(device)
+        tensors_batch = tensors_batch.to(device)
 
-    return da, contents
+    return da, tensors_batch
 
 
 def preproc_text(
     da: 'DocumentArray', device: str = 'cpu', return_np: bool = False
 ) -> Tuple['DocumentArray', List[Any]]:
-    contents = da.contents
 
-    da.tensors = clip.tokenize(contents).detach()
+    tensors_batch = clip.tokenize(da.texts).detach()
 
     if return_np:
-        da.tensors = da.tensors.cpu().numpy().astype(np.int64)
+        tensors_batch = tensors_batch.cpu().numpy().astype(np.int64)
     else:
-        da.tensors = da.tensors.to(device)
+        tensors_batch = tensors_batch.to(device)
 
     da[:, 'mime_type'] = 'text'
-    return da, contents
+    return da, tensors_batch
 
 
 def split_img_txt_da(doc: 'Document', img_da: 'DocumentArray', txt_da: 'DocumentArray'):

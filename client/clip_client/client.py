@@ -158,14 +158,11 @@ class Client:
                 else:
                     yield Document(text=c)
             elif isinstance(c, Document):
-                if c.content_type in ('text', 'blob'):
-                    self._return_plain = False
+                self._return_plain = False
+                if c.content_type in ('text', 'blob', 'tensor'):
                     yield c
                 elif not c.blob and c.uri:
                     c.load_uri_to_blob()
-                    self._return_plain = False
-                    yield c
-                elif c.tensor is not None:
                     yield c
                 else:
                     raise TypeError(f'unsupported input type {c!r} {c.content_type}')
@@ -187,7 +184,9 @@ class Client:
         return dict(
             on='/',
             inputs=self._iter_doc(content),
-            request_size=kwargs.get('batch_size', 8),
+            request_size=kwargs.get(
+                'batch_size', 8
+            ),  # the default `batch_size` is very subjective. i would set it 8 based on 2 considerations (1) play safe on most GPUs (2) ease the load to our demo server
             total_docs=len(content) if hasattr(content, '__len__') else None,
         )
 
