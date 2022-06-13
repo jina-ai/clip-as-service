@@ -62,14 +62,14 @@ pip install clip-client
 
 ````
 
-````{tab} Server
+````{tab} Server (PyTorch)
 
 ```bash
 pip install clip-server
 ```
 ````
 
-````{tab} Server with ONNX support
+````{tab} Server (ONNX)
 
 ```bash
 pip install "clip_server[onnx]"
@@ -78,11 +78,21 @@ pip install "clip_server[onnx]"
 ````
 
 
-````{tab} Server with TensorRT support
+````{tab} Server (TensorRT)
 
 ```bash
 pip install nvidia-pyindex 
 pip install "clip_server[tensorrt]"
+```
+````
+
+````{tab} Server on Google Colab
+
+```{button-link} https://colab.research.google.com/github/jina-ai/clip-as-service/blob/main/docs/playground/cas-on-colab.ipynb
+:color: primary
+:align: center
+
+{octicon}`link-external` Open the notebook on Google Colab 
 ```
 
 ````
