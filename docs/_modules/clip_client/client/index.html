@@ -298,21 +298,21 @@
     <span class="n">Dict</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">urllib.parse</span> <span class="kn">import</span> <span class="n">urlparse</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
+<span class="kn">from</span> <span class="nn">docarray</span> <span class="kn">import</span> <span class="n">DocumentArray</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-    <span class="kn">from</span> <span class="nn">docarray</span> <span class="kn">import</span> <span class="n">DocumentArray</span><span class="p">,</span> <span class="n">Document</span>
+    <span class="kn">from</span> <span class="nn">docarray</span> <span class="kn">import</span> <span class="n">Document</span>
 
 
 <div class="viewcode-block" id="Client"><a class="viewcode-back" href="../../../api/clip_client.client/#clip_client.client.Client">[docs]</a><span class="k">class</span> <span class="nc">Client</span><span class="p">:</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">server</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Create a Clip client object that connects to the Clip server.</span>
-
 <span class="sd">        Server scheme is in the format of `scheme://netloc:port`, where</span>
 <span class="sd">            - scheme: one of grpc, websocket, http, grpcs, websockets, https</span>
 <span class="sd">            - netloc: the server ip address or hostname</span>
 <span class="sd">            - port: the public port of the server</span>
-
 <span class="sd">        :param server: the server URI</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
@@ -352,14 +352,11 @@
         <span class="n">show_progress</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;np.ndarray&#39;</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Encode images and texts into embeddings where the input is an iterable of raw strings.</span>
-
 <span class="sd">        Each image and text must be represented as a string. The following strings are acceptable:</span>
-
 <span class="sd">            - local image filepath, will be considered as an image</span>
 <span class="sd">            - remote image http/https, will be considered as an image</span>
 <span class="sd">            - a dataURI, will be considered as an image</span>
 <span class="sd">            - plain text, will be considered as a sentence</span>
-
 <span class="sd">        :param content: an iterator of image URIs or sentences, each element is an image or a text sentence as a string.</span>
 <span class="sd">        :param batch_size: the number of elements in each request when sending ``content``</span>
 <span class="sd">        :param show_progress: if set, show a progress bar</span>
@@ -376,7 +373,6 @@
         <span class="n">show_progress</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;DocumentArray&#39;</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Encode images and texts into embeddings where the input is an iterable of :class:`docarray.Document`.</span>
-
 <span class="sd">        :param content: an iterable of :class:`docarray.Document`, each Document must be filled with `.uri`, `.text` or `.blob`.</span>
 <span class="sd">        :param batch_size: the number of elements in each request when sending ``content``</span>
 <span class="sd">        :param show_progress: if set, show a progress bar</span>
@@ -394,19 +390,21 @@
             <span class="ow">not</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;show_progress&#39;</span><span class="p">),</span>
             <span class="n">total</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">content</span><span class="p">)</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="s1">&#39;__len__&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
         <span class="p">)</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="n">DocumentArray</span><span class="p">()</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pbar</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
-                <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_post_payload</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">),</span> <span class="n">on_done</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_gather_result</span>
+                <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_post_payload</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">),</span>
+                <span class="n">on_done</span><span class="o">=</span><span class="n">partial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_gather_result</span><span class="p">,</span> <span class="n">results</span><span class="o">=</span><span class="n">results</span><span class="p">),</span>
             <span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_unboxed_result</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_unboxed_result</span><span class="p">(</span><span class="n">results</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">_gather_result</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_gather_result</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">response</span><span class="p">,</span> <span class="n">results</span><span class="p">:</span> <span class="s1">&#39;DocumentArray&#39;</span><span class="p">):</span>
         <span class="kn">from</span> <span class="nn">rich</span> <span class="kn">import</span> <span class="n">filesize</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_results</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">results</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_pbar</span><span class="o">.</span><span class="n">start_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_r_task</span><span class="p">)</span>
-        <span class="n">r</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">docs</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_results</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">docs</span>
+        <span class="n">results</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_pbar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_r_task</span><span class="p">,</span>
             <span class="n">advance</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">r</span><span class="p">),</span>
@@ -415,39 +413,41 @@
             <span class="p">),</span>
         <span class="p">)</span>
 
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">_unboxed_result</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_results</span><span class="o">.</span><span class="n">embeddings</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_unboxed_result</span><span class="p">(</span><span class="n">results</span><span class="p">:</span> <span class="s1">&#39;DocumentArray&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">results</span><span class="o">.</span><span class="n">embeddings</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="s1">&#39;empty embedding returned from the server. &#39;</span>
                 <span class="s1">&#39;This often due to a mis-config of the server, &#39;</span>
                 <span class="s1">&#39;restarting the server or changing the serving port number often solves the problem&#39;</span>
             <span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_results</span><span class="o">.</span><span class="n">embeddings</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_return_plain</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_results</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">results</span><span class="o">.</span><span class="n">embeddings</span> <span class="k">if</span> <span class="p">(</span><span class="s1">&#39;__created_by_CAS__&#39;</span> <span class="ow">in</span> <span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">tags</span><span class="p">)</span> <span class="k">else</span> <span class="n">results</span>
+        <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_iter_doc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">content</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="s1">&#39;Document&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
         <span class="kn">from</span> <span class="nn">rich</span> <span class="kn">import</span> <span class="n">filesize</span>
         <span class="kn">from</span> <span class="nn">docarray</span> <span class="kn">import</span> <span class="n">Document</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_return_plain</span> <span class="o">=</span> <span class="kc">True</span>
 
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_pbar&#39;</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_pbar</span><span class="o">.</span><span class="n">start_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_s_task</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">content</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_return_plain</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="n">_mime</span> <span class="o">=</span> <span class="n">mimetypes</span><span class="o">.</span><span class="n">guess_type</span><span class="p">(</span><span class="n">c</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
                 <span class="k">if</span> <span class="n">_mime</span> <span class="ow">and</span> <span class="n">_mime</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;image&#39;</span><span class="p">):</span>
-                    <span class="k">yield</span> <span class="n">Document</span><span class="p">(</span><span class="n">uri</span><span class="o">=</span><span class="n">c</span><span class="p">)</span><span class="o">.</span><span class="n">load_uri_to_blob</span><span class="p">()</span>
+                    <span class="k">yield</span> <span class="n">Document</span><span class="p">(</span>
+                        <span class="n">tags</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;__created_by_CAS__&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span> <span class="n">uri</span><span class="o">=</span><span class="n">c</span>
+                    <span class="p">)</span><span class="o">.</span><span class="n">load_uri_to_blob</span><span class="p">()</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="k">yield</span> <span class="n">Document</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="n">c</span><span class="p">)</span>
+                    <span class="k">yield</span> <span class="n">Document</span><span class="p">(</span><span class="n">tags</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;__created_by_CAS__&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span> <span class="n">text</span><span class="o">=</span><span class="n">c</span><span class="p">)</span>
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">Document</span><span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_return_plain</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">content_type</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;text&#39;</span><span class="p">,</span> <span class="s1">&#39;blob&#39;</span><span class="p">,</span> <span class="s1">&#39;tensor&#39;</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">content_type</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;text&#39;</span><span class="p">,</span> <span class="s1">&#39;blob&#39;</span><span class="p">):</span>
                     <span class="k">yield</span> <span class="n">c</span>
                 <span class="k">elif</span> <span class="ow">not</span> <span class="n">c</span><span class="o">.</span><span class="n">blob</span> <span class="ow">and</span> <span class="n">c</span><span class="o">.</span><span class="n">uri</span><span class="p">:</span>
                     <span class="n">c</span><span class="o">.</span><span class="n">load_uri_to_blob</span><span class="p">()</span>
+                    <span class="k">yield</span> <span class="n">c</span>
+                <span class="k">elif</span> <span class="n">c</span><span class="o">.</span><span class="n">tensor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="k">yield</span> <span class="n">c</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;unsupported input type </span><span class="si">{</span><span class="n">c</span><span class="si">!r}</span><span class="s1"> </span><span class="si">{</span><span class="n">c</span><span class="o">.</span><span class="n">content_type</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
@@ -469,15 +469,12 @@
         <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span>
             <span class="n">on</span><span class="o">=</span><span class="s1">&#39;/&#39;</span><span class="p">,</span>
             <span class="n">inputs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_iter_doc</span><span class="p">(</span><span class="n">content</span><span class="p">),</span>
-            <span class="n">request_size</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-                <span class="s1">&#39;batch_size&#39;</span><span class="p">,</span> <span class="mi">8</span>
-            <span class="p">),</span>  <span class="c1"># the default `batch_size` is very subjective. i would set it 8 based on 2 considerations (1) play safe on most GPUs (2) ease the load to our demo server</span>
+            <span class="n">request_size</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;batch_size&#39;</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span>
             <span class="n">total_docs</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">content</span><span class="p">)</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="s1">&#39;__len__&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
         <span class="p">)</span>
 
 <div class="viewcode-block" id="Client.profile"><a class="viewcode-back" href="../../../api/clip_client.client/#clip_client.client.Client.profile">[docs]</a>    <span class="k">def</span> <span class="nf">profile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">content</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Profiling a single query&#39;s roundtrip including network and computation latency. Results is summarized in a table.</span>
-
 <span class="sd">        :param content: the content to be sent for profiling. By default it sends an empty Document</span>
 <span class="sd">            that helps you understand the network latency.</span>
 <span class="sd">        :return: the latency report in a dict.</span>
@@ -556,12 +553,13 @@
             <span class="n">total</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">content</span><span class="p">)</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="s1">&#39;__len__&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
         <span class="p">)</span>
 
+        <span class="n">results</span> <span class="o">=</span> <span class="n">DocumentArray</span><span class="p">()</span>
         <span class="k">async</span> <span class="k">for</span> <span class="n">da</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_async_client</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
             <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_post_payload</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
         <span class="p">):</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_results</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">results</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_pbar</span><span class="o">.</span><span class="n">start_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_r_task</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_results</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">da</span><span class="p">)</span>
+            <span class="n">results</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">da</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_pbar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_r_task</span><span class="p">,</span>
                 <span class="n">advance</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">da</span><span class="p">),</span>
@@ -570,7 +568,7 @@
                 <span class="p">),</span>
             <span class="p">)</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_unboxed_result</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_unboxed_result</span><span class="p">(</span><span class="n">results</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">_prepare_streaming</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">disable</span><span class="p">,</span> <span class="n">total</span><span class="p">):</span>
 
@@ -593,10 +591,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_r_task</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pbar</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span>
             <span class="s1">&#39;:arrow_down: Recv&#39;</span><span class="p">,</span> <span class="n">total</span><span class="o">=</span><span class="n">total</span><span class="p">,</span> <span class="n">total_size</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="kc">False</span>
         <span class="p">)</span>
-
-        <span class="kn">from</span> <span class="nn">docarray</span> <span class="kn">import</span> <span class="n">DocumentArray</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_results</span> <span class="o">=</span> <span class="n">DocumentArray</span><span class="p">()</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_prepare_single_doc</span><span class="p">(</span><span class="n">d</span><span class="p">:</span> <span class="s1">&#39;Document&#39;</span><span class="p">):</span>
@@ -624,8 +618,6 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="s1">&#39;Document&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
         <span class="kn">from</span> <span class="nn">rich</span> <span class="kn">import</span> <span class="n">filesize</span>
         <span class="kn">from</span> <span class="nn">docarray</span> <span class="kn">import</span> <span class="n">Document</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_return_plain</span> <span class="o">=</span> <span class="kc">True</span>
 
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_pbar&#39;</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_pbar</span><span class="o">.</span><span class="n">start_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_s_task</span><span class="p">)</span>
@@ -659,26 +651,24 @@
 
 <div class="viewcode-block" id="Client.rank"><a class="viewcode-back" href="../../../api/clip_client.client/#clip_client.client.Client.rank">[docs]</a>    <span class="k">def</span> <span class="nf">rank</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">docs</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="s1">&#39;Document&#39;</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;DocumentArray&#39;</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Rank image-text matches according to the server CLIP model.</span>
-
 <span class="sd">        Given a Document with nested matches, where the root is image/text and the matches is in another modality, i.e.</span>
 <span class="sd">        text/image; this method ranks the matches according to the CLIP model.</span>
-
 <span class="sd">        Each match now has a new score inside ``clip_score`` and matches are sorted descendingly according to this score.</span>
 <span class="sd">        More details can be found in: https://github.com/openai/CLIP#usage</span>
-
 <span class="sd">        :param docs: the input Documents</span>
 <span class="sd">        :return: the ranked Documents in a DocumentArray.</span>
-
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_streaming</span><span class="p">(</span>
             <span class="ow">not</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;show_progress&#39;</span><span class="p">),</span>
             <span class="n">total</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">docs</span><span class="p">),</span>
         <span class="p">)</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="n">DocumentArray</span><span class="p">()</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pbar</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
-                <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_rank_payload</span><span class="p">(</span><span class="n">docs</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">),</span> <span class="n">on_done</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_gather_result</span>
+                <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_rank_payload</span><span class="p">(</span><span class="n">docs</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">),</span>
+                <span class="n">on_done</span><span class="o">=</span><span class="n">partial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_gather_result</span><span class="p">,</span> <span class="n">results</span><span class="o">=</span><span class="n">results</span><span class="p">),</span>
             <span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_results</span></div>
+        <span class="k">return</span> <span class="n">results</span></div>
 
 <div class="viewcode-block" id="Client.arank"><a class="viewcode-back" href="../../../api/clip_client.client/#clip_client.client.Client.arank">[docs]</a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">arank</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">docs</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="s1">&#39;Document&#39;</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;DocumentArray&#39;</span><span class="p">:</span>
         <span class="kn">from</span> <span class="nn">rich</span> <span class="kn">import</span> <span class="n">filesize</span>
@@ -687,11 +677,11 @@
             <span class="ow">not</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;show_progress&#39;</span><span class="p">),</span>
             <span class="n">total</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">docs</span><span class="p">),</span>
         <span class="p">)</span>
-
+        <span class="n">results</span> <span class="o">=</span> <span class="n">DocumentArray</span><span class="p">()</span>
         <span class="k">async</span> <span class="k">for</span> <span class="n">da</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_async_client</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_rank_payload</span><span class="p">(</span><span class="n">docs</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)):</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_results</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">results</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_pbar</span><span class="o">.</span><span class="n">start_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_r_task</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_results</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">da</span><span class="p">)</span>
+            <span class="n">results</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">da</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_pbar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_r_task</span><span class="p">,</span>
                 <span class="n">advance</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">da</span><span class="p">),</span>
@@ -700,7 +690,7 @@
                 <span class="p">),</span>
             <span class="p">)</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_results</span></div></div>
+        <span class="k">return</span> <span class="n">results</span></div></div>
 </pre></div>
                 </article>
             </div>
@@ -715,7 +705,7 @@
                         <div class="copyright">
                             Copyright &#169; Jina AI Limited. All rights reserved.
                         </div><div class="last-updated">
-                            Last updated on Jun 13, 2022</div>
+                            Last updated on Jun 14, 2022</div>
                     </div>
                     <div class="right-details">
                         <div class="social-btns">

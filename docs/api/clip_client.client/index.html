@@ -319,15 +319,15 @@
 <dt class="sig sig-object py" id="clip_client.client.Client">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">clip_client.client.</span></span><span class="sig-name descname"><span class="pre">Client</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">server</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/clip_client/client/#Client"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#clip_client.client.Client" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Create a Clip client object that connects to the Clip server.</p>
-<dl class="simple">
-<dt>Server scheme is in the format of <cite>scheme://netloc:port</cite>, where</dt><dd><ul class="simple">
+<p>Create a Clip client object that connects to the Clip server.
+Server scheme is in the format of <cite>scheme://netloc:port</cite>, where</p>
+<blockquote>
+<div><ul class="simple">
 <li><p>scheme: one of grpc, websocket, http, grpcs, websockets, https</p></li>
 <li><p>netloc: the server ip address or hostname</p></li>
 <li><p>port: the public port of the server</p></li>
 </ul>
-</dd>
-</dl>
+</div></blockquote>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>server</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – the server URI</p>
@@ -343,17 +343,18 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="clip_client.client.Client.profile">
 <span class="sig-name descname"><span class="pre">profile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">content</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/clip_client/client/#Client.profile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#clip_client.client.Client.profile" title="Permalink to this definition">#</a></dt>
-<dd><p>Profiling a single query’s roundtrip including network and computation latency. Results is summarized in a table.</p>
+<dd><p>Profiling a single query’s roundtrip including network and computation latency. Results is summarized in a table.
+:type content: <code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]
+:param content: the content to be sent for profiling. By default it sends an empty Document</p>
+<blockquote>
+<div><p>that helps you understand the network latency.</p>
+</div></blockquote>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>content</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – the content to be sent for profiling. By default it sends an empty Document
-that helps you understand the network latency.</p>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</p>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</p>
-</dd>
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>the latency report in a dict.</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the latency report in a dict.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -368,22 +369,15 @@ that helps you understand the network latency.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="clip_client.client.Client.rank">
 <span class="sig-name descname"><span class="pre">rank</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">docs</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/clip_client/client/#Client.rank"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#clip_client.client.Client.rank" title="Permalink to this definition">#</a></dt>
-<dd><p>Rank image-text matches according to the server CLIP model.</p>
-<p>Given a Document with nested matches, where the root is image/text and the matches is in another modality, i.e.
-text/image; this method ranks the matches according to the CLIP model.</p>
-<p>Each match now has a new score inside <code class="docutils literal notranslate"><span class="pre">clip_score</span></code> and matches are sorted descendingly according to this score.
-More details can be found in: <a class="reference external" href="https://github.com/openai/CLIP#usage">https://github.com/openai/CLIP#usage</a></p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>docs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ForwardRef</span></code>]) – the input Documents</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>DocumentArray</p>
-</dd>
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>the ranked Documents in a DocumentArray.</p>
-</dd>
-</dl>
+<dd><p>Rank image-text matches according to the server CLIP model.
+Given a Document with nested matches, where the root is image/text and the matches is in another modality, i.e.
+text/image; this method ranks the matches according to the CLIP model.
+Each match now has a new score inside <code class="docutils literal notranslate"><span class="pre">clip_score</span></code> and matches are sorted descendingly according to this score.
+More details can be found in: <a class="reference external" href="https://github.com/openai/CLIP#usage">https://github.com/openai/CLIP#usage</a>
+:type docs: <code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ForwardRef</span></code>]
+:param docs: the input Documents
+:rtype: DocumentArray
+:return: the ranked Documents in a DocumentArray.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -435,7 +429,7 @@ More details can be found in: <a class="reference external" href="https://github
                         <div class="copyright">
                             Copyright &#169; Jina AI Limited. All rights reserved.
                         </div><div class="last-updated">
-                            Last updated on Jun 13, 2022</div>
+                            Last updated on Jun 14, 2022</div>
                     </div>
                     <div class="right-details">
                         <div class="social-btns">
