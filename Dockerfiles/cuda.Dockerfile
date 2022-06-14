@@ -4,7 +4,6 @@ FROM nvcr.io/nvidia/cuda:${CUDA_VERSION}-cudnn8-runtime-ubuntu20.04
 ENV DEBIAN_FRONTEND=noninteractive
 
 ARG JINA_VERSION=3.6.0
-ARG PIP_TAG
 ARG BACKEND_TAG=torch
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -30,7 +29,7 @@ metas:\n\
 " > /tmp/config.yml
 
 RUN cd /clip-as-service && \
-    if [ -n "${PIP_TAG}" ]; then python3 -m pip install --no-cache-dir server/"[${PIP_TAG}]" ; fi && \
+    if [ "${BACKEND_TAG}" != "torch" ]; then python3 -m pip install --no-cache-dir server/"[${BACKEND_TAG}]" ; fi && \
     python3 -m pip install --no-cache-dir "server/"
 
 WORKDIR /clip-as-service

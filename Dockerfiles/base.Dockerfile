@@ -3,7 +3,6 @@ ARG JINA_VERSION=3.6.0
 
 FROM jinaai/jina:${JINA_VERSION}-py38-standard
 
-ARG PIP_TAG
 ARG BACKEND_TAG=torch
 
 # constant, wont invalidate cache
@@ -28,7 +27,7 @@ metas:\n\
 " > /tmp/config.yml
 
 RUN cd /clip-as-service && \
-    if [ -n "$PIP_TAG" ]; then pip3 install --no-cache-dir server/"[$PIP_TAG]" ; fi && \
+    if [ "$BACKEND_TAG" != "torch" ]; then pip3 install --no-cache-dir server/"[$BACKEND_TAG]" ; fi && \
     pip3 install --no-cache-dir "server/"
 
 WORKDIR /clip-as-service

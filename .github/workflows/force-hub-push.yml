@@ -67,22 +67,24 @@ jobs:
 
           echo "CAS_VERSION=${CAS_VERSION}" >> $GITHUB_ENV
 
+      - name: Prepare enviroment
+          run: |
+            python -m pip install --upgrade jina yq
+
       - name: Push Torch Executor
         id: push_torch_executor
         run: |
-          python -m pip install --upgrade jina yq
-          
           # FIX the import issue
           echo -e "\
           from .executors.clip_torch import CLIPEncoder\n\
-          " >> server/clip_server/__init__.py 
-          
+          " >> server/clip_server/__init__.py
+                    
           echo -e "\
           jtype: CLIPEncoder\n\
           metas:\n\
             py_modules:\n\
-              - server/clip_server/__init__.py\n\
-          " > config.yml
+              - clip_server/__init__.py\n\
+          " > server/config.yml
           
           echo -e "\
           manifest_version: 1\n\
@@ -90,16 +92,92 @@ jobs:
           description: Embed images and sentences into fixed-length vectors with CLIP\n\
           url: https://github.com/jina-ai/clip-as-service\n\
           keywords: [clip, clip-model, clip-as-service]\n\
-          " > manifest.yml
+          " > server/manifest.yml
           
           python scripts/get-requirements.py "" requirements.txt
                     
-          cp Dockerfiles/base.Dockerfile Dockerfile
-          cp Dockerfiles/cuda.Dockerfile Dockerfile.gpu
+          cp Dockerfiles/base.Dockerfile server/Dockerfile
+          cp Dockerfiles/cuda.Dockerfile server/Dockerfile.gpu
           
-          exec_name=`yq -r .name manifest.yml`
+          exec_name=`yq -r .name server/manifest.yml`
           echo executor name is $exec_name
 
           # FIXME: disable uploading at debugging
-          # jina hub push --force $exec_name --secret ${{secrets.TORCH_EXEC_SECRET}} . ${{env.TAG_ALIAS}}
+          # jina hub push --force $exec_name --secret ${{secrets.TORCH_EXEC_SECRET}} server ${{env.TAG_ALIAS}}
+
+      - name: Push Onnx Executor
+        id: push_onnx_executor
+        run: |
+          # FIX the import issue
+          echo -e "\
+          from .executors.clip_onnx import CLIPEncoder\n\
+          " >> server/clip_server/__init__.py
           
+          echo -e "\
+          jtype: CLIPEncoder\n\
+          metas:\n\
+            py_modules:\n\
+              - clip_server/__init__.py\n\
+          " > server/config.yml
+          
+          echo -e "\
+          manifest_version: 1\n\
+          name: CLIPOnnxEncoder\n\
+          description: Embed images and sentences into fixed-length vectors with CLIP\n\
+          url: https://github.com/jina-ai/clip-as-service\n\
+          keywords: [clip, clip-model, clip-as-service, onnx, onnx-runtime]\n\
+          " > server/manifest.yml
+          
+          python scripts/get-requirements.py onnx requirements.txt
+          
+          cp Dockerfiles/base.Dockerfile server/Dockerfile
+          cp Dockerfiles/cuda.Dockerfile server/Dockerfile.gpu
+          
+          sed -i 's/ARG BACKEND_TAG=torch/ARG BACKEND_TAG=onnx/g' server/Dockerfile
+          sed -i 's/ARG BACKEND_TAG=torch/ARG BACKEND_TAG=onnx/g' server/Dockerfile.gpu
+          
+          exec_name=`yq -r .name server/manifest.yml`
+          echo executor name is $exec_name
+          
+          # FIXME: disable uploading at debugging
+          # jina hub push --force $exec_name --secret ${{secrets.TORCH_EXEC_SECRET}} server ${{env.TAG_ALIAS}}
+
+
+      - name: Push TensorRT Executor
+        id: push_tensorrt_executor
+        run: |
+          # FIX the import issue
+          echo -e "\
+          from .executors.clip_tensorrt import CLIPEncoder\n\
+          " >> server/clip_server/__init__.py
+          
+          echo -e "\
+          jtype: CLIPEncoder\n\
+          metas:\n\
+            py_modules:\n\
+              - clip_server/__init__.py\n\
+          " > server/config.yml
+          
+          echo -e "\
+          manifest_version: 1\n\
+          name: CLIPOnnxEncoder\n\
+          description: Embed images and sentences into fixed-length vectors with CLIP\n\
+          url: https://github.com/jina-ai/clip-as-service\n\
+          keywords: [clip, clip-model, clip-as-service, onnx, tensorrt]\n\
+          " > server/manifest.yml
+          
+          python scripts/get-requirements.py tensorrt requirements.txt
+          
+          cp Dockerfiles/tensorrt.Dockerfile server/Dockerfile
+          cp Dockerfiles/tensorrt.Dockerfile server/Dockerfile.gpu
+          
+          sed -i 's/ARG BACKEND_TAG=torch/ARG BACKEND_TAG=tensorrt/g' server/Dockerfile
+          sed -i 's/ARG BACKEND_TAG=torch/ARG BACKEND_TAG=tensorrt/g' server/Dockerfile.gpu
+          
+          sed -i 's/ARG PIP_TAG/ARG PIP_TAG=tensorrt/g' server/Dockerfile
+          
+          exec_name=`yq -r .name server/manifest.yml`
+          echo executor name is $exec_name
+          
+          # FIXME: disable uploading at debugging
+          # jina hub push --force $exec_name --secret ${{secrets.TORCH_EXEC_SECRET}} server ${{env.TAG_ALIAS}}
