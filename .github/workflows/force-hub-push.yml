@@ -44,6 +44,9 @@ jobs:
             echo "TAG_ALIAS=\
                             -t latest \
                             " >> $GITHUB_ENV
+            echo "GPU_TAG_ALIAS=\
+                            -t latest-gpu \
+                            " >> $GITHUB_ENV
 
           elif [[ "${{ github.event.inputs.triggered_by }}" == "TAG" ]]; then
             # on every tag release
@@ -53,15 +56,27 @@ jobs:
                             -t ${CAS_MINOR_VERSION} \
                             -t ${CAS_MAJOR_VERSION} \
                             " >> $GITHUB_ENV
+            echo "GPU_TAG_ALIAS=\
+                            -t latest-gpu \
+                            -t ${CAS_VERSION}-gpu \
+                            -t ${CAS_MINOR_VERSION}-gpu \
+                            -t ${CAS_MAJOR_VERSION}-gpu \
+                            " >> $GITHUB_ENV
 
           elif [[ "${{ github.event.inputs.triggered_by }}" == "MANUAL" ]]; then
             # on every manual release
             echo "TAG_ALIAS=\
                             -t ${CAS_VERSION} \
                             " >> $GITHUB_ENV
+            echo "GPU_TAG_ALIAS=\
+                            -t ${CAS_VERSION}-gpu \
+                            " >> $GITHUB_ENV
           else
             echo "TAG_ALIAS=\
                             -t latest \
+                            " >> $GITHUB_ENV
+            echo "GPU_TAG_ALIAS=\
+                            -t latest-gpu \
                             " >> $GITHUB_ENV
           fi
 
@@ -103,6 +118,7 @@ jobs:
           echo executor name is $exec_name
 
           JINA_AUTH_TOKEN=${{secrets.JINAHUB_TOKEN}} jina hub push --force $exec_name --secret ${{secrets.TORCH_EXEC_SECRET}} server ${{env.TAG_ALIAS}}
+          JINA_AUTH_TOKEN=${{secrets.JINAHUB_TOKEN}} jina hub push --force $exec_name --secret ${{secrets.TORCH_EXEC_SECRET}} server ${{env.GPU_TAG_ALIAS}} -f Dockerfile.gpu
 
       - name: Push Onnx Executor
         id: push_onnx_executor
