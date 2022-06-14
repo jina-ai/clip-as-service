@@ -118,7 +118,9 @@ jobs:
           echo executor name is $exec_name
 
           JINA_AUTH_TOKEN=${{secrets.JINAHUB_TOKEN}} jina hub push --force $exec_name --secret ${{secrets.TORCH_EXEC_SECRET}} server ${{env.TAG_ALIAS}}
-          JINA_AUTH_TOKEN=${{secrets.JINAHUB_TOKEN}} jina hub push --force $exec_name --secret ${{secrets.TORCH_EXEC_SECRET}} server ${{env.GPU_TAG_ALIAS}} -f Dockerfile.gpu
+          
+          cp Dockerfiles/cuda.Dockerfile server/Dockerfile
+          JINA_AUTH_TOKEN=${{secrets.JINAHUB_TOKEN}} jina hub push --force $exec_name --secret ${{secrets.TORCH_EXEC_SECRET}} server ${{env.GPU_TAG_ALIAS}}
 
       - name: Push Onnx Executor
         id: push_onnx_executor
