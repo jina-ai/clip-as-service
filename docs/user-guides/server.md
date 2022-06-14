@@ -62,17 +62,17 @@ The procedure and UI of ONNX and TensorRT runtime would look the same as Pytorch
 
 Open AI has released 9 models so far. `ViT-B/32` is used as default model in all runtimes. Due to the limitation of some runtime, not every runtime supports all nine models. Please also note that different model give different size of output dimensions. This will affect your downstream applications. For example, switching the model from one to another make your embedding incomparable, which breaks the downstream applications. Below is a list of supported models of each runtime and its corresponding size. We include the disk usage (in delta) and the peak memory usage (in delta) when running on a single Nvidia TITAN RTX GPU (24GB VRAM) when `batch_size=256`.
 
-| Model          | PyTorch | ONNX | TensorRT | Output Dimension | Disk Usage (MB) | Peak RAM Usage (GB) | Peak VRAM Usage(GB) |
-|----------------|---------|------|----------|------------------|-----------------|---------------------|---------------------|
-| RN50           | ✅       | ✅    | ✅        | 1024             | 256             | 3.44                | 4.25                |
-| RN101          | ✅       | ✅    | ✅        | 512              | 292             | 3.51                | 4.28                |
-| RN50x4         | ✅       | ✅    | ✅        | 640              | 422             | 4.14                | 6.92                |
-| RN50x16        | ✅       | ✅    | ❌        | 768              | 661             | 5.07                | 13.01               |
-| RN50x64        | ✅       | ✅    | ❌        | 1024             | 1382            | 5.81                | 20.26               |
-| ViT-B/32       | ✅       | ✅    | ✅        | 512              | 351             | 3.66                | 2.19                |
-| ViT-B/16       | ✅       | ✅    | ✅        | 512              | 354             | 3.58                | 3.90                |
-| ViT-L/14       | ✅       | ✅    | ✅        | 768              | 933             | 4.11                | 5.38                |
-| ViT-L/14-336px | ✅       | ✅    | ❌        | 768              | 934             | 5.07                | 11.36               |
+| Model          | PyTorch | ONNX | TensorRT | Output Dimension | Disk Usage (MB) | Peak RAM Usage (GB) | Peak VRAM Usage (GB) |
+|----------------|---------|------|----------|------------------|-----------------|---------------------|----------------------|
+| RN50           | ✅       | ✅    | ✅        | 1024             | 256             | 3.44                | 4.25                 |
+| RN101          | ✅       | ✅    | ✅        | 512              | 292             | 3.51                | 4.28                 |
+| RN50x4         | ✅       | ✅    | ✅        | 640              | 422             | 4.14                | 6.92                 |
+| RN50x16        | ✅       | ✅    | ❌        | 768              | 661             | 5.07                | 13.01                |
+| RN50x64        | ✅       | ✅    | ❌        | 1024             | 1382            | 5.81                | 20.26                |
+| ViT-B/32       | ✅       | ✅    | ✅        | 512              | 351             | 3.66                | 2.19                 |
+| ViT-B/16       | ✅       | ✅    | ✅        | 512              | 354             | 3.58                | 3.90                 |
+| ViT-L/14       | ✅       | ✅    | ✅        | 768              | 933             | 4.11                | 5.38                 |
+| ViT-L/14-336px | ✅       | ✅    | ❌        | 768              | 934             | 5.07                | 11.36                |
 
 
 ## YAML config
