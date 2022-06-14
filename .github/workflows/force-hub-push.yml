@@ -68,8 +68,8 @@ jobs:
           echo "CAS_VERSION=${CAS_VERSION}" >> $GITHUB_ENV
 
       - name: Prepare enviroment
-          run: |
-            python -m pip install --upgrade jina yq
+        run: |
+          python -m pip install --upgrade jina yq
 
       - name: Push Torch Executor
         id: push_torch_executor
