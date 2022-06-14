@@ -3,14 +3,43 @@
 
 <div id="demo-embed">
 
+
+    <table class="embeddingInput">
+
+        <tr>
+            <td>Input a sentence (or an image URL)</td>
+            <td><textarea v-model="query"
+                          placeholder="Input a sentence or an image URL"
+                          style="width: 80%"
+                          rows="6"
+                          maxlength="1000">
+            </textarea></td>
+        </tr>
+
+        <tr>
+            <td>Click an image to select</td>
+            <td>
+                <div class="gallery">
+                    <img @click="query='https://picsum.photos/id/'+image.id+'/50'" class="gallery-image"
+                         :src="'https://picsum.photos/id/'+image.id+'/80'" v-for="image in images">
+                </div>
+            </td>
+        </tr>
+
+        <tr>
+            <td>Upload image from local</td>
+            <td><input type="file" @change="encodeImageFileAsURL" accept=".jpg, .jpeg, .png"/></td>
+        </tr>
+
+    </table>
+
     <div v-if="query && embedding" class="embeddingChart">
 
         <div>
-            <p>Done in {{elapsed}}ms</p>
-            <span>Showing embedding for</span>
-            <span>
+            <p>Done in {{elapsed}}ms
             <img class="thumbnail" v-if="isUrl" :src="query" :alt="query + 'is not a valid image'">
             <code v-else>{{query}}</code>
+            </p>
         </span>
         </div>
 
@@ -27,31 +56,6 @@
         </div>
 
     </div>
-
-
-    <table class="embeddingInput">
-
-        <tr>
-            <td>Input a sentence (or an image URL)</td>
-            <td><textarea v-model="query"
-                          placeholder="Input a sentence or an image URL"
-                          style="width: 80%"
-                          rows="6"
-                          maxlength="1000">
-            </textarea></td>
-        </tr>
-
-        <tr>
-            <td>Hover on an image to fill URL</td>
-            <td>
-                <div class="gallery">
-                    <img @mouseover="query='https://picsum.photos/id/'+image.id+'/50'" class="gallery-image"
-                         :src="'https://picsum.photos/id/'+image.id+'/80'" v-for="image in images">
-                </div>
-            </td>
-        </tr>
-
-    </table>
 
 
 </div>
@@ -73,8 +77,8 @@
     }
 
     .thumbnail {
-        max-width: 150px;
-        max-height: 150px;
+        max-width: 64px;
+        max-height: 64px;
     }
 
     .embeddingChart {
@@ -135,7 +139,7 @@
                     return false;
                 }
 
-                return url.protocol === "http:" || url.protocol === "https:";
+                return url.protocol === "http:" || url.protocol === "https:" || url.protocol === "data:";
             },
             // get only
             payload: function () {
@@ -153,7 +157,7 @@
             this.$nextTick(function () {
                 app.callJina();
 
-                $.getJSON("https://picsum.photos/v2/list?page=" + randomIntFromInterval(1, 10) + "&limit=40", function (json) {
+                $.getJSON("https://picsum.photos/v2/list?page=" + randomIntFromInterval(1, 10) + "&limit=10", function (json) {
                     app.images = json
                 });
 
@@ -165,6 +169,14 @@
             }
         },
         methods: {
+            encodeImageFileAsURL(element) {
+                var file = element.target.files[0];
+                var reader = new FileReader();
+                reader.onloadend = function () {
+                    app.query = reader.result
+                }
+                reader.readAsDataURL(file);
+            },
             normalize_value(val) {
                 r = (val - this.min_embed_value) / (this.max_embed_value - this.min_embed_value)
                 r = (r * 10).toFixed(0) / 10
