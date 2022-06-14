@@ -85,40 +85,40 @@ jobs:
       - name: Prepare enviroment
         run: |
           python -m pip install --upgrade jina yq
-
-      - name: Push Torch Executor
-        id: push_torch_executor
-        run: |
-          # FIX the import issue
-          echo -e "\
-          from .executors.clip_torch import CLIPEncoder\n\
-          " >> server/clip_server/__init__.py
-                    
-          echo -e "\
-          jtype: CLIPEncoder\n\
-          metas:\n\
-            py_modules:\n\
-              - clip_server/__init__.py\n\
-          " > server/config.yml
-          
-          echo -e "\
-          manifest_version: 1\n\
-          name: CLIPTorchEncoder\n\
-          description: Embed images and sentences into fixed-length vectors with CLIP\n\
-          url: https://github.com/jina-ai/clip-as-service\n\
-          keywords: [clip, clip-model, clip-as-service, pytorch]\n\
-          " > server/manifest.yml
-          
-          python scripts/get-requirements.py "" server/requirements.txt
-          
-          exec_name=`yq -r .name server/manifest.yml`
-          echo executor name is $exec_name
-                    
-          cp Dockerfiles/base.Dockerfile server/Dockerfile
-          JINA_AUTH_TOKEN=${{secrets.JINAHUB_TOKEN}} jina hub push --force $exec_name --secret ${{secrets.TORCH_EXEC_SECRET}} server ${{env.TAG_ALIAS}}
-          
-          cp Dockerfiles/cuda.Dockerfile server/Dockerfile
-          JINA_AUTH_TOKEN=${{secrets.JINAHUB_TOKEN}} jina hub push --force $exec_name --secret ${{secrets.TORCH_EXEC_SECRET}} server ${{env.GPU_TAG_ALIAS}}
+#
+#      - name: Push Torch Executor
+#        id: push_torch_executor
+#        run: |
+#          # FIX the import issue
+#          echo -e "\
+#          from .executors.clip_torch import CLIPEncoder\n\
+#          " > server/clip_server/__init__.py
+#
+#          echo -e "\
+#          jtype: CLIPEncoder\n\
+#          metas:\n\
+#            py_modules:\n\
+#              - clip_server/__init__.py\n\
+#          " > server/config.yml
+#
+#          echo -e "\
+#          manifest_version: 1\n\
+#          name: CLIPTorchEncoder\n\
+#          description: Embed images and sentences into fixed-length vectors with CLIP\n\
+#          url: https://github.com/jina-ai/clip-as-service\n\
+#          keywords: [clip, clip-model, clip-as-service, pytorch]\n\
+#          " > server/manifest.yml
+#
+#          python scripts/get-requirements.py "" server/requirements.txt
+#
+#          exec_name=`yq -r .name server/manifest.yml`
+#          echo executor name is $exec_name
+#
+#          cp Dockerfiles/base.Dockerfile server/Dockerfile
+#          JINA_AUTH_TOKEN=${{secrets.JINAHUB_TOKEN}} jina hub push --force $exec_name --secret ${{secrets.TORCH_EXEC_SECRET}} server ${{env.TAG_ALIAS}}
+#
+#          cp Dockerfiles/cuda.Dockerfile server/Dockerfile
+#          JINA_AUTH_TOKEN=${{secrets.JINAHUB_TOKEN}} jina hub push --force $exec_name --secret ${{secrets.TORCH_EXEC_SECRET}} server ${{env.GPU_TAG_ALIAS}}
 
       - name: Push Onnx Executor
         id: push_onnx_executor
@@ -126,7 +126,7 @@ jobs:
           # FIX the import issue
           echo -e "\
           from .executors.clip_onnx import CLIPEncoder\n\
-          " >> server/clip_server/__init__.py
+          " > server/clip_server/__init__.py
           
           echo -e "\
           jtype: CLIPEncoder\n\
@@ -162,7 +162,7 @@ jobs:
           # FIX the import issue
           echo -e "\
           from .executors.clip_tensorrt import CLIPEncoder\n\
-          " >> server/clip_server/__init__.py
+          " > server/clip_server/__init__.py
           
           echo -e "\
           jtype: CLIPEncoder\n\
