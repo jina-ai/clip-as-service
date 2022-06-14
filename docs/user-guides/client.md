@@ -266,6 +266,7 @@ asyncio.run(main())
 
 The final time cost will be less than `3s + time(t2)`.
 
+(rank-api)=
 ## Ranking
 
 ```{tip}

@@ -187,6 +187,7 @@ user-guides/faq
 :hidden:
 
 playground/embedding
+playground/reasoning
 playground/colab
 ```
 
