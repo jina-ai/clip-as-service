@@ -21,7 +21,7 @@ jobs:
         env:
           release_token: ${{ secrets.CAS_RELEASE_TOKEN }}
 
-  regular-release:
+  docker-release:
     needs: token-check
     runs-on: ubuntu-latest
     strategy:

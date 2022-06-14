@@ -23,7 +23,7 @@ jobs:
         env:
           release_token: ${{ secrets.CAS_RELEASE_TOKEN }}
 
-  regular-release:
+  hub-release:
     needs: token-check
     runs-on: ubuntu-latest
     steps:
@@ -160,7 +160,7 @@ jobs:
           
           echo -e "\
           manifest_version: 1\n\
-          name: CLIPOnnxEncoder\n\
+          name: CLIPTensorRTEncoder\n\
           description: Embed images and sentences into fixed-length vectors with CLIP\n\
           url: https://github.com/jina-ai/clip-as-service\n\
           keywords: [clip, clip-model, clip-as-service, onnx, tensorrt]\n\
