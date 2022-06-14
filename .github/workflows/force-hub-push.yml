@@ -103,7 +103,7 @@ jobs:
           echo executor name is $exec_name
 
           # FIXME: disable uploading at debugging
-          # jina hub push --force $exec_name --secret ${{secrets.TORCH_EXEC_SECRET}} server ${{env.TAG_ALIAS}}
+          # JINA_AUTH_TOKEN=${{secrets.JINAHUB_TOKEN}} jina hub push --force $exec_name --secret ${{secrets.TORCH_EXEC_SECRET}} server ${{env.TAG_ALIAS}}
 
       - name: Push Onnx Executor
         id: push_onnx_executor
@@ -140,7 +140,7 @@ jobs:
           echo executor name is $exec_name
           
           # FIXME: disable uploading at debugging
-          # jina hub push --force $exec_name --secret ${{secrets.TORCH_EXEC_SECRET}} server ${{env.TAG_ALIAS}}
+          # JINA_AUTH_TOKEN=${{secrets.JINAHUB_TOKEN}} jina hub push --force $exec_name --secret ${{secrets.ONNX_EXEC_SECRET}} server ${{env.TAG_ALIAS}}
 
 
       - name: Push TensorRT Executor
@@ -180,4 +180,4 @@ jobs:
           echo executor name is $exec_name
           
           # FIXME: disable uploading at debugging
-          # jina hub push --force $exec_name --secret ${{secrets.TORCH_EXEC_SECRET}} server ${{env.TAG_ALIAS}}
+          # JINA_AUTH_TOKEN=${{secrets.JINAHUB_TOKEN}} jina hub push --force $exec_name --secret ${{secrets.TENSORRT_EXEC_SECRET}} server ${{env.TAG_ALIAS}}
