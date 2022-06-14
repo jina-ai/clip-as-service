@@ -24,12 +24,10 @@ if TYPE_CHECKING:
 class Client:
     def __init__(self, server: str):
         """Create a Clip client object that connects to the Clip server.
-
         Server scheme is in the format of `scheme://netloc:port`, where
             - scheme: one of grpc, websocket, http, grpcs, websockets, https
             - netloc: the server ip address or hostname
             - port: the public port of the server
-
         :param server: the server URI
         """
         try:
@@ -69,14 +67,11 @@ class Client:
         show_progress: bool = False,
     ) -> 'np.ndarray':
         """Encode images and texts into embeddings where the input is an iterable of raw strings.
-
         Each image and text must be represented as a string. The following strings are acceptable:
-
             - local image filepath, will be considered as an image
             - remote image http/https, will be considered as an image
             - a dataURI, will be considered as an image
             - plain text, will be considered as a sentence
-
         :param content: an iterator of image URIs or sentences, each element is an image or a text sentence as a string.
         :param batch_size: the number of elements in each request when sending ``content``
         :param show_progress: if set, show a progress bar
@@ -93,7 +88,6 @@ class Client:
         show_progress: bool = False,
     ) -> 'DocumentArray':
         """Encode images and texts into embeddings where the input is an iterable of :class:`docarray.Document`.
-
         :param content: an iterable of :class:`docarray.Document`, each Document must be filled with `.uri`, `.text` or `.blob`.
         :param batch_size: the number of elements in each request when sending ``content``
         :param show_progress: if set, show a progress bar
@@ -114,7 +108,8 @@ class Client:
         results = DocumentArray()
         with self._pbar:
             self._client.post(
-                **self._get_post_payload(content, kwargs), on_done=partial(self._gather_result, results=results)
+                **self._get_post_payload(content, kwargs),
+                on_done=partial(self._gather_result, results=results),
             )
         return self._unboxed_result(results, self._return_plain)
 
@@ -161,11 +156,14 @@ class Client:
                 else:
                     yield Document(text=c)
             elif isinstance(c, Document):
-                self._return_plain = False
-                if c.content_type in ('text', 'blob', 'tensor'):
+                if c.content_type in ('text', 'blob'):
+                    self._return_plain = False
                     yield c
                 elif not c.blob and c.uri:
                     c.load_uri_to_blob()
+                    self._return_plain = False
+                    yield c
+                elif c.tensor is not None:
                     yield c
                 else:
                     raise TypeError(f'unsupported input type {c!r} {c.content_type}')
@@ -187,15 +185,12 @@ class Client:
         return dict(
             on='/',
             inputs=self._iter_doc(content),
-            request_size=kwargs.get(
-                'batch_size', 8
-            ),  # the default `batch_size` is very subjective. i would set it 8 based on 2 considerations (1) play safe on most GPUs (2) ease the load to our demo server
+            request_size=kwargs.get('batch_size', 8),
             total_docs=len(content) if hasattr(content, '__len__') else None,
         )
 
     def profile(self, content: Optional[str] = '') -> Dict[str, float]:
         """Profiling a single query's roundtrip including network and computation latency. Results is summarized in a table.
-
         :param content: the content to be sent for profiling. By default it sends an empty Document
             that helps you understand the network latency.
         :return: the latency report in a dict.
@@ -374,16 +369,12 @@ class Client:
 
     def rank(self, docs: Iterable['Document'], **kwargs) -> 'DocumentArray':
         """Rank image-text matches according to the server CLIP model.
-
         Given a Document with nested matches, where the root is image/text and the matches is in another modality, i.e.
         text/image; this method ranks the matches according to the CLIP model.
-
         Each match now has a new score inside ``clip_score`` and matches are sorted descendingly according to this score.
         More details can be found in: https://github.com/openai/CLIP#usage
-
         :param docs: the input Documents
         :return: the ranked Documents in a DocumentArray.
-
         """
         self._prepare_streaming(
             not kwargs.get('show_progress'),
@@ -392,7 +383,8 @@ class Client:
         results = DocumentArray()
         with self._pbar:
             self._client.post(
-                **self._get_rank_payload(docs, kwargs), on_done=partial(self._gather_result, results=results)
+                **self._get_rank_payload(docs, kwargs),
+                on_done=partial(self._gather_result, results=results),
             )
         return results
 
