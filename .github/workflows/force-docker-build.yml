@@ -104,7 +104,7 @@ jobs:
         if: ${{ matrix.engine_tag == '' && matrix.pip_tag != 'tensorrt' }}
         uses: docker/build-push-action@v2
         with:
-          context: .
+          context: server
           file: Dockerfiles/base.Dockerfile
           platforms: linux/amd64
           cache-from: type=registry,ref=jinaai/clip_executor:latest
@@ -121,7 +121,7 @@ jobs:
         if: ${{ matrix.engine_tag == 'cuda' }}
         uses: docker/build-push-action@v2
         with:
-          context: .
+          context: server
           file: Dockerfiles/cuda.Dockerfile
           platforms: linux/amd64
           cache-from: type=registry,ref=jinaai/clip_executor:latest-cuda

@@ -17,20 +17,20 @@ LABEL org.opencontainers.image.vendor="Jina AI Limited" \
 RUN pip3 install --no-cache-dir torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cpu
 
 # copy will almost always invalid the cache
-COPY . /clip-as-service/
+COPY . /clip_server/
 
 RUN echo "\
 jtype: CLIPEncoder\n\
 metas:\n\
   py_modules:\n\
-    - server/clip_server/executors/clip_$BACKEND_TAG.py\n\
+    - clip_server/executors/clip_$BACKEND_TAG.py\n\
 " > /tmp/config.yml
 
-RUN cd /clip-as-service && \
-    if [ "$BACKEND_TAG" != "torch" ]; then pip3 install --no-cache-dir server/"[$BACKEND_TAG]" ; fi && \
-    pip3 install --no-cache-dir "server/"
+RUN cd /clip_server && \
+    if [ "$BACKEND_TAG" != "torch" ]; then pip3 install --no-cache-dir "./[$BACKEND_TAG]" ; fi && \
+    pip3 install --no-cache-dir .
 
-WORKDIR /clip-as-service
+WORKDIR /clip_server
 
 
 ENTRYPOINT ["jina", "executor", "--uses", "/tmp/config.yml"]

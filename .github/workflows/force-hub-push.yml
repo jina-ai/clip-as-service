@@ -94,7 +94,7 @@ jobs:
           keywords: [clip, clip-model, clip-as-service, pytorch]\n\
           " > server/manifest.yml
           
-          python scripts/get-requirements.py "" requirements.txt
+          python scripts/get-requirements.py "" server/requirements.txt
                     
           cp Dockerfiles/base.Dockerfile server/Dockerfile
           cp Dockerfiles/cuda.Dockerfile server/Dockerfile.gpu
@@ -127,7 +127,7 @@ jobs:
           keywords: [clip, clip-model, clip-as-service, onnx, onnx-runtime]\n\
           " > server/manifest.yml
           
-          python scripts/get-requirements.py onnx requirements.txt
+          python scripts/get-requirements.py onnx server/requirements.txt
           
           cp Dockerfiles/base.Dockerfile server/Dockerfile
           cp Dockerfiles/cuda.Dockerfile server/Dockerfile.gpu
@@ -165,7 +165,7 @@ jobs:
           keywords: [clip, clip-model, clip-as-service, onnx, tensorrt]\n\
           " > server/manifest.yml
           
-          python scripts/get-requirements.py tensorrt requirements.txt
+          python scripts/get-requirements.py tensorrt server/requirements.txt
           
           cp Dockerfiles/tensorrt.Dockerfile server/Dockerfile
           cp Dockerfiles/tensorrt.Dockerfile server/Dockerfile.gpu
