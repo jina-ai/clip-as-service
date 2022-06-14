@@ -145,18 +145,16 @@ jobs:
           
           python scripts/get-requirements.py onnx server/requirements.txt
           
-          cp Dockerfiles/base.Dockerfile server/Dockerfile
-          cp Dockerfiles/cuda.Dockerfile server/Dockerfile.gpu
-          
-          sed -i 's/ARG BACKEND_TAG=torch/ARG BACKEND_TAG=onnx/g' server/Dockerfile
-          sed -i 's/ARG BACKEND_TAG=torch/ARG BACKEND_TAG=onnx/g' server/Dockerfile.gpu
-          
           exec_name=`yq -r .name server/manifest.yml`
           echo executor name is $exec_name
           
-          # FIXME: disable uploading at debugging
-          # JINA_AUTH_TOKEN=${{secrets.JINAHUB_TOKEN}} jina hub push --force $exec_name --secret ${{secrets.ONNX_EXEC_SECRET}} server ${{env.TAG_ALIAS}}
-
+          cp Dockerfiles/base.Dockerfile server/Dockerfile
+          sed -i 's/ARG BACKEND_TAG=torch/ARG BACKEND_TAG=onnx/g' server/Dockerfile          
+          JINA_AUTH_TOKEN=${{secrets.JINAHUB_TOKEN}} jina hub push --force $exec_name --secret ${{secrets.ONNX_EXEC_SECRET}} server ${{env.TAG_ALIAS}}
+          
+          cp Dockerfiles/cuda.Dockerfile server/Dockerfile
+          sed -i 's/ARG BACKEND_TAG=torch/ARG BACKEND_TAG=onnx/g' server/Dockerfile
+          JINA_AUTH_TOKEN=${{secrets.JINAHUB_TOKEN}} jina hub push --force $exec_name --secret ${{secrets.ONNX_EXEC_SECRET}} server ${{env.GPU_TAG_ALIAS}}
 
       - name: Push TensorRT Executor
         id: push_tensorrt_executor
