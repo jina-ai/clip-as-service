@@ -77,6 +77,7 @@ def test_docarray_inputs(make_flow, inputs, port_generator):
     r = c.encode(inputs if not callable(inputs) else inputs())
     assert isinstance(r, DocumentArray)
     assert r.embeddings.shape
+    assert '__created_by_CAS__' not in r[0].tags
 
 
 @pytest.mark.parametrize(
@@ -102,6 +103,7 @@ def test_docarray_preserve_original_inputs(make_flow, inputs, port_generator):
     assert isinstance(r, DocumentArray)
     assert r.embeddings.shape
     assert r.contents == inputs.contents
+    assert '__created_by_CAS__' not in r[0].tags
 
 
 @pytest.mark.parametrize(
@@ -130,3 +132,4 @@ def test_docarray_traversal(make_flow, inputs, port_generator):
     c = _Client(host=f'grpc://0.0.0.0', port=make_flow.port)
     r = c.post(on='/', inputs=da, parameters={'traversal_paths': '@c'})
     assert r[0].chunks.embeddings.shape[0] == len(inputs)
+    assert '__created_by_CAS__' not in r[0].tags
