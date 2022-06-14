@@ -157,7 +157,7 @@
             this.$nextTick(function () {
                 app.callJina();
 
-                $.getJSON("https://picsum.photos/v2/list?page=" + randomIntFromInterval(1, 10) + "&limit=10", function (json) {
+                $.getJSON("https://picsum.photos/v2/list?page=" + randomIntFromInterval(1, 40) + "&limit=10", function (json) {
                     app.images = json
                 });
 
