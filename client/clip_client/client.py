@@ -113,12 +113,12 @@ class Client:
             )
         return self._unboxed_result(results)
 
-    def _gather_result(self, r, results):
+    def _gather_result(self, response, results: 'DocumentArray'):
         from rich import filesize
 
         if not results:
             self._pbar.start_task(self._r_task)
-        r = r.data.docs
+        r = response.data.docs
         results.extend(r)
         self._pbar.update(
             self._r_task,
@@ -129,7 +129,7 @@ class Client:
         )
 
     @staticmethod
-    def _unboxed_result(results):
+    def _unboxed_result(results: 'DocumentArray'):
         if results.embeddings is None:
             raise ValueError(
                 'empty embedding returned from the server. '
