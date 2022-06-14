@@ -136,7 +136,9 @@ class Client:
                 'This often due to a mis-config of the server, '
                 'restarting the server or changing the serving port number often solves the problem'
             )
-        return results.embeddings if results[0].tags.get('_plain', False) else results
+        return (
+            results.embeddings if ('__created_by_CAS__' in results[0].tags) else results
+        )
 
     def _iter_doc(self, content) -> Generator['Document', None, None]:
         from rich import filesize
@@ -149,9 +151,11 @@ class Client:
             if isinstance(c, str):
                 _mime = mimetypes.guess_type(c)[0]
                 if _mime and _mime.startswith('image'):
-                    yield Document(tags={'_plain': True}, uri=c).load_uri_to_blob()
+                    yield Document(
+                        tags={'__created_by_CAS__': True}, uri=c
+                    ).load_uri_to_blob()
                 else:
-                    yield Document(tags={'_plain': True}, text=c)
+                    yield Document(tags={'__created_by_CAS__': True}, text=c)
             elif isinstance(c, Document):
                 if c.content_type in ('text', 'blob'):
                     yield c
