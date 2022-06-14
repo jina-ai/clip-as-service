@@ -28,7 +28,7 @@ metas:\n\
     - clip_server/executors/clip_$BACKEND_TAG.py\n\
 " > /tmp/config.yml
 
-RUN cd /clip-as-service && \
+RUN cd /clip_server && \
     if [ "${BACKEND_TAG}" != "torch" ]; then python3 -m pip install --no-cache-dir "./[${BACKEND_TAG}]" ; fi && \
     python3 -m pip install --no-cache-dir .
 

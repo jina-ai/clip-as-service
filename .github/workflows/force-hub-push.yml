@@ -110,13 +110,11 @@ jobs:
           " > server/manifest.yml
           
           python scripts/get-requirements.py "" server/requirements.txt
-                    
-          cp Dockerfiles/base.Dockerfile server/Dockerfile
-          cp Dockerfiles/cuda.Dockerfile server/Dockerfile.gpu
           
           exec_name=`yq -r .name server/manifest.yml`
           echo executor name is $exec_name
-
+                    
+          cp Dockerfiles/base.Dockerfile server/Dockerfile
           JINA_AUTH_TOKEN=${{secrets.JINAHUB_TOKEN}} jina hub push --force $exec_name --secret ${{secrets.TORCH_EXEC_SECRET}} server ${{env.TAG_ALIAS}}
           
           cp Dockerfiles/cuda.Dockerfile server/Dockerfile
