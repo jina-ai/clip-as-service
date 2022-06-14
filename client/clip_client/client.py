@@ -111,7 +111,7 @@ class Client:
                 **self._get_post_payload(content, kwargs),
                 on_done=partial(self._gather_result, results=results),
             )
-        return self._unboxed_result(results, self._return_plain)
+        return self._unboxed_result(results)
 
     def _gather_result(self, r, results):
         from rich import filesize
@@ -129,39 +129,34 @@ class Client:
         )
 
     @staticmethod
-    def _unboxed_result(results, return_plain):
+    def _unboxed_result(results):
         if results.embeddings is None:
             raise ValueError(
                 'empty embedding returned from the server. '
                 'This often due to a mis-config of the server, '
                 'restarting the server or changing the serving port number often solves the problem'
             )
-        return results.embeddings if return_plain else results
+        return results.embeddings if results[0].tags.get('_plain', False) else results
 
     def _iter_doc(self, content) -> Generator['Document', None, None]:
         from rich import filesize
         from docarray import Document
-
-        self._return_plain = True
 
         if hasattr(self, '_pbar'):
             self._pbar.start_task(self._s_task)
 
         for c in content:
             if isinstance(c, str):
-                self._return_plain = True
                 _mime = mimetypes.guess_type(c)[0]
                 if _mime and _mime.startswith('image'):
-                    yield Document(uri=c).load_uri_to_blob()
+                    yield Document(tags={'_plain': True}, uri=c).load_uri_to_blob()
                 else:
-                    yield Document(text=c)
+                    yield Document(tags={'_plain': True}, text=c)
             elif isinstance(c, Document):
                 if c.content_type in ('text', 'blob'):
-                    self._return_plain = False
                     yield c
                 elif not c.blob and c.uri:
                     c.load_uri_to_blob()
-                    self._return_plain = False
                     yield c
                 elif c.tensor is not None:
                     yield c
@@ -284,7 +279,7 @@ class Client:
                 ),
             )
 
-        return self._unboxed_result(results, self._return_plain)
+        return self._unboxed_result(results)
 
     def _prepare_streaming(self, disable, total):
 
@@ -334,8 +329,6 @@ class Client:
     ) -> Generator['Document', None, None]:
         from rich import filesize
         from docarray import Document
-
-        self._return_plain = True
 
         if hasattr(self, '_pbar'):
             self._pbar.start_task(self._s_task)
