@@ -91,7 +91,7 @@ jobs:
           name: CLIPTorchEncoder\n\
           description: Embed images and sentences into fixed-length vectors with CLIP\n\
           url: https://github.com/jina-ai/clip-as-service\n\
-          keywords: [clip, clip-model, clip-as-service]\n\
+          keywords: [clip, clip-model, clip-as-service, pytorch]\n\
           " > server/manifest.yml
           
           python scripts/get-requirements.py "" requirements.txt
@@ -102,8 +102,7 @@ jobs:
           exec_name=`yq -r .name server/manifest.yml`
           echo executor name is $exec_name
 
-          # FIXME: disable uploading at debugging
-          # JINA_AUTH_TOKEN=${{secrets.JINAHUB_TOKEN}} jina hub push --force $exec_name --secret ${{secrets.TORCH_EXEC_SECRET}} server ${{env.TAG_ALIAS}}
+          JINA_AUTH_TOKEN=${{secrets.JINAHUB_TOKEN}} jina hub push --force $exec_name --secret ${{secrets.TORCH_EXEC_SECRET}} server ${{env.TAG_ALIAS}}
 
       - name: Push Onnx Executor
         id: push_onnx_executor
