@@ -46,6 +46,7 @@
 
 
 
+
 <a name=release-note-0-0-3></a>
 ## Release Note (`0.0.3`)
 
@@ -1103,4 +1104,27 @@
  - [[```d5be8c2f```](https://github.com/jina-ai/clip-as-service/commit/d5be8c2f85e47fcafa7587f3e75b76fbc42300e5)] __-__ Revert &#34;feat: add traversal paths (#748)&#34; (#749) (*Han Xiao*)
  - [[```7f2d8fe8```](https://github.com/jina-ai/clip-as-service/commit/7f2d8fe88643ae71e5d8b38547faa32570886e46)] __-__ update links in docs (#747) (*Ziniu Yu*)
  - [[```52a8b0a6```](https://github.com/jina-ai/clip-as-service/commit/52a8b0a6c62204d37556f31fd79fd1ee621b45e3)] __-__ __version__: the next version will be 0.4.15 (*Jina Dev Bot*)
+
+<a name=release-note-0-4-16></a>
+## Release Note (`0.4.16`)
+
+> Release time: 2022-06-14 08:52:07
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ felix-wang,  Ziniu Yu,  Han Xiao,  Jina Dev Bot,  🙇
+
+
+### 🐞 Bug fixes
+
+ - [[```eca1e700```](https://github.com/jina-ai/clip-as-service/commit/eca1e700493d59f475714aa5f49ccd33247cb983)] __-__ add integerate test for client (#753) (*felix-wang*)
+ - [[```b5c339fe```](https://github.com/jina-ai/clip-as-service/commit/b5c339feda8ed89538b92d59624a781a8725f304)] __-__ fix client concurrent issue (#752) (*Ziniu Yu*)
+
+### 🍹 Other Improvements
+
+ - [[```e5ab22f5```](https://github.com/jina-ai/clip-as-service/commit/e5ab22f58ea8888aef0ead6902d2412301e9e5fc)] __-__ update slack (*Han Xiao*)
+ - [[```5503becb```](https://github.com/jina-ai/clip-as-service/commit/5503becb5308ca34062bc611a4a431815de5383c)] __-__ fix docs (*Han Xiao*)
+ - [[```909cdb11```](https://github.com/jina-ai/clip-as-service/commit/909cdb110ff27f811e5ed718bb99291f454af03a)] __-__ add cas on colab section (*Han Xiao*)
+ - [[```3d3ef936```](https://github.com/jina-ai/clip-as-service/commit/3d3ef9363c9a322660fe84e94a2e610a24be0f0e)] __-__ __version__: the next version will be 0.4.16 (*Jina Dev Bot*)
 
