@@ -1,5 +1,6 @@
 import os
 import warnings
+import contextlib
 from multiprocessing.pool import ThreadPool
 from typing import Optional, Dict
 
@@ -58,6 +59,12 @@ class CLIPEncoder(Executor):
             name, device=self._device, jit=jit
         )
 
+        self._jit_optimized_execution = (
+            torch.jit.optimized_execution
+            if (jit and hasattr(torch.jit, 'optimized_execution'))
+            else contextlib.nullcontext
+        )
+
         self._pool = ThreadPool(processes=num_worker_preprocess)
 
     def _preproc_images(self, docs: 'DocumentArray'):
@@ -107,12 +114,13 @@ class CLIPEncoder(Executor):
                         name='encode_images_seconds',
                         documentation='images encode time in seconds',
                     ):
-                        minibatch.embeddings = (
-                            self._model.encode_image(batch_data)
-                            .cpu()
-                            .numpy()
-                            .astype(np.float32)
-                        )
+                        with self._jit_optimized_execution(True):
+                            minibatch.embeddings = (
+                                self._model.encode_image(batch_data)
+                                .cpu()
+                                .numpy()
+                                .astype(np.float32)
+                            )
 
             # for text
             if _txt_da:
@@ -125,11 +133,12 @@ class CLIPEncoder(Executor):
                         name='encode_texts_seconds',
                         documentation='texts encode time in seconds',
                     ):
-                        minibatch.embeddings = (
-                            self._model.encode_text(batch_data)
-                            .cpu()
-                            .numpy()
-                            .astype(np.float32)
-                        )
+                        with self._jit_optimized_execution(True):
+                            minibatch.embeddings = (
+                                self._model.encode_text(batch_data)
+                                .cpu()
+                                .numpy()
+                                .astype(np.float32)
+                            )
 
         return docs
