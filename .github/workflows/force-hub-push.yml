@@ -92,12 +92,14 @@ jobs:
           keywords: [clip, clip-model, clip-as-service]\n\
           " > manifest.yml
           
-          cp scripts/requirements.txt requirements.txt
-          
+          python scripts/get-requirements.py "" requirements.txt
+                    
           cp Dockerfiles/base.Dockerfile Dockerfile
           cp Dockerfiles/cuda.Dockerfile Dockerfile.gpu
           
           exec_name=`yq -r .name manifest.yml`
           echo executor name is $exec_name
 
-          jina hub push --force $exec_name --secret ${{secrets.TORCH_EXEC_SECRET}} . ${{env.TAG_ALIAS}}
+          # FIXME: disable uploading at debugging
+          # jina hub push --force $exec_name --secret ${{secrets.TORCH_EXEC_SECRET}} . ${{env.TAG_ALIAS}}
+          
