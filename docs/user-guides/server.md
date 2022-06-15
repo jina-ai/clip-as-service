@@ -489,11 +489,11 @@ r = c.encode(
 
 ## Deploy on JCloud
 
-The `clip_server` can be smoothly deployed and hosted as a Flow on [JCloud](https://docs.jina.ai/fundamentals/jcloud/) to utilize the free computational and storage resources provided by Jina.
+The `clip_server` can be smoothly deployed and hosted as a [Flow](https://docs.jina.ai/fundamentals/flow/) on [JCloud](https://docs.jina.ai/fundamentals/jcloud/) to utilize the free computational and storage resources provided by Jina.
 
-You need a YAML file to config the `clip_server` executor in the [Flow](https://docs.jina.ai/fundamentals/flow/) in order to deploy. 
-The executor is hosted on [Jina Hub](https://hub.jina.ai) and is sync with `clip_server` Python module. 
-We currently support [PyTorch-backed CLIP](https://hub.jina.ai/executor/gzpbl8jh).
+You need a YAML file to config the `clip_server` executor in the Flow in order to deploy. 
+The executors are hosted on [Jina Hub](https://hub.jina.ai) and are sync with `clip_server` Python module. 
+We currently support [PyTorch-backed CLIP](https://hub.jina.ai/executor/gzpbl8jh) and [ONNX-backed CLIP](https://hub.jina.ai/executor/2a7auwg2).
 
 A minimum YAML file is as follows:
 
@@ -506,6 +506,16 @@ executors:
     uses: jinahub+docker://CLIPTorchEncoder
 ```
 ````
+````{tab} onnx-flow.yml
+
+```yaml
+jtype: Flow
+executors:
+  - name: CLIPOnnxEncoder
+    uses: jinahub+docker://CLIPOnnxEncoder
+```
+````
+
 
 ```{warning}
 All Executors' `uses` must follow the format `jinahub+docker://MyExecutor` (from [Jina Hub](https://hub.jina.ai)) to avoid any local file dependencies.
@@ -516,6 +526,11 @@ To deploy,
 ````{tab} PyTorch-backed
 ```bash
 $ jc deploy pytorch-flow.yml
+```
+````
+````{tab} ONNX-backed
+```bash
+$ jc deploy onnx-flow.yml
 ```
 ````
 
