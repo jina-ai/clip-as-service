@@ -1,6 +1,6 @@
 # CLIPOnnxEncoder
 
-**CLIPOnnxEncoder** is the executor implemented by [clip-as-service](https://github.com/jina-ai/clip-as-service). 
+**CLIPOnnxEncoder** is the executor implemented in [clip-as-service](https://github.com/jina-ai/clip-as-service). 
 It serves OpenAI released [CLIP](https://github.com/openai/CLIP) models with ONNX runtime (🚀 **3x** speed up). 
 The introduction of the CLIP model [can be found here](https://openai.com/blog/clip/).
 
@@ -11,7 +11,7 @@ The introduction of the CLIP model [can be found here](https://openai.com/blog/c
 
 ## Model support
 
-Open AI has released 9 models so far. `ViT-B/32` is used as default model in all runtimes. Please also note that **different model give different size of output dimensions**. This will affect your downstream applications. For example, switching the model from one to another make your embedding incomparable, which breaks the downstream applications. Here is a list of supported models of each runtime and its corresponding size:
+Open AI has released 9 models so far. `ViT-B/32` is used as default model. Please also note that different model give **different size of output dimensions**. 
 
 | Model          | ONNX   | Output dimension | 
 |----------------|-----| --- |
@@ -55,12 +55,12 @@ f = Flow().add(
 
 You can set the following parameters via `with`:
 
-| Parameter | Description                                                                                                                    |
-|-----------|--------------------------------------------------------------------------------------------------------------------------------|
-| `name`    | Model weights, default is `ViT-B/32`. Support all OpenAI released pretrained models.                                           |
-| `num_worker_preprocess` | The number of CPU workers for image & text prerpocessing, default 4.                                                           | 
-| `minibatch_size` | The size of a minibatch for CPU preprocessing and GPU encoding, default 64. Reduce the size of it if you encounter OOM on GPU. |
-| `device`  | `cuda` or `cpu`. Default is `None` means auto-detect.                                                                          |
+| Parameter | Description                                                                                                                   |
+|-----------|-------------------------------------------------------------------------------------------------------------------------------|
+| `name`    | Model weights, default is `ViT-B/32`. Support all OpenAI released pretrained models.                                          |
+| `num_worker_preprocess` | The number of CPU workers for image & text prerpocessing, default 4.                                                          | 
+| `minibatch_size` | The size of a minibatch for CPU preprocessing and GPU encoding, default 16. Reduce the size of it if you encounter OOM on GPU. |
+| `device`  | `cuda` or `cpu`. Default is `None` means auto-detect.                                                                         |
 
 ### Encoding
 
@@ -84,13 +84,14 @@ da = DocumentArray(
 )
 
 f = Flow().add(
-    uses='jinahub+docker://CLIPOnnxEncoder',
+    uses='jinahub+docker://CLIPTorchEncoder',
 )
 with f:
     f.post(on='/', inputs=da)
+    da.summary()
 ```
 
-we can get a summary of the results.
+From the output, you will see all the text and image docs have `embedding` attached.
 
 ```text
 ╭──────────────────────────── Documents Summary ─────────────────────────────╮
@@ -113,21 +114,6 @@ we can get a summary of the results.
 │   uri         ('str',)       4                False             │
 │                                                                 │
 ╰─────────────────────────────────────────────────────────────────╯
-```
-
-To get the embedding of all Documents, simply call `da.embeddings`:
-
-```text
-[[-0.09136295  0.42720157 -0.05784469 ... -0.42873043  0.04472527
-   0.4437953 ]
- [ 0.43152636  0.1563695  -0.09363698 ... -0.11514216  0.1865044
-   0.15025651]
- [ 0.43152636  0.1563695  -0.09363698 ... -0.11514216  0.1865044
-   0.15025651]
- [ 0.42862126  0.17757078  0.08584607 ...  0.23284511 -0.00929402
-   0.10993651]
- [ 0.4706376  -0.01384148  0.3877237  ...  0.1995864  -0.22621225
-  -0.4837676 ]]
 ```
 
 👉 Access the embedding playground in **clip-as-service** [doc](https://clip-as-service.jina.ai/playground/embedding), type sentence or image URL and see **live embedding**!
@@ -159,12 +145,13 @@ Then send the request via `/rank` endpoint:
 
 ```python
 f = Flow().add(
-    uses='jinahub+docker://CLIPOnnxEncoder',
+    uses='jinahub+docker://CLIPTorchEncoder',
 )
 with f:
     r = f.post(on='/rank', inputs=da)
     print(r['@m', ['text', 'scores__clip_score__value']])
 ```
+
 Finally, in the return you can observe the matches are re-ranked according to `.scores['clip_score']`:
 
 ```bash
