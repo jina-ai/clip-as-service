@@ -112,6 +112,8 @@ jobs:
           
           python scripts/get-requirements.py "" server/requirements.txt
           
+          cp .github/README-exec/torch.readme.md server/README.md
+          
           exec_name=`yq -r .name server/manifest.yml`
           echo executor name is $exec_name
 
