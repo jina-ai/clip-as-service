@@ -52,8 +52,8 @@ jobs:
           PIP_TAG=${{ matrix.pip_tag }}
           BACKEND_TAG=torch
           if [ -n "${PIP_TAG}" ]; then
-              PIP_TAG=-${PIP_TAG}
               BACKEND_TAG=${PIP_TAG}
+              PIP_TAG=-${PIP_TAG}
           fi
 
           if [[ "${{ github.event.inputs.triggered_by }}" == "CD" ]]; then
