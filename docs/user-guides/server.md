@@ -541,10 +541,9 @@ The Flow is successfully deployed when you see:
 
 ```{figure} images/jc-deploy.png
 :width: 60%
-
 ```
 
-After deploying on jcloud, you can connect to it via client by setting  `grpcs://` as follows:
+After deploying on jcloud, you can connect to it via client by setting  `grpcs://` generated from previous step as follows:
 
 ```python
 from clip_client import Client
