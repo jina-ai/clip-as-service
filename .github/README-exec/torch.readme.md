@@ -15,16 +15,16 @@ With advances of ONNX runtime, you can use `CLIPOnnxExecutor` (see [link](https:
 Open AI has released **9 models** so far. `ViT-B/32` is used as default model. Please also note that different models give **the different sizes of output dimensions**. 
 
 | Model          | PyTorch | Output dimension | 
-|----------------|---------| --- |
-| RN50           | ✅ | 1024 | 
-| RN101          | ✅ | 512 | 
-| RN50x4         | ✅ | 640 |
-| RN50x16        | ✅ | 768 |
-| RN50x64        | ✅ | 1024 |
-| ViT-B/32       | ✅ | 512 |
-| ViT-B/16       | ✅ | 512 |
-| ViT-L/14       | ✅ | 768 |
-| ViT-L/14@336px | ✅ | 768 |
+|----------------|---------|------------------|
+| RN50           | ✅       | 1024             | 
+| RN101          | ✅       | 512              | 
+| RN50x4         | ✅       | 640              |
+| RN50x16        | ✅       | 768              |
+| RN50x64        | ✅       | 1024             |
+| ViT-B/32       | ✅       | 512              |
+| ViT-B/16       | ✅       | 512              |
+| ViT-L/14       | ✅       | 768              |
+| ViT-L/14@336px | ✅       | 768              |
 
 ## Usage
 
@@ -56,13 +56,13 @@ f = Flow().add(
 
 You can set the following parameters via `with`:
 
-| Parameter | Description                                                                                                                    |
-|-----------|--------------------------------------------------------------------------------------------------------------------------------|
-| `name`    | Model weights, default is `ViT-B/32`. Support all OpenAI released pretrained models.                                           |
+| Parameter               | Description                                                                                                                    |
+|-------------------------|--------------------------------------------------------------------------------------------------------------------------------|
+| `name`                  | Model weights, default is `ViT-B/32`. Support all OpenAI released pretrained models.                                           |
 | `num_worker_preprocess` | The number of CPU workers for image & text prerpocessing, default 4.                                                           | 
-| `minibatch_size` | The size of a minibatch for CPU preprocessing and GPU encoding, default 32. Reduce the size of it if you encounter OOM on GPU. |
-| `device`  | `cuda` or `cpu`. Default is `None` means auto-detect.                                                                          |
-| `jit` | If to enable Torchscript JIT, default is `False`. 
+| `minibatch_size`        | The size of a minibatch for CPU preprocessing and GPU encoding, default 32. Reduce the size of it if you encounter OOM on GPU. |
+| `device`                | `cuda` or `cpu`. Default is `None` means auto-detect.                                                                          |
+| `jit`                   | If to enable Torchscript JIT, default is `False`.                                                                              |
 
 ### Encoding
 
