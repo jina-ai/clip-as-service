@@ -12,7 +12,7 @@ With advances of ONNX runtime, you can use `CLIPOnnxExecutor` (see [link](https:
 
 ## Model support
 
-Open AI has released **9 models** so far. `ViT-B/32` is used as default model. Please also note that different model give **different size of output dimensions**. 
+Open AI has released **9 models** so far. `ViT-B/32` is used as default model. Please also note that different models give **the different sizes of output dimensions**. 
 
 | Model          | PyTorch | Output dimension | 
 |----------------|---------| --- |
@@ -56,13 +56,13 @@ f = Flow().add(
 
 You can set the following parameters via `with`:
 
-| Parameter | Description                                                                                                                   |
-|-----------|-------------------------------------------------------------------------------------------------------------------------------|
-| `name`    | Model weights, default is `ViT-B/32`. Support all OpenAI released pretrained models.                                          |
-| `num_worker_preprocess` | The number of CPU workers for image & text prerpocessing, default 4.                                                          | 
-| `minibatch_size` | The size of a minibatch for CPU preprocessing and GPU encoding, default 16. Reduce the size of it if you encounter OOM on GPU. |
-| `device`  | `cuda` or `cpu`. Default is `None` means auto-detect.                                                                         |
-| `jit` | If to enable Torchscript JIT, default is `False`.                                                                             
+| Parameter | Description                                                                                                                    |
+|-----------|--------------------------------------------------------------------------------------------------------------------------------|
+| `name`    | Model weights, default is `ViT-B/32`. Support all OpenAI released pretrained models.                                           |
+| `num_worker_preprocess` | The number of CPU workers for image & text prerpocessing, default 4.                                                           | 
+| `minibatch_size` | The size of a minibatch for CPU preprocessing and GPU encoding, default 32. Reduce the size of it if you encounter OOM on GPU. |
+| `device`  | `cuda` or `cpu`. Default is `None` means auto-detect.                                                                          |
+| `jit` | If to enable Torchscript JIT, default is `False`. 
 
 ### Encoding
 
@@ -154,7 +154,7 @@ with f:
     print(r['@m', ['text', 'scores__clip_score__value']])
 ```
 
-Finally, in the return you can observe the matches are re-ranked according to `.scores['clip_score']`:
+Finally, you can observe the matches are re-ranked based on `.scores['clip_score']`:
 
 ```bash
 [['a photo of a television studio', 'a photo of a conference room', 'a photo of a lecture room', 'a photo of a control room', 'a photo of a podium indoor'], 
