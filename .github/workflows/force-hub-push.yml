@@ -1,18 +1,18 @@
 name: Manual Hub Push
 
-#on:
-#  workflow_dispatch:
-#    inputs:
-#      release_token:
-#        description: 'Your release token'
-#        required: true
-#      triggered_by:
-#        description: 'CD | TAG | MANUAL'
-#        required: false
-#        default: MANUAL
-
 on:
-  pull_request:
+  workflow_dispatch:
+    inputs:
+      release_token:
+        description: 'Your release token'
+        required: true
+      triggered_by:
+        description: 'CD | TAG | MANUAL'
+        required: false
+        default: MANUAL
+
+#on:
+#  pull_request:
 
 jobs:
   token-check:
@@ -189,12 +189,6 @@ jobs:
           python scripts/get-requirements.py tensorrt server/requirements.txt
           
           cp Dockerfiles/tensorrt.Dockerfile server/Dockerfile
-          cp Dockerfiles/tensorrt.Dockerfile server/Dockerfile.gpu
-          
-          sed -i 's/ARG BACKEND_TAG=torch/ARG BACKEND_TAG=tensorrt/g' server/Dockerfile
-          sed -i 's/ARG BACKEND_TAG=torch/ARG BACKEND_TAG=tensorrt/g' server/Dockerfile.gpu
-          
-          sed -i 's/ARG PIP_TAG/ARG PIP_TAG=tensorrt/g' server/Dockerfile
           
           exec_name=`yq -r .name server/manifest.yml`
           echo executor name is $exec_name

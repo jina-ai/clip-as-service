@@ -8,7 +8,7 @@ The introduction of the CLIP model [can be found here](https://openai.com/blog/c
 - ⚡ **Efficiency**: Faster CLIP model inference on CPU and GPU via leveraging the best practices. 
 - 📈 **Observability**: Monitoring the serving via Prometheus and Grafana (see [Usage Guide](https://docs.jina.ai/how-to/monitoring/#deploying-locally)).
 
-With advances of ONNX runtime, you can use `CLIPOnnxExecutor` (see [link](https://hub.jina.ai/executor/2a7auwg2)) instead to achieve **3x** model inference speed up.   
+With advances of ONNX runtime, you can use `CLIPOnnxEncoder` (see [link](https://hub.jina.ai/executor/2a7auwg2)) instead to achieve **3x** model inference speed up.   
 
 ## Model support
 
