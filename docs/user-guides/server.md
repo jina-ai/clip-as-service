@@ -502,7 +502,7 @@ A minimum YAML file is as follows:
 ```yaml
 jtype: Flow
 executors:
-  - name: CLIPPytorchExecutor
+  - name: CLIPTorchEncoder
     uses: jinahub+docker://CLIPTorchEncoder
 ```
 ````
