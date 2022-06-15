@@ -2,14 +2,14 @@ from multiprocessing.pool import ThreadPool
 from typing import Dict
 
 import numpy as np
-from clip_server.executors.helper import (
+from .helper import (
     split_img_txt_da,
     preproc_image,
     preproc_text,
     set_rank,
 )
-from clip_server.model import clip
-from clip_server.model.clip_trt import CLIPTensorRTModel
+from ..model import clip
+from ..model.clip_trt import CLIPTensorRTModel
 from jina import Executor, requests, DocumentArray
 
 

@@ -5,7 +5,7 @@ from typing import Dict, Optional
 import numpy as np
 import torch
 from transformers import CLIPFeatureExtractor, CLIPModel, CLIPTokenizer
-from clip_server.executors.helper import (
+from .helper import (
     split_img_txt_da,
     set_rank,
 )
