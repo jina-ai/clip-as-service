@@ -492,7 +492,7 @@ r = c.encode(
 The `clip_server` can be smoothly deployed and hosted as a [Flow](https://docs.jina.ai/fundamentals/flow/) on [JCloud](https://docs.jina.ai/fundamentals/jcloud/) to utilize the free computational and storage resources provided by Jina.
 
 You need a YAML file to config the `clip_server` executor in the Flow in order to deploy. 
-The executors are hosted on [Jina Hub](https://hub.jina.ai) and are sync with `clip_server` Python module. 
+The executors are hosted on [Jina Hub](https://hub.jina.ai) and are automatically sync with `clip_server` Python module. 
 We currently support [PyTorch-backed CLIP](https://hub.jina.ai/executor/gzpbl8jh) and [ONNX-backed CLIP](https://hub.jina.ai/executor/2a7auwg2).
 
 A minimum YAML file is as follows:
