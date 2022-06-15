@@ -131,6 +131,7 @@ To get the embedding of all Documents, simply call `da.embeddings`:
   -0.4837676 ]]
 ```
 
+👉 Access the embedding playground in **clip-as-service** [doc](https://clip-as-service.jina.ai/playground/embedding), type sentence or image URL and see **live embedding**!
 
 ### Ranking
 
@@ -186,3 +187,5 @@ d = Document(
     ],
 )
 ```
+
+👉 Access the ranking playground in **clip-as-service** [doc](https://clip-as-service.jina.ai/playground/reasoning/). Just input the reasoning texts as prompts, the server will rank the prompts and return sorted prompts with scores.
