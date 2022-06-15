@@ -79,7 +79,7 @@ class BenchmarkClient(threading.Thread):
         time_costs = []
         for _ in range(self.num_iter):
             start = time.perf_counter()
-            r = client.encode(batch)
+            r = client.encode(batch, batch_size=self.batch_size)
             time_costs.append(time.perf_counter() - start)
         self.avg_time = np.mean(time_costs[2:])
 
