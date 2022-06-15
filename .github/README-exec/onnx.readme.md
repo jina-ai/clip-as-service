@@ -5,8 +5,8 @@ It serves OpenAI released [CLIP](https://github.com/openai/CLIP) models with ONN
 The introduction of the CLIP model [can be found here](https://openai.com/blog/clip/).
 
 - 🔀 **Automatic**: Auto-detect image and text documents depending on their content.
-- ⚡ **Efficiency**: Non-blocking duplex streaming on requests and responses. 
-- 📈 **Observability**: Monitoring the serving via Prometheus and Grafana.
+- ⚡ **Efficiency**: Faster CLIP model inference on CPU and GPU via ONNX runtime. 
+- 📈 **Observability**: Monitoring the serving via Prometheus and Grafana (see [Usage Guide](https://docs.jina.ai/how-to/monitoring/#deploying-locally)).
 
 
 ## Model support

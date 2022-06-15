@@ -5,8 +5,8 @@ It serves OpenAI released [CLIP](https://github.com/openai/CLIP) models with PyT
 The introduction of the CLIP model [can be found here](https://openai.com/blog/clip/).
 
 - 🔀 **Automatic**: Auto-detect image and text documents depending on their content.
-- ⚡ **Efficiency**: Non-blocking duplex streaming on requests and responses. 
-- 📈 **Observability**: Monitoring the serving via Prometheus and Grafana.
+- ⚡ **Efficiency**: Faster CLIP model inference on CPU and GPU via leveraging the best practices. 
+- 📈 **Observability**: Monitoring the serving via Prometheus and Grafana (see [Usage Guide](https://docs.jina.ai/how-to/monitoring/#deploying-locally)).
 
 With advances of ONNX runtime, you can use `CLIPOnnxExecutor` (see [link](https://hub.jina.ai/executor/2a7auwg2)) instead to achieve **3x** model inference speed up.   
 
