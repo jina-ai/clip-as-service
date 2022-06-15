@@ -21,7 +21,7 @@ jobs:
         env:
           release_token: ${{ secrets.CAS_RELEASE_TOKEN }}
 
-  regular-release:
+  docker-release:
     needs: token-check
     runs-on: ubuntu-latest
     strategy:
@@ -104,7 +104,7 @@ jobs:
         if: ${{ matrix.engine_tag == '' && matrix.pip_tag != 'tensorrt' }}
         uses: docker/build-push-action@v2
         with:
-          context: .
+          context: server
           file: Dockerfiles/base.Dockerfile
           platforms: linux/amd64
           cache-from: type=registry,ref=jinaai/clip_executor:latest
@@ -116,13 +116,12 @@ jobs:
             CAS_VERSION=${{env.CAS_VERSION}}
             VCS_REF=${{env.VCS_REF}}
             BACKEND_TAG=${{env.BACKEND_TAG}}
-            PIP_TAG=${{matrix.pip_tag}}
       - name: CUDA Build and push
         id: cuda_docker_build
         if: ${{ matrix.engine_tag == 'cuda' }}
         uses: docker/build-push-action@v2
         with:
-          context: .
+          context: server
           file: Dockerfiles/cuda.Dockerfile
           platforms: linux/amd64
           cache-from: type=registry,ref=jinaai/clip_executor:latest-cuda
@@ -134,4 +133,3 @@ jobs:
             CAS_VERSION=${{env.CAS_VERSION}}
             VCS_REF=${{env.VCS_REF}}
             BACKEND_TAG=${{env.BACKEND_TAG}}
-            PIP_TAG=${{matrix.pip_tag}}

@@ -5,13 +5,13 @@ from typing import Optional, Dict
 
 import numpy as np
 import torch
-from clip_server.executors.helper import (
+from .helper import (
     split_img_txt_da,
     preproc_image,
     preproc_text,
     set_rank,
 )
-from clip_server.model import clip
+from ..model import clip
 from jina import Executor, requests, DocumentArray
 
 

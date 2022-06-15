@@ -1,9 +1,8 @@
 # !!! An ARG declared before a FROM is outside of a build stage, so it can’t be used in any instruction after a FROM
-ARG JINA_VERSION=3.3.25
+ARG JINA_VERSION=3.6.0
 
 FROM jinaai/jina:${JINA_VERSION}-py38-standard
 
-ARG PIP_TAG
 ARG BACKEND_TAG=torch
 
 # constant, wont invalidate cache
@@ -18,20 +17,20 @@ LABEL org.opencontainers.image.vendor="Jina AI Limited" \
 RUN pip3 install --no-cache-dir torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cpu
 
 # copy will almost always invalid the cache
-COPY . /clip-as-service/
+COPY . /clip_server/
 
 RUN echo "\
 jtype: CLIPEncoder\n\
 metas:\n\
   py_modules:\n\
-    - server/clip_server/executors/clip_$BACKEND_TAG.py\n\
+    - clip_server/executors/clip_$BACKEND_TAG.py\n\
 " > /tmp/config.yml
 
-RUN cd /clip-as-service && \
-    if [ -n "$PIP_TAG" ]; then pip3 install --no-cache-dir server/"[$PIP_TAG]" ; fi && \
-    pip3 install --no-cache-dir "server/"
+RUN cd /clip_server && \
+    if [ "$BACKEND_TAG" != "torch" ]; then pip3 install --no-cache-dir "./[$BACKEND_TAG]" ; fi && \
+    pip3 install --no-cache-dir .
 
-WORKDIR /clip-as-service
+WORKDIR /clip_server
 
 
 ENTRYPOINT ["jina", "executor", "--uses", "/tmp/config.yml"]

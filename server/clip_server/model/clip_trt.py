@@ -4,7 +4,7 @@ try:
     import tensorrt as trt
     from tensorrt.tensorrt import Logger, Runtime
 
-    from clip_server.model.trt_utils import load_engine, build_engine, save_engine
+    from .trt_utils import load_engine, build_engine, save_engine
 except ImportError:
     raise ImportError(
         "It seems that TensorRT is not yet installed. "
@@ -55,7 +55,7 @@ class CLIPTensorRTModel:
                 f'The engine plan file is generated on an incompatible device, expecting compute {compute_capacity} '
                 'got compute 8.6, will rebuild the TensorRT engine.'
             )
-            from clip_server.model.clip_onnx import CLIPOnnxModel
+            from .clip_onnx import CLIPOnnxModel
 
             onnx_model = CLIPOnnxModel(self._name)
 
