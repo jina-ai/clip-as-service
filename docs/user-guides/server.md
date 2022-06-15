@@ -60,19 +60,19 @@ The procedure and UI of ONNX and TensorRT runtime would look the same as Pytorch
 
 ## Model support
 
-Open AI has released 9 models so far. `ViT-B/32` is used as default model in all runtimes. Due to the limitation of some runtime, not every runtime supports all nine models. Please also note that different model give different size of output dimensions. This will affect your downstream applications. For example, switching the model from one to another make your embedding incomparable, which breaks the downstream applications. Below is a list of supported models of each runtime and its corresponding size. We include the disk usage (in delta) and the peak RAM and VRAM usage (in delta) when running on a single Nvidia TITAN RTX GPU (24GB VRAM) when `batch_size=256`.
+Open AI has released 9 models so far. `ViT-B/32` is used as default model in all runtimes. Due to the limitation of some runtime, not every runtime supports all nine models. Please also note that different model give different size of output dimensions. This will affect your downstream applications. For example, switching the model from one to another make your embedding incomparable, which breaks the downstream applications. Below is a list of supported models of each runtime and its corresponding size. We include the disk usage (in delta) and the peak RAM and VRAM usage (in delta) when running on a single Nvidia TITAN RTX GPU (24GB VRAM) using a default `batch_size=32` in server and a default `batch_size=8` in client.
 
 | Model          | PyTorch | ONNX | TensorRT | Output Dimension | Disk Usage (MB) | Peak RAM Usage (GB) | Peak VRAM Usage (GB) |
 |----------------|---------|------|----------|------------------|-----------------|---------------------|----------------------|
-| RN50           | ✅       | ✅    | ✅        | 1024             | 256             | 3.44                | 4.25                 |
-| RN101          | ✅       | ✅    | ✅        | 512              | 292             | 3.51                | 4.28                 |
-| RN50x4         | ✅       | ✅    | ✅        | 640              | 422             | 4.14                | 6.92                 |
-| RN50x16        | ✅       | ✅    | ❌        | 768              | 661             | 5.07                | 13.01                |
-| RN50x64        | ✅       | ✅    | ❌        | 1024             | 1382            | 5.81                | 20.26                |
-| ViT-B/32       | ✅       | ✅    | ✅        | 512              | 351             | 3.66                | 2.19                 |
-| ViT-B/16       | ✅       | ✅    | ✅        | 512              | 354             | 3.58                | 3.90                 |
-| ViT-L/14       | ✅       | ✅    | ✅        | 768              | 933             | 4.11                | 5.38                 |
-| ViT-L/14-336px | ✅       | ✅    | ❌        | 768              | 934             | 5.07                | 11.36                |
+| RN50           | ✅       | ✅    | ✅        | 1024             | 256             | 2.99                | 1.36                 |
+| RN101          | ✅       | ✅    | ✅        | 512              | 292             | 3.51                | 1.40                 |
+| RN50x4         | ✅       | ✅    | ✅        | 640              | 422             | 3.23                | 1.63                 |
+| RN50x16        | ✅       | ✅    | ❌        | 768              | 661             | 3.63                | 2.02                 |
+| RN50x64        | ✅       | ✅    | ❌        | 1024             | 1382            | 4.08                | 2.98                 |
+| ViT-B/32       | ✅       | ✅    | ✅        | 512              | 351             | 3.20                | 1.40                 |
+| ViT-B/16       | ✅       | ✅    | ✅        | 512              | 354             | 3.20                | 1.44                 |
+| ViT-L/14       | ✅       | ✅    | ✅        | 768              | 933             | 3.66                | 2.04                 |
+| ViT-L/14-336px | ✅       | ✅    | ❌        | 768              | 934             | 3.74                | 2.23                 |
 
 
 ## YAML config
