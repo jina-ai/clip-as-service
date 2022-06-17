@@ -56,7 +56,7 @@ jobs:
         uses: benc-uk/workflow-dispatch@v1
         with:
           workflow: Manual Docker Build
-          inputs: '{ "release_token": "${{ env.release_token }}", "triggered_by": "CD"}'
+          inputs: '{ "release_token": "${{ env.release_token }}", "triggered_by": "MANUAL"}'
           token: ${{ secrets.JINA_DEV_BOT }}
         env:
           release_token: ${{ secrets.CAS_RELEASE_TOKEN }}
@@ -69,7 +69,7 @@ jobs:
         uses: benc-uk/workflow-dispatch@v1
         with:
           workflow: Manual Hub Push
-          inputs: '{ "release_token": "${{ env.release_token }}", "triggered_by": "CD"}'
+          inputs: '{ "release_token": "${{ env.release_token }}", "triggered_by": "MANUAL"}'
           token: ${{ secrets.JINA_DEV_BOT }}
         env:
           release_token: ${{ secrets.CAS_RELEASE_TOKEN }}

@@ -126,10 +126,18 @@ jobs:
         env:
           TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
           TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
-      - name: Build and push docker (.devN)
+      - name: Pre-release docker (.devN)
         uses: benc-uk/workflow-dispatch@v1
         with:
           workflow: Manual Docker Build
+          inputs: '{ "release_token": "${{ env.release_token }}", "triggered_by": "CD"}'
+          token: ${{ secrets.JINA_DEV_BOT }}
+        env:
+          release_token: ${{ secrets.CAS_RELEASE_TOKEN }}
+      - name: Pre-release hub (.devN)
+        uses: benc-uk/workflow-dispatch@v1
+        with:
+          workflow: Manual Hub Push
           inputs: '{ "release_token": "${{ env.release_token }}", "triggered_by": "CD"}'
           token: ${{ secrets.JINA_DEV_BOT }}
         env:
