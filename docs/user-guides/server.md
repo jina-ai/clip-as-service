@@ -487,117 +487,102 @@ r = c.encode(
 )
 ```
 
-[//]: # (## Deploy on JCloud)
+## Deploy on JCloud
 
-[//]: # ()
-[//]: # (You can deploy `CLIPTorchEncoder` on JCloud. )
+The `clip_server` can be smoothly deployed and hosted as a [Flow](https://docs.jina.ai/fundamentals/flow/) on [JCloud](https://docs.jina.ai/fundamentals/jcloud/) to utilize the free computational and storage resources provided by Jina.
 
-[//]: # (A minimum YAML file `flow.yml` is as follows:)
+You need a YAML file to config the `clip_server` executor in the Flow in order to deploy. 
+The executors are hosted on [Jina Hub](https://hub.jina.ai) and are automatically sync with `clip_server` Python module. 
+We currently support [PyTorch-backed CLIP](https://hub.jina.ai/executor/gzpbl8jh) and [ONNX-backed CLIP](https://hub.jina.ai/executor/2a7auwg2).
 
-[//]: # ()
-[//]: # (```yaml)
+A minimum YAML file is as follows. You can also config the same parameters in executors via `with` [described here](#clip-model-config).
 
-[//]: # (jtype: Flow)
+````{tab} pytorch-flow.yml
 
-[//]: # (executors:)
+```yaml
+---
+emphasize-lines: 5
+---
 
-[//]: # (  - name: CLIPTorchEncoder # The name of the encoder)
+jtype: Flow
+executors:
+  - name: CLIPTorchEncoder
+    uses: jinahub+docker://CLIPTorchEncoder
+    with:
+```
+````
+````{tab} onnx-flow.yml
+---
+emphasize-lines: 5
+---
 
-[//]: # (    uses: jinahub+docker://CLIPTorchEncoder)
+```yaml
+jtype: Flow
+executors:
+  - name: CLIPOnnxEncoder
+    uses: jinahub+docker://CLIPOnnxEncoder
+    with:
+```
+````
 
-[//]: # (```)
 
-[//]: # ()
-[//]: # (```{warning})
+```{warning}
+All Executors' `uses` must follow the format `jinahub+docker://MyExecutor` (from [Jina Hub](https://hub.jina.ai)) to avoid any local file dependencies.
+```
 
-[//]: # (All Executors' `uses` must follow the format `jinahub+docker://MyExecutor` &#40;from [Jina Hub]&#40;https://hub.jina.ai&#41;&#41; to avoid any local file dependencies.)
+To deploy,
 
-[//]: # (```)
+````{tab} PyTorch-backed
+```bash
+$ jc deploy pytorch-flow.yml
+```
+````
+````{tab} ONNX-backed
+```bash
+$ jc deploy onnx-flow.yml
+```
+````
 
-[//]: # ()
-[//]: # (To deploy,)
+Here `jc deploy` is the command to deploy a Jina project to JCloud.
+Learn more about [JCloud usage](https://docs.jina.ai/fundamentals/jcloud/).
 
-[//]: # ()
-[//]: # (```bash)
+The Flow is successfully deployed when you see:
 
-[//]: # ($ jc deploy flow.yml)
+```{figure} images/jc-deploy.png
+:width: 60%
+```
 
-[//]: # (```)
+After deploying on jcloud, you can connect to it via client by setting  `grpcs://` generated from previous step as follows:
 
-[//]: # ()
-[//]: # (Here `jc deploy` is the command to deploy a Jina project to JCloud.)
+```python
+from clip_client import Client
 
-[//]: # (Learn more about [JCloud usage]&#40;https://docs.jina.ai/fundamentals/jcloud/&#41;.)
+c = Client(
+    'grpcs://174eb69ba3.wolf.jina.ai'
+)  # This is the URL you get from previous step
 
-[//]: # ()
-[//]: # ()
-[//]: # (The Flow is successfully deployed when you see:)
+r = c.encode(
+    [
+        'First do it',
+        'then do it right',
+        'then do it better',
+        'https://picsum.photos/200',
+    ]
+)
+print(r)
+```
 
-[//]: # ()
-[//]: # (```{figure} images/jc-deploy.png)
+will give you:
 
-[//]: # (:width: 60%)
+```text
+[[ 0.03480401 -0.23519686  0.01041038 ... -0.5229086  -0.10081214
+   -0.08695138]
+ [-0.0683605  -0.00324154  0.01490371 ... -0.50309485 -0.06193433
+   -0.08574048]
+ [ 0.15041807 -0.07933374 -0.06650036 ... -0.46410388 -0.08535041
+   0.04270519]
+ [-0.16183889  0.10636599 -0.2062868  ... -0.41244072  0.19485454
+   0.05658712]]
+```
 
-[//]: # ()
-[//]: # (```)
-
-[//]: # ()
-[//]: # (After deploying on jcloud, you can connect to it via client by setting  `grpcs://` as follows:)
-
-[//]: # ()
-[//]: # ()
-[//]: # (```python)
-
-[//]: # (from clip_client import Client)
-
-[//]: # ()
-[//]: # (c = Client&#40;'grpcs://174eb69ba3.wolf.jina.ai'&#41;  # This is the URL you get from previous step)
-
-[//]: # ()
-[//]: # (r = c.encode&#40;)
-
-[//]: # (    [)
-
-[//]: # (        'First do it',)
-
-[//]: # (        'then do it right',)
-
-[//]: # (        'then do it better',)
-
-[//]: # (        'https://picsum.photos/200',)
-
-[//]: # (    ])
-
-[//]: # (&#41;)
-
-[//]: # (print&#40;r&#41;)
-
-[//]: # (```)
-
-[//]: # ()
-[//]: # (will give you:)
-
-[//]: # ()
-[//]: # (```text)
-
-[//]: # ([[ 0.03480401 -0.23519686  0.01041038 ... -0.5229086  -0.10081214)
-
-[//]: # (   -0.08695138])
-
-[//]: # ( [-0.0683605  -0.00324154  0.01490371 ... -0.50309485 -0.06193433)
-
-[//]: # (   -0.08574048])
-
-[//]: # ( [ 0.15041807 -0.07933374 -0.06650036 ... -0.46410388 -0.08535041)
-
-[//]: # (   0.04270519])
-
-[//]: # ( [-0.16183889  0.10636599 -0.2062868  ... -0.41244072  0.19485454)
-
-[//]: # (   0.05658712]])
-
-[//]: # (```)
-
-[//]: # ()
-[//]: # ()
-[//]: # (It means the client and the JCloud server are now connected. Well done!)
+It means the client and the JCloud server are now connected. Well done!
