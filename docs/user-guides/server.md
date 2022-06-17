@@ -497,27 +497,31 @@ We currently support [PyTorch-backed CLIP](https://hub.jina.ai/executor/gzpbl8jh
 
 A minimum YAML file is as follows. You can also config the same parameters in executors via `with` [described here](#clip-model-config).
 
-```{tip}
-`device` can only be set to `cpu` since JCloud does not support GPU right now.
-```
-
-
 ````{tab} pytorch-flow.yml
 
 ```yaml
+---
+emphasize-lines: 5
+---
+
 jtype: Flow
 executors:
   - name: CLIPTorchEncoder
     uses: jinahub+docker://CLIPTorchEncoder
+    with:
 ```
 ````
 ````{tab} onnx-flow.yml
+---
+emphasize-lines: 5
+---
 
 ```yaml
 jtype: Flow
 executors:
   - name: CLIPOnnxEncoder
     uses: jinahub+docker://CLIPOnnxEncoder
+    with:
 ```
 ````
 
