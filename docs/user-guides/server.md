@@ -495,7 +495,7 @@ You need a YAML file to config the `clip_server` executor in the Flow in order t
 The executors are hosted on [Jina Hub](https://hub.jina.ai) and are automatically sync with `clip_server` Python module. 
 We currently support [PyTorch-backed CLIP](https://hub.jina.ai/executor/gzpbl8jh) and [ONNX-backed CLIP](https://hub.jina.ai/executor/2a7auwg2).
 
-A minimum YAML file is as follows:
+A minimum YAML file is as follows. You can also config the same parameters in executors via `with` [described here](#clip-model-config).
 
 ````{tab} pytorch-flow.yml
 
