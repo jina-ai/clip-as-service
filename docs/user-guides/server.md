@@ -498,7 +498,7 @@ We currently support [PyTorch-backed CLIP](https://hub.jina.ai/executor/gzpbl8jh
 A minimum YAML file is as follows. You can also config the same parameters in executors via `with` [described here](#clip-model-config).
 
 ```{tip}
-`device` can only be set to `cpu` right now since JCloud does not support GPU right now.
+`device` can only be set to `cpu` since JCloud does not support GPU right now.
 ```
 
 
