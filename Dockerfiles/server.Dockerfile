@@ -3,6 +3,8 @@ ARG CUDA_VERSION=11.6.0
 FROM nvidia/cuda:${CUDA_VERSION}-devel-ubuntu20.04
 
 ARG CAS_NAME=cas
+# given by builder
+ARG PIP_TAG
 WORKDIR /${CAS_NAME}
 
 ENV PIP_NO_CACHE_DIR=1 \
@@ -17,7 +19,9 @@ RUN apt-get update \
     && pip install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu113
 
 COPY server ./server
-RUN pip install ./server/
+RUN pip install --default-timeout=1000 --compile --extra-index-url ./server/ \
+    && if [ -n "${PIP_TAG}" ]; then pip install --default-timeout=1000 --compile --extra-index-url "./server[${PIP_TAG}]" ; fi
+
 ENV LD_LIBRARY_PATH=/usr/local/cuda/lib64
 
 ARG USER_ID=1000
