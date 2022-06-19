@@ -55,6 +55,7 @@ def _download(url: str, root: str, with_resume: bool = True):
     filename = os.path.basename(url)
 
     download_target = os.path.join(root, filename)
+    print(download_target)
     if os.path.isfile(download_target):
         return download_target
 
