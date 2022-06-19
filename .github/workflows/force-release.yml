@@ -52,6 +52,13 @@ jobs:
     needs: token-check
     runs-on: ubuntu-latest
     steps:
+      - uses: benc-uk/workflow-dispatch@v1
+        with:
+          workflow: Manual CAS Docker Build
+          inputs: '{ "release_token": "${{ env.release_token }}", "triggered_by": "CD"}'
+          token: ${{ secrets.JINA_DEV_BOT }}
+        env:
+          release_token: ${{ secrets.CAS_RELEASE_TOKEN }}
       - name: Build and push docker
         uses: benc-uk/workflow-dispatch@v1
         with:

@@ -88,7 +88,7 @@ pip install "clip_server[tensorrt]"
 
 ````{tab} Server on Google Colab
 
-```{button-link} https://colab.research.google.com/github/jina-ai/clip-as-service/blob/main/docs/playground/cas-on-colab.ipynb
+```{button-link} https://colab.research.google.com/github/jina-ai/clip-as-service/blob/main/docs/hosting/cas-on-colab.ipynb
 :color: primary
 :align: center
 
@@ -181,6 +181,13 @@ user-guides/faq
 
 ```
 
+```{toctree}
+:caption: Hosting
+:hidden:
+
+hosting/colab
+hosting/on-jcloud
+```
 
 ```{toctree}
 :caption: Playground
@@ -188,7 +195,6 @@ user-guides/faq
 
 playground/embedding
 playground/reasoning
-playground/colab
 ```
 
 

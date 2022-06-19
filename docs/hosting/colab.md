@@ -19,7 +19,7 @@ Specifically, the architecture is illustrated below:
 :width: 70%
 ```
 
-```{button-link} https://colab.research.google.com/github/jina-ai/clip-as-service/blob/main/docs/playground/cas-on-colab.ipynb
+```{button-link} https://colab.research.google.com/github/jina-ai/clip-as-service/blob/main/docs/hosting/cas-on-colab.ipynb
 :color: primary
 :align: center
 
