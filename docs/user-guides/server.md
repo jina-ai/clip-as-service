@@ -11,7 +11,7 @@ This chapter introduces the API of the server.
 You will need to install server first in Python 3.7+: `pip install clip-server`.
 ```
 
-(start-server)
+(start-server)=
 ## Start server
 
 
@@ -488,102 +488,34 @@ r = c.encode(
 )
 ```
 
-## Deploy on JCloud
+## Serve in Docker Container
 
-The `clip_server` can be smoothly deployed and hosted as a [Flow](https://docs.jina.ai/fundamentals/flow/) on [JCloud](https://docs.jina.ai/fundamentals/jcloud/) to utilize the free computational and storage resources provided by Jina.
+You can run the server inside a Docker container. We provide a Dockerfile in the repository, which is CUDA-enabled with optimized package installation. 
 
-You need a YAML file to config the `clip_server` executor in the Flow in order to deploy. 
-The executors are hosted on [Jina Hub](https://hub.jina.ai) and are automatically sync with `clip_server` Python module. 
-We currently support [PyTorch-backed CLIP](https://hub.jina.ai/executor/gzpbl8jh) and [ONNX-backed CLIP](https://hub.jina.ai/executor/2a7auwg2).
+### Build
 
-A minimum YAML file is as follows. You can also config the same parameters in executors via `with` [described here](#clip-model-config).
-
-````{tab} pytorch-flow.yml
-
-```yaml
----
-emphasize-lines: 5
----
-
-jtype: Flow
-executors:
-  - name: CLIPTorchEncoder
-    uses: jinahub+docker://CLIPTorchEncoder
-    with:
-```
-````
-````{tab} onnx-flow.yml
----
-emphasize-lines: 5
----
-
-```yaml
-jtype: Flow
-executors:
-  - name: CLIPOnnxEncoder
-    uses: jinahub+docker://CLIPOnnxEncoder
-    with:
-```
-````
-
-
-```{warning}
-All Executors' `uses` must follow the format `jinahub+docker://MyExecutor` (from [Jina Hub](https://hub.jina.ai)) to avoid any local file dependencies.
-```
-
-To deploy,
-
-````{tab} PyTorch-backed
 ```bash
-$ jc deploy pytorch-flow.yml
+git clone https://github.com/jina-ai/clip-as-service.git
+docker build . -f Dockerfiles/server.Dockerfile  --build-arg GROUP_ID=$(id -g ${USER}) --build-arg USER_ID=$(id -u ${USER}) -t jinaai/clip-as-service
 ```
-````
-````{tab} ONNX-backed
+
+```{tip}
+The build argument `--build-arg GROUP_ID=$(id -g ${USER}) --build-arg USER_ID=$(id -u ${USER})` is optional, but having them is highly recommended as it allows you to reuse host's cache with the correct access.
+```
+
+
+### Run
+
 ```bash
-$ jc deploy onnx-flow.yml
-```
-````
-
-Here `jc deploy` is the command to deploy a Jina project to JCloud.
-Learn more about [JCloud usage](https://docs.jina.ai/fundamentals/jcloud/).
-
-The Flow is successfully deployed when you see:
-
-```{figure} images/jc-deploy.png
-:width: 60%
+docker run -p 51009:51000 -v $HOME/.cache:/home/cas/.cache --gpus all jinaai/clip-as-service
 ```
 
-After deploying on jcloud, you can connect to it via client by setting  `grpcs://` generated from previous step as follows:
+Here, `51009` is the public port on the host and `51000` is the {ref}`in-container port defined inside YAML<flow-config>`. The argument `-v $HOME/.cache:/home/cas/.cache` leverages host's cache and prevents you to download the same model next time on start. 
 
-```python
-from clip_client import Client
+Due to the limitation of the terminal inside Docker container, you will **not** see the classic Jina progress bar on start. Instead, you will face a few minutes awkward silent while model downloading and then see "Flow is ready to serve" dialog.
 
-c = Client(
-    'grpcs://174eb69ba3.wolf.jina.ai'
-)  # This is the URL you get from previous step
+The CLI usage is the same {ref}`as described here <start-server>`.
 
-r = c.encode(
-    [
-        'First do it',
-        'then do it right',
-        'then do it better',
-        'https://picsum.photos/200',
-    ]
-)
-print(r)
+```{tip}
+You can enable debug logging via: `docker run --env JINA_LOG_LEVEL=debug ...`
 ```
-
-will give you:
-
-```text
-[[ 0.03480401 -0.23519686  0.01041038 ... -0.5229086  -0.10081214
-   -0.08695138]
- [-0.0683605  -0.00324154  0.01490371 ... -0.50309485 -0.06193433
-   -0.08574048]
- [ 0.15041807 -0.07933374 -0.06650036 ... -0.46410388 -0.08535041
-   0.04270519]
- [-0.16183889  0.10636599 -0.2062868  ... -0.41244072  0.19485454
-   0.05658712]]
-```
-
-It means the client and the JCloud server are now connected. Well done!

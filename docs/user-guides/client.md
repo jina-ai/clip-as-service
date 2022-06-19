@@ -435,7 +435,7 @@ curl -X POST https://demo-cas.jina.ai:8443/post \
      jq -c '.data[] | .embedding'
 ```
 
-```json
+```text
 [-0.022064208984375,0.1044921875,...]
 [-0.0750732421875,-0.166015625,...]
 ```

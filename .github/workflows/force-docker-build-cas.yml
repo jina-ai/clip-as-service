@@ -35,7 +35,6 @@ jobs:
           echo "VCS_REF=$VCS_REF" >> $GITHUB_ENV
           echo "Will build $VCS_REF"
           echo "BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> $GITHUB_ENV
-          echo "BUILD_TARGET=jina" >> $GITHUB_ENV
 
           if [[ "${{ matrix.pip_tag }}" == "perf" ]]; then
             echo "JINA_PIP_INSTALL_PERF=1" >> $GITHUB_ENV
@@ -65,7 +64,7 @@ jobs:
             if [[ "${{ matrix.py_version }}" == "$DEFAULT_PY_VERSION" ]]; then
               echo "TAG_ALIAS=\
                               jinaai/clip-as-service:master${PY_TAG}${PIP_TAG}, \
-                              jinaai/jina:master${PIP_TAG}" \
+                              jinaai/clip-as-service:master${PIP_TAG}" \
                               >> $GITHUB_ENV
             else
               # on every CD
@@ -145,4 +144,3 @@ jobs:
             PIP_INSTALL_CORE=${{env.JINA_PIP_INSTALL_CORE}}
             PIP_INSTALL_PERF=${{env.JINA_PIP_INSTALL_PERF}}
             PIP_TAG=${{matrix.pip_tag}}
-          target: ${{env.BUILD_TARGET}}
