@@ -4,7 +4,7 @@ import sys
 
 if __name__ == '__main__':
     if 'NO_VERSION_CHECK' not in os.environ:
-        from clip_server.executors.helper import is_latest_version
+        from clip_server.helper import is_latest_version
 
         is_latest_version(github_repo='clip-as-service')
 
