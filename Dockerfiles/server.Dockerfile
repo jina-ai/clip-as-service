@@ -17,12 +17,10 @@ RUN apt-get update \
     && pip install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu113
 
 COPY server ./server
-
-RUN pip install --default-timeout=1000 --compile ./server/
-
 # given by builder
 ARG PIP_TAG
-RUN if [ -n "${PIP_TAG}" ]; then pip install --default-timeout=1000 --compile "./server[${PIP_TAG}]" ; fi
+RUN pip install --default-timeout=1000 --compile ./server/ \
+    && if [ -n "${PIP_TAG}" ]; then pip install --default-timeout=1000 --compile "./server[${PIP_TAG}]" ; fi
 
 ENV LD_LIBRARY_PATH=/usr/local/cuda/lib64
 
