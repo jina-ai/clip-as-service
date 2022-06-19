@@ -19,7 +19,7 @@ RUN apt-get update \
 COPY server ./server
 # given by builder
 ARG PIP_TAG
-RUN pip install --default-timeout=1000 --compile --extra-index-url ./server/ \
+RUN pip install --default-timeout=1000 --compile ./server/ \
     && if [ -n "${PIP_TAG}" ]; then pip install --default-timeout=1000 --compile "./server[${PIP_TAG}]" ; fi
 
 ENV LD_LIBRARY_PATH=/usr/local/cuda/lib64
