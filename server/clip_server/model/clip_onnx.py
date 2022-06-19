@@ -1,6 +1,6 @@
 import os
 
-from .clip import _download, available_models
+from clip_server.model.clip import _download, available_models
 
 _S3_BUCKET = 'https://clip-as-service.s3.us-east-2.amazonaws.com/models/onnx/'
 _MODELS = {

@@ -4,14 +4,14 @@ from multiprocessing.pool import ThreadPool
 from typing import Optional, Dict
 
 import onnxruntime as ort
-from .helper import (
+from clip_server.executors.helper import (
     split_img_txt_da,
     preproc_image,
     preproc_text,
     set_rank,
 )
-from ..model import clip
-from ..model.clip_onnx import CLIPOnnxModel
+from clip_server.model import clip
+from clip_server.model.clip_onnx import CLIPOnnxModel
 from jina import Executor, requests, DocumentArray
 
 
