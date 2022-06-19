@@ -8,6 +8,16 @@ WORKDIR /${CAS_NAME}
 ENV PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1
 
+# constant, wont invalidate cache
+LABEL org.opencontainers.image.vendor="Jina AI Limited" \
+      org.opencontainers.image.licenses="Apache 2.0" \
+      org.opencontainers.image.title="CLIP-as-Service" \
+      org.opencontainers.image.description="Embed images and sentences into fixed-length vectors with CLIP" \
+      org.opencontainers.image.authors="hello@jina.ai" \
+      org.opencontainers.image.url="clip-as-service" \
+      org.opencontainers.image.documentation="https://clip-as-service.jina.ai/"
+
+
 RUN apt-get update \
     && apt-get install -y --no-install-recommends python3 python3-pip wget \
     && ln -sf python3 /usr/bin/python \
