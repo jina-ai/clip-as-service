@@ -17,8 +17,8 @@ RUN apt-get update \
     && apt install ./libcudnn8_8.4.0.27-1+cuda11.6_amd64.deb  \
     && pip install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu113
 
-COPY server .
-RUN pip install server/
+COPY server ./server
+RUN pip install ./server/
 ENV LD_LIBRARY_PATH=/usr/local/cuda/lib64
 
 ARG USER_ID=1000
