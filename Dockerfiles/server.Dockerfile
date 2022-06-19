@@ -2,7 +2,8 @@ ARG CUDA_VERSION=11.6.0
 
 FROM nvidia/cuda:${CUDA_VERSION}-devel-ubuntu20.04
 
-WORKDIR /cas
+ARG CAS_NAME=cas
+WORKDIR /${CAS_NAME}
 
 ENV PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1
@@ -12,9 +13,7 @@ RUN apt-get update \
     && ln -sf python3 /usr/bin/python \
     && ln -sf pip3 /usr/bin/pip \
     && pip install --upgrade pip \
-    && pip install wheel setuptools \
-    && wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/libcudnn8_8.4.0.27-1+cuda11.6_amd64.deb \
-    && apt install ./libcudnn8_8.4.0.27-1+cuda11.6_amd64.deb  \
+    && pip install wheel setuptools nvidia-pyindex \
     && pip install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu113
 
 COPY server ./server
@@ -23,14 +22,14 @@ ENV LD_LIBRARY_PATH=/usr/local/cuda/lib64
 
 ARG USER_ID=1000
 ARG GROUP_ID=1000
-ARG USER_NAME=cas
-ARG GROUP_NAME=cas
+ARG USER_NAME=${CAS_NAME}
+ARG GROUP_NAME=${CAS_NAME}
 
 RUN groupadd -g ${GROUP_ID} ${USER_NAME} &&\
     useradd -l -u ${USER_ID} -g ${USER_NAME} ${GROUP_NAME} &&\
     mkdir /home/${USER_NAME} &&\
     chown ${USER_NAME}:${GROUP_NAME} /home/${USER_NAME} &&\
-    chown -R ${USER_NAME}:${GROUP_NAME} /cas/
+    chown -R ${USER_NAME}:${GROUP_NAME} /${CAS_NAME}/
 
 USER ${USER_NAME}
 

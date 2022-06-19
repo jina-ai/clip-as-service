@@ -11,6 +11,7 @@ This chapter introduces the API of the server.
 You will need to install server first in Python 3.7+: `pip install clip-server`.
 ```
 
+(start-server)
 ## Start server
 
 
