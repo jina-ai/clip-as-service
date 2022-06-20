@@ -49,6 +49,7 @@
 
 
 
+
 <a name=release-note-0-0-3></a>
 ## Release Note (`0.0.3`)
 
@@ -1179,4 +1180,29 @@
  - [[```a0c2661b```](https://github.com/jina-ai/clip-as-service/commit/a0c2661bc4764a74ff8737744b0d47fac4c1a5e9)] __-__ fix tag docker build job (*Han Xiao*)
  - [[```23f738ec```](https://github.com/jina-ai/clip-as-service/commit/23f738ecabebf906d001f83481f8cd10b89f5fb0)] __-__ __version__: the next version will be 0.4.18 (*Jina Dev Bot*)
  - [[```9e469bf7```](https://github.com/jina-ai/clip-as-service/commit/9e469bf70f4cd314353bde9c1ca8dfbda45fa532)] __-__ fix readme (*Han Xiao*)
+
+<a name=release-note-0-4-19></a>
+## Release Note (`0.4.19`)
+
+> Release time: 2022-06-20 16:32:32
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Han Xiao,  Jina Dev Bot,  🙇
+
+
+### 🆕 New Features
+
+ - [[```6902d2df```](https://github.com/jina-ai/clip-as-service/commit/6902d2dffc04b57e7a49f308139b27775a2193fa)] __-__ read config from stdin to allow pipe (#758) (*Han Xiao*)
+
+### 📗 Documentation
+
+ - [[```6e054db8```](https://github.com/jina-ai/clip-as-service/commit/6e054db893fcff4a2fe6c86073dd049e1c13f954)] __-__ read config from stdin to allow pipe (*Han Xiao*)
+
+### 🍹 Other Improvements
+
+ - [[```4a298d4f```](https://github.com/jina-ai/clip-as-service/commit/4a298d4f9fcbe342855f234d59c8e920e6918659)] __-__ add docker image docs (*Han Xiao*)
+ - [[```1e931e8b```](https://github.com/jina-ai/clip-as-service/commit/1e931e8b2d2d8e5429c69e25df95ab15cb84ab66)] __-__ __version__: the next version will be 0.4.19 (*Jina Dev Bot*)
+ - [[```a0c2661b```](https://github.com/jina-ai/clip-as-service/commit/a0c2661bc4764a74ff8737744b0d47fac4c1a5e9)] __-__ fix tag docker build job (*Han Xiao*)
 
