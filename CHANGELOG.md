@@ -47,6 +47,7 @@
 
 
 
+
 <a name=release-note-0-0-3></a>
 ## Release Note (`0.0.3`)
 
@@ -1127,4 +1128,37 @@
  - [[```5503becb```](https://github.com/jina-ai/clip-as-service/commit/5503becb5308ca34062bc611a4a431815de5383c)] __-__ fix docs (*Han Xiao*)
  - [[```909cdb11```](https://github.com/jina-ai/clip-as-service/commit/909cdb110ff27f811e5ed718bb99291f454af03a)] __-__ add cas on colab section (*Han Xiao*)
  - [[```3d3ef936```](https://github.com/jina-ai/clip-as-service/commit/3d3ef9363c9a322660fe84e94a2e610a24be0f0e)] __-__ __version__: the next version will be 0.4.16 (*Jina Dev Bot*)
+
+<a name=release-note-0-4-17></a>
+## Release Note (`0.4.17`)
+
+> Release time: 2022-06-20 10:56:12
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Han Xiao,  Ziniu Yu,  numb3r3,  felix-wang,  Jina Dev Bot,  🙇
+
+
+### 🆕 New Features
+
+ - [[```03541dd7```](https://github.com/jina-ai/clip-as-service/commit/03541dd765849ec453b501c83dbf4071b317bce1)] __-__ add cas server dockerfile (#757) (*Han Xiao*)
+ - [[```4d069a84```](https://github.com/jina-ai/clip-as-service/commit/4d069a84ac0414059acce322f00815bf0cd12536)] __-__ upload torch executor (#723) (*Ziniu Yu*)
+
+### 🐞 Bug fixes
+
+ - [[```eca1e700```](https://github.com/jina-ai/clip-as-service/commit/eca1e700493d59f475714aa5f49ccd33247cb983)] __-__ add integerate test for client (#753) (*felix-wang*)
+
+### 📗 Documentation
+
+ - [[```7c2faae2```](https://github.com/jina-ai/clip-as-service/commit/7c2faae270e276bfc36f4c51e4abe101194f1799)] __-__ update jcloud docs (#754) (*Ziniu Yu*)
+ - [[```9d872f2e```](https://github.com/jina-ai/clip-as-service/commit/9d872f2e20e53e988a6d13dff191a42fa6e7e0d2)] __-__ add disk usage / memory usage benchmark table (#751) (*Ziniu Yu*)
+
+### 🍹 Other Improvements
+
+ - [[```9e469bf7```](https://github.com/jina-ai/clip-as-service/commit/9e469bf70f4cd314353bde9c1ca8dfbda45fa532)] __-__ fix readme (*Han Xiao*)
+ - [[```4c4e74b2```](https://github.com/jina-ai/clip-as-service/commit/4c4e74b2d5ebcede408d49b6455e1a13293edf95)] __-__ upload executor in cd workflow (*numb3r3*)
+ - [[```96923f12```](https://github.com/jina-ai/clip-as-service/commit/96923f12a33e2c30dc55dc993648d9758f96a132)] __-__ fix docker cd (#755) (*felix-wang*)
+ - [[```1869e61f```](https://github.com/jina-ai/clip-as-service/commit/1869e61f3e0c46a7322abc42be6983e951d5806d)] __-__ add visual reasoning to docs (*Han Xiao*)
+ - [[```2083f097```](https://github.com/jina-ai/clip-as-service/commit/2083f0970985a2260a7b6fbbaaaa8b1210036765)] __-__ __version__: the next version will be 0.4.17 (*Jina Dev Bot*)
 
