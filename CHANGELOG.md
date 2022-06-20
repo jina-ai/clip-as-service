@@ -48,6 +48,7 @@
 
 
 
+
 <a name=release-note-0-0-3></a>
 ## Release Note (`0.0.3`)
 
@@ -1161,4 +1162,21 @@
  - [[```96923f12```](https://github.com/jina-ai/clip-as-service/commit/96923f12a33e2c30dc55dc993648d9758f96a132)] __-__ fix docker cd (#755) (*felix-wang*)
  - [[```1869e61f```](https://github.com/jina-ai/clip-as-service/commit/1869e61f3e0c46a7322abc42be6983e951d5806d)] __-__ add visual reasoning to docs (*Han Xiao*)
  - [[```2083f097```](https://github.com/jina-ai/clip-as-service/commit/2083f0970985a2260a7b6fbbaaaa8b1210036765)] __-__ __version__: the next version will be 0.4.17 (*Jina Dev Bot*)
+
+<a name=release-note-0-4-18></a>
+## Release Note (`0.4.18`)
+
+> Release time: 2022-06-20 11:21:16
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Han Xiao,  Jina Dev Bot,  🙇
+
+
+### 🍹 Other Improvements
+
+ - [[```a0c2661b```](https://github.com/jina-ai/clip-as-service/commit/a0c2661bc4764a74ff8737744b0d47fac4c1a5e9)] __-__ fix tag docker build job (*Han Xiao*)
+ - [[```23f738ec```](https://github.com/jina-ai/clip-as-service/commit/23f738ecabebf906d001f83481f8cd10b89f5fb0)] __-__ __version__: the next version will be 0.4.18 (*Jina Dev Bot*)
+ - [[```9e469bf7```](https://github.com/jina-ai/clip-as-service/commit/9e469bf70f4cd314353bde9c1ca8dfbda45fa532)] __-__ fix readme (*Han Xiao*)
 
