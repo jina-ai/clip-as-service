@@ -10,13 +10,13 @@
   
 <meta property="og:url" content="https://clip-as-service.jina.ai/user-guides/server/" />
   
-<meta property="og:site_name" content="CLIP-as-service 0.4.18 Documentation" />
+<meta property="og:site_name" content="CLIP-as-service 0.4.19 Documentation" />
   
 <meta property="og:description" content="CLIP-as-service is designed in a client-server architecture. A server is a long-running program that receives raw sentences and images from clients, and returns CLIP embeddings to the client. Additionally, clip_server is optimized for speed, low memory footprint and scalability. Horizontal scalin..." />
   
 <meta property="og:image" content="https://clip-as-service.jina.ai/_images/server-start.gif" />
   
-<meta property="og:image:alt" content="CLIP-as-service 0.4.18 Documentation" />
+<meta property="og:image:alt" content="CLIP-as-service 0.4.19 Documentation" />
   
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@JinaAI_">
@@ -39,7 +39,7 @@
         <link rel="canonical" href="https://clip-as-service.jina.ai/user-guides/server.html" />
 
     <link rel="shortcut icon" href="../../_static/favicon.png"/><meta name="generator" content="sphinx-4.5.0, furo 2022.06.04.1"/>
-        <title>Server API - CLIP-as-service 0.4.18 documentation</title>
+        <title>Server API - CLIP-as-service 0.4.19 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -172,7 +172,7 @@
         </div>
         <div class="header-center">
             <a href="../../">
-                <div class="brand">CLIP-as-service 0.4.18 documentation</div>
+                <div class="brand">CLIP-as-service 0.4.19 documentation</div>
             </a>
         </div>
         <div class="header-right">
@@ -482,6 +482,15 @@ python -m clip_server tensorrt-flow.yml
 <section id="yaml-config">
 <h2>YAML config<a class="headerlink" href="#yaml-config" title="Permalink to this headline">#</a></h2>
 <p>You may notice that there is a YAML file in our last ONNX example. All configurations are stored in this file. In fact, <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">clip_server</span></code> does <strong>not support</strong> any other argument besides a YAML file. So it is the only source of the truth of your configs.</p>
+<p>To load a YAML config from <code class="docutils literal notranslate"><span class="pre">my.yml</span></code>, simply do</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python -m clip_server my.yml
+</pre></div>
+</div>
+<p>Or one can also pipe the config via stdin:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>cat my.yml <span class="p">|</span> python -m clip_server -i
+</pre></div>
+</div>
+<p>This can be very useful when using <code class="docutils literal notranslate"><span class="pre">clip_server</span></code> in a Docker container.</p>
 <p>And to answer your doubt, <code class="docutils literal notranslate"><span class="pre">clip_server</span></code> has three built-in YAML configs as a part of the package resources. When you do <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">clip_server</span></code> it loads the Pytorch config, and when you do <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">clip_server</span> <span class="pre">onnx-flow.yml</span></code> it loads the ONNX config.
 In the same way, when you do <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">clip_server</span> <span class="pre">tensorrt-flow.yml</span></code> it loads the TensorRT config.</p>
 <p>Let’s look at these three built-in YAML configs:</p>
@@ -911,8 +920,9 @@ In the same way, when you do <code class="docutils literal notranslate"><span cl
 <p>You can run the server inside a Docker container. We provide a Dockerfile in the repository, which is CUDA-enabled with optimized package installation.</p>
 <section id="build">
 <h3>Build<a class="headerlink" href="#build" title="Permalink to this headline">#</a></h3>
+<p>We have a list of <a class="reference internal" href="#prebuild-images"><span class="std std-ref">pre-built images available on Docker Hub</span></a>. If they are too big for you to download, you may consider built it yourself as follows:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git clone https://github.com/jina-ai/clip-as-service.git
-docker build . -f Dockerfiles/server.Dockerfile  --build-arg <span class="nv">GROUP_ID</span><span class="o">=</span><span class="k">$(</span>id -g <span class="si">${</span><span class="nv">USER</span><span class="si">}</span><span class="k">)</span> --build-arg <span class="nv">USER_ID</span><span class="o">=</span><span class="k">$(</span>id -u <span class="si">${</span><span class="nv">USER</span><span class="si">}</span><span class="k">)</span> -t jinaai/clip-as-service
+docker build . -f Dockerfiles/server.Dockerfile  --build-arg <span class="nv">GROUP_ID</span><span class="o">=</span><span class="k">$(</span>id -g <span class="si">${</span><span class="nv">USER</span><span class="si">}</span><span class="k">)</span> --build-arg <span class="nv">USER_ID</span><span class="o">=</span><span class="k">$(</span>id -u <span class="si">${</span><span class="nv">USER</span><span class="si">}</span><span class="k">)</span> -t jinaai/clip-server
 </pre></div>
 </div>
 <div class="admonition tip">
@@ -922,16 +932,107 @@ docker build . -f Dockerfiles/server.Dockerfile  --build-arg <span class="nv">GR
 </section>
 <section id="run">
 <h3>Run<a class="headerlink" href="#run" title="Permalink to this headline">#</a></h3>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker run -p <span class="m">51009</span>:51000 -v <span class="nv">$HOME</span>/.cache:/home/cas/.cache --gpus all jinaai/clip-as-service
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker run -p <span class="m">51009</span>:51000 -v <span class="nv">$HOME</span>/.cache:/home/cas/.cache --gpus all jinaai/clip-server
 </pre></div>
 </div>
 <p>Here, <code class="docutils literal notranslate"><span class="pre">51009</span></code> is the public port on the host and <code class="docutils literal notranslate"><span class="pre">51000</span></code> is the <a class="reference internal" href="#flow-config"><span class="std std-ref">in-container port defined inside YAML</span></a>. The argument <code class="docutils literal notranslate"><span class="pre">-v</span> <span class="pre">$HOME/.cache:/home/cas/.cache</span></code> leverages host’s cache and prevents you to download the same model next time on start.</p>
 <p>Due to the limitation of the terminal inside Docker container, you will <strong>not</strong> see the classic Jina progress bar on start. Instead, you will face a few minutes awkward silent while model downloading and then see “Flow is ready to serve” dialog.</p>
+<p>To pass a YAML config from the host, one can do:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>cat my.yml <span class="p">|</span> docker run -i -p <span class="m">51009</span>:51000 -v <span class="nv">$HOME</span>/.cache:/home/cas/.cache --gpus all jinaai/clip-server -i
+</pre></div>
+</div>
 <p>The CLI usage is the same <a class="reference internal" href="#start-server"><span class="std std-ref">as described here</span></a>.</p>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
 <p>You can enable debug logging via: <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">run</span> <span class="pre">--env</span> <span class="pre">JINA_LOG_LEVEL=debug</span> <span class="pre">...</span></code></p>
 </div>
+</section>
+<section id="pre-built-images">
+<span id="prebuild-images"></span><h3>Pre-built images<a class="headerlink" href="#pre-built-images" title="Permalink to this headline">#</a></h3>
+<p>We have prebuilt images with CUDA support.</p>
+<p>The Docker image name always starts with <code class="docutils literal notranslate"><span class="pre">jinaai/clip-server</span></code> followed by a tag composed of three parts:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>jinaai/clip-server:{version}{extra}
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">{version}</span></code>: The version of Jina. Possible values:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">latest</span></code>: the last release;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">master</span></code>: the master branch of <code class="docutils literal notranslate"><span class="pre">jina-ai/jina</span></code> repository;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">x.y.z</span></code>: the release of a particular version;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">x.y</span></code> and <code class="docutils literal notranslate"><span class="pre">x</span></code>: the alias to the last <code class="docutils literal notranslate"><span class="pre">x.y.z</span></code> patch release, i.e. <code class="docutils literal notranslate"><span class="pre">x.y</span></code> = <code class="docutils literal notranslate"><span class="pre">x.y.max(z)</span></code>;</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">{extra}</span></code>: the extra dependency installed along with <code class="docutils literal notranslate"><span class="pre">clip_server</span></code>. Possible values:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"> </code>: Pytorch backend;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-onnx</span></code>: ONNX backend;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-tensorrt</span></code>: TensorRT backend;</p></li>
+</ul>
+</li>
+</ul>
+<section id="image-alias-and-updates">
+<h4>Image alias and updates<a class="headerlink" href="#image-alias-and-updates" title="Permalink to this headline">#</a></h4>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>Event</th>
+<th>Updated images</th>
+<th>Aliases</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>On merge into <code>main</code></td>
+<td><code>jinaai/clip-server:master{extra}</code></td>
+<td></td>
+</tr>
+<tr>
+<td>On <code>x.y.z</code> release</td>
+<td><code>jinaai/clip-server:x.y.z{extra}</code></td>
+<td><code>jinaai/clip-server:latest{python_version}{extra}</code>, <code>jinaai/clip-server:x.y{python_version}{extra}</code>, <code>jinaai/clip-server:x{python_version}{extra}</code></td>
+</tr>
+</tbody>
+</table>
+<p>3 images are built on the event listed above, i.e. taking the combination of:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">{extra}</span> <span class="pre">=</span> <span class="pre">[&quot;&quot;,</span> <span class="pre">&quot;-onnx&quot;,</span> <span class="pre">&quot;-tensorrt&quot;]</span></code></p></li>
+</ul>
+</section>
+<section id="image-size-on-different-tags">
+<h4>Image size on different tags<a class="headerlink" href="#image-size-on-different-tags" title="Permalink to this headline">#</a></h4>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><a class="reference external" href="https://github.com/badges/shields/issues/7583">Due to a known bug in shields.io/Docker Hub API</a>, the following badge may show “invalid” status randomly.</p>
+</div>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>Image Size</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><img alt="" src="https://img.shields.io/docker/image-size/jinaai/clip-server/latest?label=jinaai%2Fclip-server%3Alatest&amp;logo=docker" /></td>
+</tr>
+<tr>
+<td><img alt="" src="https://img.shields.io/docker/image-size/jinaai/clip-server/latest-onnx?label=jinaai%2Fclip-server%3Alatest-onnx&amp;logo=docker" /></td>
+</tr>
+<tr>
+<td><img alt="" src="https://img.shields.io/docker/image-size/jinaai/clip-server/latest-tensorrt?label=jinaai%2Fclip-server%3Alatest-tensorrt&amp;logo=docker" /></td>
+</tr>
+<tr>
+<td><img alt="" src="https://img.shields.io/docker/image-size/jinaai/clip-server/master?label=jinaai%2Fclip-server%3Amaster&amp;logo=docker" /></td>
+</tr>
+<tr>
+<td><img alt="" src="https://img.shields.io/docker/image-size/jinaai/clip-server/master-onnx?label=jinaai%2Fclip-server%3Amaster-onnx&amp;logo=docker" /></td>
+</tr>
+<tr>
+<td><img alt="" src="https://img.shields.io/docker/image-size/jinaai/clip-server/master-tensorrt?label=jinaai%2Fclip-server%3Amaster-tensorrt&amp;logo=docker" /></td>
+</tr>
+</tbody>
+</table>
+</section>
 </section>
 </section>
 </section>
@@ -1026,6 +1127,11 @@ docker build . -f Dockerfiles/server.Dockerfile  --build-arg <span class="nv">GR
 <li><a class="reference internal" href="#serve-in-docker-container">Serve in Docker Container</a><ul>
 <li><a class="reference internal" href="#build">Build</a></li>
 <li><a class="reference internal" href="#run">Run</a></li>
+<li><a class="reference internal" href="#pre-built-images">Pre-built images</a><ul>
+<li><a class="reference internal" href="#image-alias-and-updates">Image alias and updates</a></li>
+<li><a class="reference internal" href="#image-size-on-different-tags">Image size on different tags</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
