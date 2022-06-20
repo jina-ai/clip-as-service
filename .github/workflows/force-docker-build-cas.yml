@@ -63,13 +63,13 @@ jobs:
 
             if [[ "${{ matrix.py_version }}" == "$DEFAULT_PY_VERSION" ]]; then
               echo "TAG_ALIAS=\
-                              jinaai/clip-as-service:master${PY_TAG}${PIP_TAG}, \
-                              jinaai/clip-as-service:master${PIP_TAG}" \
+                              jinaai/clip-server:master${PY_TAG}${PIP_TAG}, \
+                              jinaai/clip-server:master${PIP_TAG}" \
                               >> $GITHUB_ENV
             else
               # on every CD
               echo "TAG_ALIAS=\
-                              jinaai/clip-as-service:master${PY_TAG}${PIP_TAG}" \
+                              jinaai/clip-server:master${PY_TAG}${PIP_TAG}" \
                               >> $GITHUB_ENV
             fi
 
@@ -78,33 +78,33 @@ jobs:
 
             if [[ "${{ matrix.py_version }}" == "$DEFAULT_PY_VERSION" ]]; then
               echo "TAG_ALIAS=\
-                              jinaai/clip-as-service:latest${PY_TAG}${PIP_TAG}, \
-                              jinaai/clip-as-service:${JINA_VERSION}${PY_TAG}${PIP_TAG}, \
-                              jinaai/clip-as-service:${JINA_MINOR_VERSION}${PY_TAG}${PIP_TAG}, \
-                              jinaai/clip-as-service:${JINA_MAJOR_VERSION}${PY_TAG}${PIP_TAG}, \
-                              jinaai/clip-as-service:latest${PIP_TAG}, \
-                              jinaai/clip-as-service:${JINA_VERSION}${PIP_TAG}, \
-                              jinaai/clip-as-service:${JINA_MINOR_VERSION}${PIP_TAG}, \
-                              jinaai/clip-as-service:${JINA_MAJOR_VERSION}${PIP_TAG} \
+                              jinaai/clip-server:latest${PY_TAG}${PIP_TAG}, \
+                              jinaai/clip-server:${JINA_VERSION}${PY_TAG}${PIP_TAG}, \
+                              jinaai/clip-server:${JINA_MINOR_VERSION}${PY_TAG}${PIP_TAG}, \
+                              jinaai/clip-server:${JINA_MAJOR_VERSION}${PY_TAG}${PIP_TAG}, \
+                              jinaai/clip-server:latest${PIP_TAG}, \
+                              jinaai/clip-server:${JINA_VERSION}${PIP_TAG}, \
+                              jinaai/clip-server:${JINA_MINOR_VERSION}${PIP_TAG}, \
+                              jinaai/clip-server:${JINA_MAJOR_VERSION}${PIP_TAG} \
                               " >> $GITHUB_ENV
             else
               echo "TAG_ALIAS=\
-                              jinaai/clip-as-service:latest${PY_TAG}${PIP_TAG}, \
-                              jinaai/clip-as-service:${JINA_VERSION}${PY_TAG}${PIP_TAG}, \
-                              jinaai/clip-as-service:${JINA_MINOR_VERSION}${PY_TAG}${PIP_TAG}, \
-                              jinaai/clip-as-service:${JINA_MAJOR_VERSION}${PY_TAG}${PIP_TAG} \
+                              jinaai/clip-server:latest${PY_TAG}${PIP_TAG}, \
+                              jinaai/clip-server:${JINA_VERSION}${PY_TAG}${PIP_TAG}, \
+                              jinaai/clip-server:${JINA_MINOR_VERSION}${PY_TAG}${PIP_TAG}, \
+                              jinaai/clip-server:${JINA_MAJOR_VERSION}${PY_TAG}${PIP_TAG} \
                               " >> $GITHUB_ENV
             fi
           elif [[ "${{ github.event.inputs.triggered_by }}" == "MANUAL" ]]; then
             # on every manual release
             if [[ "${{ matrix.py_version }}" == "$DEFAULT_PY_VERSION" ]]; then
               echo "TAG_ALIAS=\
-                              jinaai/clip-as-service:${JINA_VERSION}${PIP_TAG}, \
-                              jinaai/clip-as-service:${JINA_VERSION}${PY_TAG}${PIP_TAG} \
+                              jinaai/clip-server:${JINA_VERSION}${PIP_TAG}, \
+                              jinaai/clip-server:${JINA_VERSION}${PY_TAG}${PIP_TAG} \
                               " >> $GITHUB_ENV
             else
               echo "TAG_ALIAS=\
-                              jinaai/clip-as-service:${JINA_VERSION}${PY_TAG}${PIP_TAG} \
+                              jinaai/clip-server:${JINA_VERSION}${PY_TAG}${PIP_TAG} \
                               " >> $GITHUB_ENV
             fi
           else

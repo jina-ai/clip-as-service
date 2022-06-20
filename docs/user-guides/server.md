@@ -80,6 +80,20 @@ Open AI has released 9 models so far. `ViT-B/32` is used as default model in all
 
 You may notice that there is a YAML file in our last ONNX example. All configurations are stored in this file. In fact, `python -m clip_server` does **not support** any other argument besides a YAML file. So it is the only source of the truth of your configs. 
 
+To load a YAML config from `my.yml`, simply do
+
+```bash
+python -m clip_server my.yml
+```
+
+Or one can also pipe the config via stdin:
+
+```bash
+cat my.yml | python -m clip_server -i
+```
+
+This can be very useful when using `clip_server` in a Docker container.
+
 And to answer your doubt, `clip_server` has three built-in YAML configs as a part of the package resources. When you do `python -m clip_server` it loads the Pytorch config, and when you do `python -m clip_server onnx-flow.yml` it loads the ONNX config.
 In the same way, when you do `python -m clip_server tensorrt-flow.yml` it loads the TensorRT config.
 
@@ -498,7 +512,7 @@ We have a list of {ref}`pre-built images available on Docker Hub<prebuild-images
 
 ```bash
 git clone https://github.com/jina-ai/clip-as-service.git
-docker build . -f Dockerfiles/server.Dockerfile  --build-arg GROUP_ID=$(id -g ${USER}) --build-arg USER_ID=$(id -u ${USER}) -t jinaai/clip-as-service
+docker build . -f Dockerfiles/server.Dockerfile  --build-arg GROUP_ID=$(id -g ${USER}) --build-arg USER_ID=$(id -u ${USER}) -t jinaai/clip-server
 ```
 
 ```{tip}
@@ -509,12 +523,18 @@ The build argument `--build-arg GROUP_ID=$(id -g ${USER}) --build-arg USER_ID=$(
 ### Run
 
 ```bash
-docker run -p 51009:51000 -v $HOME/.cache:/home/cas/.cache --gpus all jinaai/clip-as-service
+docker run -p 51009:51000 -v $HOME/.cache:/home/cas/.cache --gpus all jinaai/clip-server
 ```
 
 Here, `51009` is the public port on the host and `51000` is the {ref}`in-container port defined inside YAML<flow-config>`. The argument `-v $HOME/.cache:/home/cas/.cache` leverages host's cache and prevents you to download the same model next time on start. 
 
 Due to the limitation of the terminal inside Docker container, you will **not** see the classic Jina progress bar on start. Instead, you will face a few minutes awkward silent while model downloading and then see "Flow is ready to serve" dialog.
+
+To pass a YAML config from the host, one can do:
+
+```bash
+cat my.yml | docker run -i -p 51009:51000 -v $HOME/.cache:/home/cas/.cache --gpus all jinaai/clip-server -i
+```
 
 The CLI usage is the same {ref}`as described here <start-server>`.
 
@@ -527,10 +547,10 @@ You can enable debug logging via: `docker run --env JINA_LOG_LEVEL=debug ...`
 
 We have prebuilt images with CUDA support.
 
-The Docker image name always starts with `jinaai/clip-as-service` followed by a tag composed of three parts:
+The Docker image name always starts with `jinaai/clip-server` followed by a tag composed of three parts:
 
 ```text
-jinaai/clip-as-service:{version}{extra}
+jinaai/clip-server:{version}{extra}
 ```
 
 - `{version}`: The version of Jina. Possible values:
@@ -545,12 +565,12 @@ jinaai/clip-as-service:{version}{extra}
 
 #### Image alias and updates
 
-| Event | Updated images             | Aliases                                                                                                       |
-| --- |----------------------------|---------------------------------------------------------------------------------------------------------------|
-| On Master Merge | `jinaai/clip-as-service:master{extra}` |                                                                                                               |
-| On `x.y.z` release | `jinaai/clip-as-service:x.y.z{extra}` | `jinaai/clip-as-service:latest{python_version}{extra}`, `jinaai/clip-as-service:x.y{python_version}{extra}`, `jinaai/clip-as-service:x{python_version}{extra}` |
+| Event               | Updated images             | Aliases                                                                                                       |
+|---------------------|----------------------------|---------------------------------------------------------------------------------------------------------------|
+| On merge into `main` | `jinaai/clip-server:master{extra}` |                                                                                                               |
+| On `x.y.z` release  | `jinaai/clip-server:x.y.z{extra}` | `jinaai/clip-server:latest{python_version}{extra}`, `jinaai/clip-server:x.y{python_version}{extra}`, `jinaai/clip-server:x{python_version}{extra}` |
 
-3 images are built, i.e. taking the combination of:
+3 images are built on the event listed above, i.e. taking the combination of:
   - `{extra} = ["", "-onnx", "-tensorrt"]`
 
 #### Image size on different tags
@@ -561,10 +581,10 @@ jinaai/clip-as-service:{version}{extra}
 
 | Image Size                                                                                                                                |
 |-------------------------------------------------------------------------------------------------------------------------------------------|
-| ![](https://img.shields.io/docker/image-size/jinaai/clip-as-service/latest?label=jinaai%2Fclip-as-service%3Alatest&logo=docker)           |
-| ![](https://img.shields.io/docker/image-size/jinaai/clip-as-service/latest-onnx?label=jinaai%2Fclip-as-service%3Alatest-onnx&logo=docker) |
-| ![](https://img.shields.io/docker/image-size/jinaai/clip-as-service/latest-tensorrt?label=jinaai%2Fclip-as-service%3Alatest-tensorrt&logo=docker)               |
-| ![](https://img.shields.io/docker/image-size/jinaai/clip-as-service/master?label=jinaai%2Fclip-as-service%3Amaster&logo=docker)           |
-| ![](https://img.shields.io/docker/image-size/jinaai/clip-as-service/master-onnx?label=jinaai%2Fclip-as-service%3Amaster-onnx&logo=docker) |
-| ![](https://img.shields.io/docker/image-size/jinaai/clip-as-service/master-tensorrt?label=jinaai%2Fclip-as-service%3Amaster-tensorrt&logo=docker)               |
+| ![](https://img.shields.io/docker/image-size/jinaai/clip-server/latest?label=jinaai%2Fclip-server%3Alatest&logo=docker)           |
+| ![](https://img.shields.io/docker/image-size/jinaai/clip-server/latest-onnx?label=jinaai%2Fclip-server%3Alatest-onnx&logo=docker) |
+| ![](https://img.shields.io/docker/image-size/jinaai/clip-server/latest-tensorrt?label=jinaai%2Fclip-server%3Alatest-tensorrt&logo=docker)               |
+| ![](https://img.shields.io/docker/image-size/jinaai/clip-server/master?label=jinaai%2Fclip-server%3Amaster&logo=docker)           |
+| ![](https://img.shields.io/docker/image-size/jinaai/clip-server/master-onnx?label=jinaai%2Fclip-server%3Amaster-onnx&logo=docker) |
+| ![](https://img.shields.io/docker/image-size/jinaai/clip-server/master-tensorrt?label=jinaai%2Fclip-server%3Amaster-tensorrt&logo=docker)               |
 
