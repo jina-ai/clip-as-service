@@ -494,6 +494,8 @@ You can run the server inside a Docker container. We provide a Dockerfile in the
 
 ### Build
 
+We have a list of {ref}`pre-built images available on Docker Hub<prebuild-images>`. If they are too big for you to download, you may consider built it yourself as follows:
+
 ```bash
 git clone https://github.com/jina-ai/clip-as-service.git
 docker build . -f Dockerfiles/server.Dockerfile  --build-arg GROUP_ID=$(id -g ${USER}) --build-arg USER_ID=$(id -u ${USER}) -t jinaai/clip-as-service
@@ -519,3 +521,50 @@ The CLI usage is the same {ref}`as described here <start-server>`.
 ```{tip}
 You can enable debug logging via: `docker run --env JINA_LOG_LEVEL=debug ...`
 ```
+
+(prebuild-images)=
+### Pre-built images
+
+We have prebuilt images with CUDA support.
+
+The Docker image name always starts with `jinaai/clip-as-service` followed by a tag composed of three parts:
+
+```text
+jinaai/clip-as-service:{version}{extra}
+```
+
+- `{version}`: The version of Jina. Possible values:
+    - `latest`: the last release;
+    - `master`: the master branch of `jina-ai/jina` repository;
+    - `x.y.z`: the release of a particular version;
+    - `x.y` and `x`: the alias to the last `x.y.z` patch release, i.e. `x.y` = `x.y.max(z)`;
+- `{extra}`: the extra dependency installed along with `clip_server`. Possible values:
+    - ` `: Pytorch backend;
+    - `-onnx`: ONNX backend; 
+    - `-tensorrt`: TensorRT backend;
+
+#### Image alias and updates
+
+| Event | Updated images             | Aliases                                                                                                       |
+| --- |----------------------------|---------------------------------------------------------------------------------------------------------------|
+| On Master Merge | `jinaai/clip-as-service:master{extra}` |                                                                                                               |
+| On `x.y.z` release | `jinaai/clip-as-service:x.y.z{extra}` | `jinaai/clip-as-service:latest{python_version}{extra}`, `jinaai/clip-as-service:x.y{python_version}{extra}`, `jinaai/clip-as-service:x{python_version}{extra}` |
+
+3 images are built, i.e. taking the combination of:
+  - `{extra} = ["", "-onnx", "-tensorrt"]`
+
+#### Image size on different tags
+
+```{warning}
+[Due to a known bug in shields.io/Docker Hub API](https://github.com/badges/shields/issues/7583), the following badge may show "invalid" status randomly.
+```
+
+| Image Size                                                                                                                                |
+|-------------------------------------------------------------------------------------------------------------------------------------------|
+| ![](https://img.shields.io/docker/image-size/jinaai/clip-as-service/latest?label=jinaai%2Fclip-as-service%3Alatest&logo=docker)           |
+| ![](https://img.shields.io/docker/image-size/jinaai/clip-as-service/latest-onnx?label=jinaai%2Fclip-as-service%3Alatest-onnx&logo=docker) |
+| ![](https://img.shields.io/docker/image-size/jinaai/clip-as-service/latest-tensorrt?label=jinaai%2Fclip-as-service%3Alatest-tensorrt&logo=docker)               |
+| ![](https://img.shields.io/docker/image-size/jinaai/clip-as-service/master?label=jinaai%2Fclip-as-service%3Amaster&logo=docker)           |
+| ![](https://img.shields.io/docker/image-size/jinaai/clip-as-service/master-onnx?label=jinaai%2Fclip-as-service%3Amaster-onnx&logo=docker) |
+| ![](https://img.shields.io/docker/image-size/jinaai/clip-as-service/master-tensorrt?label=jinaai%2Fclip-as-service%3Amaster-tensorrt&logo=docker)               |
+
