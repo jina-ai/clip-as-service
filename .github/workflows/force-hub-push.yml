@@ -104,7 +104,7 @@ jobs:
           
           echo -e "\
           manifest_version: 1\n\
-          name: CLIPTorchEncoder\n\
+          name: CASTorch\n\
           description: Embed images and sentences into fixed-length vectors with CLIP\n\
           url: https://github.com/jina-ai/clip-as-service\n\
           keywords: [clip, clip-model, clip-as-service, pytorch]\n\
@@ -141,7 +141,7 @@ jobs:
           
           echo -e "\
           manifest_version: 1\n\
-          name: CLIPOnnxEncoder\n\
+          name: CASOnnx\n\
           description: Embed images and sentences into fixed-length vectors with CLIP\n\
           url: https://github.com/jina-ai/clip-as-service\n\
           keywords: [clip, clip-model, clip-as-service, onnx, onnx-runtime]\n\
@@ -180,7 +180,7 @@ jobs:
           
           echo -e "\
           manifest_version: 1\n\
-          name: CLIPTensorRTEncoder\n\
+          name: CASTensorrt\n\
           description: Embed images and sentences into fixed-length vectors with CLIP\n\
           url: https://github.com/jina-ai/clip-as-service\n\
           keywords: [clip, clip-model, clip-as-service, onnx, tensorrt]\n\
