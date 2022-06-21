@@ -50,6 +50,7 @@
 
 
 
+
 <a name=release-note-0-0-3></a>
 ## Release Note (`0.0.3`)
 
@@ -1205,4 +1206,27 @@
  - [[```4a298d4f```](https://github.com/jina-ai/clip-as-service/commit/4a298d4f9fcbe342855f234d59c8e920e6918659)] __-__ add docker image docs (*Han Xiao*)
  - [[```1e931e8b```](https://github.com/jina-ai/clip-as-service/commit/1e931e8b2d2d8e5429c69e25df95ab15cb84ab66)] __-__ __version__: the next version will be 0.4.19 (*Jina Dev Bot*)
  - [[```a0c2661b```](https://github.com/jina-ai/clip-as-service/commit/a0c2661bc4764a74ff8737744b0d47fac4c1a5e9)] __-__ fix tag docker build job (*Han Xiao*)
+
+<a name=release-note-0-4-20></a>
+## Release Note (`0.4.20`)
+
+> Release time: 2022-06-21 15:45:06
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Han Xiao,  Jina Dev Bot,  🙇
+
+
+### 🐞 Bug fixes
+
+ - [[```79e85eed```](https://github.com/jina-ai/clip-as-service/commit/79e85eed7c89f31c16399bfcc1bb098f0ae5c920)] __-__ miscalling clip_server in clip_client (*Han Xiao*)
+
+### 📗 Documentation
+
+ - [[```6e054db8```](https://github.com/jina-ai/clip-as-service/commit/6e054db893fcff4a2fe6c86073dd049e1c13f954)] __-__ read config from stdin to allow pipe (*Han Xiao*)
+
+### 🍹 Other Improvements
+
+ - [[```c3e75133```](https://github.com/jina-ai/clip-as-service/commit/c3e751336722b415aa88992794119f32b7ddee77)] __-__ __version__: the next version will be 0.4.20 (*Jina Dev Bot*)
 
