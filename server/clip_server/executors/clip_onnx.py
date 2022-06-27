@@ -34,7 +34,7 @@ class CLIPEncoder(Executor):
         self._preprocess_tensor = clip._transform_ndarray(clip.MODEL_SIZE[name])
         self._pool = ThreadPool(processes=num_worker_preprocess)
 
-        self._model = CLIPOnnxModel(name, model_paths.strip())
+        self._model = CLIPOnnxModel(name, model_paths)
 
         import torch
 
