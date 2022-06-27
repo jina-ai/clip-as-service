@@ -8,5 +8,5 @@ executors:
       jtype: CLIPEncoder
       metas:
         py_modules:
-          - executors/clip_hg.py
+          - clip_server.executors.clip_hg
     replicas: 1
