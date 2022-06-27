@@ -3,7 +3,7 @@ ARG CUDA_VERSION=11.4.2
 FROM nvcr.io/nvidia/cuda:${CUDA_VERSION}-cudnn8-runtime-ubuntu20.04
 ENV DEBIAN_FRONTEND=noninteractive
 
-ARG JINA_VERSION=3.6.0
+ARG JINA_VERSION=3.6.6
 ARG BACKEND_TAG=torch
 
 # constant, wont invalidate cache
@@ -32,11 +32,9 @@ RUN if [ "${BACKEND_TAG}" != "torch" ]; then python3 -m pip install --no-cache-d
 
 RUN echo "\
 jtype: CLIPEncoder\n\
-with:\n\
-  device: cuda\n\
 metas:\n\
   py_modules:\n\
-    - clip_server/executors/clip_$BACKEND_TAG.py\n\
+    - clip_server.executors.clip_$BACKEND_TAG\n\
 " > /tmp/config.yml
 
 

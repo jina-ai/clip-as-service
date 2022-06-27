@@ -4,7 +4,7 @@ ARG TENSORRT_VERSION=22.04
 
 FROM nvcr.io/nvidia/tensorrt:${TENSORRT_VERSION}-py3
 
-ARG JINA_VERSION=3.6.0
+ARG JINA_VERSION=3.6.6
 ARG BACKEND_TAG=tensorrt
 
 # constant, wont invalidate cache
@@ -25,14 +25,12 @@ WORKDIR /cas
 
 RUN python3 -m pip install --no-cache-dir "./[$BACKEND_TAG]"
 
-RUN CLIP_PATH=$(python -c "import clip_server;print(clip_server.__path__[0])") \
-    && echo '\
+RUN echo "\
 jtype: CLIPEncoder\n\
 metas:\n\
   py_modules:\n\
-    - $CLIP_PATH/executors/clip_$BACKEND_TAG.py\n\
-' > /tmp/config.yml
-
+    - clip_server.executors.clip_$BACKEND_TAG\n\
+" > /tmp/config.yml
 
 
 ENTRYPOINT ["jina", "executor", "--uses", "/tmp/config.yml"]
