@@ -74,6 +74,7 @@ html_css_files = [
 ]
 html_js_files = [
     'https://cdn.jsdelivr.net/npm/vue@2/dist/vue.min.js',
+    'https://cdn.jsdelivr.net/npm/qabot@0.4',
 ]
 htmlhelp_basename = slug
 html_show_sourcelink = False
@@ -231,9 +232,9 @@ def setup(app):
             ),
         ],
     )
-    # app.add_config_value(
-    #     name='server_address',
-    #     default=os.getenv('JINA_DOCSBOT_SERVER', 'https://jina-ai-docarray.docsqa.jina.ai'),
-    #     rebuild='',
-    # )
-    # app.connect('builder-inited', configure_qa_bot_ui)
+    app.add_config_value(
+        name='server_address',
+        default=os.getenv('JINA_DOCSBOT_SERVER', 'https://jina-ai-clip-as-service.docsqa.jina.ai'),
+        rebuild='',
+    )
+    app.connect('builder-inited', configure_qa_bot_ui)
