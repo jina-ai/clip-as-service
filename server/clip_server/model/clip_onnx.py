@@ -17,18 +17,24 @@ _MODELS = {
 
 
 class CLIPOnnxModel:
-    def __init__(self, name: str = None, model_paths: str = None):
-        if model_paths is not None:
-            self._textual_path = os.path.join(model_paths, 'textual.onnx')
-            self._visual_path = os.path.join(model_paths, 'visual.onnx')
-        elif name in _MODELS:
-            cache_dir = os.path.expanduser(f'~/.cache/clip/{name.replace("/", "-")}')
-            self._textual_path = _download(
-                _S3_BUCKET + _MODELS[name][0], cache_dir, with_resume=True
-            )
-            self._visual_path = _download(
-                _S3_BUCKET + _MODELS[name][1], cache_dir, with_resume=True
-            )
+    def __init__(self, name: str = None, model_path: str = None):
+        if name in _MODELS:
+            if model_path is not None:
+                if os.path.isdir(model_path) and os.path.exists(
+                        os.path.join(model_path, 'textual.onnx')) and os.path.exists(
+                        os.path.join(model_path, 'visual.onnx')):
+                    self._textual_path = os.path.join(model_path, 'textual.onnx')
+                    self._visual_path = os.path.join(model_path, 'visual.onnx')
+                else:
+                    raise RuntimeError('Invalid model path: {}'.format(model_path))
+            else:
+                cache_dir = os.path.expanduser(f'~/.cache/clip/{name.replace("/", "-")}')
+                self._textual_path = _download(
+                    _S3_BUCKET + _MODELS[name][0], cache_dir, with_resume=True
+                )
+                self._visual_path = _download(
+                    _S3_BUCKET + _MODELS[name][1], cache_dir, with_resume=True
+                )
         else:
             raise RuntimeError(
                 f'Model {name} not found; available models = {available_models()}'
