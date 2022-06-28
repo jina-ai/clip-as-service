@@ -20,11 +20,9 @@ class CLIPOnnxModel:
     def __init__(self, name: str = None, model_path: str = None):
         if name in _MODELS:
             if model_path is not None:
-                if (
-                    os.path.isdir(model_path)
-                    and os.path.exists(os.path.join(model_path, 'textual.onnx'))
-                    and os.path.exists(os.path.join(model_path, 'visual.onnx'))
-                ):
+                if os.path.exists(
+                    os.path.join(model_path, 'textual.onnx')
+                ) and os.path.exists(os.path.join(model_path, 'visual.onnx')):
                     self._textual_path = os.path.join(model_path, 'textual.onnx')
                     self._visual_path = os.path.join(model_path, 'visual.onnx')
                 else:
