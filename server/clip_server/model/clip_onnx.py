@@ -20,15 +20,21 @@ class CLIPOnnxModel:
     def __init__(self, name: str = None, model_path: str = None):
         if name in _MODELS:
             if model_path is not None:
-                if os.path.isdir(model_path) and os.path.exists(
-                        os.path.join(model_path, 'textual.onnx')) and os.path.exists(
-                        os.path.join(model_path, 'visual.onnx')):
+                if (
+                    os.path.isdir(model_path)
+                    and os.path.exists(os.path.join(model_path, 'textual.onnx'))
+                    and os.path.exists(os.path.join(model_path, 'visual.onnx'))
+                ):
                     self._textual_path = os.path.join(model_path, 'textual.onnx')
                     self._visual_path = os.path.join(model_path, 'visual.onnx')
                 else:
-                    raise RuntimeError('Invalid model path: {}'.format(model_path))
+                    raise RuntimeError(
+                        f'Invalid model path: {model_path}.\nAn valid path should contain \'textual.onnx\' and \'visual.onnx\' files.'
+                    )
             else:
-                cache_dir = os.path.expanduser(f'~/.cache/clip/{name.replace("/", "-")}')
+                cache_dir = os.path.expanduser(
+                    f'~/.cache/clip/{name.replace("/", "-")}'
+                )
                 self._textual_path = _download(
                     _S3_BUCKET + _MODELS[name][0], cache_dir, with_resume=True
                 )
