@@ -19,17 +19,7 @@ _MODELS = {
 class CLIPOnnxModel:
     def __init__(self, name: str = None, model_path: str = None):
         if name in _MODELS:
-            if model_path is not None:
-                if os.path.exists(
-                    os.path.join(model_path, 'textual.onnx')
-                ) and os.path.exists(os.path.join(model_path, 'visual.onnx')):
-                    self._textual_path = os.path.join(model_path, 'textual.onnx')
-                    self._visual_path = os.path.join(model_path, 'visual.onnx')
-                else:
-                    raise RuntimeError(
-                        f'Invalid model path: {model_path}.\nAn valid path should contain \'textual.onnx\' and \'visual.onnx\' files.'
-                    )
-            else:
+            if not model_path:
                 cache_dir = os.path.expanduser(
                     f'~/.cache/clip/{name.replace("/", "-")}'
                 )
@@ -39,6 +29,16 @@ class CLIPOnnxModel:
                 self._visual_path = _download(
                     _S3_BUCKET + _MODELS[name][1], cache_dir, with_resume=True
                 )
+            elif os.path.isdir(model_path):
+                self._textual_path = os.path.join(model_path, 'textual.onnx')
+                self._visual_path = os.path.join(model_path, 'visual.onnx')
+
+        if not os.path.isfile(self._textual_path) or not os.path.isfile(
+            self._visual_path
+        ):
+            raise RuntimeError(
+                f'{model_path} does not contain `textual.onnx` and `visual.onnx`'
+            )
         else:
             raise RuntimeError(
                 f'Model {name} not found; available models = {available_models()}'
