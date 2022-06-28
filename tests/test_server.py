@@ -25,42 +25,38 @@ def test_server_download(tmpdir):
     assert not os.path.exists(part_path)
 
 
-@pytest.mark.xfail
 def test_make_onnx_flow_custom_path_wrong_name(port_generator):
     from clip_server.executors.clip_onnx import CLIPEncoder
     import os
 
-    with pytest.raises(RuntimeError) as info:
-        f = Flow(port=port_generator()).add(
-            name='onnx',
-            uses=CLIPEncoder,
-            uses_with={
-                'name': 'ABC',
-                'model_path': os.path.expanduser('~/.cache/clip/ViT-B-32'),
-            },
-        )
+    f = Flow(port=port_generator()).add(
+        name='onnx',
+        uses=CLIPEncoder,
+        uses_with={
+            'name': 'ABC',
+            'model_path': os.path.expanduser('~/.cache/clip/ViT-B-32'),
+        },
+    )
+    with pytest.raises(Exception) as info:
         with f:
-            yield f
-    assert 'Could not find model ABC' in str(info.value)
+            f.post('/', Document(text='Hello world'))
 
 
-@pytest.mark.xfail
 def test_make_onnx_flow_custom_path_wrong_path(port_generator):
     from clip_server.executors.clip_onnx import CLIPEncoder
     import os
 
-    with pytest.raises(RuntimeError) as info:
-        f = Flow(port=port_generator()).add(
-            name='onnx',
-            uses=CLIPEncoder,
-            uses_with={
-                'name': 'ViT-B/32',
-                'model_path': 'ABC',
-            },
-        )
+    f = Flow(port=port_generator()).add(
+        name='onnx',
+        uses=CLIPEncoder,
+        uses_with={
+            'name': 'ViT-B/32',
+            'model_path': 'ABC',
+        },
+    )
+    with pytest.raises(Exception) as info:
         with f:
-            yield f
-    assert 'Invalid model path' in str(info.value)
+            f.post('/', Document(text='Hello world'))
 
 
 @pytest.mark.parametrize(
