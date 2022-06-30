@@ -55,7 +55,7 @@ def preproc_text(
     tensors_batch = clip.tokenize(da.texts).detach()
 
     if return_np:
-        tensors_batch = tensors_batch.cpu().numpy().astype(np.int64)
+        tensors_batch = tensors_batch.cpu().numpy().astype(np.int32)
     else:
         tensors_batch = tensors_batch.to(device)
 
