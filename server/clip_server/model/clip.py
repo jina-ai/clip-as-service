@@ -193,7 +193,7 @@ def load(
         Whether to load the optimized JIT model or more hackable non-JIT model (default).
 
     download_root: str
-        path to download the model files; by default, it uses '~/.cache/clip'
+        path to download the model files; by default, it uses '~/.cache/clip/v2'
 
     Returns
     -------
@@ -206,7 +206,7 @@ def load(
     if name in _MODELS:
         model_path = _download(
             _S3_BUCKET + _MODELS[name],
-            download_root or os.path.expanduser('~/.cache/clip'),
+            download_root or os.path.expanduser('~/.cache/clip/v2'),
             with_resume=True,
         )
     elif os.path.isfile(name):
