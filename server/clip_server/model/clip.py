@@ -24,7 +24,7 @@ except ImportError:
 __all__ = ['available_models', 'load', 'tokenize']
 _tokenizer = _Tokenizer()
 
-_S3_BUCKET = 'https://clip-as-service.s3.us-east-2.amazonaws.com/models/v2/torch/'
+_S3_BUCKET = 'https://clip-as-service.s3.us-east-2.amazonaws.com/modelsV2/torch/'
 _MODELS = {
     'RN50': 'RN50.pt',
     'RN101': 'RN101.pt',
