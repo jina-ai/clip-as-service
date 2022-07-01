@@ -309,7 +309,7 @@ def load(
 
 def tokenize(
     texts: Union[str, List[str]], context_length: int = 77, truncate: bool = True
-) -> torch.LongTensor:
+) -> {}:
     """
     Returns the tokenized representation of given input string(s)
 
@@ -326,7 +326,8 @@ def tokenize(
 
     Returns
     -------
-    A two-dimensional tensor containing the resulting tokens, shape = [number of input strings, context_length]
+    A dict of tokenized representations of the input strings and their corresponding attention masks with both
+        shape = [number of input strings, context_length]
     """
     if isinstance(texts, str):
         texts = [texts]
@@ -335,6 +336,7 @@ def tokenize(
     eot_token = _tokenizer.encoder['<|endoftext|>']
     all_tokens = [[sot_token] + _tokenizer.encode(text) + [eot_token] for text in texts]
     result = torch.zeros(len(all_tokens), context_length, dtype=torch.long)
+    attention_masks = torch.zeros(len(all_tokens), context_length, dtype=torch.long)
 
     for i, tokens in enumerate(all_tokens):
         if len(tokens) > context_length:
@@ -346,5 +348,5 @@ def tokenize(
                     f'Input {texts[i]} is too long for context length {context_length}'
                 )
         result[i, : len(tokens)] = torch.tensor(tokens)
-
-    return result
+        attention_masks[i, : len(tokens)] = 1
+    return {'input_ids': result, 'attention_mask': attention_masks}

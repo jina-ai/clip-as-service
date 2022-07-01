@@ -18,7 +18,6 @@ _MODELS = {
 
 class CLIPOnnxModel:
     def __init__(self, name: str = None, model_path: str = None):
-        print(f"model_path: {model_path}")
         if name in _MODELS:
             if not model_path:
                 cache_dir = os.path.expanduser(
@@ -65,6 +64,6 @@ class CLIPOnnxModel:
         return visual_output
 
     def encode_text(self, onnx_text):
-        onnx_input_text = {self._textual_session.get_inputs()[0].name: onnx_text}
+        onnx_input_text = {self._textual_session.get_inputs()[0].name: onnx_text['input_ids']}
         (textual_output,) = self._textual_session.run(None, onnx_input_text)
         return textual_output

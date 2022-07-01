@@ -52,15 +52,18 @@ def preproc_text(
     da: 'DocumentArray', device: str = 'cpu', return_np: bool = False
 ) -> Tuple['DocumentArray', List[Any]]:
 
-    tensors_batch = clip.tokenize(da.texts).detach()
+    tokenized = clip.tokenize(da.texts)
+    tokenized['input_ids'] = tokenized['input_ids'].detach()
 
     if return_np:
-        tensors_batch = tensors_batch.cpu().numpy().astype(np.int32)
+        tokenized['input_ids'] = (
+            tokenized['input_ids'].cpu().numpy().astype(np.int32)
+        )
     else:
-        tensors_batch = tensors_batch.to(device)
+        tokenized['input_ids'] = tokenized['input_ids'].to(device)
 
     da[:, 'mime_type'] = 'text'
-    return da, tensors_batch
+    return da, tokenized
 
 
 def split_img_txt_da(doc: 'Document', img_da: 'DocumentArray', txt_da: 'DocumentArray'):
