@@ -126,7 +126,7 @@ class CLIPEncoder(Executor):
                         documentation='texts encode time in seconds',
                     ):
                         minibatch.embeddings = (
-                            self._model.encode_text(batch_data)
+                            self._model.encode_text(batch_data['input_ids'])
                             .cpu()
                             .numpy()
                             .astype(np.float32)

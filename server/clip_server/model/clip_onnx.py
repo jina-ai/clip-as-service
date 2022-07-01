@@ -2,7 +2,8 @@ import os
 
 from clip_server.model.clip import _download, available_models
 
-_S3_BUCKET = 'https://clip-as-service.s3.us-east-2.amazonaws.com/modelsV2/onnx/'
+_S3_BUCKET = 'https://clip-as-service.s3.us-east-2.amazonaws.com/models/onnx/'
+_S3_BUCKET_TMP = 'https://clip-as-service.s3.us-east-2.amazonaws.com/modelsV2/onnx/'
 _MODELS = {
     'RN50': ('RN50/textual.onnx', 'RN50/visual.onnx'),
     'RN101': ('RN101/textual.onnx', 'RN101/visual.onnx'),
@@ -24,10 +25,10 @@ class CLIPOnnxModel:
                     f'~/.cache/clip/v2/{name.replace("/", "-")}'
                 )
                 self._textual_path = _download(
-                    _S3_BUCKET + _MODELS[name][0], cache_dir, with_resume=True
+                    _S3_BUCKET_TMP + _MODELS[name][0], cache_dir, with_resume=True
                 )
                 self._visual_path = _download(
-                    _S3_BUCKET + _MODELS[name][1], cache_dir, with_resume=True
+                    _S3_BUCKET_TMP + _MODELS[name][1], cache_dir, with_resume=True
                 )
             else:
                 if os.path.isdir(model_path):
@@ -64,8 +65,5 @@ class CLIPOnnxModel:
         return visual_output
 
     def encode_text(self, onnx_text):
-        onnx_input_text = {
-            self._textual_session.get_inputs()[0].name: onnx_text['input_ids']
-        }
-        (textual_output,) = self._textual_session.run(None, onnx_input_text)
+        (textual_output,) = self._textual_session.run(None, onnx_text)
         return textual_output

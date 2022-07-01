@@ -15,7 +15,7 @@ except ImportError:
 
 from clip_server.model.clip import _download, MODEL_SIZE
 
-_S3_BUCKET = 'https://clip-as-service.s3.us-east-2.amazonaws.com/modelsV2/tensorrt/'
+_S3_BUCKET = 'https://clip-as-service.s3.us-east-2.amazonaws.com/models/tensorrt/'
 _MODELS = {
     'RN50': ('RN50/textual.trt', 'RN50/visual.trt'),
     'RN101': ('RN101/textual.trt', 'RN101/visual.trt'),
@@ -34,7 +34,7 @@ class CLIPTensorRTModel:
         name: str = None,
     ):
         if name in _MODELS:
-            cache_dir = os.path.expanduser(f'~/.cache/clip/v2/{name.replace("/", "-")}')
+            cache_dir = os.path.expanduser(f'~/.cache/clip/{name.replace("/", "-")}')
             self._textual_path = _download(_S3_BUCKET + _MODELS[name][0], cache_dir)
             self._visual_path = _download(_S3_BUCKET + _MODELS[name][1], cache_dir)
         else:

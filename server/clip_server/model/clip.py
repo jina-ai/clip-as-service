@@ -24,7 +24,7 @@ except ImportError:
 __all__ = ['available_models', 'load', 'tokenize']
 _tokenizer = _Tokenizer()
 
-_S3_BUCKET = 'https://clip-as-service.s3.us-east-2.amazonaws.com/modelsV2/torch/'
+_S3_BUCKET = 'https://clip-as-service.s3.us-east-2.amazonaws.com/models/torch/'
 _MODELS = {
     'RN50': 'RN50.pt',
     'RN101': 'RN101.pt',
@@ -193,7 +193,7 @@ def load(
         Whether to load the optimized JIT model or more hackable non-JIT model (default).
 
     download_root: str
-        path to download the model files; by default, it uses '~/.cache/clip/v2'
+        path to download the model files; by default, it uses '~/.cache/clip/'
 
     Returns
     -------
@@ -206,7 +206,7 @@ def load(
     if name in _MODELS:
         model_path = _download(
             _S3_BUCKET + _MODELS[name],
-            download_root or os.path.expanduser('~/.cache/clip/v2'),
+            download_root or os.path.expanduser('~/.cache/clip'),
             with_resume=True,
         )
     elif os.path.isfile(name):
@@ -335,8 +335,14 @@ def tokenize(
     sot_token = _tokenizer.encoder['<|startoftext|>']
     eot_token = _tokenizer.encoder['<|endoftext|>']
     all_tokens = [[sot_token] + _tokenizer.encode(text) + [eot_token] for text in texts]
-    result = torch.zeros(len(all_tokens), context_length, dtype=torch.long)
-    attention_masks = torch.zeros(len(all_tokens), context_length, dtype=torch.long)
+    # input_ids = torch.zeros(
+    #     len(all_tokens), min(len(max(all_tokens, key=len)), context_length), dtype=torch.long
+    # )
+    # attention_masks = torch.zeros(
+    #     len(all_tokens), min(len(max(all_tokens, key=len)), context_length), dtype=torch.long
+    # )
+    input_ids = torch.zeros(len(all_tokens), context_length, dtype=torch.long)
+    attention_mask = torch.zeros(len(all_tokens), context_length, dtype=torch.long)
 
     for i, tokens in enumerate(all_tokens):
         if len(tokens) > context_length:
@@ -347,6 +353,7 @@ def tokenize(
                 raise RuntimeError(
                     f'Input {texts[i]} is too long for context length {context_length}'
                 )
-        result[i, : len(tokens)] = torch.tensor(tokens)
-        attention_masks[i, : len(tokens)] = 1
-    return {'input_ids': result, 'attention_mask': attention_masks}
+        input_ids[i, : len(tokens)] = torch.tensor(tokens)
+        attention_mask[i, : len(tokens)] = 1
+
+    return {'input_ids': input_ids, 'attention_mask': attention_mask}
