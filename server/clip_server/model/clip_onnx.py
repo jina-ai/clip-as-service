@@ -2,7 +2,7 @@ import os
 
 from clip_server.model.clip import _download, available_models
 
-_S3_BUCKET = 'https://clip-as-service.s3.us-east-2.amazonaws.com/models/onnx/'
+_S3_BUCKET = 'https://clip-as-service.s3.us-east-2.amazonaws.com/models/v2/onnx/'
 _MODELS = {
     'RN50': ('RN50/textual.onnx', 'RN50/visual.onnx'),
     'RN101': ('RN101/textual.onnx', 'RN101/visual.onnx'),
