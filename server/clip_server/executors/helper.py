@@ -56,9 +56,7 @@ def preproc_text(
     tokenized['input_ids'] = tokenized['input_ids'].detach()
 
     if return_np:
-        tokenized['input_ids'] = (
-            tokenized['input_ids'].cpu().numpy().astype(np.int32)
-        )
+        tokenized['input_ids'] = tokenized['input_ids'].cpu().numpy().astype(np.int32)
     else:
         tokenized['input_ids'] = tokenized['input_ids'].to(device)
 

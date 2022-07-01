@@ -64,6 +64,8 @@ class CLIPOnnxModel:
         return visual_output
 
     def encode_text(self, onnx_text):
-        onnx_input_text = {self._textual_session.get_inputs()[0].name: onnx_text['input_ids']}
+        onnx_input_text = {
+            self._textual_session.get_inputs()[0].name: onnx_text['input_ids']
+        }
         (textual_output,) = self._textual_session.run(None, onnx_input_text)
         return textual_output
