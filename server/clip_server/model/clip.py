@@ -2,6 +2,7 @@
 
 import io
 import os
+import hashlib
 import shutil
 import urllib
 import warnings
@@ -50,12 +51,20 @@ MODEL_SIZE = {
 }
 
 
-def _download(url: str, root: str, with_resume: bool = True):
+def _download(
+    url: str, md5: str, root: str, with_resume: bool = True, max_attempts: int = 3
+) -> str:
+    if max_attempts <= 0:
+        raise RuntimeError(f'Failed to download {url}, max attempts exceeded')
+
     os.makedirs(root, exist_ok=True)
     filename = os.path.basename(url)
 
     download_target = os.path.join(root, filename)
-    if os.path.isfile(download_target):
+    if (
+        os.path.isfile(download_target)
+        and hashlib.md5(open(download_target, 'rb').read()).hexdigest() == md5
+    ):
         return download_target
 
     if os.path.exists(download_target) and not os.path.isfile(download_target):
@@ -126,6 +135,10 @@ def _download(url: str, root: str, with_resume: bool = True):
                 total_bytes == os.path.getsize(tmp_file_path)
             ):
                 shutil.move(tmp_file_path, download_target)
+
+    if hashlib.md5(open(download_target, 'rb').read()).hexdigest() != md5:
+        os.remove(download_target)
+        _download(url, md5, root, with_resume, max_attempts - 1)
 
     return download_target
 
