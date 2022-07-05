@@ -107,6 +107,10 @@ def build_engine(
                 config.set_flag(trt.BuilderFlag.OBEY_PRECISION_CONSTRAINTS)
                 with open(onnx_file_path, "rb") as f:
                     parser.parse(f.read())
+                last_layer = network_definition.get_layer(
+                    network_definition.num_layers - 1
+                )
+                network_definition.mark_output(last_layer.get_output(0))
                 profile: IOptimizationProfile = builder.create_optimization_profile()
                 for num_input in range(network_definition.num_inputs):
                     profile.set_shape(
