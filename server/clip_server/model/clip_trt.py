@@ -105,6 +105,5 @@ class CLIPTensorRTModel:
         return visual_output
 
     def encode_text(self, onnx_text):
-        (textual_output,) = self._textual_engine({'input': onnx_text['input_ids']})
-
+        (textual_output,) = self._textual_engine(onnx_text)
         return textual_output
