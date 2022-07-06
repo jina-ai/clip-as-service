@@ -34,7 +34,9 @@ def test_make_onnx_flow_custom_path_wrong_name(port_generator):
         uses=CLIPEncoder,
         uses_with={
             'name': 'ABC',
-            'model_path': os.path.expanduser('~/.cache/clip/v2/ViT-B-32'),
+            'model_path': os.path.expanduser(
+                '~/.cache/clip/models-436c69702d61732d53657276696365/onnx/ViT-B-32'
+            ),
         },
     )
     with pytest.raises(Exception) as info:

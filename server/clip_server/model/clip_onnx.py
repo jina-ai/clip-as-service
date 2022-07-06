@@ -2,8 +2,10 @@ import os
 
 from clip_server.model.clip import _download, available_models
 
-_S3_BUCKET = 'https://clip-as-service.s3.us-east-2.amazonaws.com/models/onnx/'
-_S3_BUCKET_V2 = 'https://clip-as-service.s3.us-east-2.amazonaws.com/modelsV2/onnx/'
+_S3_BUCKET = (
+    'https://clip-as-service.s3.us-east-2.amazonaws.com/models/onnx/'  # Deprecated
+)
+_S3_BUCKET_V2 = 'https://clip-as-service.s3.us-east-2.amazonaws.com/models-436c69702d61732d53657276696365/onnx/'
 _MODELS = {
     'RN50': (
         ('RN50/textual.onnx', '722418bfe47a1f5c79d1f44884bb3103'),
@@ -49,7 +51,7 @@ class CLIPOnnxModel:
         if name in _MODELS:
             if not model_path:
                 cache_dir = os.path.expanduser(
-                    f'~/.cache/clip/v2/{name.replace("/", "-")}'
+                    f'~/.cache/clip/models-436c69702d61732d53657276696365/onnx/{name.replace("/", "-")}'
                 )
                 self._textual_path = _download(
                     _S3_BUCKET_V2 + _MODELS[name][0][0],

@@ -16,7 +16,6 @@ except ImportError:
 from clip_server.model.clip import _download, MODEL_SIZE
 from lip_server.model.clip_onnx import _MODELS as ONNX_MODELS
 
-# _S3_BUCKET = 'https://clip-as-service.s3.us-east-2.amazonaws.com/models/tensorrt/'
 _MODELS = {
     'RN50': (
         ('RN50/textual.trt', 'e2b9bcbd32c43c3007e8d1b0c5cf88a0'),
@@ -54,21 +53,9 @@ class CLIPTensorRTModel:
         name: str = None,
     ):
         if name in _MODELS:
-            #     cache_dir = os.path.expanduser(f'~/.cache/clip/{name.replace("/", "-")}')
-            #     self._textual_path = _download(
-            #         _S3_BUCKET + _MODELS[name][0]['file'],
-            #         _MODELS[name][0]['md5'],
-            #         cache_dir,
-            #         with_resume=True,
-            #     )
-            #     self._visual_path = _download(
-            #         _S3_BUCKET + _MODELS[name][1]['file'],
-            #         _MODELS[name][1]['md5'],
-            #         cache_dir,
-            #         with_resume=True,
-            #     )
             self._name = name
             cache_dir = os.path.expanduser(f'~/.cache/clip/{name.replace("/", "-")}')
+
             self._textual_path = os.path.join(
                 cache_dir,
                 _MODELS[name][0][0].replace('.', f'.{ONNX_MODELS[name][0][1]}.'),
