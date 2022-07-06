@@ -27,18 +27,15 @@ _tokenizer = _Tokenizer()
 
 _S3_BUCKET = 'https://clip-as-service.s3.us-east-2.amazonaws.com/models/torch/'
 _MODELS = {
-    'RN50': {'file': 'RN50.pt', 'md5': '41b688586545b585e434f0edc30e25b4'},
-    'RN101': {'file': 'RN101.pt', 'md5': '184a5d9dc1cc1bff48fa21806a939bd8'},
-    'RN50x4': {'file': 'RN50x4.pt', 'md5': 'e039e39752e752349b73972c059ba5ca'},
-    'RN50x16': {'file': 'RN50x16.pt', 'md5': 'f5754c0164f5cbea35caddac64fc01fc'},
-    'RN50x64': {'file': 'RN50x64.pt', 'md5': 'e7f34706cce6bda8bc258d0d36978f3d'},
-    'ViT-B/32': {'file': 'ViT-B-32.pt', 'md5': 'cbcd496594af9bb545f8c6789ad11c9b'},
-    'ViT-B/16': {'file': 'ViT-B-16.pt', 'md5': 'a3dc62dd06a0bfd3f997b7772efddb82'},
-    'ViT-L/14': {'file': 'ViT-L-14.pt', 'md5': '8bb0d629658d67037d91284ec9e82a83'},
-    'ViT-L/14@336px': {
-        'file': 'ViT-L-14-336px.pt',
-        'md5': '89564b6fc1e4c34b3061e99dc2e97160',
-    },
+    'RN50': ('RN50.pt', '9140964eaaf9f68c95aa8df6ca13777c'),
+    'RN101': ('RN101.pt', 'fa9d5f64ebf152bc56a18db245071014'),
+    'RN50x4': ('RN50x4.pt', '03830990bc768e82f7fb684cde7e5654'),
+    'RN50x16': ('RN50x16.pt', '83d63878a818c65d0fb417e5fab1e8fe'),
+    'RN50x64': ('RN50x64.pt', 'a6631a0de003c4075d286140fc6dd637'),
+    'ViT-B/32': ('ViT-B-32.pt', '3ba34e387b24dfe590eeb1ae6a8a122b'),
+    'ViT-B/16': ('ViT-B-16.pt', '44c3d804ecac03d9545ac1a3adbca3a6'),
+    'ViT-L/14': ('ViT-L-14.pt', '096db1af569b284eb76b3881534822d9'),
+    'ViT-L/14@336px': ('ViT-L-14-336px.pt', 'b311058cae50cb10fbfa2a44231c9473'),
 }
 
 MODEL_SIZE = {
@@ -140,6 +137,7 @@ def _download(
                 shutil.move(tmp_file_path, download_target)
 
     if hashlib.md5(open(download_target, 'rb').read(1 << 20)).hexdigest() != md5:
+        print(f'MD5 mismatch for {download_target}, will retry')
         os.remove(download_target)
         return _download(url, md5, root, with_resume, max_attempts - 1)
 
@@ -221,8 +219,8 @@ def load(
     """
     if name in _MODELS:
         model_path = _download(
-            _S3_BUCKET + _MODELS[name]['file'],
-            _MODELS[name]['md5'],
+            _S3_BUCKET + _MODELS[name][0],
+            _MODELS[name][1],
             download_root or os.path.expanduser('~/.cache/clip'),
             with_resume=True,
         )

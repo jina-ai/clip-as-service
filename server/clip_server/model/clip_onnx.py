@@ -6,46 +6,40 @@ _S3_BUCKET = 'https://clip-as-service.s3.us-east-2.amazonaws.com/models/onnx/'
 _S3_BUCKET_V2 = 'https://clip-as-service.s3.us-east-2.amazonaws.com/modelsV2/onnx/'
 _MODELS = {
     'RN50': (
-        {'file': 'RN50/textual.onnx', 'md5': '4a9ec971acaec34803bf998fb76eeb0d'},
-        {'file': 'RN50/visual.onnx', 'md5': 'cfb219a1425a9695e3932b352b871cea'},
+        ('RN50/textual.onnx', '722418bfe47a1f5c79d1f44884bb3103'),
+        ('RN50/visual.onnx', '5761475db01c3abb68a5a805662dcd10'),
     ),
     'RN101': (
-        {'file': 'RN101/textual.onnx', 'md5': '27bb683bd3d7ca981de41392267b0c67'},
-        {'file': 'RN101/visual.onnx', 'md5': '2c4eb325dfe666c77bcf367ca6ea8a1f'},
+        ('RN101/textual.onnx', '2d9efb7d184c0d68a369024cedfa97af'),
+        ('RN101/visual.onnx', '0297ebc773af312faab54f8b5a622d71'),
     ),
     'RN50x4': (
-        {'file': 'RN50x4/textual.onnx', 'md5': '94867427a2fc56277360b9264d7175cf'},
-        {'file': 'RN50x4/visual.onnx', 'md5': '82dcd804e26e49212c7c9dd8ef03ec99'},
+        ('RN50x4/textual.onnx', 'd9d63d3fe35fb14d4affaa2c4e284005'),
+        ('RN50x4/visual.onnx', '16afe1e35b85ad862e8bbdb12265c9cb'),
     ),
     'RN50x16': (
-        {'file': 'RN50x16/textual.onnx', 'md5': 'e30f3b7663abea8da0ea6308b6537379'},
-        {'file': 'RN50x16/visual.onnx', 'md5': 'e2230d03206d440d78c2124e9509e82c'},
+        ('RN50x16/textual.onnx', '1525785494ff5307cadc6bfa56db6274'),
+        ('RN50x16/visual.onnx', '2a293d9c3582f8abe29c9999e47d1091'),
     ),
     'RN50x64': (
-        {'file': 'RN50x64/textual.onnx', 'md5': 'feac53596fc81aba14172228190ab01b'},
-        {'file': 'RN50x64/visual.onnx', 'md5': '18e44a88d4d5ee060b60e0b0c002c84d'},
+        ('RN50x64/textual.onnx', '3ae8ade74578eb7a77506c11bfbfaf2c'),
+        ('RN50x64/visual.onnx', '1341f10b50b3aca6d2d5d13982cabcfc'),
     ),
     'ViT-B/32': (
-        {'file': 'ViT-B-32/textual.onnx', 'md5': 'c0a36f7e31f36beab096d5b83ad7f5dc'},
-        {'file': 'ViT-B-32/visual.onnx', 'md5': '2357f80ccdce3264c37ab0b8587d9d82'},
+        ('ViT-B-32/textual.onnx', 'bd6d7871e8bb95f3cc83aff3398d7390'),
+        ('ViT-B-32/visual.onnx', '88c6f38e522269d6c04a85df18e6370c'),
     ),
     'ViT-B/16': (
-        {'file': 'ViT-B-16/textual.onnx', 'md5': '699bc2b3a36f7fc645d694008967e11d'},
-        {'file': 'ViT-B-16/visual.onnx', 'md5': '3316d2e54acc20999357ec8552e72daa'},
+        ('ViT-B-16/textual.onnx', '6f0976629a446f95c0c8767658f12ebe'),
+        ('ViT-B-16/visual.onnx', 'd5c03bfeef1abbd9bede54a8f6e1eaad'),
     ),
     'ViT-L/14': (
-        {'file': 'ViT-L-14/textual.onnx', 'md5': '535a086fcaebd6018b778ff10f9dd938'},
-        {'file': 'ViT-L-14/visual.onnx', 'md5': 'bf851771e29fcc512a2276f4b5fe3660'},
+        ('ViT-L-14/textual.onnx', '325380b31af4837c2e0d9aba2fad8e1b'),
+        ('ViT-L-14/visual.onnx', '53f5b319d3dc5d42572adea884e31056'),
     ),
     'ViT-L/14@336px': (
-        {
-            'file': 'ViT-L-14@336px/textual.onnx',
-            'md5': 'd87232b942bb399c902e5feec0761909',
-        },
-        {
-            'file': 'ViT-L-14@336px/visual.onnx',
-            'md5': 'fdcb444d3a696b0261838decd3635c29',
-        },
+        ('ViT-L-14@336px/textual.onnx', '78fab479f136403eed0db46f3e9e7ed2'),
+        ('ViT-L-14@336px/visual.onnx', 'f3b1f5d55ca08d43d749e11f7e4ba27e'),
     ),
 }
 
@@ -58,14 +52,14 @@ class CLIPOnnxModel:
                     f'~/.cache/clip/v2/{name.replace("/", "-")}'
                 )
                 self._textual_path = _download(
-                    _S3_BUCKET_V2 + _MODELS[name][0]['file'],
-                    _MODELS[name][0]['md5'],
+                    _S3_BUCKET_V2 + _MODELS[name][0][0],
+                    _MODELS[name][0][1],
                     cache_dir,
                     with_resume=True,
                 )
                 self._visual_path = _download(
-                    _S3_BUCKET_V2 + _MODELS[name][1]['file'],
-                    _MODELS[name][1]['md5'],
+                    _S3_BUCKET_V2 + _MODELS[name][1][0],
+                    _MODELS[name][1][1],
                     cache_dir,
                     with_resume=True,
                 )
