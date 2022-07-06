@@ -3,17 +3,44 @@ import os
 from clip_server.model.clip import _download, available_models
 
 _S3_BUCKET = 'https://clip-as-service.s3.us-east-2.amazonaws.com/models/onnx/'
-_S3_BUCKET_TMP = 'https://clip-as-service.s3.us-east-2.amazonaws.com/modelsV2/onnx/'
+_S3_BUCKET_V2 = 'https://clip-as-service.s3.us-east-2.amazonaws.com/modelsV2/onnx/'
 _MODELS = {
-    'RN50': ('RN50/textual.onnx', 'RN50/visual.onnx'),
-    'RN101': ('RN101/textual.onnx', 'RN101/visual.onnx'),
-    'RN50x4': ('RN50x4/textual.onnx', 'RN50x4/visual.onnx'),
-    'RN50x16': ('RN50x16/textual.onnx', 'RN50x16/visual.onnx'),
-    'RN50x64': ('RN50x64/textual.onnx', 'RN50x64/visual.onnx'),
-    'ViT-B/32': ('ViT-B-32/textual.onnx', 'ViT-B-32/visual.onnx'),
-    'ViT-B/16': ('ViT-B-16/textual.onnx', 'ViT-B-16/visual.onnx'),
-    'ViT-L/14': ('ViT-L-14/textual.onnx', 'ViT-L-14/visual.onnx'),
-    'ViT-L/14@336px': ('ViT-L-14@336px/textual.onnx', 'ViT-L-14@336px/visual.onnx'),
+    'RN50': (
+        {'file': 'RN50/textual.onnx', 'md5': ''},
+        {'file': 'RN50/visual.onnx', 'md5': ''},
+    ),
+    'RN101': (
+        {'file': 'RN101/textual.onnx', 'md5': ''},
+        {'file': 'RN101/visual.onnx', 'md5': ''},
+    ),
+    'RN50x4': (
+        {'file': 'RN50x4/textual.onnx', 'md5': ''},
+        {'file': 'RN50x4/visual.onnx', 'md5': ''},
+    ),
+    'RN50x16': (
+        {'file': 'RN50x16/textual.onnx', 'md5': ''},
+        {'file': 'RN50x16/visual.onnx', 'md5': ''},
+    ),
+    'RN50x64': (
+        {'file': 'RN50x64/textual.onnx', 'md5': ''},
+        {'file': 'RN50x64/visual.onnx', 'md5': ''},
+    ),
+    'ViT-B/32': (
+        {'file': 'ViT-B-32/textual.onnx', 'md5': ''},
+        {'file': 'ViT-B-32/visual.onnx', 'md5': ''},
+    ),
+    'ViT-B/16': (
+        {'file': 'ViT-B-16/textual.onnx', 'md5': ''},
+        {'file': 'ViT-B-16/visual.onnx', 'md5': ''},
+    ),
+    'ViT-L/14': (
+        {'file': 'ViT-L-14/textual.onnx', 'md5': ''},
+        {'file': 'ViT-L-14/visual.onnx', 'md5': ''},
+    ),
+    'ViT-L/14@336px': (
+        {'file': 'ViT-L-14@336px/textual.onnx', 'md5': ''},
+        {'file': 'ViT-L-14@336px/visual.onnx', 'md5': ''},
+    ),
 }
 
 
@@ -25,10 +52,10 @@ class CLIPOnnxModel:
                     f'~/.cache/clip/v2/{name.replace("/", "-")}'
                 )
                 self._textual_path = _download(
-                    _S3_BUCKET_TMP + _MODELS[name][0], cache_dir, with_resume=True
+                    _S3_BUCKET_V2 + _MODELS[name][0]['file'], _MODELS[name][0]['md5'], cache_dir, with_resume=True
                 )
                 self._visual_path = _download(
-                    _S3_BUCKET_TMP + _MODELS[name][1], cache_dir, with_resume=True
+                    _S3_BUCKET_V2 + _MODELS[name][1]['file'], _MODELS[name][1]['md5'], cache_dir, with_resume=True
                 )
             else:
                 if os.path.isdir(model_path):

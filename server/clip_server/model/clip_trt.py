@@ -17,14 +17,42 @@ from clip_server.model.clip import _download, MODEL_SIZE
 
 _S3_BUCKET = 'https://clip-as-service.s3.us-east-2.amazonaws.com/models/tensorrt/'
 _MODELS = {
-    'RN50': ('RN50/textual.trt', 'RN50/visual.trt'),
-    'RN101': ('RN101/textual.trt', 'RN101/visual.trt'),
-    'RN50x4': ('RN50x4/textual.trt', 'RN50x4/visual.trt'),
-    # 'RN50x16': ('RN50x16/textual.trt', 'RN50x16/visual.trt'),
-    # 'RN50x64': ('RN50x64/textual.trt', 'RN50x64/visual.trt'),
-    'ViT-B/32': ('ViT-B-32/textual.trt', 'ViT-B-32/visual.trt'),
-    'ViT-B/16': ('ViT-B-16/textual.trt', 'ViT-B-16/visual.trt'),
-    'ViT-L/14': ('ViT-L-14/textual.trt', 'ViT-L-14/visual.trt'),
+    'RN50': (
+        {'file': 'RN50/textual.trt', 'md5': ''},
+        {'file': 'RN50/visual.trt', 'md5': ''},
+    ),
+    'RN101': (
+        {'file': 'RN101/textual.trt', 'md5': ''},
+        {'file': 'RN101/visual.trt', 'md5': ''},
+    ),
+    'RN50x4': (
+        {'file': 'RN50x4/textual.trt', 'md5': ''},
+        {'file': 'RN50x4/visual.trt', 'md5': ''},
+    ),
+    # 'RN50x16': (
+    #     {'file': 'RN50x16/textual.trt', 'md5': ''},
+    #     {'file': 'RN50x16/visual.trt', 'md5': ''},
+    # ),
+    # 'RN50x64': (
+    #     {'file': 'RN50x64/textual.trt', 'md5': ''},
+    #     {'file': 'RN50x64/visual.trt', 'md5': ''},
+    # ),
+    'ViT-B/32': (
+        {'file': 'ViT-B-32/textual.trt', 'md5': ''},
+        {'file': 'ViT-B-32/visual.trt', 'md5': ''},
+    ),
+    'ViT-B/16': (
+        {'file': 'ViT-B-16/textual.trt', 'md5': ''},
+        {'file': 'ViT-B-16/visual.trt', 'md5': ''},
+    ),
+    'ViT-L/14': (
+        {'file': 'ViT-L-14/textual.trt', 'md5': ''},
+        {'file': 'ViT-L-14/visual.trt', 'md5': ''},
+    ),
+    # 'ViT-L/14@336px': (
+    #     {'file': 'ViT-L-14@336px/textual.trt', 'md5': ''},
+    #     {'file': 'ViT-L-14@336px/visual.trt', 'md5': ''},
+    # ),
 }
 
 
@@ -35,8 +63,12 @@ class CLIPTensorRTModel:
     ):
         if name in _MODELS:
             cache_dir = os.path.expanduser(f'~/.cache/clip/{name.replace("/", "-")}')
-            self._textual_path = _download(_S3_BUCKET + _MODELS[name][0], cache_dir)
-            self._visual_path = _download(_S3_BUCKET + _MODELS[name][1], cache_dir)
+            self._textual_path = _download(
+                _S3_BUCKET + _MODELS[name][0]['file'], _MODELS[name][0]['md5'], cache_dir, with_resume=True
+            )
+            self._visual_path = _download(
+                _S3_BUCKET + _MODELS[name][1]['file'], _MODELS[name][1]['md5'], cache_dir, with_resume=True
+            )
         else:
             raise RuntimeError(
                 f'Model {name} not found or not supports Nvidia TensorRT backend; available models = {list(_MODELS.keys())}'

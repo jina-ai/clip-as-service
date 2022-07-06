@@ -27,15 +27,15 @@ _tokenizer = _Tokenizer()
 
 _S3_BUCKET = 'https://clip-as-service.s3.us-east-2.amazonaws.com/models/torch/'
 _MODELS = {
-    'RN50': 'RN50.pt',
-    'RN101': 'RN101.pt',
-    'RN50x4': 'RN50x4.pt',
-    'RN50x16': 'RN50x16.pt',
-    'RN50x64': 'RN50x64.pt',
-    'ViT-B/32': 'ViT-B-32.pt',
-    'ViT-B/16': 'ViT-B-16.pt',
-    'ViT-L/14': 'ViT-L-14.pt',
-    'ViT-L/14@336px': 'ViT-L-14-336px.pt',
+    'RN50': {'file': 'RN50.pt', 'md5': ''},
+    'RN101': {'file': 'RN101.pt', 'md5': ''},
+    'RN50x4': {'file': 'RN50x4.pt', 'md5': ''},
+    'RN50x16': {'file': 'RN50x16.pt', 'md5': ''},
+    'RN50x64': {'file': 'RN50x64.pt', 'md5': ''},
+    'ViT-B/32': {'file': 'ViT-B-32.pt', 'md5': ''},
+    'ViT-B/16': {'file': 'ViT-B-16.pt', 'md5': ''},
+    'ViT-L/14': {'file': 'ViT-L-14.pt', 'md5': ''},
+    'ViT-L/14@336px': {'file': 'ViT-L-14-336px.pt', 'md5': ''},
 }
 
 MODEL_SIZE = {
@@ -218,7 +218,8 @@ def load(
     """
     if name in _MODELS:
         model_path = _download(
-            _S3_BUCKET + _MODELS[name],
+            _S3_BUCKET + _MODELS[name]['file'],
+            _MODELS[name]['md5'],
             download_root or os.path.expanduser('~/.cache/clip'),
             with_resume=True,
         )
