@@ -35,7 +35,10 @@ _MODELS = {
     'ViT-B/32': {'file': 'ViT-B-32.pt', 'md5': 'cbcd496594af9bb545f8c6789ad11c9b'},
     'ViT-B/16': {'file': 'ViT-B-16.pt', 'md5': 'a3dc62dd06a0bfd3f997b7772efddb82'},
     'ViT-L/14': {'file': 'ViT-L-14.pt', 'md5': '8bb0d629658d67037d91284ec9e82a83'},
-    'ViT-L/14@336px': {'file': 'ViT-L-14-336px.pt', 'md5': '89564b6fc1e4c34b3061e99dc2e97160'},
+    'ViT-L/14@336px': {
+        'file': 'ViT-L-14-336px.pt',
+        'md5': '89564b6fc1e4c34b3061e99dc2e97160',
+    },
 }
 
 MODEL_SIZE = {
