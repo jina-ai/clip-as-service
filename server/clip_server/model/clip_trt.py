@@ -64,10 +64,16 @@ class CLIPTensorRTModel:
         if name in _MODELS:
             cache_dir = os.path.expanduser(f'~/.cache/clip/{name.replace("/", "-")}')
             self._textual_path = _download(
-                _S3_BUCKET + _MODELS[name][0]['file'], _MODELS[name][0]['md5'], cache_dir, with_resume=True
+                _S3_BUCKET + _MODELS[name][0]['file'],
+                _MODELS[name][0]['md5'],
+                cache_dir,
+                with_resume=True,
             )
             self._visual_path = _download(
-                _S3_BUCKET + _MODELS[name][1]['file'], _MODELS[name][1]['md5'], cache_dir, with_resume=True
+                _S3_BUCKET + _MODELS[name][1]['file'],
+                _MODELS[name][1]['md5'],
+                cache_dir,
+                with_resume=True,
             )
         else:
             raise RuntimeError(

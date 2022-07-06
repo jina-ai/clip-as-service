@@ -27,15 +27,15 @@ _tokenizer = _Tokenizer()
 
 _S3_BUCKET = 'https://clip-as-service.s3.us-east-2.amazonaws.com/models/torch/'
 _MODELS = {
-    'RN50': {'file': 'RN50.pt', 'md5': ''},
-    'RN101': {'file': 'RN101.pt', 'md5': ''},
-    'RN50x4': {'file': 'RN50x4.pt', 'md5': ''},
-    'RN50x16': {'file': 'RN50x16.pt', 'md5': ''},
-    'RN50x64': {'file': 'RN50x64.pt', 'md5': ''},
-    'ViT-B/32': {'file': 'ViT-B-32.pt', 'md5': ''},
-    'ViT-B/16': {'file': 'ViT-B-16.pt', 'md5': ''},
-    'ViT-L/14': {'file': 'ViT-L-14.pt', 'md5': ''},
-    'ViT-L/14@336px': {'file': 'ViT-L-14-336px.pt', 'md5': ''},
+    'RN50': {'file': 'RN50.pt', 'md5': '41b688586545b585e434f0edc30e25b4'},
+    'RN101': {'file': 'RN101.pt', 'md5': '184a5d9dc1cc1bff48fa21806a939bd8'},
+    'RN50x4': {'file': 'RN50x4.pt', 'md5': 'e039e39752e752349b73972c059ba5ca'},
+    'RN50x16': {'file': 'RN50x16.pt', 'md5': 'f5754c0164f5cbea35caddac64fc01fc'},
+    'RN50x64': {'file': 'RN50x64.pt', 'md5': 'e7f34706cce6bda8bc258d0d36978f3d'},
+    'ViT-B/32': {'file': 'ViT-B-32.pt', 'md5': 'cbcd496594af9bb545f8c6789ad11c9b'},
+    'ViT-B/16': {'file': 'ViT-B-16.pt', 'md5': 'a3dc62dd06a0bfd3f997b7772efddb82'},
+    'ViT-L/14': {'file': 'ViT-L-14.pt', 'md5': '8bb0d629658d67037d91284ec9e82a83'},
+    'ViT-L/14@336px': {'file': 'ViT-L-14-336px.pt', 'md5': '89564b6fc1e4c34b3061e99dc2e97160'},
 }
 
 MODEL_SIZE = {
@@ -63,7 +63,7 @@ def _download(
     download_target = os.path.join(root, filename)
     if (
         os.path.isfile(download_target)
-        and hashlib.md5(open(download_target, 'rb').read()).hexdigest() == md5
+        and hashlib.md5(open(download_target, 'rb').read(1 << 20)).hexdigest() == md5
     ):
         return download_target
 
@@ -136,7 +136,7 @@ def _download(
             ):
                 shutil.move(tmp_file_path, download_target)
 
-    if hashlib.md5(open(download_target, 'rb').read()).hexdigest() != md5:
+    if hashlib.md5(open(download_target, 'rb').read(1 << 20)).hexdigest() != md5:
         os.remove(download_target)
         return _download(url, md5, root, with_resume, max_attempts - 1)
 
