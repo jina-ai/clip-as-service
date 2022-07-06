@@ -63,7 +63,7 @@ def _download(
     download_target = os.path.join(root, filename)
     if (
         os.path.isfile(download_target)
-        and hashlib.md5(open(download_target, 'rb').read(1 << 20)).hexdigest() == md5
+        and hashlib.md5(open(download_target, 'rb').read()).hexdigest() == md5
     ):
         return download_target
 
@@ -136,7 +136,7 @@ def _download(
             ):
                 shutil.move(tmp_file_path, download_target)
 
-    if hashlib.md5(open(download_target, 'rb').read(1 << 20)).hexdigest() != md5:
+    if hashlib.md5(open(download_target, 'rb').read()).hexdigest() != md5:
         print(f'MD5 mismatch for {download_target}, will retry')
         os.remove(download_target)
         return _download(url, md5, root, with_resume, max_attempts - 1)
