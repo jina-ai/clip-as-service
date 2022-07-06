@@ -138,7 +138,7 @@ def _download(
 
     if hashlib.md5(open(download_target, 'rb').read()).hexdigest() != md5:
         os.remove(download_target)
-        _download(url, md5, root, with_resume, max_attempts - 1)
+        return _download(url, md5, root, with_resume, max_attempts - 1)
 
     return download_target
 
