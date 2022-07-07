@@ -108,7 +108,7 @@ class CLIPEncoder(Executor):
                         documentation='images encode time in seconds',
                     ):
                         minibatch.embeddings = (
-                            self._model.encode_image(batch_data)
+                            self._model.encode_image(batch_data['pixel_values'])
                             .cpu()
                             .numpy()
                             .astype(np.float32)
