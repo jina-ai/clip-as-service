@@ -25,7 +25,12 @@ def test_server_download(tmpdir):
 
     os.remove(target_path)
 
-    _download('https://docarray.jina.ai/_static/favicon.png', tmpdir, with_resume=True)
+    _download(
+        'https://docarray.jina.ai/_static/favicon.png',
+        'a084999188f4290e2654aec43207ff2e',
+        tmpdir,
+        with_resume=True,
+    )
     assert os.path.getsize(target_path) == file_size
     assert not os.path.exists(part_path)
 
