@@ -37,13 +37,21 @@ def test_server_download(tmpdir):
 
 @pytest.mark.parametrize('md5', ['ABC', None, 'a084999188f4290e2654aec43207ff2e'])
 def test_server_download_md5(tmpdir, md5):
-    with pytest.raises(Exception):
+    if md5 == 'a084999188f4290e2654aec43207ff2e':
         _download(
             'https://docarray.jina.ai/_static/favicon.png',
             tmpdir,
             md5,
             with_resume=False,
         )
+    else:
+        with pytest.raises(Exception):
+            _download(
+                'https://docarray.jina.ai/_static/favicon.png',
+                tmpdir,
+                md5,
+                with_resume=False,
+            )
 
 
 def test_make_onnx_flow_custom_path_wrong_name(port_generator):
