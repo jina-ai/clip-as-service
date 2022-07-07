@@ -58,8 +58,6 @@ def _download(
     with_resume: bool = True,
     max_attempts: int = 3,
 ) -> str:
-    if max_attempts <= 0:
-        raise RuntimeError(f'Failed to download {url}, max attempts exceeded')
 
     os.makedirs(root, exist_ok=True)
     filename = os.path.basename(url)
@@ -93,61 +91,71 @@ def _download(
     )
 
     with progress:
-
         task = progress.add_task('download', filename=url, start=False)
+        for _ in range(max_attempts):
 
-        tmp_file_path = download_target + '.part'
-        resume_byte_pos = (
-            os.path.getsize(tmp_file_path) if os.path.exists(tmp_file_path) else 0
-        )
-
-        total_bytes = -1
-        try:
-            # resolve the 403 error by passing a valid user-agent
-            req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-
-            total_bytes = int(
-                urllib.request.urlopen(req).info().get('Content-Length', -1)
+            tmp_file_path = download_target + '.part'
+            resume_byte_pos = (
+                os.path.getsize(tmp_file_path) if os.path.exists(tmp_file_path) else 0
             )
 
-            mode = 'ab' if (with_resume and resume_byte_pos) else 'wb'
+            total_bytes = -1
+            try:
+                # resolve the 403 error by passing a valid user-agent
+                req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
 
-            with open(tmp_file_path, mode) as output:
-
-                progress.update(task, total=total_bytes)
-
-                progress.start_task(task)
-
-                if resume_byte_pos and with_resume:
-                    progress.update(task, advance=resume_byte_pos)
-                    req.headers['Range'] = f'bytes={resume_byte_pos}-'
-
-                with urllib.request.urlopen(req) as source:
-                    while True:
-                        buffer = source.read(8192)
-                        if not buffer:
-                            break
-
-                        output.write(buffer)
-                        progress.update(task, advance=len(buffer))
-        except Exception as ex:
-            raise ex
-        finally:
-            # rename the temp download file to the correct name if fully downloaded
-            if os.path.exists(tmp_file_path) and (
-                total_bytes == os.path.getsize(tmp_file_path)
-                and (
-                    not md5
-                    or hashlib.md5(open(tmp_file_path, 'rb').read()).hexdigest() == md5
+                total_bytes = int(
+                    urllib.request.urlopen(req).info().get('Content-Length', -1)
                 )
-            ):
-                shutil.move(tmp_file_path, download_target)
-            else:
-                print(f'MD5 mismatch for {download_target}, will retry')
-                os.remove(tmp_file_path)
-                return _download(url, root, md5, with_resume, max_attempts - 1)
 
-    return download_target
+                mode = 'ab' if (with_resume and resume_byte_pos) else 'wb'
+
+                with open(tmp_file_path, mode) as output:
+
+                    progress.update(task, total=total_bytes)
+
+                    progress.start_task(task)
+
+                    if resume_byte_pos and with_resume:
+                        progress.update(task, advance=resume_byte_pos)
+                        req.headers['Range'] = f'bytes={resume_byte_pos}-'
+
+                    with urllib.request.urlopen(req) as source:
+                        while True:
+                            buffer = source.read(8192)
+                            if not buffer:
+                                break
+
+                            output.write(buffer)
+                            progress.update(task, advance=len(buffer))
+            except Exception as ex:
+                raise ex
+            finally:
+                # rename the temp download file to the correct name if fully downloaded
+                if os.path.exists(tmp_file_path) and (
+                    total_bytes == os.path.getsize(tmp_file_path)
+                    and (
+                        not md5
+                        or hashlib.md5(open(tmp_file_path, 'rb').read()).hexdigest()
+                        == md5
+                    )
+                ):
+                    shutil.move(tmp_file_path, download_target)
+                    break
+                else:
+                    progress.console.print(
+                        f'MD5 mismatch for {download_target}, maybe the file is not completely downloaded. '
+                        f'Retrying now...'
+                    )
+                    os.remove(tmp_file_path)
+                    progress.reset(task)
+
+    if os.path.isfile(download_target) and (
+        not md5 or hashlib.md5(open(download_target, 'rb').read()).hexdigest() == md5
+    ):
+        return download_target
+    else:
+        raise RuntimeError(f'Failed to download {url}, max attempts exceeded')
 
 
 def _convert_image_to_rgb(image):
@@ -224,10 +232,11 @@ def load(
         A torchvision transform that converts a PIL image into a tensor that the returned model can take as its input
     """
     if name in _MODELS:
+        model_name, model_md5 = _MODELS[name]
         model_path = _download(
-            _S3_BUCKET + _MODELS[name][0],
-            download_root or os.path.expanduser('~/.cache/clip'),
-            _MODELS[name][1],
+            url=_S3_BUCKET + model_name,
+            root=download_root or os.path.expanduser('~/.cache/clip'),
+            md5=model_md5,
             with_resume=True,
         )
     elif os.path.isfile(name):
@@ -348,7 +357,7 @@ def tokenize(
     Returns
     -------
     A dict of tokenized representations of the input strings and their corresponding attention masks with both
-        shape = [number of input strings, context_length]
+        shape = [batch size, context_length]
     """
     if isinstance(texts, str):
         texts = [texts]

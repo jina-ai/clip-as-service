@@ -9,9 +9,9 @@ import numpy as np
 
 def test_server_download(tmpdir):
     _download(
-        'https://docarray.jina.ai/_static/favicon.png',
-        tmpdir,
-        'a084999188f4290e2654aec43207ff2e',
+        url='https://docarray.jina.ai/_static/favicon.png',
+        root=tmpdir,
+        md5='a084999188f4290e2654aec43207ff2e',
         with_resume=False,
     )
     target_path = os.path.join(tmpdir, 'favicon.png')
@@ -26,9 +26,9 @@ def test_server_download(tmpdir):
     os.remove(target_path)
 
     _download(
-        'https://docarray.jina.ai/_static/favicon.png',
-        tmpdir,
-        'a084999188f4290e2654aec43207ff2e',
+        url='https://docarray.jina.ai/_static/favicon.png',
+        root=tmpdir,
+        md5='a084999188f4290e2654aec43207ff2e',
         with_resume=True,
     )
     assert os.path.getsize(target_path) == file_size
@@ -39,17 +39,17 @@ def test_server_download(tmpdir):
 def test_server_download_md5(tmpdir, md5):
     if md5 != 'ABC':
         _download(
-            'https://docarray.jina.ai/_static/favicon.png',
-            tmpdir,
-            md5,
+            url='https://docarray.jina.ai/_static/favicon.png',
+            root=tmpdir,
+            md5=md5,
             with_resume=False,
         )
     else:
         with pytest.raises(Exception):
             _download(
-                'https://docarray.jina.ai/_static/favicon.png',
-                tmpdir,
-                md5,
+                url='https://docarray.jina.ai/_static/favicon.png',
+                root=tmpdir,
+                md5=md5,
                 with_resume=False,
             )
 

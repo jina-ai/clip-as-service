@@ -53,16 +53,18 @@ class CLIPOnnxModel:
                 cache_dir = os.path.expanduser(
                     f'~/.cache/clip/{name.replace("/", "-")}'
                 )
+                textual_model_name, textual_model_md5 = _MODELS[name][0]
                 self._textual_path = _download(
-                    _S3_BUCKET_V2 + _MODELS[name][0][0],
-                    cache_dir,
-                    _MODELS[name][0][1],
+                    url=_S3_BUCKET_V2 + textual_model_name,
+                    root=cache_dir,
+                    md5=textual_model_md5,
                     with_resume=True,
                 )
+                visual_model_name, visual_model_md5 = _MODELS[name][1]
                 self._visual_path = _download(
-                    _S3_BUCKET_V2 + _MODELS[name][1][0],
-                    cache_dir,
-                    _MODELS[name][1][1],
+                    url=_S3_BUCKET_V2 + visual_model_name,
+                    root=cache_dir,
+                    md5=visual_model_md5,
                     with_resume=True,
                 )
             else:

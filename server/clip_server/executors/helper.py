@@ -22,7 +22,7 @@ def preproc_image(
     return_np: bool = False,
 ) -> Tuple['DocumentArray', Dict]:
 
-    inputs = {'pixel_values': []}
+    tensors_batch = []
 
     for d in da:
         content = d.content
@@ -33,19 +33,19 @@ def preproc_image(
             # in case user uses HTTP protocol and send data via curl not using .blob (base64), but in .uri
             d.load_uri_to_image_tensor()
 
-        inputs['pixel_values'].append(preprocess_fn(d.tensor).detach())
+        tensors_batch.append(preprocess_fn(d.tensor).detach())
 
         # recover doc content
         d.content = content
 
-    inputs['pixel_values'] = torch.stack(inputs['pixel_values']).type(torch.float32)
+    tensors_batch = torch.stack(tensors_batch).type(torch.float32)
 
     if return_np:
-        inputs['pixel_values'] = inputs['pixel_values'].cpu().numpy()
+        tensors_batch = tensors_batch.cpu().numpy()
     else:
-        inputs['pixel_values'] = inputs['pixel_values'].to(device)
+        tensors_batch = tensors_batch.to(device)
 
-    return da, inputs
+    return da, {'pixel_values': tensors_batch}
 
 
 def preproc_text(
