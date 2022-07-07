@@ -76,7 +76,7 @@ class CLIPOnnxModel:
                             f'{model_path} does not contain `textual.onnx` and `visual.onnx`'
                         )
                 else:
-                    raise RuntimeError(f'{model_path} is not a directory')
+                    raise RuntimeError(f'The given model path {model_path} is not a valid directory')
         else:
             raise RuntimeError(
                 f'Model {name} not found; available models = {available_models()}'
