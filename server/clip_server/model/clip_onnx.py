@@ -51,7 +51,7 @@ class CLIPOnnxModel:
         if name in _MODELS:
             if not model_path:
                 cache_dir = os.path.expanduser(
-                    f'~/.cache/clip/models-436c69702d61732d53657276696365/onnx/{name.replace("/", "-")}'
+                    f'~/.cache/clip/{name.replace("/", "-")}'
                 )
                 self._textual_path = _download(
                     _S3_BUCKET_V2 + _MODELS[name][0][0],

@@ -34,11 +34,7 @@ def make_flow(port_generator, request):
         f = Flow(port=port_generator()).add(
             name=request.param,
             uses=CLIPEncoder,
-            uses_with={
-                'model_path': os.path.expanduser(
-                    '~/.cache/clip/models-436c69702d61732d53657276696365/onnx/ViT-B-32'
-                )
-            },
+            uses_with={'model_path': os.path.expanduser('~/.cache/clip/ViT-B-32')},
         )
     with f:
         yield f
