@@ -9,5 +9,5 @@ executors:
       metas:
         py_modules:
           - executors/clip_tensorrt.py
-    timeout_ready: 6000000
+    timeout_ready: 3000000
     replicas: 1
