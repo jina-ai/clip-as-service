@@ -52,7 +52,11 @@ MODEL_SIZE = {
 
 
 def _download(
-    url: str, md5: str, root: str, with_resume: bool = True, max_attempts: int = 3
+    url: str,
+    root: str,
+    md5: str = None,
+    with_resume: bool = True,
+    max_attempts: int = 3,
 ) -> str:
     if max_attempts <= 0:
         raise RuntimeError(f'Failed to download {url}, max attempts exceeded')
@@ -61,9 +65,8 @@ def _download(
     filename = os.path.basename(url)
 
     download_target = os.path.join(root, filename)
-    if (
-        os.path.isfile(download_target)
-        and hashlib.md5(open(download_target, 'rb').read()).hexdigest() == md5
+    if os.path.isfile(download_target) and (
+        not md5 or hashlib.md5(open(download_target, 'rb').read()).hexdigest() == md5
     ):
         return download_target
 
@@ -133,13 +136,16 @@ def _download(
             # rename the temp download file to the correct name if fully downloaded
             if os.path.exists(tmp_file_path) and (
                 total_bytes == os.path.getsize(tmp_file_path)
+                and (
+                    not md5
+                    or hashlib.md5(open(tmp_file_path, 'rb').read()).hexdigest() == md5
+                )
             ):
                 shutil.move(tmp_file_path, download_target)
-
-    if hashlib.md5(open(download_target, 'rb').read()).hexdigest() != md5:
-        print(f'MD5 mismatch for {download_target}, will retry')
-        os.remove(download_target)
-        return _download(url, md5, root, with_resume, max_attempts - 1)
+            else:
+                print(f'MD5 mismatch for {download_target}, will retry')
+                os.remove(tmp_file_path)
+                return _download(url, root, md5, with_resume, max_attempts - 1)
 
     return download_target
 
@@ -220,8 +226,8 @@ def load(
     if name in _MODELS:
         model_path = _download(
             _S3_BUCKET + _MODELS[name][0],
-            _MODELS[name][1],
             download_root or os.path.expanduser('~/.cache/clip'),
+            _MODELS[name][1],
             with_resume=True,
         )
     elif os.path.isfile(name):
@@ -324,7 +330,7 @@ def load(
 
 def tokenize(
     texts: Union[str, List[str]], context_length: int = 77, truncate: bool = True
-) -> {}:
+) -> dict:
     """
     Returns the tokenized representation of given input string(s)
 
@@ -350,12 +356,7 @@ def tokenize(
     sot_token = _tokenizer.encoder['<|startoftext|>']
     eot_token = _tokenizer.encoder['<|endoftext|>']
     all_tokens = [[sot_token] + _tokenizer.encode(text) + [eot_token] for text in texts]
-    # input_ids = torch.zeros(
-    #     len(all_tokens), min(len(max(all_tokens, key=len)), context_length), dtype=torch.long
-    # )
-    # attention_masks = torch.zeros(
-    #     len(all_tokens), min(len(max(all_tokens, key=len)), context_length), dtype=torch.long
-    # )
+
     input_ids = torch.zeros(len(all_tokens), context_length, dtype=torch.long)
     attention_mask = torch.zeros(len(all_tokens), context_length, dtype=torch.long)
 

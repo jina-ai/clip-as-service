@@ -13,7 +13,7 @@ except ImportError:
         "https://docs.nvidia.com/deeplearning/tensorrt/install-guide/index.html"
     )
 
-from clip_server.model.clip import _download, MODEL_SIZE
+from clip_server.model.clip import MODEL_SIZE
 from clip_server.model.clip_onnx import _MODELS as ONNX_MODELS
 
 _MODELS = [
@@ -103,7 +103,7 @@ class CLIPTensorRTModel:
         self._visual_engine = load_engine(runtime, self._visual_path)
 
     def encode_image(self, onnx_image):
-        (visual_output,) = self._visual_engine({'input': onnx_image})
+        (visual_output,) = self._visual_engine(onnx_image)
         return visual_output
 
     def encode_text(self, onnx_text):

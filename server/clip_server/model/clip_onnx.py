@@ -55,14 +55,14 @@ class CLIPOnnxModel:
                 )
                 self._textual_path = _download(
                     _S3_BUCKET_V2 + _MODELS[name][0][0],
-                    _MODELS[name][0][1],
                     cache_dir,
+                    _MODELS[name][0][1],
                     with_resume=True,
                 )
                 self._visual_path = _download(
                     _S3_BUCKET_V2 + _MODELS[name][1][0],
-                    _MODELS[name][1][1],
                     cache_dir,
+                    _MODELS[name][1][1],
                     with_resume=True,
                 )
             else:
@@ -95,8 +95,7 @@ class CLIPOnnxModel:
         self._textual_session.disable_fallback()
 
     def encode_image(self, onnx_image):
-        onnx_input_image = {self._visual_session.get_inputs()[0].name: onnx_image}
-        (visual_output,) = self._visual_session.run(None, onnx_input_image)
+        (visual_output,) = self._visual_session.run(None, onnx_image)
         return visual_output
 
     def encode_text(self, onnx_text):
