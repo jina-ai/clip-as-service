@@ -16,35 +16,17 @@ except ImportError:
 from clip_server.model.clip import _download, MODEL_SIZE
 from clip_server.model.clip_onnx import _MODELS as ONNX_MODELS
 
-_MODELS = {
-    'RN50': (
-        ('RN50/textual.trt', 'e2b9bcbd32c43c3007e8d1b0c5cf88a0'),
-        ('RN50/visual.trt', '62a91786f5e69750409ea31dee4d1d06'),
-    ),
-    'RN101': (
-        ('RN101/textual.trt', 'b78d708c7cce2eb5066c46911ded0c3a'),
-        ('RN101/visual.trt', '2be9a9c00a4f963a7379a26cd2d1a643'),
-    ),
-    'RN50x4': (
-        ('RN50x4/textual.trt', 'd6872573f70e3362a6f706c82997a2ce'),
-        ('RN50x4/visual.trt', 'b56106204de38d28fa01a60ffb5f3124'),
-    ),
-    # 'RN50x16'
-    # 'RN50x64'
-    'ViT-B/32': (
-        ('ViT-B-32/textual.trt', 'fda48ae2bb0b3e8c402e102d3b5b8344'),
-        ('ViT-B-32/visual.trt', '9c9ad16efe0e01c768fefe978135e3e8'),
-    ),
-    'ViT-B/16': (
-        ('ViT-B-16/textual.trt', '74ee85b7cfbc3d9dda6fe927cc56d163'),
-        ('ViT-B-16/visual.trt', 'be623fcbdaa512a77d6becea5188e72e'),
-    ),
-    'ViT-L/14': (
-        ('ViT-L-14/textual.trt', 'a90ca6422f5e948f4f6e9fafd06e2d76'),
-        ('ViT-L-14/visual.trt', 'e32cfcdb04d98693bb05ee2ba330cc93'),
-    ),
-    # 'ViT-L/14@336px'
-}
+_MODELS = [
+    'RN50',
+    'RN101',
+    'RN50x4',
+    # 'RN50x16',
+    # 'RN50x64',
+    'ViT-B/32',
+    'ViT-B/16',
+    'ViT-L/14',
+    # 'ViT-L/14@336px',
+]
 
 
 class CLIPTensorRTModel:
@@ -58,11 +40,11 @@ class CLIPTensorRTModel:
 
             self._textual_path = os.path.join(
                 cache_dir,
-                _MODELS[name][0][0].replace('.', f'.{ONNX_MODELS[name][0][1]}.'),
+                f'textual.{ONNX_MODELS[name][0][1]}.trt',
             )
             self._visual_path = os.path.join(
                 cache_dir,
-                _MODELS[name][1][0].replace('.', f'.{ONNX_MODELS[name][1][1]}.'),
+                f'visual.{ONNX_MODELS[name][1][1]}.trt',
             )
 
             if not os.path.exists(self._textual_path) or not os.path.exists(
