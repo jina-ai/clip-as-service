@@ -35,6 +35,16 @@ def test_server_download(tmpdir):
     assert not os.path.exists(part_path)
 
 
+def test_server_download_wrong_md5(tmpdir):
+    with pytest.raises(Exception):
+        _download(
+            'https://docarray.jina.ai/_static/favicon.png',
+            '123',
+            tmpdir,
+            with_resume=False,
+        )
+
+
 def test_make_onnx_flow_custom_path_wrong_name(port_generator):
     from clip_server.executors.clip_onnx import CLIPEncoder
     import os
@@ -61,7 +71,7 @@ def test_make_onnx_flow_custom_path_wrong_path(port_generator):
         uses=CLIPEncoder,
         uses_with={
             'name': 'ViT-B/32',
-            'model_path': 'ABC',
+            'model_path': os.path.expanduser('~/.cache/'),
         },
     )
     with pytest.raises(Exception) as info:
