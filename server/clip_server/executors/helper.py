@@ -1,4 +1,4 @@
-from typing import Tuple, List, Callable, Any
+from typing import Tuple, List, Callable, Any, Dict
 import torch
 import numpy as np
 from docarray import Document, DocumentArray
@@ -20,9 +20,9 @@ def preproc_image(
     preprocess_fn: Callable,
     device: str = 'cpu',
     return_np: bool = False,
-) -> Tuple['DocumentArray', List[Any]]:
+) -> Tuple['DocumentArray', Dict]:
 
-    tensors_batch = []
+    inputs = {'pixel_values': []}
 
     for d in da:
         content = d.content
@@ -33,24 +33,24 @@ def preproc_image(
             # in case user uses HTTP protocol and send data via curl not using .blob (base64), but in .uri
             d.load_uri_to_image_tensor()
 
-        tensors_batch.append(preprocess_fn(d.tensor).detach())
+        inputs['pixel_values'].append(preprocess_fn(d.tensor).detach())
 
         # recover doc content
         d.content = content
 
-    tensors_batch = torch.stack(tensors_batch).type(torch.float32)
+    inputs['pixel_values'] = torch.stack(inputs['pixel_values']).type(torch.float32)
 
     if return_np:
-        tensors_batch = tensors_batch.cpu().numpy()
+        inputs['pixel_values'] = inputs['pixel_values'].cpu().numpy()
     else:
-        tensors_batch = tensors_batch.to(device)
+        inputs['pixel_values'] = inputs['pixel_values'].to(device)
 
-    return da, tensors_batch
+    return da, inputs
 
 
 def preproc_text(
     da: 'DocumentArray', device: str = 'cpu', return_np: bool = False
-) -> Tuple['DocumentArray', List[Any]]:
+) -> Tuple['DocumentArray', Dict]:
 
     inputs = clip.tokenize(da.texts)
     inputs['input_ids'] = inputs['input_ids'].detach()

@@ -37,7 +37,7 @@ def test_server_download(tmpdir):
 
 @pytest.mark.parametrize('md5', ['ABC', None, 'a084999188f4290e2654aec43207ff2e'])
 def test_server_download_md5(tmpdir, md5):
-    if md5 == 'a084999188f4290e2654aec43207ff2e':
+    if md5 != 'ABC':
         _download(
             'https://docarray.jina.ai/_static/favicon.png',
             tmpdir,
