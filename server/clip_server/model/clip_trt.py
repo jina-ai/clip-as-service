@@ -14,7 +14,7 @@ except ImportError:
     )
 
 from clip_server.model.clip import _download, MODEL_SIZE
-from lip_server.model.clip_onnx import _MODELS as ONNX_MODELS
+from clip_server.model.clip_onnx import _MODELS as ONNX_MODELS
 
 _MODELS = {
     'RN50': (

@@ -8,7 +8,12 @@ import numpy as np
 
 
 def test_server_download(tmpdir):
-    _download('https://docarray.jina.ai/_static/favicon.png', tmpdir, with_resume=False)
+    _download(
+        'https://docarray.jina.ai/_static/favicon.png',
+        'a084999188f4290e2654aec43207ff2e',
+        tmpdir,
+        with_resume=False,
+    )
     target_path = os.path.join(tmpdir, 'favicon.png')
     file_size = os.path.getsize(target_path)
     assert file_size > 0
