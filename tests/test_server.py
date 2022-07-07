@@ -47,7 +47,6 @@ def test_server_download_wrong_md5(tmpdir):
 
 def test_make_onnx_flow_custom_path_wrong_name(port_generator):
     from clip_server.executors.clip_onnx import CLIPEncoder
-    import os
 
     f = Flow(port=port_generator()).add(
         name='onnx',
@@ -62,16 +61,16 @@ def test_make_onnx_flow_custom_path_wrong_name(port_generator):
             f.post('/', Document(text='Hello world'))
 
 
-def test_make_onnx_flow_custom_path_wrong_path(port_generator):
+@pytest.mark.parametrize('path', ['ABC', os.path.expanduser('~/.cache/')])
+def test_make_onnx_flow_custom_path_wrong_path(port_generator, path):
     from clip_server.executors.clip_onnx import CLIPEncoder
-    import os
 
     f = Flow(port=port_generator()).add(
         name='onnx',
         uses=CLIPEncoder,
         uses_with={
             'name': 'ViT-B/32',
-            'model_path': os.path.expanduser('~/.cache/'),
+            'model_path': path,
         },
     )
     with pytest.raises(Exception) as info:
