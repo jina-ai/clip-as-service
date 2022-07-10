@@ -24,7 +24,7 @@ _MODELS = [
     # 'RN50x64',
     'ViT-B/32',
     'ViT-B/16',
-    'ViT-L/14',
+    # 'ViT-L/14',
     # 'ViT-L/14@336px',
 ]
 

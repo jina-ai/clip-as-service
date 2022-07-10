@@ -51,6 +51,12 @@ MODEL_SIZE = {
 }
 
 
+def _validate(filename: str, md5: str) -> bool:
+    return os.path.isfile(filename) and (
+        not md5 or hashlib.md5(open(filename, 'rb').read()).hexdigest() == md5
+    )
+
+
 def _download(
     url: str,
     root: str,
@@ -63,9 +69,7 @@ def _download(
     filename = os.path.basename(url)
 
     download_target = os.path.join(root, filename)
-    if os.path.isfile(download_target) and (
-        not md5 or hashlib.md5(open(download_target, 'rb').read()).hexdigest() == md5
-    ):
+    if _validate(download_target, md5):
         return download_target
 
     if os.path.exists(download_target) and not os.path.isfile(download_target):
@@ -103,17 +107,13 @@ def _download(
             try:
                 # resolve the 403 error by passing a valid user-agent
                 req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-
                 total_bytes = int(
                     urllib.request.urlopen(req).info().get('Content-Length', -1)
                 )
-
                 mode = 'ab' if (with_resume and resume_byte_pos) else 'wb'
 
                 with open(tmp_file_path, mode) as output:
-
                     progress.update(task, total=total_bytes)
-
                     progress.start_task(task)
 
                     if resume_byte_pos and with_resume:
@@ -129,7 +129,9 @@ def _download(
                             output.write(buffer)
                             progress.update(task, advance=len(buffer))
             except Exception as ex:
-                raise ex
+                progress.console.print(f'Error: {ex} Retrying now...')
+                continue
+
             finally:
                 # rename the temp download file to the correct name if fully downloaded
                 if os.path.exists(tmp_file_path) and (
@@ -150,9 +152,7 @@ def _download(
                     os.remove(tmp_file_path)
                     progress.reset(task)
 
-    if os.path.isfile(download_target) and (
-        not md5 or hashlib.md5(open(download_target, 'rb').read()).hexdigest() == md5
-    ):
+    if _validate(download_target, md5):
         return download_target
     else:
         raise RuntimeError(f'Failed to download {url}, max attempts exceeded')
