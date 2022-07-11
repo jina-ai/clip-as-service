@@ -102,15 +102,7 @@ def _download(
     with progress:
         task = progress.add_task('download', filename=url, start=False)
 
-        retry = 0
-        while True:
-            if retry < max_attempts:
-                retry += 1
-            else:
-                raise RuntimeError(
-                    f'Failed to download {url} within retry limit {max_attempts}'
-                )
-
+        for _ in range(max_attempts):
             tmp_file_path = download_target + '.part'
             resume_byte_pos = (
                 os.path.getsize(tmp_file_path) if os.path.exists(tmp_file_path) else 0
@@ -153,12 +145,14 @@ def _download(
                     )
 
             except Exception as ex:
-                if retry < max_attempts:
-                    progress.console.print(f'Failed to download {url} with {ex!r}')
-                    progress.reset(task)
-                    continue
-                else:
-                    raise ex
+                progress.console.print(
+                    f'Failed to download {url} with {ex!r} at the {_}th attempt'
+                )
+                progress.reset(task)
+
+        raise RuntimeError(
+            f'Failed to download {url} within retry limit {max_attempts}'
+        )
 
 
 def _convert_image_to_rgb(image):
