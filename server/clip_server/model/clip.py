@@ -76,8 +76,8 @@ def _download(
         if not os.path.isfile(download_target):
             raise FileExistsError(f'{download_target} exists and is not a regular file')
 
-        real_md5sum = md5file(download_target)
-        if (not md5sum) or real_md5sum == md5sum:
+        actual_md5sum = md5file(download_target)
+        if (not md5sum) or actual_md5sum == md5sum:
             return download_target
 
     from rich.progress import (
