@@ -153,9 +153,12 @@ def _download(
                     )
 
             except Exception as ex:
-                progress.console.print(f'Failed to download {url} with {ex!r}')
-                progress.reset(task)
-                continue
+                if retry < max_attempts:
+                    progress.console.print(f'Failed to download {url} with {ex!r}')
+                    progress.reset(task)
+                    continue
+                else:
+                    raise ex
 
 
 def _convert_image_to_rgb(image):
