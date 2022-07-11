@@ -57,6 +57,12 @@ class CLIPEncoder(Executor):
     ):
         """
         :param pretrained_model_name_or_path: Can be either:
+            - A string, the model id of a pretrained M-CLIP model hosted
+                inside a model repo on huggingface.co, e.g.,
+                'M-CLIP/XLM-Roberta-Large-Vit-B-32'
+            - A path to a directory containing model weights saved, e.g.,
+                ./my_model_directory/
+        :param clip_model_name_or_path: Can be either:
             - A string, the model id of a pretrained CLIP model hosted
                 inside a model repo on huggingface.co, e.g.,
                 'openai/clip-vit-base-patch32'
