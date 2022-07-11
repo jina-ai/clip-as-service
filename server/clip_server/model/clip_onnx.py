@@ -56,15 +56,15 @@ class CLIPOnnxModel:
                 textual_model_name, textual_model_md5 = _MODELS[name][0]
                 self._textual_path = _download(
                     url=_S3_BUCKET_V2 + textual_model_name,
-                    root=cache_dir,
-                    md5=textual_model_md5,
+                    target_folder=cache_dir,
+                    md5sum=textual_model_md5,
                     with_resume=True,
                 )
                 visual_model_name, visual_model_md5 = _MODELS[name][1]
                 self._visual_path = _download(
                     url=_S3_BUCKET_V2 + visual_model_name,
-                    root=cache_dir,
-                    md5=visual_model_md5,
+                    target_folder=cache_dir,
+                    md5sum=visual_model_md5,
                     with_resume=True,
                 )
             else:

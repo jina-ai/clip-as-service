@@ -51,33 +51,34 @@ MODEL_SIZE = {
 }
 
 
-def _validate(filename: str, md5: str) -> (bool, str):
-    '''Validates a file against a MD5 hash'''
+def md5file(filename: str):
+    hash_md5 = hashlib.md5()
+    with open(filename, 'rb') as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            hash_md5.update(chunk)
 
-    if os.path.isfile(filename):
-        actual_md5 = hashlib.md5(open(filename, 'rb').read()).hexdigest()
-        return not md5 or actual_md5 == md5, actual_md5
-    else:
-        return False, 'File not found'
+    return hash_md5.hexdigest()
 
 
 def _download(
     url: str,
-    root: str,
-    md5: str = None,
+    target_folder: str,
+    md5sum: str = None,
     with_resume: bool = True,
     max_attempts: int = 3,
 ) -> str:
-
-    os.makedirs(root, exist_ok=True)
+    os.makedirs(target_folder, exist_ok=True)
     filename = os.path.basename(url)
 
-    download_target = os.path.join(root, filename)
-    if _validate(download_target, md5)[0]:
-        return download_target
+    download_target = os.path.join(target_folder, filename)
 
-    if os.path.exists(download_target) and not os.path.isfile(download_target):
-        raise FileExistsError(f'{download_target} exists and is not a regular file')
+    if os.path.exists(download_target):
+        if not os.path.isfile(download_target):
+            raise FileExistsError(f'{download_target} exists and is not a regular file')
+
+        real_md5sum = md5file(download_target)
+        if (not md5sum) or real_md5sum == md5sum:
+            return download_target
 
     from rich.progress import (
         DownloadColumn,
@@ -100,7 +101,15 @@ def _download(
 
     with progress:
         task = progress.add_task('download', filename=url, start=False)
-        for attempt in range(max_attempts):
+
+        retry = 0
+        while True:
+            if retry < max_attempts:
+                retry += 1
+            else:
+                raise RuntimeError(
+                    f'Failed to download {url} within retry limit {max_attempts}'
+                )
 
             tmp_file_path = download_target + '.part'
             resume_byte_pos = (
@@ -132,32 +141,21 @@ def _download(
 
                             output.write(buffer)
                             progress.update(task, advance=len(buffer))
-            except Exception as ex:
-                progress.console.print(
-                    f'Error: {ex} {"Retrying now..." if attempt < max_attempts - 1 else ""}'
-                )
-                progress.reset(task)
 
-            else:
-                # rename the temp download file to the correct name if fully downloaded
-                validation, actual_md5 = _validate(tmp_file_path, md5)
-
-                if validation:
+                actual_md5 = md5file(tmp_file_path)
+                if (md5sum and actual_md5 == md5sum) or (not md5sum):
                     shutil.move(tmp_file_path, download_target)
-                    break
+                    return download_target
                 else:
-                    progress.console.print(
-                        f'MD5 mismatch for {tmp_file_path}, maybe the file is not completely downloaded. \n'
-                        f'Expected md5: {md5} | Actual md5: {actual_md5} '
-                        f'{"Retrying now..." if attempt < max_attempts - 1 else ""}'
-                    )
                     os.remove(tmp_file_path)
-                    progress.reset(task)
+                    raise RuntimeError(
+                        f'MD5 mismatch: expected {md5sum}, got {actual_md5}'
+                    )
 
-    if _validate(download_target, md5)[0]:
-        return download_target
-    else:
-        raise RuntimeError(f'Failed to download {url}, max attempts exceeded')
+            except Exception as ex:
+                progress.console.print(f'Failed to download {url} with {ex!r}')
+                progress.reset(task)
+                continue
 
 
 def _convert_image_to_rgb(image):
@@ -237,8 +235,8 @@ def load(
         model_name, model_md5 = _MODELS[name]
         model_path = _download(
             url=_S3_BUCKET + model_name,
-            root=download_root or os.path.expanduser('~/.cache/clip'),
-            md5=model_md5,
+            target_folder=download_root or os.path.expanduser('~/.cache/clip'),
+            md5sum=model_md5,
             with_resume=True,
         )
     elif os.path.isfile(name):
