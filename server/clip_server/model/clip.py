@@ -51,10 +51,14 @@ MODEL_SIZE = {
 }
 
 
-def _validate(filename: str, md5: str) -> bool:
-    return os.path.isfile(filename) and (
-        not md5 or hashlib.md5(open(filename, 'rb').read()).hexdigest() == md5
-    )
+def _validate(filename: str, md5: str) -> (bool, str):
+    '''Validates a file against a MD5 hash'''
+
+    if os.path.isfile(filename):
+        actual_md5 = hashlib.md5(open(filename, 'rb').read()).hexdigest()
+        return not md5 or actual_md5 == md5, actual_md5
+    else:
+        return False, 'File not found'
 
 
 def _download(
@@ -69,7 +73,7 @@ def _download(
     filename = os.path.basename(url)
 
     download_target = os.path.join(root, filename)
-    if _validate(download_target, md5):
+    if _validate(download_target, md5)[0]:
         return download_target
 
     if os.path.exists(download_target) and not os.path.isfile(download_target):
@@ -96,7 +100,7 @@ def _download(
 
     with progress:
         task = progress.add_task('download', filename=url, start=False)
-        for _ in range(max_attempts):
+        for attempt in range(max_attempts):
 
             tmp_file_path = download_target + '.part'
             resume_byte_pos = (
@@ -129,30 +133,28 @@ def _download(
                             output.write(buffer)
                             progress.update(task, advance=len(buffer))
             except Exception as ex:
-                progress.console.print(f'Error: {ex} Retrying now...')
-                continue
+                progress.console.print(
+                    f'Error: {ex} {"Retrying now..." if attempt < max_attempts - 1 else ""}'
+                )
+                progress.reset(task)
 
-            finally:
+            else:
                 # rename the temp download file to the correct name if fully downloaded
-                if os.path.exists(tmp_file_path) and (
-                    total_bytes == os.path.getsize(tmp_file_path)
-                    and (
-                        not md5
-                        or hashlib.md5(open(tmp_file_path, 'rb').read()).hexdigest()
-                        == md5
-                    )
-                ):
+                validation, actual_md5 = _validate(tmp_file_path, md5)
+
+                if validation:
                     shutil.move(tmp_file_path, download_target)
                     break
                 else:
                     progress.console.print(
-                        f'MD5 mismatch for {download_target}, maybe the file is not completely downloaded. '
-                        f'Retrying now...'
+                        f'MD5 mismatch for {tmp_file_path}, maybe the file is not completely downloaded. \n'
+                        f'Expected md5: {md5} | Actual md5: {actual_md5} '
+                        f'{"Retrying now..." if attempt < max_attempts - 1 else ""}'
                     )
                     os.remove(tmp_file_path)
                     progress.reset(task)
 
-    if _validate(download_target, md5):
+    if _validate(download_target, md5)[0]:
         return download_target
     else:
         raise RuntimeError(f'Failed to download {url}, max attempts exceeded')

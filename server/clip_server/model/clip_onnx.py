@@ -75,7 +75,7 @@ class CLIPOnnxModel:
                         self._visual_path
                     ):
                         raise RuntimeError(
-                            f'{model_path} does not contain `textual.onnx` and `visual.onnx`'
+                            f'The given model path {model_path} does not contain `textual.onnx` and `visual.onnx`'
                         )
                 else:
                     raise RuntimeError(
