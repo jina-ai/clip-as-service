@@ -74,7 +74,6 @@ pip install clip-server
 ```bash
 pip install "clip_server[onnx]"
 ```
-
 ````
 
 
