@@ -16,16 +16,26 @@ def port_generator():
     return random_port
 
 
-@pytest.fixture(scope='session', params=['onnx', 'torch', 'hg'])
+@pytest.fixture(scope='session', params=['onnx', 'torch', 'hg', 'onnx_custom'])
 def make_flow(port_generator, request):
-    if request.param == 'onnx':
-        from clip_server.executors.clip_onnx import CLIPEncoder
-    elif request.param == 'torch':
-        from clip_server.executors.clip_torch import CLIPEncoder
-    else:
-        from clip_server.executors.clip_hg import CLIPEncoder
+    if request.param != 'onnx_custom':
+        if request.param == 'onnx':
+            from clip_server.executors.clip_onnx import CLIPEncoder
+        elif request.param == 'torch':
+            from clip_server.executors.clip_torch import CLIPEncoder
+        else:
+            from clip_server.executors.clip_hg import CLIPEncoder
 
-    f = Flow(port=port_generator()).add(name=request.param, uses=CLIPEncoder)
+        f = Flow(port=port_generator()).add(name=request.param, uses=CLIPEncoder)
+    else:
+        import os
+        from clip_server.executors.clip_onnx import CLIPEncoder
+
+        f = Flow(port=port_generator()).add(
+            name=request.param,
+            uses=CLIPEncoder,
+            uses_with={'model_path': os.path.expanduser('~/.cache/clip/ViT-B-32')},
+        )
     with f:
         yield f
 

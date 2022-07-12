@@ -1,4 +1,4 @@
-from typing import Tuple, List, Callable, Any
+from typing import Tuple, List, Callable, Any, Dict
 import torch
 import numpy as np
 from docarray import Document, DocumentArray
@@ -20,7 +20,7 @@ def preproc_image(
     preprocess_fn: Callable,
     device: str = 'cpu',
     return_np: bool = False,
-) -> Tuple['DocumentArray', List[Any]]:
+) -> Tuple['DocumentArray', Dict]:
 
     tensors_batch = []
 
@@ -45,22 +45,27 @@ def preproc_image(
     else:
         tensors_batch = tensors_batch.to(device)
 
-    return da, tensors_batch
+    return da, {'pixel_values': tensors_batch}
 
 
 def preproc_text(
     da: 'DocumentArray', device: str = 'cpu', return_np: bool = False
-) -> Tuple['DocumentArray', List[Any]]:
+) -> Tuple['DocumentArray', Dict]:
 
-    tensors_batch = clip.tokenize(da.texts).detach()
+    inputs = clip.tokenize(da.texts)
+    inputs['input_ids'] = inputs['input_ids'].detach()
 
     if return_np:
-        tensors_batch = tensors_batch.cpu().numpy().astype(np.int64)
+        inputs['input_ids'] = inputs['input_ids'].cpu().numpy().astype(np.int32)
+        inputs['attention_mask'] = (
+            inputs['attention_mask'].cpu().numpy().astype(np.int32)
+        )
     else:
-        tensors_batch = tensors_batch.to(device)
+        inputs['input_ids'] = inputs['input_ids'].to(device)
+        inputs['attention_mask'] = inputs['attention_mask'].to(device)
 
     da[:, 'mime_type'] = 'text'
-    return da, tensors_batch
+    return da, inputs
 
 
 def split_img_txt_da(doc: 'Document', img_da: 'DocumentArray', txt_da: 'DocumentArray'):
