@@ -30,26 +30,23 @@ class Client:
             - port: the public port of the server
         :param server: the server URI
         """
-        try:
-            r = urlparse(server)
-            _port = r.port
-            _scheme = r.scheme
-            if not _scheme:
-                raise
-        except:
+        r = urlparse(server)
+        _port = r.port
+        self.scheme = r.scheme
+        if not self.scheme:
             raise ValueError(f'{server} is not a valid scheme')
 
         _tls = False
 
-        if _scheme in ('grpcs', 'https', 'wss'):
-            _scheme = _scheme[:-1]
+        if self.scheme in ('grpcs', 'https', 'wss'):
+            self.scheme = self.scheme[:-1]
             _tls = True
 
-        if _scheme == 'ws':
-            _scheme = 'websocket'  # temp fix for the core
+        if self.scheme == 'ws':
+            self.scheme = 'websocket'  # temp fix for the core
 
-        if _scheme in ('grpc', 'http', 'websocket'):
-            _kwargs = dict(host=r.hostname, port=_port, protocol=_scheme, tls=_tls)
+        if self.scheme in ('grpc', 'http', 'websocket'):
+            _kwargs = dict(host=r.hostname, port=_port, protocol=self.scheme, tls=_tls)
 
             from jina import Client
 
