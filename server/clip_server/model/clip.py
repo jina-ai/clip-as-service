@@ -108,7 +108,6 @@ def _download(
                 os.path.getsize(tmp_file_path) if os.path.exists(tmp_file_path) else 0
             )
 
-            total_bytes = -1
             try:
                 # resolve the 403 error by passing a valid user-agent
                 req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})

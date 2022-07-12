@@ -54,6 +54,22 @@ def test_server_download_md5(tmpdir, md5):
             )
 
 
+def test_server_download_not_regular_file(tmpdir):
+    with pytest.raises(Exception):
+        _download(
+            url='https://docarray.jina.ai/_static/favicon.png',
+            target_folder=tmpdir,
+            md5sum='',
+            with_resume=False,
+        )
+        _download(
+            url='https://docarray.jina.ai/_static/',
+            target_folder=tmpdir,
+            md5sum='',
+            with_resume=False,
+        )
+
+
 def test_make_onnx_flow_custom_path_wrong_name(port_generator):
     from clip_server.executors.clip_onnx import CLIPEncoder
 
