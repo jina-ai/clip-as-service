@@ -52,3 +52,11 @@ def is_latest_version(package: str = None, github_repo: str = None) -> None:
     """
 
     threading.Thread(target=_version_check, args=(package, github_repo)).start()
+
+
+def _http_credential_wrapper(credential):
+    pass
+
+
+def _grpc_credential_wrapper(credential):
+    return ('Authorization', f'{credential}')

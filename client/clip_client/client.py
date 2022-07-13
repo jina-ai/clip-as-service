@@ -15,6 +15,7 @@ from typing import (
 from urllib.parse import urlparse
 from functools import partial
 from docarray import DocumentArray
+from helper import _grpc_credential_wrapper, _http_credential_wrapper
 
 if TYPE_CHECKING:
     import numpy as np
@@ -22,7 +23,7 @@ if TYPE_CHECKING:
 
 
 class Client:
-    def __init__(self, server: str):
+    def __init__(self, server: str, credential: str = None, **kwargs):
         """Create a Clip client object that connects to the Clip server.
         Server scheme is in the format of `scheme://netloc:port`, where
             - scheme: one of grpc, websocket, http, grpcs, websockets, https
@@ -30,23 +31,25 @@ class Client:
             - port: the public port of the server
         :param server: the server URI
         """
-        r = urlparse(server)
-        _port = r.port
-        self.scheme = r.scheme
-        if not self.scheme:
+        try:
+            r = urlparse(server)
+            _port = r.port
+            self._scheme = r.scheme
+        except:
             raise ValueError(f'{server} is not a valid scheme')
 
+        self.credential = credential
         _tls = False
 
-        if self.scheme in ('grpcs', 'https', 'wss'):
-            self.scheme = self.scheme[:-1]
+        if self._scheme in ('grpcs', 'https', 'wss'):
+            self._scheme = self._scheme[:-1]
             _tls = True
 
-        if self.scheme == 'ws':
-            self.scheme = 'websocket'  # temp fix for the core
+        if self._scheme == 'ws':
+            self._scheme = 'websocket'  # temp fix for the core
 
-        if self.scheme in ('grpc', 'http', 'websocket'):
-            _kwargs = dict(host=r.hostname, port=_port, protocol=self.scheme, tls=_tls)
+        if self._scheme in ('grpc', 'http', 'websocket'):
+            _kwargs = dict(host=r.hostname, port=_port, protocol=self._scheme, tls=_tls)
 
             from jina import Client
 
@@ -183,6 +186,12 @@ class Client:
             inputs=self._iter_doc(content),
             request_size=kwargs.get('batch_size', 8),
             total_docs=len(content) if hasattr(content, '__len__') else None,
+            metadata=_grpc_credential_wrapper(self.credential)
+            if self._scheme == 'grpc'
+            else None,
+            headers=_http_credential_wrapper(self.credential)
+            if self._scheme == 'http'
+            else None,
         )
 
     def profile(self, content: Optional[str] = '') -> Dict[str, float]:
@@ -359,6 +368,12 @@ class Client:
             ),
             request_size=kwargs.get('batch_size', 8),
             total_docs=len(content) if hasattr(content, '__len__') else None,
+            metadata=_grpc_credential_wrapper(self.credential)
+            if self._scheme == 'grpc'
+            else None,
+            headers=_http_credential_wrapper(self.credential)
+            if self._scheme == 'http'
+            else None,
         )
 
     def rank(self, docs: Iterable['Document'], **kwargs) -> 'DocumentArray':
