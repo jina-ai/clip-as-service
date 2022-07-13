@@ -30,6 +30,7 @@ class Client:
             - netloc: the server ip address or hostname
             - port: the public port of the server
         :param server: the server URI
+        :param credential: the credential for authentication {'Authentication': '<token>'}
         """
         try:
             r = urlparse(server)
@@ -38,15 +39,17 @@ class Client:
         except:
             raise ValueError(f'{server} is not a valid scheme')
 
-        self.credential = credential
         _tls = False
-
         if self._scheme in ('grpcs', 'https', 'wss'):
             self._scheme = self._scheme[:-1]
             _tls = True
 
         if self._scheme == 'ws':
             self._scheme = 'websocket'  # temp fix for the core
+            if credential:
+                raise ValueError(
+                    'credential is not supported for websocket, please use grpc or http'
+                )
 
         if self._scheme in ('grpc', 'http', 'websocket'):
             _kwargs = dict(host=r.hostname, port=_port, protocol=self._scheme, tls=_tls)
@@ -57,6 +60,8 @@ class Client:
             self._async_client = Client(**_kwargs, asyncio=True)
         else:
             raise ValueError(f'{server} is not a valid scheme')
+
+        self.authorization = credential.get('Authorization', None)
 
     @overload
     def encode(
@@ -187,10 +192,10 @@ class Client:
             request_size=kwargs.get('batch_size', 8),
             total_docs=len(content) if hasattr(content, '__len__') else None,
         )
-        if self._scheme == 'grpc':
-            payload.update(metadata=get_authorization(self._scheme, self.credential))
-        elif self._scheme == 'http':
-            payload.update(headers=get_authorization(self._scheme, self.credential))
+        if self._scheme == 'grpc' and self.authorization:
+            payload.update(metadata=('Authorization', self.authorization))
+        elif self._scheme == 'http' and self.authorization:
+            payload.update(headers={'Authorization': self.authorization})
         return payload
 
     def profile(self, content: Optional[str] = '') -> Dict[str, float]:
@@ -368,10 +373,10 @@ class Client:
             request_size=kwargs.get('batch_size', 8),
             total_docs=len(content) if hasattr(content, '__len__') else None,
         )
-        if self._scheme == 'grpc':
-            payload.update(metadata=get_authorization(self._scheme, self.credential))
-        elif self._scheme == 'http':
-            payload.update(headers=get_authorization(self._scheme, self.credential))
+        if self._scheme == 'grpc' and self.authorization:
+            payload.update(metadata=('Authorization', self.authorization))
+        elif self._scheme == 'http' and self.authorization:
+            payload.update(headers={'Authorization': self.authorization})
         return payload
 
     def rank(self, docs: Iterable['Document'], **kwargs) -> 'DocumentArray':

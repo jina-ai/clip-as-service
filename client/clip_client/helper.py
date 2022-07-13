@@ -52,20 +52,3 @@ def is_latest_version(package: str = None, github_repo: str = None) -> None:
     """
 
     threading.Thread(target=_version_check, args=(package, github_repo)).start()
-
-
-def get_authorization(scheme, credential):
-    if scheme == 'grpc':
-        return (
-            ('Authorization', credential['Authorization'])
-            if 'Authorization' in credential
-            else None
-        )
-    elif scheme == 'http':
-        return (
-            {'Authorization': credential['Authorization']}
-            if 'Authorization' in credential
-            else None
-        )
-    else:
-        return None
