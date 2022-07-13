@@ -46,7 +46,7 @@ class Client:
         if self._scheme == 'ws':
             self._scheme = 'websocket'  # temp fix for the core
             if credential:
-                raise ValueError(
+                warnings.warn(
                     'Credential is not supported for websocket, please use grpc or http'
                 )
 
