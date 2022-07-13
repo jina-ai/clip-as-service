@@ -15,7 +15,7 @@ from typing import (
 from urllib.parse import urlparse
 from functools import partial
 from docarray import DocumentArray
-from clip_client.helper import get_authentication
+from clip_client.helper import get_authorization
 
 if TYPE_CHECKING:
     import numpy as np
@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 
 
 class Client:
-    def __init__(self, server: str, credential: dict = None, **kwargs):
+    def __init__(self, server: str, credential: dict = {}, **kwargs):
         """Create a Clip client object that connects to the Clip server.
         Server scheme is in the format of `scheme://netloc:port`, where
             - scheme: one of grpc, websocket, http, grpcs, websockets, https
@@ -188,9 +188,9 @@ class Client:
             total_docs=len(content) if hasattr(content, '__len__') else None,
         )
         if self._scheme == 'grpc':
-            payload.update(metadata=get_authentication(self._scheme, self.credential))
+            payload.update(metadata=get_authorization(self._scheme, self.credential))
         elif self._scheme == 'http':
-            payload.update(headers=get_authentication(self._scheme, self.credential))
+            payload.update(headers=get_authorization(self._scheme, self.credential))
         return payload
 
     def profile(self, content: Optional[str] = '') -> Dict[str, float]:
@@ -369,9 +369,9 @@ class Client:
             total_docs=len(content) if hasattr(content, '__len__') else None,
         )
         if self._scheme == 'grpc':
-            payload.update(metadata=get_authentication(self._scheme, self.credential))
+            payload.update(metadata=get_authorization(self._scheme, self.credential))
         elif self._scheme == 'http':
-            payload.update(headers=get_authentication(self._scheme, self.credential))
+            payload.update(headers=get_authorization(self._scheme, self.credential))
         return payload
 
     def rank(self, docs: Iterable['Document'], **kwargs) -> 'DocumentArray':
