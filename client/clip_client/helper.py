@@ -55,7 +55,7 @@ def is_latest_version(package: str = None, github_repo: str = None) -> None:
 
 
 def _http_credential_wrapper(credential):
-    pass
+    return {'Authorization': f'{credential}'}
 
 
 def _grpc_credential_wrapper(credential):
