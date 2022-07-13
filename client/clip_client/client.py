@@ -15,7 +15,6 @@ from typing import (
 from urllib.parse import urlparse
 from functools import partial
 from docarray import DocumentArray
-from clip_client.helper import get_authorization
 
 if TYPE_CHECKING:
     import numpy as np
@@ -48,7 +47,7 @@ class Client:
             self._scheme = 'websocket'  # temp fix for the core
             if credential:
                 raise ValueError(
-                    'credential is not supported for websocket, please use grpc or http'
+                    'Credential is not supported for websocket, please use grpc or http'
                 )
 
         if self._scheme in ('grpc', 'http', 'websocket'):
@@ -61,7 +60,7 @@ class Client:
         else:
             raise ValueError(f'{server} is not a valid scheme')
 
-        self.authorization = credential.get('Authorization', None)
+        self._authorization = credential.get('Authorization', None)
 
     @overload
     def encode(
@@ -192,10 +191,10 @@ class Client:
             request_size=kwargs.get('batch_size', 8),
             total_docs=len(content) if hasattr(content, '__len__') else None,
         )
-        if self._scheme == 'grpc' and self.authorization:
-            payload.update(metadata=('Authorization', self.authorization))
-        elif self._scheme == 'http' and self.authorization:
-            payload.update(headers={'Authorization': self.authorization})
+        if self._scheme == 'grpc' and self._authorization:
+            payload.update(metadata=('Authorization', self._authorization))
+        elif self._scheme == 'http' and self._authorization:
+            payload.update(headers={'Authorization': self._authorization})
         return payload
 
     def profile(self, content: Optional[str] = '') -> Dict[str, float]:
@@ -373,10 +372,10 @@ class Client:
             request_size=kwargs.get('batch_size', 8),
             total_docs=len(content) if hasattr(content, '__len__') else None,
         )
-        if self._scheme == 'grpc' and self.authorization:
-            payload.update(metadata=('Authorization', self.authorization))
-        elif self._scheme == 'http' and self.authorization:
-            payload.update(headers={'Authorization': self.authorization})
+        if self._scheme == 'grpc' and self._authorization:
+            payload.update(metadata=('Authorization', self._authorization))
+        elif self._scheme == 'http' and self._authorization:
+            payload.update(headers={'Authorization': self._authorization})
         return payload
 
     def rank(self, docs: Iterable['Document'], **kwargs) -> 'DocumentArray':
