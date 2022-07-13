@@ -15,7 +15,7 @@ from typing import (
 from urllib.parse import urlparse
 from functools import partial
 from docarray import DocumentArray
-from helper import _grpc_credential_wrapper, _http_credential_wrapper
+from clip_client.helper import get_authentication
 
 if TYPE_CHECKING:
     import numpy as np
@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 
 
 class Client:
-    def __init__(self, server: str, credential: str = None, **kwargs):
+    def __init__(self, server: str, credential: dict = None, **kwargs):
         """Create a Clip client object that connects to the Clip server.
         Server scheme is in the format of `scheme://netloc:port`, where
             - scheme: one of grpc, websocket, http, grpcs, websockets, https
@@ -181,18 +181,17 @@ class Client:
                 )
 
     def _get_post_payload(self, content, kwargs):
-        return dict(
+        payload = dict(
             on='/',
             inputs=self._iter_doc(content),
             request_size=kwargs.get('batch_size', 8),
             total_docs=len(content) if hasattr(content, '__len__') else None,
-            metadata=_grpc_credential_wrapper(self.credential)
-            if self._scheme == 'grpc'
-            else None,
-            headers=_http_credential_wrapper(self.credential)
-            if self._scheme == 'http'
-            else None,
         )
+        if self._scheme == 'grpc':
+            payload.update(metadata=get_authentication(self._scheme, self.credential))
+        elif self._scheme == 'http':
+            payload.update(headers=get_authentication(self._scheme, self.credential))
+        return payload
 
     def profile(self, content: Optional[str] = '') -> Dict[str, float]:
         """Profiling a single query's roundtrip including network and computation latency. Results is summarized in a table.
@@ -361,20 +360,19 @@ class Client:
                 )
 
     def _get_rank_payload(self, content, kwargs):
-        return dict(
+        payload = dict(
             on='/rank',
             inputs=self._iter_rank_docs(
                 content, _source=kwargs.get('source', 'matches')
             ),
             request_size=kwargs.get('batch_size', 8),
             total_docs=len(content) if hasattr(content, '__len__') else None,
-            metadata=_grpc_credential_wrapper(self.credential)
-            if self._scheme == 'grpc'
-            else None,
-            headers=_http_credential_wrapper(self.credential)
-            if self._scheme == 'http'
-            else None,
         )
+        if self._scheme == 'grpc':
+            payload.update(metadata=get_authentication(self._scheme, self.credential))
+        elif self._scheme == 'http':
+            payload.update(headers=get_authentication(self._scheme, self.credential))
+        return payload
 
     def rank(self, docs: Iterable['Document'], **kwargs) -> 'DocumentArray':
         """Rank image-text matches according to the server CLIP model.
