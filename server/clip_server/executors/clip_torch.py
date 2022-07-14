@@ -14,7 +14,6 @@ from clip_server.executors.helper import (
 )
 from clip_server.model import clip, mclip
 from jina import Executor, requests, DocumentArray
-import m
 
 
 class CLIPEncoder(Executor):
