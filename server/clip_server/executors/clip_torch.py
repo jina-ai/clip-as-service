@@ -5,25 +5,27 @@ from typing import Optional, Dict
 
 import numpy as np
 import torch
+import transformers
 from clip_server.executors.helper import (
     split_img_txt_da,
     preproc_image,
     preproc_text,
     set_rank,
 )
-from clip_server.model import clip
+from clip_server.model import clip, mclip
 from jina import Executor, requests, DocumentArray
+import m
 
 
 class CLIPEncoder(Executor):
     def __init__(
         self,
-        name: str = 'ViT-B/32',
+        name: str = "M-CLIP/XLM-Roberta-Large-Vit-B-32",
         device: Optional[str] = None,
         jit: bool = False,
         num_worker_preprocess: int = 4,
         minibatch_size: int = 32,
-        traversal_paths: str = '@r',
+        traversal_paths: str = "@r",
         **kwargs,
     ):
         super().__init__(**kwargs)
@@ -32,20 +34,20 @@ class CLIPEncoder(Executor):
         self._traversal_paths = traversal_paths
 
         if not device:
-            self._device = 'cuda' if torch.cuda.is_available() else 'cpu'
+            self._device = "cuda" if torch.cuda.is_available() else "cpu"
         else:
             self._device = device
 
-        if not self._device.startswith('cuda') and (
-            'OMP_NUM_THREADS' not in os.environ
-            and hasattr(self.runtime_args, 'replicas')
+        if not self._device.startswith("cuda") and (
+            "OMP_NUM_THREADS" not in os.environ
+            and hasattr(self.runtime_args, "replicas")
         ):
-            replicas = getattr(self.runtime_args, 'replicas', 1)
+            replicas = getattr(self.runtime_args, "replicas", 1)
             num_threads = max(1, torch.get_num_threads() // replicas)
             if num_threads < 2:
                 warnings.warn(
-                    f'Too many replicas ({replicas}) vs too few threads {num_threads} may result in '
-                    f'sub-optimal performance.'
+                    f"Too many replicas ({replicas}) vs too few threads {num_threads} may result in "
+                    f"sub-optimal performance."
                 )
 
             # NOTE: make sure to set the threads right after the torch import,
@@ -53,17 +55,28 @@ class CLIPEncoder(Executor):
             # For more details, please see https://pytorch.org/docs/stable/generated/torch.set_num_threads.html
             torch.set_num_threads(max(num_threads, 1))
             torch.set_num_interop_threads(1)
-
+        if name[:6] == "M-CLIP":  # MCLIP models need to be loaded by huggingface
+            self._is_mclip = True
+            self._tokenizer = transformers.AutoTokenizer.from_pretrained(name)
+            self._mclip_model = mclip.MultilingualCLIP.from_pretrained(name)
+            # with its corresponding clip model for img encoding
+            corresponding_clip_models = {
+                "M-CLIP/XLM-Roberta-Large-Vit-B-32": "ViT-B/32",
+                "M-CLIP/XLM-Roberta-Large-Vit-L-14": "ViT-L/14",
+            }
+            name = corresponding_clip_models[name]
+        else:
+            self._is_mclip = False
         self._model, self._preprocess_tensor = clip.load(
             name, device=self._device, jit=jit
         )
 
         self._pool = ThreadPool(processes=num_worker_preprocess)
 
-    def _preproc_images(self, docs: 'DocumentArray'):
+    def _preproc_images(self, docs: "DocumentArray"):
         with self.monitor(
-            name='preprocess_images_seconds',
-            documentation='images preprocess time in seconds',
+            name="preprocess_images_seconds",
+            documentation="images preprocess time in seconds",
         ):
             return preproc_image(
                 docs,
@@ -72,23 +85,34 @@ class CLIPEncoder(Executor):
                 return_np=False,
             )
 
-    def _preproc_texts(self, docs: 'DocumentArray'):
+    def _preproc_texts(self, docs: "DocumentArray"):
         with self.monitor(
-            name='preprocess_texts_seconds',
-            documentation='texts preprocess time in seconds',
+            name="preprocess_texts_seconds",
+            documentation="texts preprocess time in seconds",
         ):
-            return preproc_text(docs, device=self._device, return_np=False)
+            if self._is_mclip:
+                batch_data = self._tokenizer(
+                    docs.texts,
+                    max_length=77,
+                    padding="longest",
+                    truncation=True,
+                    return_tensors="pt",
+                )
+                batch_data = {k: v.to(self._device) for k, v in batch_data.items()}
+                return docs, batch_data
+            else:
+                return preproc_text(docs, device=self._device, return_np=False)
 
-    @requests(on='/rank')
-    async def rank(self, docs: 'DocumentArray', parameters: Dict, **kwargs):
-        await self.encode(docs['@r,m'])
+    @requests(on="/rank")
+    async def rank(self, docs: "DocumentArray", parameters: Dict, **kwargs):
+        await self.encode(docs["@r,m"])
 
         set_rank(docs)
 
     @requests
-    async def encode(self, docs: 'DocumentArray', parameters: Dict = {}, **kwargs):
-        traversal_paths = parameters.get('traversal_paths', self._traversal_paths)
-        minibatch_size = parameters.get('minibatch_size', self._minibatch_size)
+    async def encode(self, docs: "DocumentArray", parameters: Dict = {}, **kwargs):
+        traversal_paths = parameters.get("traversal_paths", self._traversal_paths)
+        minibatch_size = parameters.get("minibatch_size", self._minibatch_size)
 
         _img_da = DocumentArray()
         _txt_da = DocumentArray()
@@ -104,11 +128,11 @@ class CLIPEncoder(Executor):
                     pool=self._pool,
                 ):
                     with self.monitor(
-                        name='encode_images_seconds',
-                        documentation='images encode time in seconds',
+                        name="encode_images_seconds",
+                        documentation="images encode time in seconds",
                     ):
                         minibatch.embeddings = (
-                            self._model.encode_image(batch_data['pixel_values'])
+                            self._model.encode_image(batch_data)
                             .cpu()
                             .numpy()
                             .astype(np.float32)
@@ -122,11 +146,13 @@ class CLIPEncoder(Executor):
                     pool=self._pool,
                 ):
                     with self.monitor(
-                        name='encode_texts_seconds',
-                        documentation='texts encode time in seconds',
+                        name="encode_texts_seconds",
+                        documentation="texts encode time in seconds",
                     ):
                         minibatch.embeddings = (
-                            self._model.encode_text(batch_data['input_ids'])
+                            self._mclip_model.encode_text(batch_data)
+                            if self._is_mclip
+                            else self._model.encode_text(batch_data)
                             .cpu()
                             .numpy()
                             .astype(np.float32)
