@@ -61,7 +61,7 @@ The procedure and UI of ONNX and TensorRT runtime would look the same as Pytorch
 
 ## Model support
 
-Open AI has released 9 models so far. `ViT-B/32` is used as default model in all runtimes. Due to the limitation of some runtime, not every runtime supports all nine models. Please also note that different model give different size of output dimensions. This will affect your downstream applications. For example, switching the model from one to another make your embedding incomparable, which breaks the downstream applications. Below is a list of supported models of each runtime and its corresponding size. We include the disk usage (in delta) and the peak RAM and VRAM usage (in delta) when running on a single Nvidia TITAN RTX GPU (24GB VRAM) to encode a list of images with `batch_size=8` using PyTorch runtime.
+Open AI has released 9 models so far. `ViT-B/32` is used as default model in all runtimes. Due to the limitation of some runtime, not every runtime supports all nine models. Please also note that different model give different size of output dimensions. This will affect your downstream applications. For example, switching the model from one to another make your embedding incomparable, which breaks the downstream applications. Below is a list of supported models of each runtime and its corresponding size. We include the disk usage (in delta) and the peak RAM and VRAM usage (in delta) when running on a single Nvidia TITAN RTX GPU (24GB VRAM) for a series of text and image encoding tasks with `batch_size=8` using PyTorch runtime.
 
 | Model          | PyTorch | ONNX | TensorRT | Output Dimension | Disk Usage (MB) | Peak RAM Usage (GB) | Peak VRAM Usage (GB) |
 |----------------|---------|------|----------|------------------|-----------------|---------------------|----------------------|
@@ -73,7 +73,7 @@ Open AI has released 9 models so far. `ViT-B/32` is used as default model in all
 | ViT-B/32       | ✅       | ✅    | ✅        | 512              | 351             | 3.20                | 1.40                 |
 | ViT-B/16       | ✅       | ✅    | ✅        | 512              | 354             | 3.20                | 1.44                 |
 | ViT-L/14       | ✅       | ✅    | ❌        | 768              | 933             | 3.66                | 2.04                 |
-| ViT-L/14-336px | ✅       | ✅    | ❌        | 768              | 934             | 3.74                | 2.23                 |
+| ViT-L/14@336px | ✅       | ✅    | ❌        | 768              | 934             | 3.74                | 2.23                 |
 
 
 ## YAML config
