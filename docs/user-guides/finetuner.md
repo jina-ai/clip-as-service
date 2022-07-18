@@ -1,4 +1,4 @@
-# Fine-tuning CLIP models using Finetuner
+# Fine-tuning CLIP Models Using Finetuner
 
 Although CLIP-as-service has provided you a list of pre-trained models, you can also train your own models. 
 This guide will show you how to use [Finetuner](https://finetuner.jina.ai) to fine-tune models and use them in CLIP-as-service.
