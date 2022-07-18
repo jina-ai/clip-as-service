@@ -36,6 +36,7 @@ jobs:
           git config --local user.name "Jina Dev Bot"
           pip install --no-cache-dir client/
           pip install --no-cache-dir server/
+          pip install --no-cache-dir finetuner/
           mkdir gen-html
           cd docs
           pip install -r requirements.txt
