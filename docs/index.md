@@ -179,7 +179,6 @@ user-guides/client
 user-guides/server
 user-guides/finetuner
 user-guides/faq
-
 ```
 
 ```{toctree}
