@@ -4,6 +4,8 @@ import numpy as np
 from docarray import Document, DocumentArray
 from docarray.math.distance.numpy import cosine
 
+from clip_server.model import clip
+
 
 def numpy_softmax(x: 'np.ndarray', axis: int = -1) -> 'np.ndarray':
     max = np.max(x, axis=axis, keepdims=True)
@@ -18,7 +20,6 @@ def preproc_image(
     preprocess_fn: Callable,
     device: str = 'cpu',
     return_np: bool = False,
-    **kwargs
 ) -> Tuple['DocumentArray', Dict]:
 
     tensors_batch = []
@@ -32,7 +33,7 @@ def preproc_image(
             # in case user uses HTTP protocol and send data via curl not using .blob (base64), but in .uri
             d.load_uri_to_image_tensor()
 
-        tensors_batch.append(preprocess_fn(d.tensor, **kwargs).detach())
+        tensors_batch.append(preprocess_fn(d.tensor).detach())
 
         # recover doc content
         d.content = content
@@ -48,14 +49,10 @@ def preproc_image(
 
 
 def preproc_text(
-    da: 'DocumentArray',
-    tokenizer: Callable,
-    device: str = 'cpu',
-    return_np: bool = False,
-    **kwargs
+    da: 'DocumentArray', device: str = 'cpu', return_np: bool = False
 ) -> Tuple['DocumentArray', Dict]:
 
-    inputs = tokenizer(da.texts, **kwargs)
+    inputs = clip.tokenize(da.texts)
     inputs['input_ids'] = inputs['input_ids'].detach()
 
     if return_np:
