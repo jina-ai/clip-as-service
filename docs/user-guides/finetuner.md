@@ -153,7 +153,7 @@ This is the expected structure of `clip-fashion-cas`:
     └── visual.onnx
 ```
 
-In order to use fine-tuned model, create a custom YAML file `finetuned_clip.yml` like below. Learn more about [Flow YAML configuration](https://docs.jina.ai/fundamentals/flow/yaml-spec/) and [`clip_server` YAML configuration](https://clip-as-service.jina.ai/user-guides/server/#yaml-config).
+In order to use the fine-tuned model, create a custom YAML file `finetuned_clip.yml` like below. Learn more about [Flow YAML configuration](https://docs.jina.ai/fundamentals/flow/yaml-spec/) and [`clip_server` YAML configuration](https://clip-as-service.jina.ai/user-guides/server/#yaml-config).
 
 ```yaml
 jtype: Flow
