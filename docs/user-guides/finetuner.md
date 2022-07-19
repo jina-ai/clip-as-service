@@ -9,10 +9,10 @@ You can also [learn more details about fine-tuning CLIP](https://finetuner.jina.
 
 ## Prepare Training Data
 
-Finetuner accepts training data and evaluation data in the form of [`DocumentArray`](https://docarray.jina.ai/fundamentals/documentarray/).
+Finetuner accepts training data and evaluation data in the form of {class}`~docarray.DocumentArray`.
 The training data for CLIP is a list of (text, image) pairs.
-Each pair is stored in a [`Document`](https://docarray.jina.ai/fundamentals/document/) which wraps two [`chunks`](https://docarray.jina.ai/fundamentals/document/nested/) with `image` and `text` modality respectively.
-You can push the resulting [`DocumentArray`](https://docarray.jina.ai/fundamentals/documentarray/) to the cloud using the [`.push`](https://docarray.jina.ai/api/docarray.array.document/?highlight=push#docarray.array.document.DocumentArray.push) method.
+Each pair is stored in a {class}`~docarray.Document` which wraps two [`chunks`](https://docarray.jina.ai/fundamentals/document/nested/) with `image` and `text` modality respectively.
+You can push the resulting {class}`~docarray.DocumentArray` to the cloud using the {meth}`~docarray.array.document.DocumentArray.push` method.
 
 We use [fashion captioning dataset](https://github.com/xuewyang/Fashion_Captioning) as a sample dataset in this tutorial.
 The following are examples of descriptions and image urls from the dataset: 
@@ -24,7 +24,7 @@ The following are examples of descriptions and image urls from the dataset:
 | this shimmering tricot knit tote is traced with decorative whipstitching and diamond cut chain the two hallmark of the falabella line | [https://n.nordstrommedia.com/id/sr3/<br/>1d8dd635-6342-444d-a1d3-4f91a9cf222b.jpeg](https://n.nordstrommedia.com/id/sr3/1d8dd635-6342-444d-a1d3-4f91a9cf222b.jpeg) |
 | ...                                                                                                                                   | ...                                                                                                                                                                 |
 
-You can use the following script to transform the first three entries of the dataset to a [`DocumentArray`](https://docarray.jina.ai/fundamentals/documentarray/) and push it to the cloud using the name `fashion-sample`.
+You can use the following script to transform the first three entries of the dataset to a {class}`~docarray.DocumentArray` and push it to the cloud using the name `fashion-sample`.
 
 ```python
 from docarray import Document, DocumentArray
@@ -94,7 +94,7 @@ run = finetuner.fit(
 )
 ```
 
-After the job started, you may use [`.status`](https://finetuner.jina.ai/api/finetuner.run/#finetuner.run.Run.status) to check the status of the job.
+After the job started, you may use {meth}`~finetuner.run.Run.status` to check the status of the job.
 
 ```python
 import finetuner

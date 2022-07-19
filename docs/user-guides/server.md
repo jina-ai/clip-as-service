@@ -266,7 +266,7 @@ There are also runtime-specific parameters listed below:
 | Parameter | Description                                                                                                                    |
 |-----------|--------------------------------------------------------------------------------------------------------------------------------|
 | `device`  | `cuda` or `cpu`. Default is `None` means auto-detect.
-| `model_path`            | The path to custom CLIP model, default None.                                                                                   |
+| `model_path`            | The path to custom CLIP model, default `None`.                                                                                   |
 
 ````
 
