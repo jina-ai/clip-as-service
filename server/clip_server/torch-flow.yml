@@ -8,5 +8,5 @@ executors:
       jtype: CLIPEncoder
       metas:
         py_modules:
-          - executors/clip_oc.py
+          - executors/clip_torch.py
     replicas: 1

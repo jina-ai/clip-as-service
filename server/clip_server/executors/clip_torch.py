@@ -7,18 +7,17 @@ import numpy as np
 import torch
 from clip_server.executors.helper import (
     split_img_txt_da,
-    preproc_image,
-    preproc_text,
     set_rank,
 )
-from clip_server.model import clip
+from clip_server.model.clip_model import CLIPModel
+from clip_server.model.clip_preprocessor import CLIPPreprocessor
 from jina import Executor, requests, DocumentArray
 
 
 class CLIPEncoder(Executor):
     def __init__(
         self,
-        name: str = 'ViT-B/32',
+        name: str = 'M-CLIP/XLM-Roberta-Large-Vit-B-32',
         device: Optional[str] = None,
         jit: bool = False,
         num_worker_preprocess: int = 4,
@@ -54,10 +53,8 @@ class CLIPEncoder(Executor):
             torch.set_num_threads(max(num_threads, 1))
             torch.set_num_interop_threads(1)
 
-        self._model, self._preprocess_tensor = clip.load(
-            name, device=self._device, jit=jit
-        )
-
+        self._model = CLIPModel(name, self._device, jit)
+        self._preprocessor = CLIPPreprocessor(self._model)
         self._pool = ThreadPool(processes=num_worker_preprocess)
 
     def _preproc_images(self, docs: 'DocumentArray'):
@@ -65,19 +62,14 @@ class CLIPEncoder(Executor):
             name='preprocess_images_seconds',
             documentation='images preprocess time in seconds',
         ):
-            return preproc_image(
-                docs,
-                preprocess_fn=self._preprocess_tensor,
-                device=self._device,
-                return_np=False,
-            )
+            return self._preprocessor.preproc_image(docs, return_np=False)
 
     def _preproc_texts(self, docs: 'DocumentArray'):
         with self.monitor(
             name='preprocess_texts_seconds',
             documentation='texts preprocess time in seconds',
         ):
-            return preproc_text(docs, device=self._device, return_np=False)
+            return self._preprocessor.preproc_text(docs, return_np=False)
 
     @requests(on='/rank')
     async def rank(self, docs: 'DocumentArray', parameters: Dict, **kwargs):
@@ -108,7 +100,7 @@ class CLIPEncoder(Executor):
                         documentation='images encode time in seconds',
                     ):
                         minibatch.embeddings = (
-                            self._model.encode_image(batch_data['pixel_values'])
+                            self._model.encode_image(**batch_data)
                             .cpu()
                             .numpy()
                             .astype(np.float32)
@@ -126,7 +118,7 @@ class CLIPEncoder(Executor):
                         documentation='texts encode time in seconds',
                     ):
                         minibatch.embeddings = (
-                            self._model.encode_text(batch_data['input_ids'])
+                            self._model.encode_text(**batch_data)
                             .cpu()
                             .numpy()
                             .astype(np.float32)

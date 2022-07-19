@@ -1,16 +1,18 @@
-from .pretrained_models import _OPENCLIP_MODELS, _MULTILINGUALCLIP_MODELS
+from clip_server.model.pretrained_models import (
+    _OPENCLIP_MODELS,
+    _MULTILINGUALCLIP_MODELS,
+)
 
 
 class CLIPModel:
-    def __new__(cls, name, device, jit):
-        """Create a CLIP model instance."""
+    def __new__(cls, name: str, device: str, jit: bool):
         if cls is CLIPModel:
             if name in _OPENCLIP_MODELS:
-                from .openclip_model import OpenCLIPModel
+                from clip_server.model.openclip_model import OpenCLIPModel
 
                 instance = super().__new__(OpenCLIPModel)
             elif name in _MULTILINGUALCLIP_MODELS:
-                from .mclip_model import MultilingualCLIPModel
+                from clip_server.model.mclip_model import MultilingualCLIPModel
 
                 instance = super().__new__(MultilingualCLIPModel)
             else:
@@ -19,13 +21,7 @@ class CLIPModel:
             instance = super().__new__(cls)
         return instance
 
-    def __init__(self, name, device, jit):
+    def __init__(self, name: str, device: str, jit: bool):
         self._model_name = name
         self._device = device
         self._jit = jit
-
-    def encode_text(self, input_ids, attention_mask, **kwargs):
-        return self._model.encode_text(input_ids, **kwargs)
-
-    def encode_image(self, pixel_values, **kwargs):
-        return self._model.encode_image(pixel_values, **kwargs)

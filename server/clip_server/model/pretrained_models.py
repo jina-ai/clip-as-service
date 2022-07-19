@@ -34,7 +34,10 @@ _OPENCLIP_MODELS = {
 }
 
 _MULTILINGUALCLIP_MODELS = {
-    'XLM-Roberta-Large-Vit-B-32::M-CLIP': (),
+    'M-CLIP/XLM-Roberta-Large-Vit-B-32': (),
+    'M-CLIP/XLM-Roberta-Large-Vit-L-14': (),
+    'M-CLIP/XLM-Roberta-Large-Vit-B-16Plus': (),
+    'M-CLIP/LABSE-Vit-L-14': (),
 }
 
 
