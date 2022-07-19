@@ -7,8 +7,6 @@ from docarray import DocumentArray
 
 from clip_server.model.clip_preprocessor import CLIPPreprocessor
 
-docarray.D
-
 
 class OpenCLIPPreprocessor(CLIPPreprocessor):
     def __init__(self, model):
