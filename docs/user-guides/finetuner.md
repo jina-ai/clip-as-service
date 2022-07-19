@@ -140,7 +140,7 @@ Since the tuned model generated from Finetuner contains richer information such 
 
 * First create a new folder named `clip-fashion-cas` or anything you like. This will be the storage of the models to use in CLIP-as-service.
 
-* Second copy and move `clip-fashion/models/clip-text/model.onnx` to `clip-fashion-cas` and rename it to `textual.onnx`.
+* Secondly, copy the model `clip-fashion/models/clip-text/model.onnx` into the folder `clip-fashion-cas` and rename the model to `textual.onnx`.
 
 * Similarly, copy and move `clip-fashion/models/clip-vision/model.onnx` to `clip-fashion-cas` and rename it to `visual.onnx`.
 
