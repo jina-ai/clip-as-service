@@ -16,7 +16,7 @@ You can push the resulting [`DocumentArray`](https://docarray.jina.ai/fundamenta
 We use [fashion captioning dataset](https://github.com/xuewyang/Fashion_Captioning) as a sample dataset in this tutorial.
 You can get the description and image url from the dataset: 
 
-| Description                                                                                                                           | Image URL                                                                                                                                           |
+| <div style="width:300px">Discription</div>                                                                                            | Image URL                                                                                                                                           |
 |---------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------|
 | subtly futuristic and edgy this liquid metal cuff bracelet is shaped from sculptural rectangular link                                 | https://n.nordstrommedia.com/id/sr3/58d1a13f-b6b6-4e68-b2ff-3a3af47c422e.jpeg?crop=pad&pad_color=FFF&format=jpeg&w=60&h=90                          |
 | high quality leather construction defines a hearty boot one-piece on a tough lug sole                                                 | https://n.nordstrommedia.com/id/sr3/21e7a67c-0a54-4d09-a4a4-6a0e0840540b.jpeg?crop=pad&pad_color=FFF&format=jpeg&trim=color&trimcolor=FFF&w=60&h=90 |
