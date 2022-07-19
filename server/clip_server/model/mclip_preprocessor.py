@@ -1,9 +1,10 @@
-import numpy
+import numpy as np
 import open_clip
 import transformers
 import torch
 from PIL import Image
 from typing import List, Tuple, Dict
+from docarray import DocumentArray
 
 from clip_server.model.clip_preprocessor import CLIPPreprocessor
 
@@ -19,7 +20,7 @@ class MultilingualCLIPPreprocessor(CLIPPreprocessor):
     def tokenize(self, texts: List[str], **kwargs):
         return self._tokenizer(texts, **kwargs)
 
-    def transform(self, images: numpy.ndarray, **kwargs):
+    def transform(self, images: np.ndarray, **kwargs):
         return self._vision_preprocessor(Image.fromarray(images), **kwargs)
 
     def preproc_image(
