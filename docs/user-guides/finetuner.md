@@ -32,12 +32,13 @@ train_da = DocumentArray(
         ),
     ]
 )
-train_da.push('clip-fashion-train-data')
+train_da.push('name-of-train-data')
 ```
 
 ## Start Finetuner
 
 You may now create and run a fine-tuning job after login to Jina ecosystem.
+For simplicity, we directly use `clip-fashion-train-data` and `clip-fashion-eval-data` provided by Finetuner.
 
 ```python
 import finetuner
