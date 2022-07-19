@@ -371,7 +371,7 @@ python -m clip_server tensorrt-flow.yml
 </section>
 <section id="model-support">
 <h2>Model support<a class="headerlink" href="#model-support" title="Permalink to this headline">#</a></h2>
-<p>Open AI has released 9 models so far. <code class="docutils literal notranslate"><span class="pre">ViT-B/32</span></code> is used as default model in all runtimes. Due to the limitation of some runtime, not every runtime supports all nine models. Please also note that different model give different size of output dimensions. This will affect your downstream applications. For example, switching the model from one to another make your embedding incomparable, which breaks the downstream applications. Below is a list of supported models of each runtime and its corresponding size. We include the disk usage (in delta) and the peak RAM and VRAM usage (in delta) when running on a single Nvidia TITAN RTX GPU (24GB VRAM) using a default <code class="docutils literal notranslate"><span class="pre">minibatch_size=32</span></code> in server with PyTorch runtime and a default <code class="docutils literal notranslate"><span class="pre">batch_size=8</span></code> in client.</p>
+<p>Open AI has released 9 models so far. <code class="docutils literal notranslate"><span class="pre">ViT-B/32</span></code> is used as default model in all runtimes. Due to the limitation of some runtime, not every runtime supports all nine models. Please also note that different model give different size of output dimensions. This will affect your downstream applications. For example, switching the model from one to another make your embedding incomparable, which breaks the downstream applications. Below is a list of supported models of each runtime and its corresponding size. We include the disk usage (in delta) and the peak RAM and VRAM usage (in delta) when running on a single Nvidia TITAN RTX GPU (24GB VRAM) for a series of text and image encoding tasks with <code class="docutils literal notranslate"><span class="pre">batch_size=8</span></code> using PyTorch runtime.</p>
 <table border="1" class="docutils">
 <thead>
 <tr>
@@ -467,7 +467,7 @@ python -m clip_server tensorrt-flow.yml
 <td>2.04</td>
 </tr>
 <tr>
-<td>ViT-L/14-336px</td>
+<td>ViT-L/14@336px</td>
 <td>✅</td>
 <td>✅</td>
 <td>❌</td>
@@ -1072,7 +1072,7 @@ docker build . -f Dockerfiles/server.Dockerfile  --build-arg <span class="nv">GR
                         <div class="copyright">
                             Copyright &#169; Jina AI Limited. All rights reserved.
                         </div><div class="last-updated">
-                            Last updated on Jul 14, 2022</div>
+                            Last updated on Jul 19, 2022</div>
                     </div>
                     <div class="right-details">
                         <div class="social-btns">
