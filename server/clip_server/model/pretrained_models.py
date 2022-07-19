@@ -33,6 +33,10 @@ _OPENCLIP_MODELS = {
     'ViT-L-14::openai': ('ViT-L-14.pt', '096db1af569b284eb76b3881534822d9'),
 }
 
+_MULTILINGUALCLIP_MODELS = {
+    'XLM-Roberta-Large-Vit-B-32::M-CLIP': (),
+}
+
 
 def md5file(filename: str):
     hash_md5 = hashlib.md5()

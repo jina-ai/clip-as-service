@@ -1,15 +1,12 @@
-import torch
-from torch import nn
-from typing import List
-from clip_server.model.clip_model import CLIPModel
-from clip_server.model.pretrained_models import _OPENCLIP_MODELS
+import open_clip
+
+from .clip_model import CLIPModel
 
 
-def available_models() -> List[str]:
-    '''Returns the names of available CLIP models'''
-    return list(_OPENCLIP_MODELS.keys())
-
-
-class OpenClipModel(CLIPModel, nn.Module):
-    def __init__(self, name: str = 'ViT-B-32::opeanai', **kwargs):
-        print(f'===> Open Clip Model: name={name}')
+class OpenCLIPModel(CLIPModel):
+    def __init__(self, name, device, jit):
+        super().__init__(name, device, jit)
+        name, pretrained = name.split('::')
+        self._model = open_clip.create_model(
+            name, pretrained=pretrained, device=device, jit=jit
+        )
