@@ -1,6 +1,4 @@
-# TODO: Remove this once the compat issue¹ is resolved.
-#
-# ¹ https://github.com/ryanfox/sphinx-markdown-tables/issues/36
+# cf. https://github.com/ryanfox/sphinx-markdown-tables/issues/36
 markdown<3.4.0
 sphinx
 sphinx-argparse==0.3.1
