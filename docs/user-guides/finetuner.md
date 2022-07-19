@@ -16,12 +16,12 @@ You can push the resulting [`DocumentArray`](https://docarray.jina.ai/fundamenta
 We use [fashion captioning dataset](https://github.com/xuewyang/Fashion_Captioning) as a sample dataset in this tutorial.
 You can get the description and image url from the dataset: 
 
-| <div style="width:300px">Discription</div>                                                                                            | Image URL                                                                                                                                           |
-|---------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------|
-| subtly futuristic and edgy this liquid metal cuff bracelet is shaped from sculptural rectangular link                                 | https://n.nordstrommedia.com/id/sr3/58d1a13f-b6b6-4e68-b2ff-3a3af47c422e.jpeg?crop=pad&pad_color=FFF&format=jpeg&w=60&h=90                          |
-| high quality leather construction defines a hearty boot one-piece on a tough lug sole                                                 | https://n.nordstrommedia.com/id/sr3/21e7a67c-0a54-4d09-a4a4-6a0e0840540b.jpeg?crop=pad&pad_color=FFF&format=jpeg&trim=color&trimcolor=FFF&w=60&h=90 |
-| this shimmering tricot knit tote is traced with decorative whipstitching and diamond cut chain the two hallmark of the falabella line | https://n.nordstrommedia.com/id/sr3/1d8dd635-6342-444d-a1d3-4f91a9cf222b.jpeg?crop=pad&pad_color=FFF&format=jpeg&trim=color&trimcolor=FFF&w=60&h=90 |
-| ...                                                                                                                                   | ...                                                                                                                                                 |
+| Description                                                                                                                           | Image URL                                                                                                                                                           |
+|---------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| subtly futuristic and edgy this liquid metal cuff bracelet is shaped from sculptural rectangular link                                 | [https://n.nordstrommedia.com/id/sr3/<br/>58d1a13f-b6b6-4e68-b2ff-3a3af47c422e.jpeg](https://n.nordstrommedia.com/id/sr3/58d1a13f-b6b6-4e68-b2ff-3a3af47c422e.jpeg) |
+| high quality leather construction defines a hearty boot one-piece on a tough lug sole                                                 | [https://n.nordstrommedia.com/id/sr3/<br/>21e7a67c-0a54-4d09-a4a4-6a0e0840540b.jpeg](https://n.nordstrommedia.com/id/sr3/21e7a67c-0a54-4d09-a4a4-6a0e0840540b.jpeg) |
+| this shimmering tricot knit tote is traced with decorative whipstitching and diamond cut chain the two hallmark of the falabella line | [https://n.nordstrommedia.com/id/sr3/<br/>1d8dd635-6342-444d-a1d3-4f91a9cf222b.jpeg](https://n.nordstrommedia.com/id/sr3/1d8dd635-6342-444d-a1d3-4f91a9cf222b.jpeg) |
+| ...                                                                                                                                   | ...                                                                                                                                                                 |
 
 You can use the following script to transform the first three entries of the dataset to a [`DocumentArray`](https://docarray.jina.ai/fundamentals/documentarray/) and push it to the cloud using the name `fashion-sample`.
 
@@ -37,7 +37,7 @@ train_da = DocumentArray(
                     modality='text',
                 ),
                 Document(
-                    uri='https://n.nordstrommedia.com/id/sr3/58d1a13f-b6b6-4e68-b2ff-3a3af47c422e.jpeg?crop=pad&pad_color=FFF&format=jpeg&w=60&h=90',
+                    uri='https://n.nordstrommedia.com/id/sr3/58d1a13f-b6b6-4e68-b2ff-3a3af47c422e.jpeg',
                     modality='image',
                 ),
             ],
@@ -49,7 +49,7 @@ train_da = DocumentArray(
                     modality='text',
                 ),
                 Document(
-                    uri='https://n.nordstrommedia.com/id/sr3/21e7a67c-0a54-4d09-a4a4-6a0e0840540b.jpeg?crop=pad&pad_color=FFF&format=jpeg&trim=color&trimcolor=FFF&w=60&h=90',
+                    uri='https://n.nordstrommedia.com/id/sr3/21e7a67c-0a54-4d09-a4a4-6a0e0840540b.jpeg',
                     modality='image',
                 ),
             ],
@@ -61,7 +61,7 @@ train_da = DocumentArray(
                     modality='text',
                 ),
                 Document(
-                    uri='https://n.nordstrommedia.com/id/sr3/1d8dd635-6342-444d-a1d3-4f91a9cf222b.jpeg?crop=pad&pad_color=FFF&format=jpeg&trim=color&trimcolor=FFF&w=60&h=90',
+                    uri='https://n.nordstrommedia.com/id/sr3/1d8dd635-6342-444d-a1d3-4f91a9cf222b.jpeg',
                     modality='image',
                 ),
             ],
