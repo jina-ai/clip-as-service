@@ -15,6 +15,66 @@ def numpy_softmax(x: 'np.ndarray', axis: int = -1) -> 'np.ndarray':
     return f_x
 
 
+def preproc_image(
+    da: 'DocumentArray',
+    preprocess_fn: Callable,
+    device: str = 'cpu',
+    return_np: bool = False,
+) -> Tuple['DocumentArray', Dict]:
+
+    tensors_batch = []
+
+    for d in da:
+        content = d.content
+
+        if d.blob:
+            d.convert_blob_to_image_tensor()
+        elif d.tensor is None and d.uri:
+            # in case user uses HTTP protocol and send data via curl not using .blob (base64), but in .uri
+            d.load_uri_to_image_tensor()
+
+        tensors_batch.append(preprocess_fn(d.tensor).detach())
+
+        # recover doc content
+        d.content = content
+
+    tensors_batch = torch.stack(tensors_batch).type(torch.float32)
+
+    if return_np:
+        tensors_batch = tensors_batch.cpu().numpy()
+    else:
+        tensors_batch = tensors_batch.to(device)
+
+    return da, {'pixel_values': tensors_batch}
+
+
+def preproc_text(
+    da: 'DocumentArray', tokenizer, device: str = 'cpu', return_np: bool = False
+) -> Tuple['DocumentArray', Dict]:
+
+    inputs = tokenizer(da.texts)
+    if isinstance(inputs, torch.Tensor):
+        inputs = {'input_ids': inputs, 'attention_mask': inputs}
+    if isinstance(inputs['input_ids'], List):
+        inputs = {
+            'input_ids': torch.tensor(inputs['input_ids']),
+            'attention_mask': torch.tensor(inputs['attention_mask']),
+        }
+    inputs['input_ids'] = inputs['input_ids'].detach()
+
+    if return_np:
+        inputs['input_ids'] = inputs['input_ids'].cpu().numpy().astype(np.int32)
+        inputs['attention_mask'] = (
+            inputs['attention_mask'].cpu().numpy().astype(np.int32)
+        )
+    else:
+        inputs['input_ids'] = inputs['input_ids'].to(device)
+        inputs['attention_mask'] = inputs['attention_mask'].to(device)
+
+    da[:, 'mime_type'] = 'text'
+    return da, inputs
+
+
 def split_img_txt_da(doc: 'Document', img_da: 'DocumentArray', txt_da: 'DocumentArray'):
     if doc.uri:
         img_da.append(doc)
