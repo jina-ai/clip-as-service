@@ -4,8 +4,6 @@ import numpy as np
 from docarray import Document, DocumentArray
 from docarray.math.distance.numpy import cosine
 
-from clip_server.model import clip
-
 
 def numpy_softmax(x: 'np.ndarray', axis: int = -1) -> 'np.ndarray':
     max = np.max(x, axis=axis, keepdims=True)
@@ -20,6 +18,7 @@ def preproc_image(
     preprocess_fn: Callable,
     device: str = 'cpu',
     return_np: bool = False,
+    **kwargs
 ) -> Tuple['DocumentArray', Dict]:
 
     tensors_batch = []
@@ -33,7 +32,7 @@ def preproc_image(
             # in case user uses HTTP protocol and send data via curl not using .blob (base64), but in .uri
             d.load_uri_to_image_tensor()
 
-        tensors_batch.append(preprocess_fn(d.tensor).detach())
+        tensors_batch.append(preprocess_fn(d.tensor, **kwargs).detach())
 
         # recover doc content
         d.content = content
@@ -49,17 +48,14 @@ def preproc_image(
 
 
 def preproc_text(
-    da: 'DocumentArray', tokenizer, device: str = 'cpu', return_np: bool = False
+    da: 'DocumentArray',
+    tokenizer: Callable,
+    device: str = 'cpu',
+    return_np: bool = False,
+    **kwargs
 ) -> Tuple['DocumentArray', Dict]:
 
-    inputs = tokenizer(da.texts)
-    if isinstance(inputs, torch.Tensor):
-        inputs = {'input_ids': inputs, 'attention_mask': inputs}
-    if isinstance(inputs['input_ids'], List):
-        inputs = {
-            'input_ids': torch.tensor(inputs['input_ids']),
-            'attention_mask': torch.tensor(inputs['attention_mask']),
-        }
+    inputs = tokenizer(da.texts, **kwargs)
     inputs['input_ids'] = inputs['input_ids'].detach()
 
     if return_np:
