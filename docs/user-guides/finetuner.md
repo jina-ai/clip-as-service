@@ -47,7 +47,7 @@ run = finetuner.fit(
     model='openai/clip-vit-base-patch32',
     run_name='clip-fashion',
     train_data='clip-fashion-train-data',
-    eval_data='clip-fashion-eval-data',
+    eval_data='clip-fashion-eval-data',  # optional
     epochs=5,
     learning_rate=1e-5,
     loss='CLIPLoss',
@@ -99,7 +99,7 @@ After unzipping the model you get from the previous step, a folder with the foll
 
 Since the tuned model generated from Finetuner contains richer information such as metadata and config, we now transform it to simpler structure used by CLIP-as-service.
 
-First create another folder named `clip-fashion-cas` or anything you like, this will be the storage of the models to use in CLIP-as-service.
+First create a new folder named `clip-fashion-cas` or anything you like. This will be the storage of the models to use in CLIP-as-service.
 
 Second copy and move `clip-fashion/models/clip-text/model.onnx` to `clip-fashion-cas` and rename it to `textual.onnx`.
 
@@ -114,7 +114,7 @@ This is the expected structure of `clip-fashion-cas`:
     └── visual.onnx
 ```
 
-In order to use finetuned model, create a custom YAML file `finetuned_clip.yml`. Learn more about [Flow YAML configuration](https://docs.jina.ai/fundamentals/flow/yaml-spec/) and [`clip_server` YAML configuration](https://clip-as-service.jina.ai/user-guides/server/#yaml-config).
+In order to use finetuned model, create a custom YAML file `finetuned_clip.yml` like below. Learn more about [Flow YAML configuration](https://docs.jina.ai/fundamentals/flow/yaml-spec/) and [`clip_server` YAML configuration](https://clip-as-service.jina.ai/user-guides/server/#yaml-config).
 
 ```yaml
 jtype: Flow
