@@ -17,7 +17,7 @@ from jina import Executor, requests, DocumentArray
 class CLIPEncoder(Executor):
     def __init__(
         self,
-        name: str = 'M-CLIP/XLM-Roberta-Large-Vit-B-32',
+        name: str = 'ViT-B-32-quickgelu::openai',
         device: Optional[str] = None,
         jit: bool = False,
         num_worker_preprocess: int = 4,
