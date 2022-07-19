@@ -10,7 +10,7 @@ You can also [learn more details about fine-tuning CLIP](https://finetuner.jina.
 
 Finetuner accepts training data and evaluation data in the form of [`DocumentArray`](https://docarray.jina.ai/fundamentals/documentarray/).
 The training data for CLIP is a list of (text, image) pairs.
-Each pair is store in a [`Document`](https://docarray.jina.ai/fundamentals/document/) which wraps two [`chunks`](https://docarray.jina.ai/fundamentals/document/nested/) with the `image` and `text` modality.
+Each pair is stored in a [`Document`](https://docarray.jina.ai/fundamentals/document/) which wraps two [`chunks`](https://docarray.jina.ai/fundamentals/document/nested/) with `image` and `text` modality respectively.
 You can push the resulting [`DocumentArray`](https://docarray.jina.ai/fundamentals/documentarray/) to the cloud using the [`.push`](https://docarray.jina.ai/api/docarray.array.document/?highlight=push#docarray.array.document.DocumentArray.push) method.
 
 We use [fashion captioning dataset](https://github.com/xuewyang/Fashion_Captioning) as a sample dataset in this tutorial.
