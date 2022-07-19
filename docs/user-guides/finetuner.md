@@ -1,16 +1,16 @@
-# Fine-tuning CLIP Models Using Finetuner
+# Fine-tune Models
 
-Although CLIP-as-service has provided you a list of pre-trained models, you can also train your own models. 
+Although CLIP-as-service has provided you a list of pre-trained models, you can also train your models. 
 This guide will show you how to use [Finetuner](https://finetuner.jina.ai) to fine-tune models and use them in CLIP-as-service.
 
 For installation and basic usage of Finetuner, please refer to [Finetuner website](https://finetuner.jina.ai).
 
 ## Prepare Training Data
 
-Finetuner accepts training data and evaluation data in the form of `DocumentArray`.
+Finetuner accepts training data and evaluation data in the form of [`DocumentArray`](https://docarray.jina.ai/fundamentals/documentarray/).
 The training data for CLIP is a list of (text, image) pairs.
-Each pair is store in a `Document` which wraps two `chunk`s with the `image` and `text` modality.
-You can push the resulting `DocumentArray` to the cloud using the `.push` method.
+Each pair is store in a [`Document`](https://docarray.jina.ai/fundamentals/document/) which wraps two [`chunks`](https://docarray.jina.ai/fundamentals/document/nested/) with the `image` and `text` modality.
+You can push the resulting [`DocumentArray`](https://docarray.jina.ai/fundamentals/documentarray/) to the cloud using the [`.push`](https://docarray.jina.ai/api/docarray.array.document/?highlight=push#docarray.array.document.DocumentArray.push) method.
 A sample to construct and push the training data is shown below.
 
 ```python
@@ -35,7 +35,7 @@ train_da = DocumentArray(
 train_da.push('clip-fashion-train-data')
 ```
 
-## Run Job
+## Start Finetuner
 
 You may now create and run a fine-tuning job after login to Jina ecosystem.
 
@@ -43,7 +43,6 @@ You may now create and run a fine-tuning job after login to Jina ecosystem.
 import finetuner
 
 finetuner.login()
-
 run = finetuner.fit(
     model='openai/clip-vit-base-patch32',
     run_name='clip-fashion',
@@ -56,7 +55,7 @@ run = finetuner.fit(
 )
 ```
 
-After the job started, you may use `.status` to check the status of the job.
+After the job started, you may use [`.status`](https://finetuner.jina.ai/api/finetuner.run/#finetuner.run.Run.status) to check the status of the job.
 
 ```python
 import finetuner
@@ -102,11 +101,11 @@ Since the tuned model generated from Finetuner contains richer information such 
 
 First create another folder named `clip-fashion-cas` or anything you like, this will be the storage of the models to use in CLIP-as-service.
 
-Then copy and move `clip-fashion/models/clip-text/model.onnx` to `clip-fashion-cas` and rename it to `textual.onnx`.
+Second copy and move `clip-fashion/models/clip-text/model.onnx` to `clip-fashion-cas` and rename it to `textual.onnx`.
 
 Similarly, copy and move `clip-fashion/models/clip-vision/model.onnx` to `clip-fashion-cas` and rename it to `visual.onnx`.
 
-Now that you should have your clip-fashion-cas structured like this:
+This is the expected structure of `clip-fashion-cas`:
 
 ```text
 .
@@ -115,7 +114,7 @@ Now that you should have your clip-fashion-cas structured like this:
     └── visual.onnx
 ```
 
-In order to use finetuned model, create a custom yaml file `finetuned_clip.yml`. For more information on flow and `clip_server` customization, please refer to [https://docs.jina.ai/fundamentals/flow/yaml-spec/](https://docs.jina.ai/fundamentals/flow/yaml-spec/) and [https://clip-as-service.jina.ai/user-guides/server/#yaml-config](https://clip-as-service.jina.ai/user-guides/server/#yaml-config)
+In order to use finetuned model, create a custom YAML file `finetuned_clip.yml`. Learn more about [Flow YAML configuration](https://docs.jina.ai/fundamentals/flow/yaml-spec/) and [`clip_server` YAML configuration](https://clip-as-service.jina.ai/user-guides/server/#yaml-config).
 
 ```yaml
 jtype: Flow
@@ -141,4 +140,4 @@ You can now start the `clip_server` using fine-tuned model to get a performance 
 python -m clip_server finetuned_clip.yml
 ```
 
-That's it! 
+That's it, enjoy!
