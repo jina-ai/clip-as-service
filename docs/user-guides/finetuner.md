@@ -1,6 +1,6 @@
 # Fine-tune Models
 
-Although CLIP-as-service has provided you a list of pre-trained models, you can also train your models. 
+Although CLIP-as-service has provided you a list of pre-trained models, you can also fine-tune your models. 
 This guide will show you how to use [Finetuner](https://finetuner.jina.ai) to fine-tune models and use them in CLIP-as-service.
 
 For installation and basic usage of Finetuner, please refer to [Finetuner documentation](https://finetuner.jina.ai).
@@ -14,7 +14,7 @@ Each pair is stored in a [`Document`](https://docarray.jina.ai/fundamentals/docu
 You can push the resulting [`DocumentArray`](https://docarray.jina.ai/fundamentals/documentarray/) to the cloud using the [`.push`](https://docarray.jina.ai/api/docarray.array.document/?highlight=push#docarray.array.document.DocumentArray.push) method.
 
 We use [fashion captioning dataset](https://github.com/xuewyang/Fashion_Captioning) as a sample dataset in this tutorial.
-You can get the description and image url from the dataset: 
+The following are examples of descriptions and image urls from the dataset: 
 
 | Description                                                                                                                           | Image URL                                                                                                                                                           |
 |---------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -71,8 +71,7 @@ train_da = DocumentArray(
 train_da.push('fashion-sample')
 ```
 
-The full dataset has been converted to `clip-fashion-train-data` and `clip-fashion-eval-data` and pushed to the cloud.
-You can directly use them in Finetuner.
+The full dataset has been converted to `clip-fashion-train-data` and `clip-fashion-eval-data` and pushed to the cloud which can be directly used in Finetuner.
 
 ## Start Finetuner
 
@@ -138,11 +137,11 @@ After unzipping the model you get from the previous step, a folder with the foll
 
 Since the tuned model generated from Finetuner contains richer information such as metadata and config, we now transform it to simpler structure used by CLIP-as-service.
 
-* First create a new folder named `clip-fashion-cas` or anything you like. This will be the storage of the models to use in CLIP-as-service.
+* Firstly, create a new folder named `clip-fashion-cas` or name of your choice. This will be the storage of the models to use in CLIP-as-service.
 
-* Secondly, copy the model `clip-fashion/models/clip-text/model.onnx` into the folder `clip-fashion-cas` and rename the model to `textual.onnx`.
+* Secondly, copy the textual model `clip-fashion/models/clip-text/model.onnx` into the folder `clip-fashion-cas` and rename the model to `textual.onnx`.
 
-* Similarly, copy and move `clip-fashion/models/clip-vision/model.onnx` to `clip-fashion-cas` and rename it to `visual.onnx`.
+* Similarly, copy the visual model `clip-fashion/models/clip-vision/model.onnx` into the folder `clip-fashion-cas` and rename the model to `visual.onnx`.
 
 This is the expected structure of `clip-fashion-cas`:
 
