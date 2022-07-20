@@ -31,5 +31,4 @@ class CLIPModel:
 
     @property
     def image_size(self):
-        print(f'===> model_name: {self.model_name}')
         return _VISUAL_MODEL_IMAGE_SIZE.get(self.model_name, None)

@@ -19,17 +19,18 @@ if TYPE_CHECKING:
 class OpenCLIPModel(CLIPModel):
     def __init__(self, name: str, device: str = 'cpu', jit: bool = False, **kwargs):
         super().__init__(name, **kwargs)
-        model_name, pretrained = name.split('::')
+
         model_url, md5sum = get_model_url_md5(name)
         if model_url:
             model_path = download_model(model_url, md5sum=md5sum)
             self._model = load_openai_model(model_path, device=device, jit=jit)
+            self._model_name = name
         else:
             model_name, pretrained = name.split('::')
             self._model = open_clip.create_model(
                 model_name, pretrained=pretrained, device=device, jit=jit
             )
-        self._model_name = model_name
+            self._model_name = model_name
 
     @property
     def model_name(self):
