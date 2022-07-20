@@ -66,6 +66,21 @@ _MULTILINGUALCLIP_MODELS = {
     'M-CLIP/LABSE-Vit-L-14': (),
 }
 
+_VISUAL_MODEL_IMAGE_SIZE = {
+    'RN50': 224,
+    'RN101': 224,
+    'RN50x4': 288,
+    'RN50x16': 384,
+    'RN50x64': 448,
+    'ViT-B-32': 224,
+    'ViT-B-16': 224,
+    'ViT-B-16-plus-240': 240,
+    'ViT-B-16-plus-240': 240,
+    'ViT-L-14': 224,
+    'ViT-L-14-336': 336,
+    'Vit-B-16Plus': 240,
+}
+
 
 def md5file(filename: str):
     hash_md5 = hashlib.md5()

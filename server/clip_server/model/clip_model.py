@@ -5,7 +5,7 @@ from clip_server.model.pretrained_models import (
 
 
 class CLIPModel:
-    def __new__(cls, name: str, device: str, jit: bool):
+    def __new__(cls, name: str, **kwargs):
         if cls is CLIPModel:
             if name in _OPENCLIP_MODELS:
                 from clip_server.model.openclip_model import OpenCLIPModel
@@ -20,8 +20,3 @@ class CLIPModel:
         else:
             instance = super().__new__(cls)
         return instance
-
-    def __init__(self, name: str, device: str, jit: bool):
-        self._model_name = name
-        self._device = device
-        self._jit = jit

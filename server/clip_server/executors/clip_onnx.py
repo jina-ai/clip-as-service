@@ -12,6 +12,7 @@ from clip_server.executors.helper import (
 )
 from clip_server.model import clip
 from clip_server.model.clip_onnx import CLIPOnnxModel
+from clip_server.model.tokenization import Tokenizer
 from jina import Executor, requests, DocumentArray
 
 
@@ -31,10 +32,12 @@ class CLIPEncoder(Executor):
         self._minibatch_size = minibatch_size
         self._traversal_paths = traversal_paths
 
-        self._preprocess_tensor = clip._transform_ndarray(clip.MODEL_SIZE[name])
         self._pool = ThreadPool(processes=num_worker_preprocess)
 
         self._model = CLIPOnnxModel(name, model_path)
+        self._tokenizer = Tokenizer(name)
+
+        self._image_transform = clip._transform_ndarray(clip.MODEL_SIZE[name])
 
         import torch
 
@@ -84,7 +87,7 @@ class CLIPEncoder(Executor):
             documentation='images preprocess time in seconds',
         ):
             return preproc_image(
-                docs, preprocess_fn=self._preprocess_tensor, return_np=True
+                docs, preprocess_fn=self._image_transform, return_np=True
             )
 
     def _preproc_texts(self, docs: 'DocumentArray'):
@@ -92,7 +95,7 @@ class CLIPEncoder(Executor):
             name='preprocess_texts_seconds',
             documentation='texts preprocess time in seconds',
         ):
-            return preproc_text(docs, return_np=True)
+            return preproc_text(docs, tokenizer=self._tokenizer, return_np=True)
 
     @requests(on='/rank')
     async def rank(self, docs: 'DocumentArray', parameters: Dict, **kwargs):
