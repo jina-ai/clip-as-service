@@ -192,65 +192,6 @@ Use `.encode(..., show_progress=True)` to turn on the progress bar.
 Progress bar may not show up in the PyCharm debug terminal. This is an upstream issue of `rich` package.
 ```
 
-### Select model to use
-
-When you are running multiple models in the same Flow, you can override the default `requests` in `clip_server` and select which model to use in `clip_client` by setting `.encode(..., parameters={'model': 'model_name'})` or `.rank(..., parameters={'model': 'model_name'})`.
-
-
-Below is a sample YAML file to run `ViT-B/32`, `ViT-B/16` and `ViT-L/14@336px` models in the same Flow. 
-Note that `ViT-L/14@336px` is set to default if no model is specified.
-Learn more about [setting/overriding default `requests` configuration.](https://docs.jina.ai/fundamentals/flow/add-executors/#set-requests-via-uses-requests)
-
-```yaml
-jtype: Flow
-version: '1'
-with:
-  port: 51000
-  protocol: 'http'
-executors:
-  - name: ViT_B_32
-    replicas: 1
-    uses:
-      jtype: CLIPEncoder
-      with:
-        name: ViT-B/32
-      metas:
-        py_modules:
-          - clip_server.executors.clip_torch
-      requests: {'/encode/ViT-B/32': 'encode', '/': '_dry_run_func'}
-  - name: ViT_B_16
-    replicas: 1
-    uses:
-      jtype: CLIPEncoder
-      with:
-        name: ViT-B/16
-      metas:
-        py_modules:
-          - clip_server.executors.clip_torch
-      requests: { '/encode/ViT-B/16': 'encode', '/': '_dry_run_func' }
-  - name: ViT_L_14_336px
-    replicas: 1
-    uses:
-      jtype: CLIPEncoder
-      with:
-        name: ViT-L/14@336px
-      metas:
-        py_modules:
-          - clip_server.executors.clip_torch
-      requests: {'/encode': 'encode', '/encode/ViT-L/14@336px': 'encode'}
-```
-
-```{tip}
-`_dry_run_func` is a dummy function that does nothing so the first two models do not affect the result when no model is specified and the default one is used.
-```
-
-You can now specify to use `ViT-B/32` model like this:
-
-```python
-c = Client(...)
-c.encode(..., parameters={'model': 'ViT_B_32'})
-c.rank(..., parameters={'model': 'ViT_B_32'})
-```
 
 ### Performance tip on large number of Documents
 
