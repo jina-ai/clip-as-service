@@ -296,6 +296,33 @@ executors:
           - executors/clip_torch.py
 ```
 
+For example, to use custom model in ONNX runtime, one can do:
+
+```{code-block} yaml
+---
+emphasize-lines: 9-11
+---
+
+jtype: Flow
+version: '1'
+with:
+  port: 51000
+executors:
+  - name: clip_o
+    uses:
+      jtype: CLIPEncoder
+      with:
+        name: ViT-B/32
+        model_path: 'custom-model'
+      metas:
+        py_modules:
+          - executors/clip_torch.py
+```
+
+```{warning}
+The model name should match the fine-tuned model, or you will get incorrect output.
+```
+
 ### Executor config
 
 The full list of configs for Executor can be found via `jina executor --help`. The most important one is probably `replicas`, which **allows you to run multiple CLIP models in parallel** to achieve horizontal scaling.
