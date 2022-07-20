@@ -78,7 +78,7 @@ Open AI has released 9 models so far. `ViT-B/32` is used as default model in all
 ### Use custom model
 
 You can also use your own model in ONNX runtime by specifying the model name and the path to model directory in YAML file.
-The model directory should have the same format as below:
+The model directory should have the same structure as below:
 
 ```text
 .
@@ -88,7 +88,7 @@ The model directory should have the same format as below:
 ```
 
 One may wonder how to produce the model as described above. 
-Fortunately, you can simply use the [Finetuner](https://finetuner.jina.ai) to fine-tune your model based on customer dataset.
+Fortunately, you can simply use the [Finetuner](https://finetuner.jina.ai) to fine-tune your model based on custom dataset.
 [Finetuner](https://finetuner.jina.ai) is a cloud service that makes fine-tuning simple and fast. 
 Moving the process into the cloud, [Finetuner](https://finetuner.jina.ai) handles all related complexity and infrastructure, making models performant and production ready.
 {ref}`Click here for detail instructions<Finetuner>`.
