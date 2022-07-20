@@ -52,7 +52,7 @@ class MultilingualCLIP(transformers.PreTrainedModel):
 
 class MultilingualCLIPModel(CLIPModel):
     def __init__(self, name: str, device: str = 'cpu', jit: bool = False, **kwargs):
-        super().__init__(name, **kwargs)
+        super().__init__()
         self._name = name
         self._mclip_model = MultilingualCLIP.from_pretrained(name)
         clip_name, clip_pretrained = corresponding_clip_models[name]

@@ -16,19 +16,6 @@ from open_clip.factory import _MODEL_CONFIGS, load_state_dict
 from open_clip.pretrained import get_pretrained_url
 import torch
 
-_VISUAL_MODEL_IMAGE_SIZE = {
-    'RN50': 224,
-    'RN101': 224,
-    'RN50x4': 288,
-    'RN50x16': 384,
-    'RN50x64': 448,
-    'ViT-B-32': 224,
-    'ViT-B-16': 224,
-    'ViT-B-16-plus-240': 240,
-    'ViT-L-14': 224,
-    'ViT-L-14-336': 336,
-    'Vit-B-16Plus': 240,
-}
 
 _OPENCLIP_S3_BUCKET = 'https://clip-as-service.s3.us-east-2.amazonaws.com/models/torch'
 _OPENCLIP_MODELS = {

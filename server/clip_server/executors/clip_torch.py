@@ -10,7 +10,6 @@ from clip_server.executors.helper import (
     preproc_image,
     preproc_text,
     set_rank,
-    get_image_size,
 )
 from clip_server.model import clip
 from clip_server.model.clip_model import CLIPModel
@@ -61,8 +60,9 @@ class CLIPEncoder(Executor):
         self._model = CLIPModel(name, device=self._device, jit=jit, **kwargs)
         self._tokenizer = Tokenizer(name)
 
-        image_size = get_image_size(self._model.visual_model_name)
-        self._image_transform = clip._transform_ndarray(image_size)
+        self._image_transform = clip._transform_ndarray(
+            self._model._model.visual.image_size
+        )
 
     def _preproc_images(self, docs: 'DocumentArray'):
         with self.monitor(
