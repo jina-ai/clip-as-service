@@ -20,3 +20,10 @@ class CLIPModel:
         else:
             instance = super().__new__(cls)
         return instance
+
+    def __init__(self, name: str, **kwargs):
+        self._name = name
+
+    @property
+    def model_name(self):
+        return self._name

@@ -24,7 +24,7 @@ class OpenCLIPModel(CLIPModel):
         self._model_name = model_name
 
     @property
-    def visual_model_name(self):
+    def model_name(self):
         return self._model_name
 
     def encode_text(self, input_ids: 'torch.Tensor', **kwargs):

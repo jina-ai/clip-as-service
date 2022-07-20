@@ -61,7 +61,7 @@ class MultilingualCLIPModel(CLIPModel):
         )
 
     @property
-    def visual_model_name(self):
+    def model_name(self):
         return '-'.join(self._name.split('-')[-3:])
 
     def encode_text(
