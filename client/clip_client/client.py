@@ -192,7 +192,7 @@ class Client:
             total_docs=len(content) if hasattr(content, '__len__') else None,
         )
         if self._scheme == 'grpc' and self._authorization:
-            payload.update(metadata=('Authorization', self._authorization))
+            payload.update(metadata=('authorization', self._authorization))
         elif self._scheme == 'http' and self._authorization:
             payload.update(headers={'Authorization': self._authorization})
         return payload
@@ -373,7 +373,7 @@ class Client:
             total_docs=len(content) if hasattr(content, '__len__') else None,
         )
         if self._scheme == 'grpc' and self._authorization:
-            payload.update(metadata=('Authorization', self._authorization))
+            payload.update(metadata=('authorization', self._authorization))
         elif self._scheme == 'http' and self._authorization:
             payload.update(headers={'Authorization': self._authorization})
         return payload
