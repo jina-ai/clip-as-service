@@ -7,10 +7,14 @@ import numpy as np
 import torch
 from clip_server.executors.helper import (
     split_img_txt_da,
+    preproc_image,
+    preproc_text,
     set_rank,
+    get_image_size,
 )
+from open_clip.transform import image_transform
 from clip_server.model.clip_model import CLIPModel
-from clip_server.model.clip_preprocessor import CLIPPreprocessor
+from clip_server.model.tokenization import Tokenizer
 from jina import Executor, requests, DocumentArray
 
 
@@ -52,24 +56,34 @@ class CLIPEncoder(Executor):
             # For more details, please see https://pytorch.org/docs/stable/generated/torch.set_num_threads.html
             torch.set_num_threads(max(num_threads, 1))
             torch.set_num_interop_threads(1)
-
-        self._model = CLIPModel(name, self._device, jit)
-        self._preprocessor = CLIPPreprocessor(self._model)
         self._pool = ThreadPool(processes=num_worker_preprocess)
+
+        self._model = CLIPModel(name, device=self._device, jit=jit, **kwargs)
+        self._tokenizer = Tokenizer(name)
+
+        image_size = get_image_size(self._model.visual_model_name)
+        self._image_transform = image_transform(image_size, is_train=False)
 
     def _preproc_images(self, docs: 'DocumentArray'):
         with self.monitor(
             name='preprocess_images_seconds',
             documentation='images preprocess time in seconds',
         ):
-            return self._preprocessor.preproc_image(docs, return_np=False)
+            return preproc_image(
+                docs,
+                preprocess_fn=self._image_transform,
+                device=self._device,
+                return_np=False,
+            )
 
     def _preproc_texts(self, docs: 'DocumentArray'):
         with self.monitor(
             name='preprocess_texts_seconds',
             documentation='texts preprocess time in seconds',
         ):
-            return self._preprocessor.preproc_text(docs, return_np=False)
+            return preproc_text(
+                docs, tokenizer=self._tokenizer, device=self._device, return_np=False
+            )
 
     @requests(on='/rank')
     async def rank(self, docs: 'DocumentArray', parameters: Dict, **kwargs):
