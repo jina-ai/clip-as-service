@@ -1,6 +1,5 @@
 import transformers
 import torch
-import open_clip
 
 from clip_server.model.clip_model import CLIPModel
 from clip_server.model.pretrained_models import create_model

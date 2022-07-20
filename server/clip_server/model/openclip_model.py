@@ -1,4 +1,3 @@
-import open_clip
 import torch
 
 from clip_server.model.clip_model import CLIPModel
