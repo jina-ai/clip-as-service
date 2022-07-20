@@ -192,7 +192,7 @@ class Client:
         parameters = kwargs.get('parameters', {})
         model_name = parameters.get('model', '')
         payload = dict(
-            on=f'/encode/{model_name}',
+            on=f'/encode/{model_name}'.rstrip('/'),
             inputs=self._iter_doc(content),
             request_size=kwargs.get('batch_size', 8),
             total_docs=len(content) if hasattr(content, '__len__') else None,
@@ -373,7 +373,7 @@ class Client:
         parameters = kwargs.get('parameters', {})
         model_name = parameters.get('model', '')
         payload = dict(
-            on=f'/encode/{model_name}',
+            on=f'/rank/{model_name}'.rstrip('/'),
             inputs=self._iter_rank_docs(
                 content, _source=kwargs.get('source', 'matches')
             ),
