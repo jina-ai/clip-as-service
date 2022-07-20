@@ -75,6 +75,7 @@ Open AI has released 9 models so far. `ViT-B/32` is used as default model in all
 | ViT-L/14       | ✅       | ✅    | ❌        | 768              | 933             | 3.66                | 2.04                 |
 | ViT-L/14@336px | ✅       | ✅    | ❌        | 768              | 934             | 3.74                | 2.23                 |
 
+### Use custom model
 
 You can also use your own model in ONNX runtime by specifying the model name and the path to model directory in YAML file.
 The model directory should have the same format as below:
@@ -86,9 +87,11 @@ The model directory should have the same format as below:
     └── visual.onnx
 ```
 
-```{tip}
-You can use Finetuner to fine-tune your model. {ref}`Click here for detail instructions<Finetuner>`.
-```
+One may wonder how to produce the model as described above. 
+Fortunately, you can simply use the [Finetuner](https://finetuner.jina.ai) to fine-tune your model based on customer dataset.
+[Finetuner](https://finetuner.jina.ai) is a cloud service that makes fine-tuning simple and fast. 
+Moving the process into the cloud, [Finetuner](https://finetuner.jina.ai) handles all related complexity and infrastructure, making models performant and production ready.
+{ref}`Click here for detail instructions<Finetuner>`.
 
 ## YAML config
 
