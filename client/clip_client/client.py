@@ -190,10 +190,9 @@ class Client:
 
     def _get_post_payload(self, content, kwargs):
         parameters = kwargs.get('parameters', {})
-        target_model = parameters.get('model', None)
-        endpoint = f'/encode{f"/{target_model}" if target_model else ""}'
+        model_name = parameters.get('model', '')
         payload = dict(
-            on=endpoint,
+            on=f'/encode/{model_name}',
             inputs=self._iter_doc(content),
             request_size=kwargs.get('batch_size', 8),
             total_docs=len(content) if hasattr(content, '__len__') else None,
@@ -372,10 +371,9 @@ class Client:
 
     def _get_rank_payload(self, content, kwargs):
         parameters = kwargs.get('parameters', {})
-        target_model = parameters.get('model', None)
-        endpoint = f'/rank{f"/{target_model}" if target_model else ""}'
+        model_name = parameters.get('model', '')
         payload = dict(
-            on=endpoint,
+            on=f'/encode/{model_name}',
             inputs=self._iter_rank_docs(
                 content, _source=kwargs.get('source', 'matches')
             ),
