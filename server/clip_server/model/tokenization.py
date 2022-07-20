@@ -13,7 +13,7 @@ class Tokenizer:
         else:
             from clip_server.model.simple_tokenizer import SimpleTokenizer
 
-            self._tokenizer = SimpleTokenizer
+            self._tokenizer = SimpleTokenizer()
 
     def encode(
         self,
