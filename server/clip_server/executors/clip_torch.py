@@ -12,7 +12,7 @@ from clip_server.executors.helper import (
     set_rank,
     get_image_size,
 )
-from open_clip.transform import image_transform
+from clip_server.model import clip
 from clip_server.model.clip_model import CLIPModel
 from clip_server.model.tokenization import Tokenizer
 from jina import Executor, requests, DocumentArray
@@ -62,7 +62,7 @@ class CLIPEncoder(Executor):
         self._tokenizer = Tokenizer(name)
 
         image_size = get_image_size(self._model.visual_model_name)
-        self._image_transform = image_transform(image_size, is_train=False)
+        self._image_transform = clip._transform_ndarray(image_size)
 
     def _preproc_images(self, docs: 'DocumentArray'):
         with self.monitor(
