@@ -296,7 +296,7 @@ executors:
           - executors/clip_torch.py
 ```
 
-For example, to use custom model in ONNX runtime, one can do:
+To use custom model in ONNX runtime, one can do:
 
 ```{code-block} yaml
 ---
