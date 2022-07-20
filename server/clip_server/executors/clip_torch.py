@@ -60,9 +60,7 @@ class CLIPEncoder(Executor):
         self._model = CLIPModel(name, device=self._device, jit=jit, **kwargs)
         self._tokenizer = Tokenizer(name)
 
-        self._image_transform = clip._transform_ndarray(
-            self._model._model.visual.image_size
-        )
+        self._image_transform = clip._transform_ndarray(self._model.image_size)
 
     def _preproc_images(self, docs: 'DocumentArray'):
         with self.monitor(

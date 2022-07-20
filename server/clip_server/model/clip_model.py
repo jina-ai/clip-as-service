@@ -1,6 +1,7 @@
 from clip_server.model.pretrained_models import (
     _OPENCLIP_MODELS,
     _MULTILINGUALCLIP_MODELS,
+    _VISUAL_MODEL_IMAGE_SIZE,
 )
 
 
@@ -27,3 +28,7 @@ class CLIPModel:
     @property
     def model_name(self):
         return self._name
+
+    @property
+    def image_size(self):
+        return _VISUAL_MODEL_IMAGE_SIZE.get(self.model_name, None)
