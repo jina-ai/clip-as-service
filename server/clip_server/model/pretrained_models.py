@@ -126,7 +126,7 @@ def download_model(
     )
 
     with progress:
-        task = progress.add_task('download', filename=url, start=False)
+        task = progress.add_task('download', filename=filename, start=False)
 
         for _ in range(max_attempts):
             tmp_file_path = download_target + '.part'

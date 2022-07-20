@@ -35,6 +35,8 @@ class OpenCLIPModel(CLIPModel):
     def model_name(self):
         if self._model_name == 'ViT-L/14@336px':
             return 'ViT-L-14-336'
+        elif self._model_name.endswith('-quickgelu'):
+            return self._model_name[:-10]
         return self._model_name.replace('/', '-')
 
     def encode_text(self, input_ids: 'torch.Tensor', **kwargs):

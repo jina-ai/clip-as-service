@@ -1,6 +1,7 @@
 import os
 
-from clip_server.model.clip import _download, available_models
+from clip_server.model.clip import available_models
+from clip_server.model.pretrained_models import download_model
 
 _S3_BUCKET = (
     'https://clip-as-service.s3.us-east-2.amazonaws.com/models/onnx/'  # Deprecated
@@ -54,14 +55,14 @@ class CLIPOnnxModel:
                     f'~/.cache/clip/{name.replace("/", "-")}'
                 )
                 textual_model_name, textual_model_md5 = _MODELS[name][0]
-                self._textual_path = _download(
+                self._textual_path = download_model(
                     url=_S3_BUCKET_V2 + textual_model_name,
                     target_folder=cache_dir,
                     md5sum=textual_model_md5,
                     with_resume=True,
                 )
                 visual_model_name, visual_model_md5 = _MODELS[name][1]
-                self._visual_path = _download(
+                self._visual_path = download_model(
                     url=_S3_BUCKET_V2 + visual_model_name,
                     target_folder=cache_dir,
                     md5sum=visual_model_md5,
