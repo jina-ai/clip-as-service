@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 class OpenCLIPModel(CLIPModel):
     def __init__(self, name: str, device: str = 'cpu', jit: bool = False, **kwargs):
-        super().__init__()
+        super().__init__(name, **kwargs)
         model_name, pretrained = name.split('::')
         self._model = open_clip.create_model(
             model_name, pretrained=pretrained, device=device, jit=jit
