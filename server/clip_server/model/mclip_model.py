@@ -5,6 +5,7 @@ import torch
 import open_clip
 
 from clip_server.model.clip_model import CLIPModel
+from clip_server.model.pretrained_models import _VISUAL_MODEL_IMAGE_SIZE
 
 corresponding_clip_models = {
     'M-CLIP/XLM-Roberta-Large-Vit-B-32': ('ViT-B-32', 'openai'),
@@ -52,17 +53,18 @@ class MultilingualCLIP(transformers.PreTrainedModel):
 
 class MultilingualCLIPModel(CLIPModel):
     def __init__(self, name: str, device: str = 'cpu', jit: bool = False, **kwargs):
-        super().__init__()
-        self._name = name
+        super().__init__(name, **kwargs)
         self._mclip_model = MultilingualCLIP.from_pretrained(name)
+
         clip_name, clip_pretrained = corresponding_clip_models[name]
         self._model = open_clip.create_model(
             clip_name, pretrained=clip_pretrained, device=device, jit=jit
         )
+        self._clip_name = clip_name
 
     @property
-    def model_name(self):
-        return '-'.join(self._name.split('-')[-3:])
+    def image_size(self):
+        return _VISUAL_MODEL_IMAGE_SIZE[self._clip_name]
 
     def encode_text(
         self, input_ids: 'torch.Tensor', attention_mask: 'torch.Tensor', **kwargs
