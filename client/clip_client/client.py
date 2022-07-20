@@ -69,6 +69,7 @@ class Client:
         *,
         batch_size: Optional[int] = None,
         show_progress: bool = False,
+        parameters: Optional[dict] = None,
     ) -> 'np.ndarray':
         """Encode images and texts into embeddings where the input is an iterable of raw strings.
         Each image and text must be represented as a string. The following strings are acceptable:
@@ -79,6 +80,7 @@ class Client:
         :param content: an iterator of image URIs or sentences, each element is an image or a text sentence as a string.
         :param batch_size: the number of elements in each request when sending ``content``
         :param show_progress: if set, show a progress bar
+        :param parameters: the parameters for the encoding, you can specify the model to use when you have multiple models
         :return: the embedding in a numpy ndarray with shape ``[N, D]``. ``N`` is in the same length of ``content``
         """
         ...
@@ -90,11 +92,13 @@ class Client:
         *,
         batch_size: Optional[int] = None,
         show_progress: bool = False,
+        parameters: Optional[dict] = None,
     ) -> 'DocumentArray':
         """Encode images and texts into embeddings where the input is an iterable of :class:`docarray.Document`.
         :param content: an iterable of :class:`docarray.Document`, each Document must be filled with `.uri`, `.text` or `.blob`.
         :param batch_size: the number of elements in each request when sending ``content``
         :param show_progress: if set, show a progress bar
+        :param parameters: the parameters for the encoding, you can specify the model to use when you have multiple models
         :return: the embedding in a numpy ndarray with shape ``[N, D]``. ``N`` is in the same length of ``content``
         """
         ...
@@ -185,8 +189,10 @@ class Client:
                 )
 
     def _get_post_payload(self, content, kwargs):
+        parameters = kwargs.get('parameters', {})
+        model_name = parameters.get('model', '')
         payload = dict(
-            on='/',
+            on=f'/encode/{model_name}'.rstrip('/'),
             inputs=self._iter_doc(content),
             request_size=kwargs.get('batch_size', 8),
             total_docs=len(content) if hasattr(content, '__len__') else None,
@@ -364,8 +370,10 @@ class Client:
                 )
 
     def _get_rank_payload(self, content, kwargs):
+        parameters = kwargs.get('parameters', {})
+        model_name = parameters.get('model', '')
         payload = dict(
-            on='/rank',
+            on=f'/rank/{model_name}'.rstrip('/'),
             inputs=self._iter_rank_docs(
                 content, _source=kwargs.get('source', 'matches')
             ),
