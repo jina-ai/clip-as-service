@@ -2,15 +2,14 @@ import open_clip
 import torch
 
 from clip_server.model.clip_model import CLIPModel
+from clip_server.model.pretrained_models import create_model
 
 
 class OpenCLIPModel(CLIPModel):
     def __init__(self, name: str, device: str, jit: bool):
         super().__init__(name, device, jit)
         name, pretrained = name.split('::')
-        self._model = open_clip.create_model(
-            name, pretrained=pretrained, device=device, jit=jit
-        )
+        self._model = create_model(name, pretrained=pretrained, device=device, jit=jit)
 
     def encode_text(
         self, input_ids: torch.Tensor, attention_mask: torch.Tensor, **kwargs

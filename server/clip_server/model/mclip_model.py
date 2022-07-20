@@ -3,6 +3,7 @@ import torch
 import open_clip
 
 from clip_server.model.clip_model import CLIPModel
+from clip_server.model.pretrained_models import create_model
 
 corresponding_clip_models = {
     'M-CLIP/XLM-Roberta-Large-Vit-B-32': ('ViT-B-32', 'openai'),
@@ -17,7 +18,7 @@ class MultilingualCLIPModel(CLIPModel):
         super().__init__(name, device, jit)
         self._mclip_model = MultilingualCLIP.from_pretrained(name)
         clip_name, clip_pretrained = corresponding_clip_models[name]
-        self._model = open_clip.create_model(
+        self._model = create_model(
             clip_name, pretrained=clip_pretrained, device=device, jit=jit
         )
 
