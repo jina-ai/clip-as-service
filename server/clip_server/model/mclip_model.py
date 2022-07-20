@@ -1,8 +1,10 @@
+# Originally from https://github.com/FreddeFrallan/Multilingual-CLIP. MIT License, Copyright (c) 2022 Multilingual-CLIP
+
 import transformers
 import torch
+import open_clip
 
 from clip_server.model.clip_model import CLIPModel
-from clip_server.model.pretrained_models import create_model
 
 corresponding_clip_models = {
     'M-CLIP/XLM-Roberta-Large-Vit-B-32': ('ViT-B-32', 'openai'),
@@ -12,33 +14,19 @@ corresponding_clip_models = {
 }
 
 
-class MultilingualCLIPModel(CLIPModel):
-    def __init__(self, name: str, device: str, jit: bool):
-        super().__init__(name, device, jit)
-        self._mclip_model = MultilingualCLIP.from_pretrained(name)
-        clip_name, clip_pretrained = corresponding_clip_models[name]
-        self._model = create_model(
-            clip_name, pretrained=clip_pretrained, device=device, jit=jit
-        )
-
-    def encode_text(
-        self, input_ids: torch.Tensor, attention_mask: torch.Tensor, **kwargs
-    ):
-        return self._mclip_model.encode_text(
-            dict({"input_ids": input_ids, "attention_mask": attention_mask}, **kwargs)
-        )
-
-    def encode_image(self, pixel_values: torch.Tensor, **kwargs):
-        return self._model.encode_image(pixel_values, **kwargs)
-
-
 class MCLIPConfig(transformers.PretrainedConfig):
     model_type = "M-CLIP"
 
-    def __init__(self, **kwargs):
-        self.transformerDimensions = "xlm-roberta-large"
-        self.numDims = 1024
-        self.modelBase = 768
+    def __init__(
+        self,
+        modelBase: str = 'xlm-roberta-large',
+        transformerDimSize: int = 1024,
+        imageDimSize: int = 768,
+        **kwargs
+    ):
+        self.transformerDimensions = transformerDimSize
+        self.numDims = imageDimSize
+        self.modelBase = modelBase
         super().__init__(**kwargs)
 
 
@@ -52,8 +40,36 @@ class MultilingualCLIP(transformers.PreTrainedModel):
             in_features=config.transformerDimensions, out_features=config.numDims
         )
 
-    def encode_text(self, txt_tok):
-        embs = self.transformer(**txt_tok)[0]
-        att = txt_tok["attention_mask"]
-        embs = (embs * att.unsqueeze(2)).sum(dim=1) / att.sum(dim=1)[:, None]
+    def forward(self, input_ids: torch.Tensor, attention_mask: torch.Tensor, **kwargs):
+        embs = self.transformer(
+            input_ids=input_ids, attention_mask=attention_mask, **kwargs
+        )[0]
+        embs = (embs * attention_mask.unsqueeze(2)).sum(dim=1) / attention_mask.sum(
+            dim=1
+        )[:, None]
         return self.LinearTransformation(embs)
+
+
+class MultilingualCLIPModel(CLIPModel):
+    def __init__(self, name: str, device: str = 'cpu', jit: bool = False, **kwargs):
+        super().__init__(name, **kwargs)
+        self._name = name
+        self._mclip_model = MultilingualCLIP.from_pretrained(name)
+        clip_name, clip_pretrained = corresponding_clip_models[name]
+        self._model = open_clip.create_model(
+            clip_name, pretrained=clip_pretrained, device=device, jit=jit
+        )
+
+    @property
+    def visual_model_name(self):
+        return '-'.join(self._name.split('-')[-3:])
+
+    def encode_text(
+        self, input_ids: 'torch.Tensor', attention_mask: 'torch.Tensor', **kwargs
+    ):
+        return self._mclip_model(
+            input_ids=input_ids, attention_mask=attention_mask, **kwargs
+        )
+
+    def encode_image(self, pixel_values: torch.Tensor, **kwargs):
+        return self._model.encode_image(pixel_values)
