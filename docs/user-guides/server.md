@@ -316,7 +316,7 @@ executors:
         model_path: 'custom-model'
       metas:
         py_modules:
-          - executors/clip_torch.py
+          - executors/clip_onnx.py
 ```
 
 ```{warning}
