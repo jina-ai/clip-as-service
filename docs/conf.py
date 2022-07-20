@@ -80,6 +80,8 @@ htmlhelp_basename = slug
 html_show_sourcelink = False
 html_favicon = '_static/favicon.png'
 
+intersphinx_mapping = {'docarray': ('https://docarray.jina.ai/', None), 'finetuner': ('https://finetuner.jina.ai/', None)}
+
 latex_documents = [(master_doc, f'{slug}.tex', project, author, 'manual')]
 man_pages = [(master_doc, slug, project, [author], 1)]
 texinfo_documents = [

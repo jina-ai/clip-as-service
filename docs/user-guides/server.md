@@ -75,6 +75,23 @@ Open AI has released 9 models so far. `ViT-B/32` is used as default model in all
 | ViT-L/14       | ✅       | ✅    | ❌        | 768              | 933             | 3.66                | 2.04                 |
 | ViT-L/14@336px | ✅       | ✅    | ❌        | 768              | 934             | 3.74                | 2.23                 |
 
+### Use custom model
+
+You can also use your own model in ONNX runtime by specifying the model name and the path to model directory in YAML file.
+The model directory should have the same structure as below:
+
+```text
+.
+└── custom-model/
+    ├── textual.onnx
+    └── visual.onnx
+```
+
+One may wonder how to produce the model as described above. 
+Fortunately, you can simply use the [Finetuner](https://finetuner.jina.ai) to fine-tune your model based on custom dataset.
+[Finetuner](https://finetuner.jina.ai) is a cloud service that makes fine-tuning simple and fast. 
+Moving the process into the cloud, [Finetuner](https://finetuner.jina.ai) handles all related complexity and infrastructure, making models performant and production ready.
+{ref}`Click here for detail instructions<Finetuner>`.
 
 ## YAML config
 
@@ -230,11 +247,11 @@ executors:
 
 For all backends, you can set the following parameters via `with`:
 
-| Parameter | Description                                                                                                                    |
-|-----------|--------------------------------------------------------------------------------------------------------------------------------|
-| `name`    | Model weights, default is `ViT-B/32`. Support all OpenAI released pretrained models.                                           |
+| Parameter               | Description                                                                                                                    |
+|-------------------------|--------------------------------------------------------------------------------------------------------------------------------|
+| `name`                  | Model weights, default is `ViT-B/32`. Support all OpenAI released pretrained models.                                           |
 | `num_worker_preprocess` | The number of CPU workers for image & text prerpocessing, default 4.                                                           | 
-| `minibatch_size` | The size of a minibatch for CPU preprocessing and GPU encoding, default 64. Reduce the size of it if you encounter OOM on GPU. |
+| `minibatch_size`        | The size of a minibatch for CPU preprocessing and GPU encoding, default 64. Reduce the size of it if you encounter OOM on GPU. |
 
 There are also runtime-specific parameters listed below:
 
@@ -252,6 +269,7 @@ There are also runtime-specific parameters listed below:
 | Parameter | Description                                                                                                                    |
 |-----------|--------------------------------------------------------------------------------------------------------------------------------|
 | `device`  | `cuda` or `cpu`. Default is `None` means auto-detect.
+| `model_path`            | The path to custom CLIP model, default `None`.                                                                                   |
 
 ````
 
@@ -276,6 +294,33 @@ executors:
       metas:
         py_modules:
           - executors/clip_torch.py
+```
+
+To use custom model in ONNX runtime, one can do:
+
+```{code-block} yaml
+---
+emphasize-lines: 9-11
+---
+
+jtype: Flow
+version: '1'
+with:
+  port: 51000
+executors:
+  - name: clip_o
+    uses:
+      jtype: CLIPEncoder
+      with:
+        name: ViT-B/32
+        model_path: 'custom-model'
+      metas:
+        py_modules:
+          - executors/clip_onnx.py
+```
+
+```{warning}
+The model name should match the fine-tuned model, or you will get incorrect output.
 ```
 
 ### Executor config
