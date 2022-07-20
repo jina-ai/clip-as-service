@@ -17,7 +17,6 @@ try:
 except ImportError:
     BICUBIC = Image.BICUBIC
 
-__all__ = ['available_models', 'load', 'tokenize']
 
 _S3_BUCKET = 'https://clip-as-service.s3.us-east-2.amazonaws.com/models/torch/'
 _MODELS = {
