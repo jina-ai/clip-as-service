@@ -42,13 +42,13 @@ class Tokenizer:
         """
         if isinstance(texts, str):
             texts = [texts]
-
         if self._name in _MULTILINGUALCLIP_MODELS:
-            result = self._tokenizer.encode_plus(
+            result = self._tokenizer(
                 texts,
                 max_length=context_length,
                 return_attention_mask=True,
                 return_tensors='pt',
+                truncation=True,
             )
             return {
                 'input_ids': result['input_ids'],
