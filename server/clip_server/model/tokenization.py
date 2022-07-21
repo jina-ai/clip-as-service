@@ -48,7 +48,8 @@ class Tokenizer:
                 max_length=context_length,
                 return_attention_mask=True,
                 return_tensors='pt',
-                padding='max_length',
+                padding=True,
+                truncation=True,
             )
             return {
                 'input_ids': result['input_ids'],
