@@ -15,31 +15,28 @@ class Tokenizer:
 
             self._tokenizer = SimpleTokenizer()
 
-    def encode(
+    def __call__(
+        self,
+        texts: Union[str, List[str]],
+        context_length: int = 77,
+        truncate: bool = True,
+    ):
+        """
+        :param texts: An input string or a list of input strings to tokenize
+        :param context_length: The context length to use; all CLIP models use 77 as the context length.
+        :param truncate: Whether to truncate the text in case its encoding is longer than the context length.
+
+        :return: A dict of tokenized representations of the input strings and their corresponding attention masks with both
+            shape = [batch size, context_length]
+        """
+        return self._tokenize(texts, context_length=context_length, truncate=truncate)
+
+    def _tokenize(
         self,
         texts: Union[str, List[str]],
         context_length: int = 77,
         truncate: bool = True,
     ) -> dict:
-        """
-        Returns the tokenized representation of given input string(s)
-
-        Parameters
-        ----------
-        texts : Union[str, List[str]]
-            An input string or a list of input strings to tokenize
-
-        context_length : int
-            The context length to use; all CLIP models use 77 as the context length
-
-        truncate: bool
-            Whether to truncate the text in case its encoding is longer than the context length
-
-        Returns
-        -------
-        A dict of tokenized representations of the input strings and their corresponding attention masks with both
-            shape = [batch size, context_length]
-        """
         if isinstance(texts, str):
             texts = [texts]
         if self._name in _MULTILINGUALCLIP_MODELS:

@@ -56,7 +56,7 @@ def preproc_text(
     return_np: bool = False,
 ) -> Tuple['DocumentArray', Dict]:
 
-    inputs = tokenizer.encode(da.texts)
+    inputs = tokenizer(da.texts)
     inputs['input_ids'] = inputs['input_ids'].detach()
 
     if return_np:
