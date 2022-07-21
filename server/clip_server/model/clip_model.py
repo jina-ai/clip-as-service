@@ -6,7 +6,7 @@ from clip_server.model.pretrained_models import (
 
 
 class CLIPModel:
-    def __new__(cls, name: str, device: str, jit: bool, **kwargs):
+    def __new__(cls, name: str, **kwargs):
         if cls is CLIPModel:
             if name in _OPENCLIP_MODELS:
                 from clip_server.model.openclip_model import OpenCLIPModel
