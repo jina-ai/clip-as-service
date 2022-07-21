@@ -4,7 +4,8 @@ import numpy as np
 from docarray import Document, DocumentArray
 from docarray.math.distance.numpy import cosine
 
-from clip_server.model import clip
+
+from clip_server.model.tokenization import Tokenizer
 
 
 def numpy_softmax(x: 'np.ndarray', axis: int = -1) -> 'np.ndarray':
@@ -49,10 +50,13 @@ def preproc_image(
 
 
 def preproc_text(
-    da: 'DocumentArray', device: str = 'cpu', return_np: bool = False
+    da: 'DocumentArray',
+    tokenizer: 'Tokenizer',
+    device: str = 'cpu',
+    return_np: bool = False,
 ) -> Tuple['DocumentArray', Dict]:
 
-    inputs = clip.tokenize(da.texts)
+    inputs = tokenizer(da.texts)
     inputs['input_ids'] = inputs['input_ids'].detach()
 
     if return_np:
@@ -113,3 +117,9 @@ def set_rank(docs, _logit_scale=np.exp(4.60517)):
         )
 
         q.matches = final
+
+
+def get_image_size(name: str):
+    from clip_server.model.pretrained_models import _VISUAL_MODEL_IMAGE_SIZE
+
+    return _VISUAL_MODEL_IMAGE_SIZE[name]

@@ -1,25 +1,39 @@
-# Originally from https://github.com/openai/CLIP. MIT License, Copyright (c) 2021 OpenAI
-
-import io
 import os
 import hashlib
 import shutil
 import urllib
-from typing import List
-
-from PIL import Image
-from torchvision.transforms import Compose, Resize, CenterCrop, ToTensor, Normalize
-
-try:
-    from torchvision.transforms import InterpolationMode
-
-    BICUBIC = InterpolationMode.BICUBIC
-except ImportError:
-    BICUBIC = Image.BICUBIC
 
 
-_S3_BUCKET = 'https://clip-as-service.s3.us-east-2.amazonaws.com/models/torch/'
-_MODELS = {
+_OPENCLIP_S3_BUCKET = 'https://clip-as-service.s3.us-east-2.amazonaws.com/models/torch'
+_OPENCLIP_MODELS = {
+    'RN50::openai': ('RN50.pt', '9140964eaaf9f68c95aa8df6ca13777c'),
+    'RN50::yfcc15m': (),
+    'RN50::cc12m': (),
+    'RN50-quickgelu::openai': (),
+    'RN50-quickgelu::yfcc15m': (),
+    'RN50-quickgelu::cc12m': (),
+    'RN101::openai': ('RN101.pt', 'fa9d5f64ebf152bc56a18db245071014'),
+    'RN101::yfcc15m': (),
+    'RN101-quickgelu::openai': (),
+    'RN101-quickgelu::yfcc15m': (),
+    'RN50x4::openai': ('RN50x4.pt', '03830990bc768e82f7fb684cde7e5654'),
+    'RN50x16::openai': ('RN50x16.pt', '83d63878a818c65d0fb417e5fab1e8fe'),
+    'RN50x64::openai': ('RN50x64.pt', 'a6631a0de003c4075d286140fc6dd637'),
+    'ViT-B-32::openai': ('ViT-B-32.pt', '3ba34e387b24dfe590eeb1ae6a8a122b'),
+    'ViT-B-32::laion2b_e16': (),
+    'ViT-B-32::laion400m_e31': (),
+    'ViT-B-32::laion400m_e32': (),
+    'ViT-B-32-quickgelu::openai': (),
+    'ViT-B-32-quickgelu::laion400m_e31': (),
+    'ViT-B-32-quickgelu::laion400m_e32': (),
+    'ViT-B-16::openai': ('ViT-B-16.pt', '44c3d804ecac03d9545ac1a3adbca3a6'),
+    'ViT-B-16::laion400m_e31': (),
+    'ViT-B-16::laion400m_e32': (),
+    'ViT-B-16-plus-240::laion400m_e31': (),
+    'ViT-B-16-plus-240::laion400m_e32': (),
+    'ViT-L-14::openai': ('ViT-L-14.pt', '096db1af569b284eb76b3881534822d9'),
+    'ViT-L-14-336::openai': ('ViT-L-14-336px.pt', 'b311058cae50cb10fbfa2a44231c9473'),
+    # older version name format
     'RN50': ('RN50.pt', '9140964eaaf9f68c95aa8df6ca13777c'),
     'RN101': ('RN101.pt', 'fa9d5f64ebf152bc56a18db245071014'),
     'RN50x4': ('RN50x4.pt', '03830990bc768e82f7fb684cde7e5654'),
@@ -31,16 +45,26 @@ _MODELS = {
     'ViT-L/14@336px': ('ViT-L-14-336px.pt', 'b311058cae50cb10fbfa2a44231c9473'),
 }
 
-MODEL_SIZE = {
+_MULTILINGUALCLIP_MODELS = {
+    'M-CLIP/XLM-Roberta-Large-Vit-B-32': (),
+    'M-CLIP/XLM-Roberta-Large-Vit-L-14': (),
+    'M-CLIP/XLM-Roberta-Large-Vit-B-16Plus': (),
+    'M-CLIP/LABSE-Vit-L-14': (),
+}
+
+_VISUAL_MODEL_IMAGE_SIZE = {
     'RN50': 224,
     'RN101': 224,
     'RN50x4': 288,
     'RN50x16': 384,
     'RN50x64': 448,
-    'ViT-B/32': 224,
-    'ViT-B/16': 224,
-    'ViT-L/14': 224,
-    'ViT-L/14@336px': 336,
+    'ViT-B-32': 224,
+    'ViT-B-16': 224,
+    'ViT-B-16-plus-240': 240,
+    'ViT-B-16-plus-240': 240,
+    'ViT-L-14': 224,
+    'ViT-L-14-336': 336,
+    'Vit-B-16Plus': 240,
 }
 
 
@@ -53,9 +77,17 @@ def md5file(filename: str):
     return hash_md5.hexdigest()
 
 
-def _download(
+def get_model_url_md5(name: str):
+    model_pretrained = _OPENCLIP_MODELS[name]
+    if len(model_pretrained) == 0:  # not on s3
+        return None, None
+    else:
+        return (_OPENCLIP_S3_BUCKET + '/' + model_pretrained[0], model_pretrained[1])
+
+
+def download_model(
     url: str,
-    target_folder: str,
+    target_folder: str = os.path.expanduser("~/.cache/clip"),
     md5sum: str = None,
     with_resume: bool = True,
     max_attempts: int = 3,
@@ -82,6 +114,7 @@ def _download(
     )
 
     progress = Progress(
+        " \n",  # divide this bar from Flow's bar
         TextColumn("[bold blue]{task.fields[filename]}", justify="right"),
         "[progress.percentage]{task.percentage:>3.1f}%",
         "•",
@@ -93,7 +126,7 @@ def _download(
     )
 
     with progress:
-        task = progress.add_task('download', filename=url, start=False)
+        task = progress.add_task('download', filename=filename, start=False)
 
         for _ in range(max_attempts):
             tmp_file_path = download_target + '.part'
@@ -145,46 +178,3 @@ def _download(
         raise RuntimeError(
             f'Failed to download {url} within retry limit {max_attempts}'
         )
-
-
-def _convert_image_to_rgb(image):
-    return image.convert('RGB')
-
-
-def _blob2image(blob):
-    return Image.open(io.BytesIO(blob))
-
-
-def _transform_blob(n_px):
-    return Compose(
-        [
-            _blob2image,
-            Resize(n_px, interpolation=BICUBIC),
-            CenterCrop(n_px),
-            _convert_image_to_rgb,
-            ToTensor(),
-            Normalize(
-                (0.48145466, 0.4578275, 0.40821073),
-                (0.26862954, 0.26130258, 0.27577711),
-            ),
-        ]
-    )
-
-
-def _transform_ndarray(n_px):
-    return Compose(
-        [
-            ToTensor(),
-            Resize(n_px, interpolation=BICUBIC),
-            CenterCrop(n_px),
-            Normalize(
-                (0.48145466, 0.4578275, 0.40821073),
-                (0.26862954, 0.26130258, 0.27577711),
-            ),
-        ]
-    )
-
-
-def available_models() -> List[str]:
-    '''Returns the names of available CLIP models'''
-    return list(_MODELS.keys())

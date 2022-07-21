@@ -70,37 +70,16 @@ def test_server_download_not_regular_file(tmpdir):
         )
 
 
-def test_make_onnx_flow_custom_path_wrong_name(port_generator):
+def test_make_onnx_flow_wrong_name_path(port_generator):
     from clip_server.executors.clip_onnx import CLIPEncoder
 
-    f = Flow(port=port_generator()).add(
-        name='onnx',
-        uses=CLIPEncoder,
-        uses_with={
-            'name': 'ABC',
-            'model_path': os.path.expanduser('~/.cache/clip/ViT-B-32'),
-        },
-    )
+    with pytest.raises(Exception):
+        encoder = CLIPEncoder(
+            'ABC', model_path=os.path.expanduser('~/.cache/clip/ViT-B-32')
+        )
+
     with pytest.raises(Exception) as info:
-        with f:
-            f.post('/', Document(text='Hello world'))
-
-
-@pytest.mark.parametrize('path', ['ABC', os.path.expanduser('~/.cache/')])
-def test_make_onnx_flow_custom_path_wrong_path(port_generator, path):
-    from clip_server.executors.clip_onnx import CLIPEncoder
-
-    f = Flow(port=port_generator()).add(
-        name='onnx',
-        uses=CLIPEncoder,
-        uses_with={
-            'name': 'ViT-B/32',
-            'model_path': path,
-        },
-    )
-    with pytest.raises(Exception) as info:
-        with f:
-            f.post('/', Document(text='Hello world'))
+        encoder = CLIPEncoder('ViT-B/32', model_path='~/.cache/')
 
 
 @pytest.mark.parametrize(
