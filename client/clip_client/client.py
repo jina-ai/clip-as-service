@@ -426,21 +426,26 @@ class Client:
         model_name = parameters.get('model', '')
         payload = self._get_post_parameters(docs, kwargs)
 
-        async for da in self._async_client.post(
-            **payload,
-            on=f'/rank/{model_name}'.rstrip('/'),
-            inputs=self._iter_rank_docs(docs, _source=kwargs.pop('source', 'matches')),
-        ):
-            if not results:
-                self._pbar.start_task(self._r_task)
-            results.extend(da)
-            self._pbar.update(
-                self._r_task,
-                advance=len(da),
-                total_size=str(
-                    filesize.decimal(int(os.environ.get('JINA_GRPC_RECV_BYTES', '0')))
+        with self._pbar:
+            async for da in self._async_client.post(
+                on=f'/rank/{model_name}'.rstrip('/'),
+                inputs=self._iter_rank_docs(
+                    docs, _source=kwargs.pop('source', 'matches')
                 ),
-            )
+                **payload,
+            ):
+                if not results:
+                    self._pbar.start_task(self._r_task)
+                results.extend(da)
+                self._pbar.update(
+                    self._r_task,
+                    advance=len(da),
+                    total_size=str(
+                        filesize.decimal(
+                            int(os.environ.get('JINA_GRPC_RECV_BYTES', '0'))
+                        )
+                    ),
+                )
 
         return results
 
