@@ -122,10 +122,10 @@ class Client:
 
         with self._pbar:
             self._client.post(
-                **payload,
                 on=f'/encode/{model_name}'.rstrip('/'),
                 inputs=self._iter_doc(content),
                 on_done=partial(self._gather_result, results=results),
+                **payload,
             )
         return self._unboxed_result(results)
 
@@ -293,21 +293,24 @@ class Client:
         model_name = parameters.get('model', '')
         payload = self._get_post_parameters(content, kwargs)
 
-        async for da in self._async_client.post(
-            **payload,
-            on=f'/encode/{model_name}'.rstrip('/'),
-            inputs=self._iter_doc(content),
-        ):
-            if not results:
-                self._pbar.start_task(self._r_task)
-            results.extend(da)
-            self._pbar.update(
-                self._r_task,
-                advance=len(da),
-                total_size=str(
-                    filesize.decimal(int(os.environ.get('JINA_GRPC_RECV_BYTES', '0')))
-                ),
-            )
+        with self._pbar:
+            async for da in self._async_client.post(
+                on=f'/encode/{model_name}'.rstrip('/'),
+                inputs=self._iter_doc(content),
+                **payload,
+            ):
+                if not results:
+                    self._pbar.start_task(self._r_task)
+                results.extend(da)
+                self._pbar.update(
+                    self._r_task,
+                    advance=len(da),
+                    total_size=str(
+                        filesize.decimal(
+                            int(os.environ.get('JINA_GRPC_RECV_BYTES', '0'))
+                        )
+                    ),
+                )
 
         return self._unboxed_result(results)
 
@@ -401,12 +404,12 @@ class Client:
 
         with self._pbar:
             self._client.post(
-                **payload,
                 on=f'/rank/{model_name}'.rstrip('/'),
                 inputs=self._iter_rank_docs(
                     docs, _source=kwargs.pop('source', 'matches')
                 ),
                 on_done=partial(self._gather_result, results=results),
+                **payload,
             )
         return results
 
@@ -456,7 +459,7 @@ class Client:
         payload = self._get_post_parameters(content, kwargs)
 
         with self._pbar:
-            self._client.post(**payload, on='/index', inputs=self._iter_doc(content))
+            self._client.post(on='/index', inputs=self._iter_doc(content), **payload)
 
     def search(self, content: List[str], **kwargs) -> DocumentArray:
         """Search for top k results for given query string or ``Document``.
@@ -475,10 +478,10 @@ class Client:
 
         with self._pbar:
             self._client.post(
-                **payload,
                 on='/search',
                 inputs=self._iter_doc(content),
                 on_done=partial(self._gather_result, results=results),
+                **payload,
             )
         return results
 
