@@ -284,19 +284,22 @@ class Client:
         )
 
         results = DocumentArray()
-        async for da in self._async_client.post(
-            **self._get_post_payload(content, kwargs)
-        ):
-            if not results:
-                self._pbar.start_task(self._r_task)
-            results.extend(da)
-            self._pbar.update(
-                self._r_task,
-                advance=len(da),
-                total_size=str(
-                    filesize.decimal(int(os.environ.get('JINA_GRPC_RECV_BYTES', '0')))
-                ),
-            )
+        with self._pbar:
+            async for da in self._async_client.post(
+                **self._get_post_payload(content, kwargs)
+            ):
+                if not results:
+                    self._pbar.start_task(self._r_task)
+                results.extend(da)
+                self._pbar.update(
+                    self._r_task,
+                    advance=len(da),
+                    total_size=str(
+                        filesize.decimal(
+                            int(os.environ.get('JINA_GRPC_RECV_BYTES', '0'))
+                        )
+                    ),
+                )
 
         return self._unboxed_result(results)
 
@@ -415,16 +418,21 @@ class Client:
             total=len(docs),
         )
         results = DocumentArray()
-        async for da in self._async_client.post(**self._get_rank_payload(docs, kwargs)):
-            if not results:
-                self._pbar.start_task(self._r_task)
-            results.extend(da)
-            self._pbar.update(
-                self._r_task,
-                advance=len(da),
-                total_size=str(
-                    filesize.decimal(int(os.environ.get('JINA_GRPC_RECV_BYTES', '0')))
-                ),
-            )
+        with self._pbar:
+            async for da in self._async_client.post(
+                **self._get_rank_payload(docs, kwargs)
+            ):
+                if not results:
+                    self._pbar.start_task(self._r_task)
+                results.extend(da)
+                self._pbar.update(
+                    self._r_task,
+                    advance=len(da),
+                    total_size=str(
+                        filesize.decimal(
+                            int(os.environ.get('JINA_GRPC_RECV_BYTES', '0'))
+                        )
+                    ),
+                )
 
         return results
