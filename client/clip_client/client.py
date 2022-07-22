@@ -159,16 +159,18 @@ class Client:
             if isinstance(c, str):
                 _mime = mimetypes.guess_type(c)[0]
                 if _mime and _mime.startswith('image'):
-                    yield Document(
-                        tags={'__created_by_CAS__': True}, uri=c
-                    ).load_uri_to_blob()
+                    doc = Document(tags={'__created_by_CAS__': True}, uri=c)
+                    if os.path.exists(c):
+                        doc.load_uri_to_blob()
+                    yield doc
                 else:
                     yield Document(tags={'__created_by_CAS__': True}, text=c)
             elif isinstance(c, Document):
                 if c.content_type in ('text', 'blob'):
                     yield c
                 elif not c.blob and c.uri:
-                    c.load_uri_to_blob()
+                    if os.path.exists(c.uri):
+                        c.load_uri_to_blob()
                     yield c
                 elif c.tensor is not None:
                     yield c
@@ -327,7 +329,8 @@ class Client:
         if d.content_type in ('text', 'blob'):
             return d
         elif not d.blob and d.uri:
-            d.load_uri_to_blob()
+            if os.path.exists(d.uri):
+                d.load_uri_to_blob()
             return d
         elif d.tensor is not None:
             return d

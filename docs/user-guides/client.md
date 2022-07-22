@@ -53,6 +53,10 @@ Depending on the input, the output of `.encode()` is different:
 
 Now let's look at these two cases in details.
 
+```{warning}
+Please make sure that the inputs are all valid. For example, the uri of the image should be accessible. Otherwise, you will get incomplete or even no results.
+```
+
 ### Input as iterable of strings
 
 - Input: each string element is auto-detected as a sentence or an image.
