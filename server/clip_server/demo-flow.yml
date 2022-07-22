@@ -1,0 +1,21 @@
+jtype: Flow
+version: '1'
+with:
+  port: 51008
+executors:
+  - name: encoder
+    uses:
+      jtype: CLIPEncoder
+      metas:
+        py_modules:
+          - executors/clip_torch.py
+    replicas: 1
+  - name: indexer
+    uses:
+      jtype: AnnLiteIndexer
+      with:
+        dim: 512
+      metas:
+        py_modules:
+          - annlite.executor
+    replicas: 1

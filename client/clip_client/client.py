@@ -11,6 +11,7 @@ from typing import (
     Generator,
     Iterable,
     Dict,
+    List,
 )
 from urllib.parse import urlparse
 from functools import partial
@@ -61,6 +62,7 @@ class Client:
             raise ValueError(f'{server} is not a valid scheme')
 
         self._authorization = credential.get('Authorization', None)
+        self._batch_size = 128
 
     @overload
     def encode(
@@ -116,7 +118,7 @@ class Client:
         results = DocumentArray()
         with self._pbar:
             self._client.post(
-                **self._get_post_payload(content, kwargs),
+                **self._get_post_payload('encode', content, kwargs),
                 on_done=partial(self._gather_result, results=results),
             )
         return self._unboxed_result(results)
@@ -188,12 +190,18 @@ class Client:
                     ),
                 )
 
-    def _get_post_payload(self, content, kwargs):
+    def _get_post_payload(self, mode, content, kwargs):
         parameters = kwargs.get('parameters', {})
         model_name = parameters.get('model', '')
         payload = dict(
-            on=f'/encode/{model_name}'.rstrip('/'),
-            inputs=self._iter_doc(content),
+            on=f'/{mode}/{model_name}'.rstrip('/')
+            if mode in ['encode', 'rank']
+            else f'/{mode}',
+            inputs=self._iter_rank_docs(
+                content, _source=kwargs.get('source', 'matches')
+            )
+            if mode == 'rank'
+            else self._iter_doc(content),
             request_size=kwargs.get('batch_size', 8),
             total_docs=len(content) if hasattr(content, '__len__') else None,
         )
@@ -285,7 +293,7 @@ class Client:
 
         results = DocumentArray()
         async for da in self._async_client.post(
-            **self._get_post_payload(content, kwargs)
+            **self._get_post_payload('encode', content, kwargs)
         ):
             if not results:
                 self._pbar.start_task(self._r_task)
@@ -369,23 +377,6 @@ class Client:
                     ),
                 )
 
-    def _get_rank_payload(self, content, kwargs):
-        parameters = kwargs.get('parameters', {})
-        model_name = parameters.get('model', '')
-        payload = dict(
-            on=f'/rank/{model_name}'.rstrip('/'),
-            inputs=self._iter_rank_docs(
-                content, _source=kwargs.get('source', 'matches')
-            ),
-            request_size=kwargs.get('batch_size', 8),
-            total_docs=len(content) if hasattr(content, '__len__') else None,
-        )
-        if self._scheme == 'grpc' and self._authorization:
-            payload.update(metadata=('authorization', self._authorization))
-        elif self._scheme == 'http' and self._authorization:
-            payload.update(headers={'Authorization': self._authorization})
-        return payload
-
     def rank(self, docs: Iterable['Document'], **kwargs) -> 'DocumentArray':
         """Rank image-text matches according to the server CLIP model.
         Given a Document with nested matches, where the root is image/text and the matches is in another modality, i.e.
@@ -402,7 +393,7 @@ class Client:
         results = DocumentArray()
         with self._pbar:
             self._client.post(
-                **self._get_rank_payload(docs, kwargs),
+                **self._get_post_payload('rank', docs, kwargs),
                 on_done=partial(self._gather_result, results=results),
             )
         return results
@@ -428,3 +419,56 @@ class Client:
             )
 
         return results
+
+    def _update_pbar(self):
+        from rich import filesize
+
+        self._pbar.update(
+            self._r_task,
+            advance=self._batch_size,
+            total_size=str(
+                filesize.decimal(int(os.environ.get('JINA_GRPC_RECV_BYTES', '0')))
+            ),
+        )
+
+    def index(self, content: Iterable['Document'], **kwargs):
+        """Index the embeddings created by server CLIP model.
+        Given the document with embeddings, this function create an indexer which index
+        the embeddings. This will be used for top k search. ``AnnLiteIndexer`` is used
+        by default.
+        :param content: docs to be indexed.
+        """
+        self._prepare_streaming(
+            not kwargs.get('show_progress'),
+            total=len(content) if hasattr(content, '__len__') else None,
+        )
+
+        with self._pbar:
+            self._client.post(
+                **self._get_post_payload('index', content, kwargs),
+            )
+
+    def search(self, content: List[str], **kwargs) -> DocumentArray:
+        """Search for top k results for given query string or ``Document``.
+        If the input is a string, will use this string as query. If the input is a
+        ``Document``, will use the ``text`` field as query.
+        :param content: list of queries.
+        :return: top limit results.
+        """
+        self._prepare_streaming(
+            not kwargs.get('show_progress'),
+            total=len(content) if hasattr(content, '__len__') else None,
+        )
+        results = DocumentArray()
+        with self._pbar:
+            self._client.post(
+                **self._get_post_payload('search', content, kwargs),
+                on_done=partial(self._gather_result, results=results),
+            )
+        return results
+
+    def status(self):
+        payload = dict(
+            on='/status',
+        )
+        return self._client.post(**payload)
