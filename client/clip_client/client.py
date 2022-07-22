@@ -116,9 +116,16 @@ class Client:
             total=len(content) if hasattr(content, '__len__') else None,
         )
         results = DocumentArray()
+
+        parameters = kwargs.get('parameters', {})
+        model_name = parameters.get('model', '')
+        payload = self._get_post_parameters(content, kwargs)
+        payload.update(on=f'/encode/{model_name}'.rstrip('/'))
+        payload.update(inputs=self._iter_doc(content))
+
         with self._pbar:
             self._client.post(
-                **self._get_post_payload('encode', content, kwargs),
+                **payload,
                 on_done=partial(self._gather_result, results=results),
             )
         return self._unboxed_result(results)
@@ -190,18 +197,8 @@ class Client:
                     ),
                 )
 
-    def _get_post_payload(self, mode, content, kwargs):
-        parameters = kwargs.get('parameters', {})
-        model_name = parameters.get('model', '')
+    def _get_post_parameters(self, content, kwargs):
         payload = dict(
-            on=f'/{mode}/{model_name}'.rstrip('/')
-            if mode in ['encode', 'rank']
-            else f'/{mode}',
-            inputs=self._iter_rank_docs(
-                content, _source=kwargs.get('source', 'matches')
-            )
-            if mode == 'rank'
-            else self._iter_doc(content),
             request_size=kwargs.get('batch_size', 8),
             total_docs=len(content) if hasattr(content, '__len__') else None,
         )
@@ -292,9 +289,14 @@ class Client:
         )
 
         results = DocumentArray()
-        async for da in self._async_client.post(
-            **self._get_post_payload('encode', content, kwargs)
-        ):
+
+        parameters = kwargs.get('parameters', {})
+        model_name = parameters.get('model', '')
+        payload = self._get_post_parameters(content, kwargs)
+        payload.update(on=f'/encode/{model_name}'.rstrip('/'))
+        payload.update(inputs=self._iter_doc(content))
+
+        async for da in self._async_client.post(**payload):
             if not results:
                 self._pbar.start_task(self._r_task)
             results.extend(da)
@@ -391,9 +393,18 @@ class Client:
             total=len(docs),
         )
         results = DocumentArray()
+
+        parameters = kwargs.get('parameters', {})
+        model_name = parameters.get('model', '')
+        payload = self._get_post_parameters(docs, kwargs)
+        payload.update(on=f'/rank/{model_name}'.rstrip('/'))
+        payload.update(
+            inputs=self._iter_rank_docs(docs, _source=kwargs.get('source', 'matches'))
+        )
+
         with self._pbar:
             self._client.post(
-                **self._get_post_payload('rank', docs, kwargs),
+                **payload,
                 on_done=partial(self._gather_result, results=results),
             )
         return results
@@ -406,7 +417,16 @@ class Client:
             total=len(docs),
         )
         results = DocumentArray()
-        async for da in self._async_client.post(**self._get_rank_payload(docs, kwargs)):
+
+        parameters = kwargs.get('parameters', {})
+        model_name = parameters.get('model', '')
+        payload = self._get_post_parameters(docs, kwargs)
+        payload.update(on=f'/rank/{model_name}'.rstrip('/'))
+        payload.update(
+            inputs=self._iter_rank_docs(docs, _source=kwargs.get('source', 'matches'))
+        )
+
+        async for da in self._async_client.post(**payload):
             if not results:
                 self._pbar.start_task(self._r_task)
             results.extend(da)
@@ -420,17 +440,6 @@ class Client:
 
         return results
 
-    def _update_pbar(self):
-        from rich import filesize
-
-        self._pbar.update(
-            self._r_task,
-            advance=self._batch_size,
-            total_size=str(
-                filesize.decimal(int(os.environ.get('JINA_GRPC_RECV_BYTES', '0')))
-            ),
-        )
-
     def index(self, content: Iterable['Document'], **kwargs):
         """Index the embeddings created by server CLIP model.
         Given the document with embeddings, this function create an indexer which index
@@ -443,9 +452,13 @@ class Client:
             total=len(content) if hasattr(content, '__len__') else None,
         )
 
+        payload = self._get_post_parameters(content, kwargs)
+        payload.update(on='/index')
+        payload.update(inputs=self._iter_doc(content))
+
         with self._pbar:
             self._client.post(
-                **self._get_post_payload('index', content, kwargs),
+                **payload,
             )
 
     def search(self, content: List[str], **kwargs) -> DocumentArray:
@@ -460,9 +473,14 @@ class Client:
             total=len(content) if hasattr(content, '__len__') else None,
         )
         results = DocumentArray()
+
+        payload = self._get_post_parameters(content, kwargs)
+        payload.update(on='/search')
+        payload.update(inputs=self._iter_doc(content))
+
         with self._pbar:
             self._client.post(
-                **self._get_post_payload('search', content, kwargs),
+                **payload,
                 on_done=partial(self._gather_result, results=results),
             )
         return results
