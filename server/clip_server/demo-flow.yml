@@ -1,14 +1,14 @@
 jtype: Flow
 version: '1'
 with:
-  port: 51008
+  port: 61000
 executors:
   - name: encoder
     uses:
       jtype: CLIPEncoder
       metas:
         py_modules:
-          - executors/clip_torch.py
+          - clip_server.executors.clip_torch
     replicas: 1
   - name: indexer
     uses:
