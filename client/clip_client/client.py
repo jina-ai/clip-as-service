@@ -62,7 +62,6 @@ class Client:
             raise ValueError(f'{server} is not a valid scheme')
 
         self._authorization = credential.get('Authorization', None)
-        self._batch_size = 128
 
     @overload
     def encode(
@@ -112,20 +111,20 @@ class Client:
             )
 
         self._prepare_streaming(
-            not kwargs.get('show_progress'),
+            not kwargs.pop('show_progress'),
             total=len(content) if hasattr(content, '__len__') else None,
         )
         results = DocumentArray()
 
-        parameters = kwargs.get('parameters', {})
+        parameters = kwargs.pop('parameters', {})
         model_name = parameters.get('model', '')
         payload = self._get_post_parameters(content, kwargs)
-        payload.update(on=f'/encode/{model_name}'.rstrip('/'))
-        payload.update(inputs=self._iter_doc(content))
 
         with self._pbar:
             self._client.post(
                 **payload,
+                on=f'/encode/{model_name}'.rstrip('/'),
+                inputs=self._iter_doc(content),
                 on_done=partial(self._gather_result, results=results),
             )
         return self._unboxed_result(results)
@@ -199,7 +198,7 @@ class Client:
 
     def _get_post_parameters(self, content, kwargs):
         payload = dict(
-            request_size=kwargs.get('batch_size', 8),
+            request_size=kwargs.pop('batch_size', 8),
             total_docs=len(content) if hasattr(content, '__len__') else None,
         )
         if self._scheme == 'grpc' and self._authorization:
@@ -284,19 +283,21 @@ class Client:
         from rich import filesize
 
         self._prepare_streaming(
-            not kwargs.get('show_progress'),
+            not kwargs.pop('show_progress'),
             total=len(content) if hasattr(content, '__len__') else None,
         )
 
         results = DocumentArray()
 
-        parameters = kwargs.get('parameters', {})
+        parameters = kwargs.pop('parameters', {})
         model_name = parameters.get('model', '')
         payload = self._get_post_parameters(content, kwargs)
-        payload.update(on=f'/encode/{model_name}'.rstrip('/'))
-        payload.update(inputs=self._iter_doc(content))
 
-        async for da in self._async_client.post(**payload):
+        async for da in self._async_client.post(
+            **payload,
+            on=f'/encode/{model_name}'.rstrip('/'),
+            inputs=self._iter_doc(content),
+        ):
             if not results:
                 self._pbar.start_task(self._r_task)
             results.extend(da)
@@ -389,22 +390,22 @@ class Client:
         :return: the ranked Documents in a DocumentArray.
         """
         self._prepare_streaming(
-            not kwargs.get('show_progress'),
+            not kwargs.pop('show_progress'),
             total=len(docs),
         )
         results = DocumentArray()
 
-        parameters = kwargs.get('parameters', {})
+        parameters = kwargs.pop('parameters', {})
         model_name = parameters.get('model', '')
         payload = self._get_post_parameters(docs, kwargs)
-        payload.update(on=f'/rank/{model_name}'.rstrip('/'))
-        payload.update(
-            inputs=self._iter_rank_docs(docs, _source=kwargs.get('source', 'matches'))
-        )
 
         with self._pbar:
             self._client.post(
                 **payload,
+                on=f'/rank/{model_name}'.rstrip('/'),
+                inputs=self._iter_rank_docs(
+                    docs, _source=kwargs.pop('source', 'matches')
+                ),
                 on_done=partial(self._gather_result, results=results),
             )
         return results
@@ -413,20 +414,20 @@ class Client:
         from rich import filesize
 
         self._prepare_streaming(
-            not kwargs.get('show_progress'),
+            not kwargs.pop('show_progress'),
             total=len(docs),
         )
         results = DocumentArray()
 
-        parameters = kwargs.get('parameters', {})
+        parameters = kwargs.pop('parameters', {})
         model_name = parameters.get('model', '')
         payload = self._get_post_parameters(docs, kwargs)
-        payload.update(on=f'/rank/{model_name}'.rstrip('/'))
-        payload.update(
-            inputs=self._iter_rank_docs(docs, _source=kwargs.get('source', 'matches'))
-        )
 
-        async for da in self._async_client.post(**payload):
+        async for da in self._async_client.post(
+            **payload,
+            on=f'/rank/{model_name}'.rstrip('/'),
+            inputs=self._iter_rank_docs(docs, _source=kwargs.pop('source', 'matches')),
+        ):
             if not results:
                 self._pbar.start_task(self._r_task)
             results.extend(da)
@@ -448,18 +449,14 @@ class Client:
         :param content: docs to be indexed.
         """
         self._prepare_streaming(
-            not kwargs.get('show_progress'),
+            not kwargs.pop('show_progress'),
             total=len(content) if hasattr(content, '__len__') else None,
         )
 
         payload = self._get_post_parameters(content, kwargs)
-        payload.update(on='/index')
-        payload.update(inputs=self._iter_doc(content))
 
         with self._pbar:
-            self._client.post(
-                **payload,
-            )
+            self._client.post(**payload, on='/index', inputs=self._iter_doc(content))
 
     def search(self, content: List[str], **kwargs) -> DocumentArray:
         """Search for top k results for given query string or ``Document``.
@@ -469,24 +466,21 @@ class Client:
         :return: top limit results.
         """
         self._prepare_streaming(
-            not kwargs.get('show_progress'),
+            not kwargs.pop('show_progress'),
             total=len(content) if hasattr(content, '__len__') else None,
         )
         results = DocumentArray()
 
         payload = self._get_post_parameters(content, kwargs)
-        payload.update(on='/search')
-        payload.update(inputs=self._iter_doc(content))
 
         with self._pbar:
             self._client.post(
                 **payload,
+                on='/search',
+                inputs=self._iter_doc(content),
                 on_done=partial(self._gather_result, results=results),
             )
         return results
 
     def status(self):
-        payload = dict(
-            on='/status',
-        )
-        return self._client.post(**payload)
+        return self._client.post(on='/status')
