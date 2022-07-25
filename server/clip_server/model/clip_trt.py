@@ -14,7 +14,6 @@ except ImportError:
     )
 
 from clip_server.model.clip_model import BaseCLIPModel
-from clip_server.model.clip import MODEL_SIZE
 from clip_server.model.clip_onnx import _MODELS as ONNX_MODELS
 
 _MODELS = [
@@ -38,7 +37,6 @@ class CLIPTensorRTModel(BaseCLIPModel):
         super().__init__(name)
 
         if name in _MODELS:
-            self._name = name
             cache_dir = os.path.expanduser(f'~/.cache/clip/{name.replace("/", "-")}')
 
             self._textual_path = os.path.join(
@@ -57,24 +55,24 @@ class CLIPTensorRTModel(BaseCLIPModel):
 
                 trt_logger: Logger = trt.Logger(trt.Logger.ERROR)
                 runtime: Runtime = trt.Runtime(trt_logger)
-                onnx_model = CLIPOnnxModel(self._name)
+                onnx_model = CLIPOnnxModel(name)
 
                 visual_engine = build_engine(
                     runtime=runtime,
                     onnx_file_path=onnx_model._visual_path,
                     logger=trt_logger,
-                    min_shape=(1, 3, MODEL_SIZE[self._name], MODEL_SIZE[self._name]),
+                    min_shape=(1, 3, onnx_model.image_size, onnx_model.image_size),
                     optimal_shape=(
                         768,
                         3,
-                        MODEL_SIZE[self._name],
-                        MODEL_SIZE[self._name],
+                        onnx_model.image_size,
+                        onnx_model.image_size,
                     ),
                     max_shape=(
                         1024,
                         3,
-                        MODEL_SIZE[self._name],
-                        MODEL_SIZE[self._name],
+                        onnx_model.image_size,
+                        onnx_model.image_size,
                     ),
                     workspace_size=10000 * 1024 * 1024,
                     fp16=False,
