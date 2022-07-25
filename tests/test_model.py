@@ -8,7 +8,6 @@ from clip_server.model.mclip_model import MultilingualCLIPModel
     'name, model_cls',
     [
         ('ViT-L/14@336px', OpenCLIPModel),
-        ('RN101-quickgelu::openai', OpenCLIPModel),
         ('M-CLIP/XLM-Roberta-Large-Vit-B-32', MultilingualCLIPModel),
     ],
 )
