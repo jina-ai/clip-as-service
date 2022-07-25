@@ -107,7 +107,6 @@ def md5file(filename: str):
 
 
 def get_model_url_md5(name: str):
-    print(f'get_model_url_md5: {name}')
     model_pretrained = _OPENCLIP_MODELS[name]
     if len(model_pretrained) == 0:  # not on s3
         return None, None
