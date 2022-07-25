@@ -157,10 +157,8 @@ class OpenCLIPModel(CLIPModel):
             return 'ViT-L-14-336'
         return self._model_name.replace('/', '-')
 
-    def encode_text(
-        self, input_ids: 'torch.Tensor', attention_mask: 'torch.Tensor', **kwargs
-    ):
-        return self._model.encode_text(input_ids, attention_mask, **kwargs)
+    def encode_text(self, input_ids: 'torch.Tensor', **kwargs):
+        return self._model.encode_text(input_ids, **kwargs)
 
     def encode_image(self, pixel_values: 'torch.Tensor'):
         return self._model.encode_image(pixel_values)
