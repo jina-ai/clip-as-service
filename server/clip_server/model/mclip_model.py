@@ -63,8 +63,8 @@ class MultilingualCLIPModel(CLIPModel):
         self._clip_name = clip_name
 
     @property
-    def image_size(self):
-        return _VISUAL_MODEL_IMAGE_SIZE[self._clip_name]
+    def model_name(self):
+        return self._clip_name
 
     def encode_text(
         self, input_ids: 'torch.Tensor', attention_mask: 'torch.Tensor', **kwargs
