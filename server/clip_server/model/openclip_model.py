@@ -58,6 +58,14 @@ class OpenCLIPModel(CLIPModel):
             self._model.to(device=torch.device(device))
             self._model.eval()
 
+    @staticmethod
+    def get_model_name(name: str):
+        if name == 'ViT-L/14@336px':
+            return 'ViT-L-14-336'
+        elif name.endswith('-quickgelu'):
+            return name[:-10]
+        return name.replace('/', '-')
+
     @property
     def model_name(self):
         if self._model_name == 'ViT-L/14@336px':

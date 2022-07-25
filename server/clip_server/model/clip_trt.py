@@ -13,6 +13,7 @@ except ImportError:
         "https://docs.nvidia.com/deeplearning/tensorrt/install-guide/index.html"
     )
 
+from clip_server.model.clip_model import BaseCLIPModel
 from clip_server.model.clip import MODEL_SIZE
 from clip_server.model.clip_onnx import _MODELS as ONNX_MODELS
 
@@ -29,11 +30,13 @@ _MODELS = [
 ]
 
 
-class CLIPTensorRTModel:
+class CLIPTensorRTModel(BaseCLIPModel):
     def __init__(
         self,
-        name: str = None,
+        name: str,
     ):
+        super().__init__(name)
+
         if name in _MODELS:
             self._name = name
             cache_dir = os.path.expanduser(f'~/.cache/clip/{name.replace("/", "-")}')

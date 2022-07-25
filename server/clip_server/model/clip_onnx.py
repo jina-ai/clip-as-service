@@ -1,7 +1,11 @@
 import os
 
-from clip_server.model.clip import available_models
-from clip_server.model.pretrained_models import download_model
+from clip_server.model.pretrained_models import (
+    download_model,
+    _OPENCLIP_MODELS,
+    _MULTILINGUALCLIP_MODELS,
+)
+from clip_server.model.clip_model import BaseCLIPModel
 
 _S3_BUCKET = (
     'https://clip-as-service.s3.us-east-2.amazonaws.com/models/onnx/'  # Deprecated
@@ -102,8 +106,9 @@ _MODELS = {
 }
 
 
-class CLIPOnnxModel:
-    def __init__(self, name: str = None, model_path: str = None):
+class CLIPOnnxModel(BaseCLIPModel):
+    def __init__(self, name: str, model_path: str = None):
+        super().__init__(name)
         if name in _MODELS:
             if not model_path:
                 cache_dir = os.path.expanduser(
@@ -135,12 +140,26 @@ class CLIPOnnxModel:
                         )
                 else:
                     raise RuntimeError(
-                        f'The given model path {model_path} is not a valid directory'
+                        f'The given model path {model_path} should be a folder containing both '
+                        f'`textual.onnx` and `visual.onnx`.'
                     )
         else:
             raise RuntimeError(
-                f'Model {name} not found; available models = {available_models()}'
+                f'Model {name} not found; available models = {list(_MODELS.keys())}'
             )
+
+    @staticmethod
+    def get_model_name(name: str):
+        if name in _OPENCLIP_MODELS:
+            from clip_server.model.openclip_model import OpenCLIPModel
+
+            return OpenCLIPModel.get_model_name(name)
+        elif name in _MULTILINGUALCLIP_MODELS:
+            from clip_server.model.mclip_model import MultilingualCLIPModel
+
+            return MultilingualCLIPModel.get_model_name(name)
+
+        return name
 
     def start_sessions(
         self,
@@ -154,10 +173,10 @@ class CLIPOnnxModel:
         self._textual_session = ort.InferenceSession(self._textual_path, **kwargs)
         self._textual_session.disable_fallback()
 
-    def encode_image(self, onnx_image):
-        (visual_output,) = self._visual_session.run(None, onnx_image)
+    def encode_image(self, image_input):
+        (visual_output,) = self._visual_session.run(None, image_input)
         return visual_output
 
-    def encode_text(self, onnx_text):
-        (textual_output,) = self._textual_session.run(None, onnx_text)
+    def encode_text(self, text_input):
+        (textual_output,) = self._textual_session.run(None, text_input)
         return textual_output
