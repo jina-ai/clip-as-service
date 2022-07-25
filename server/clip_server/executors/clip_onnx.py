@@ -36,6 +36,7 @@ class CLIPEncoder(Executor):
 
         self._model = CLIPOnnxModel(name, model_path)
         self._tokenizer = Tokenizer(name)
+
         self._image_transform = clip._transform_ndarray(self._model.image_size)
 
         import torch
