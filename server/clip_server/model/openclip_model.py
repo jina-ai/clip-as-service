@@ -33,6 +33,8 @@ class OpenCLIPModel(CLIPModel):
         else:  # older CaS version's name format
             model_name = name
             pretrained = 'openai'
+        if model_name.endswith('-quickgelu'):
+            model_name = model_name[:-10]
 
         model_url, md5sum = get_model_url_md5(name)
         model_path = download_model(model_url, md5sum=md5sum)
@@ -153,12 +155,12 @@ class OpenCLIPModel(CLIPModel):
     def model_name(self):
         if self._model_name == 'ViT-L/14@336px':
             return 'ViT-L-14-336'
-        elif self._model_name.endswith('-quickgelu'):
-            return self._model_name[:-10]
         return self._model_name.replace('/', '-')
 
-    def encode_text(self, input_ids: 'torch.Tensor', **kwargs):
-        return self._model.encode_text(input_ids, **kwargs)
+    def encode_text(
+        self, input_ids: 'torch.Tensor', attention_mask: 'torch.Tensor', **kwargs
+    ):
+        return self._model.encode_text(input_ids, attention_mask, **kwargs)
 
-    def encode_image(self, pixel_values: 'torch.Tensor', **kwargs):
-        return self._model.encode_image(pixel_values, **kwargs)
+    def encode_image(self, pixel_values: 'torch.Tensor'):
+        return self._model.encode_image(pixel_values)
