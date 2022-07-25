@@ -1,4 +1,5 @@
 import os
+from typing import Dict
 
 from clip_server.model.pretrained_models import (
     download_model,
@@ -173,10 +174,10 @@ class CLIPOnnxModel(BaseCLIPModel):
         self._textual_session = ort.InferenceSession(self._textual_path, **kwargs)
         self._textual_session.disable_fallback()
 
-    def encode_image(self, image_input):
+    def encode_image(self, image_input: Dict):
         (visual_output,) = self._visual_session.run(None, image_input)
         return visual_output
 
-    def encode_text(self, text_input):
+    def encode_text(self, text_input: Dict):
         (textual_output,) = self._textual_session.run(None, text_input)
         return textual_output

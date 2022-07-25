@@ -1,4 +1,5 @@
 import os
+from typing import Dict
 
 try:
     import tensorrt as trt
@@ -103,10 +104,10 @@ class CLIPTensorRTModel(BaseCLIPModel):
         self._textual_engine = load_engine(runtime, self._textual_path)
         self._visual_engine = load_engine(runtime, self._visual_path)
 
-    def encode_image(self, onnx_image):
-        (visual_output,) = self._visual_engine(onnx_image)
+    def encode_image(self, image_input: Dict):
+        (visual_output,) = self._visual_engine(image_input)
         return visual_output
 
-    def encode_text(self, onnx_text):
-        (textual_output,) = self._textual_engine(onnx_text)
+    def encode_text(self, text_input: Dict):
+        (textual_output,) = self._textual_engine(text_input)
         return textual_output
