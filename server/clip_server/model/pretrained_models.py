@@ -7,31 +7,60 @@ import urllib
 _OPENCLIP_S3_BUCKET = 'https://clip-as-service.s3.us-east-2.amazonaws.com/models/torch'
 _OPENCLIP_MODELS = {
     'RN50::openai': ('RN50.pt', '9140964eaaf9f68c95aa8df6ca13777c'),
-    'RN50::yfcc15m': (),
-    'RN50::cc12m': (),
-    'RN50-quickgelu::openai': (),
-    'RN50-quickgelu::yfcc15m': (),
-    'RN50-quickgelu::cc12m': (),
+    'RN50::yfcc15m': ('RN50-yfcc15m.pt', 'e9c564f91ae7dc754d9043fdcd2a9f22'),
+    'RN50::cc12m': ('RN50-cc12m.pt', '37cb01eb52bb6efe7666b1ff2d7311b5'),
+    # 'RN50-quickgelu::openai': ('RN50.pt', '9140964eaaf9f68c95aa8df6ca13777c'),
+    # 'RN50-quickgelu::yfcc15m': ('RN50-yfcc15m.pt', 'e9c564f91ae7dc754d9043fdcd2a9f22'),
+    # 'RN50-quickgelu::cc12m': ('RN50-cc12m.pt', '37cb01eb52bb6efe7666b1ff2d7311b5'),
     'RN101::openai': ('RN101.pt', 'fa9d5f64ebf152bc56a18db245071014'),
-    'RN101::yfcc15m': (),
-    'RN101-quickgelu::openai': (),
-    'RN101-quickgelu::yfcc15m': (),
+    'RN101::yfcc15m': ('RN101-yfcc15m.pt', '48f7448879ce25e355804f6bb7928cb8'),
+    # 'RN101-quickgelu::openai': ('RN101.pt', 'fa9d5f64ebf152bc56a18db245071014'),
+    # 'RN101-quickgelu::yfcc15m': ('RN101-yfcc15m.pt', '48f7448879ce25e355804f6bb7928cb8'),
     'RN50x4::openai': ('RN50x4.pt', '03830990bc768e82f7fb684cde7e5654'),
     'RN50x16::openai': ('RN50x16.pt', '83d63878a818c65d0fb417e5fab1e8fe'),
     'RN50x64::openai': ('RN50x64.pt', 'a6631a0de003c4075d286140fc6dd637'),
     'ViT-B-32::openai': ('ViT-B-32.pt', '3ba34e387b24dfe590eeb1ae6a8a122b'),
-    'ViT-B-32::laion2b_e16': (),
-    'ViT-B-32::laion400m_e31': (),
-    'ViT-B-32::laion400m_e32': (),
-    'ViT-B-32-quickgelu::openai': (),
-    'ViT-B-32-quickgelu::laion400m_e31': (),
-    'ViT-B-32-quickgelu::laion400m_e32': (),
+    'ViT-B-32::laion2b_e16': (
+        'ViT-B-32-laion2b_e16.pt',
+        'df08de3d9f2dc53c71ea26e184633902',
+    ),
+    'ViT-B-32::laion400m_e31': (
+        'ViT-B-32-laion400m_e31.pt',
+        'ca8015f98ab0f8780510710681d7b73e',
+    ),
+    'ViT-B-32::laion400m_e32': (
+        'ViT-B-32-laion400m_e32.pt',
+        '359e0dba4a419f175599ee0c63a110d8',
+    ),
+    # 'ViT-B-32-quickgelu::openai': ('ViT-B-32.pt', '3ba34e387b24dfe590eeb1ae6a8a122b'),
+    # 'ViT-B-32-quickgelu::laion400m_e31': ('ViT-B-32-laion400m_e31.pt', 'ca8015f98ab0f8780510710681d7b73e'),
+    # 'ViT-B-32-quickgelu::laion400m_e32': ('ViT-B-32-laion400m_e32.pt', '359e0dba4a419f175599ee0c63a110d8'),
     'ViT-B-16::openai': ('ViT-B-16.pt', '44c3d804ecac03d9545ac1a3adbca3a6'),
-    'ViT-B-16::laion400m_e31': (),
-    'ViT-B-16::laion400m_e32': (),
-    'ViT-B-16-plus-240::laion400m_e31': (),
-    'ViT-B-16-plus-240::laion400m_e32': (),
+    'ViT-B-16::laion400m_e31': (
+        'ViT-B-16-laion400m_e31.pt',
+        '31306a44224cc46fec1bc3b82fd0c4e6',
+    ),
+    'ViT-B-16::laion400m_e32': (
+        'ViT-B-16-laion400m_e32.pt',
+        '07283adc5c17899f2ed22d82b563c54b',
+    ),
+    'ViT-B-16-plus-240::laion400m_e31': (
+        'ViT-B-16-plus-240-laion400m_e31.pt',
+        'c88f453644a998ecb094d878a2f0738d',
+    ),
+    'ViT-B-16-plus-240::laion400m_e32': (
+        'ViT-B-16-plus-240-laion400m_e32.pt',
+        'e573af3cef888441241e35022f30cc95',
+    ),
     'ViT-L-14::openai': ('ViT-L-14.pt', '096db1af569b284eb76b3881534822d9'),
+    'ViT-L-14::laion400m_e31': (
+        'ViT-L-14-laion400m_e31.pt',
+        '09d223a6d41d2c5c201a9da618d833aa',
+    ),
+    'ViT-L-14::laion400m_e32': (
+        'ViT-L-14-laion400m_e32.pt',
+        'a76cde1bc744ca38c6036b920c847a89',
+    ),
     'ViT-L-14-336::openai': ('ViT-L-14-336px.pt', 'b311058cae50cb10fbfa2a44231c9473'),
     # older version name format
     'RN50': ('RN50.pt', '9140964eaaf9f68c95aa8df6ca13777c'),
@@ -78,6 +107,7 @@ def md5file(filename: str):
 
 
 def get_model_url_md5(name: str):
+    print(f'get_model_url_md5: {name}')
     model_pretrained = _OPENCLIP_MODELS[name]
     if len(model_pretrained) == 0:  # not on s3
         return None, None
