@@ -13,7 +13,10 @@ except ImportError:
         "Please find installation instruction on "
         "https://docs.nvidia.com/deeplearning/tensorrt/install-guide/index.html"
     )
-
+from clip_server.model.pretrained_models import (
+    _OPENCLIP_MODELS,
+    _MULTILINGUALCLIP_MODELS,
+)
 from clip_server.model.clip_model import BaseCLIPModel
 from clip_server.model.clip_onnx import _MODELS as ONNX_MODELS
 
@@ -97,6 +100,19 @@ class CLIPTensorRTModel(BaseCLIPModel):
             raise RuntimeError(
                 f'Model {name} not found or not supports Nvidia TensorRT backend; available models = {list(_MODELS.keys())}'
             )
+
+    @staticmethod
+    def get_model_name(name: str):
+        if name in _OPENCLIP_MODELS:
+            from clip_server.model.openclip_model import OpenCLIPModel
+
+            return OpenCLIPModel.get_model_name(name)
+        elif name in _MULTILINGUALCLIP_MODELS:
+            from clip_server.model.mclip_model import MultilingualCLIPModel
+
+            return MultilingualCLIPModel.get_model_name(name)
+
+        return name
 
     def start_engines(self):
         trt_logger: Logger = trt.Logger(trt.Logger.ERROR)
