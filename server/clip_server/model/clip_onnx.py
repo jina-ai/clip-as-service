@@ -19,16 +19,11 @@ _MODELS = {
     ),
     'RN50::yfcc15m': (),
     'RN50::cc12m': (),
-    'RN50-quickgelu::openai': (),
-    'RN50-quickgelu::yfcc15m': (),
-    'RN50-quickgelu::cc12m': (),
     'RN101::openai': (
         ('RN101/textual.onnx', '2d9efb7d184c0d68a369024cedfa97af'),
         ('RN101/visual.onnx', '0297ebc773af312faab54f8b5a622d71'),
     ),
     'RN101::yfcc15m': (),
-    'RN101-quickgelu::openai': (),
-    'RN101-quickgelu::yfcc15m': (),
     'RN50x4::openai': (
         ('RN50x4/textual.onnx', 'd9d63d3fe35fb14d4affaa2c4e284005'),
         ('RN50x4/visual.onnx', '16afe1e35b85ad862e8bbdb12265c9cb'),
@@ -48,9 +43,6 @@ _MODELS = {
     'ViT-B-32::laion2b_e16': (),
     'ViT-B-32::laion400m_e31': (),
     'ViT-B-32::laion400m_e32': (),
-    'ViT-B-32-quickgelu::openai': (),
-    'ViT-B-32-quickgelu::laion400m_e31': (),
-    'ViT-B-32-quickgelu::laion400m_e32': (),
     'ViT-B-16::openai': (
         ('ViT-B-16/textual.onnx', '6f0976629a446f95c0c8767658f12ebe'),
         ('ViT-B-16/visual.onnx', 'd5c03bfeef1abbd9bede54a8f6e1eaad'),
