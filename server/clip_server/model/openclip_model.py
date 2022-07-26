@@ -7,7 +7,6 @@
 
 from typing import TYPE_CHECKING
 from copy import deepcopy
-import warnings
 import torch
 
 from clip_server.model.clip_model import CLIPModel
@@ -18,7 +17,7 @@ from open_clip.model import (
     convert_weights_to_fp16,
     build_model_from_openai_state_dict,
 )
-from open_clip.factory import _MODEL_CONFIGS, load_state_dict, load_openai_model
+from open_clip.factory import _MODEL_CONFIGS, load_checkpoint, load_openai_model
 
 if TYPE_CHECKING:
     import torch
@@ -30,31 +29,34 @@ class OpenCLIPModel(CLIPModel):
 
         if '::' in name:
             model_name, pretrained = name.split('::')
-        else:  # older CaS version's name format
+        else:
+            # default pretrained model is from openai
             model_name = name
             pretrained = 'openai'
-        if model_name.endswith('-quickgelu'):
-            model_name = model_name[:-10]
+
+        self._model_name = model_name
+
         model_url, md5sum = get_model_url_md5(name)
         model_path = download_model(model_url, md5sum=md5sum)
         if pretrained.lower() == 'openai':
-            model = load_openai_model(model_path, device=device, jit=jit)
+            self._model = load_openai_model(model_path, device=device, jit=jit)
         else:
             if model_name in _MODEL_CONFIGS:
                 model_cfg = deepcopy(_MODEL_CONFIGS[model_name])
             else:
                 raise RuntimeError(f'Model config for {model_name} not found.')
 
-            model = CLIP(**model_cfg)
-            model.load_state_dict(load_state_dict(model_path))
-            model.to(device=torch.device(device))
+            self._model = CLIP(**model_cfg)
 
-            if device == 'cuda':
-                convert_weights_to_fp16(model)
+            load_checkpoint(self._model, model_path)
+
+            if str(device) == 'cuda':
+                convert_weights_to_fp16(self._model)
             if jit:
-                model = torch.jit.script(model)
-        self._model_name = model_name
-        self._model = model
+                self._model = torch.jit.script(self._model)
+
+            self._model.to(device=torch.device(device))
+            self._model.eval()
 
     @property
     def model_name(self):
@@ -62,9 +64,7 @@ class OpenCLIPModel(CLIPModel):
             return 'ViT-L-14-336'
         return self._model_name.replace('/', '-')
 
-    def encode_text(
-        self, input_ids: 'torch.Tensor', attention_mask: 'torch.Tensor', **kwargs
-    ):
+    def encode_text(self, input_ids: 'torch.Tensor', **kwargs):
         return self._model.encode_text(input_ids)
 
     def encode_image(self, pixel_values: 'torch.Tensor'):
