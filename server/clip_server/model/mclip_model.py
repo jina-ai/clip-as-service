@@ -73,5 +73,5 @@ class MultilingualCLIPModel(CLIPModel):
             input_ids=input_ids, attention_mask=attention_mask, **kwargs
         )
 
-    def encode_image(self, pixel_values: torch.Tensor, **kwargs):
+    def encode_image(self, pixel_values: torch.Tensor):
         return self._model.encode_image(pixel_values)

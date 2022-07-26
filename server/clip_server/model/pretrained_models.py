@@ -82,7 +82,6 @@ _VISUAL_MODEL_IMAGE_SIZE = {
     'ViT-B-32': 224,
     'ViT-B-16': 224,
     'ViT-B-16-plus-240': 240,
-    'ViT-B-16-plus-240': 240,
     'ViT-L-14': 224,
     'ViT-L-14-336': 336,
     'Vit-B-16Plus': 240,
