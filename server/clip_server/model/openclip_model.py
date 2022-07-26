@@ -24,7 +24,7 @@ class OpenCLIPModel(CLIPModel):
         if model_url:
             model_path = download_model(model_url, md5sum=md5sum)
             self._model = load_openai_model(model_path, device=device, jit=jit)
-            self._model_name = name
+            self._model_name = name.split('::')[0]
         else:
             model_name, pretrained = name.split('::')
             self._model = open_clip.create_model(
