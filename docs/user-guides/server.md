@@ -108,10 +108,10 @@ The first thing is defining your CLIP model class which has 'init', 'encode_text
 
 Here is the template code of xxx_model.py.
 ```python
-from clip_server.model.clip_model import BaseCLIPModel
+from clip_server.model.clip_model import CLIPModel
 import torch
 
-class YourCustomCLIPModel(BaseCLIPModel):
+class YourCustomCLIPModel(CLIPModel):
     def __init__(self, name: str, device: str = 'cpu', jit: bool = False, **kwargs):
         super().__init__(name, **kwargs)
         ...
@@ -137,7 +137,7 @@ _YOUR_XXX_MODELS = {
 }
 ```
 #### 3. Import _YOUR_XXX_MODELS in clip_model.py
-Look at the first line of the file:
+Look at the first line of the code:
 ```python
 from clip_server.model.pretrained_models import (
     _VISUAL_MODEL_IMAGE_SIZE,
