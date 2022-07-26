@@ -15,9 +15,8 @@ from clip_server.model.pretrained_models import get_model_url_md5, download_mode
 from open_clip.model import (
     CLIP,
     convert_weights_to_fp16,
-    build_model_from_openai_state_dict,
 )
-from open_clip.factory import _MODEL_CONFIGS, load_checkpoint, load_openai_model
+from open_clip.factory import _MODEL_CONFIGS, load_state_dict, load_openai_model
 
 if TYPE_CHECKING:
     import torch
@@ -48,7 +47,8 @@ class OpenCLIPModel(CLIPModel):
 
             self._model = CLIP(**model_cfg)
 
-            load_checkpoint(self._model, model_path)
+            state_dict = load_state_dict(model_path)
+            self._model.load_state_dict(state_dict, strict=True)
 
             if str(device) == 'cuda':
                 convert_weights_to_fp16(self._model)
