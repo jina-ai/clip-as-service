@@ -1,4 +1,5 @@
 import os
+from typing import Dict
 
 try:
     import tensorrt as trt
@@ -12,8 +13,11 @@ except ImportError:
         "Please find installation instruction on "
         "https://docs.nvidia.com/deeplearning/tensorrt/install-guide/index.html"
     )
-
-from clip_server.model.clip import MODEL_SIZE
+from clip_server.model.pretrained_models import (
+    _OPENCLIP_MODELS,
+    _MULTILINGUALCLIP_MODELS,
+)
+from clip_server.model.clip_model import BaseCLIPModel
 from clip_server.model.clip_onnx import _MODELS as ONNX_MODELS
 
 _MODELS = [
@@ -29,13 +33,14 @@ _MODELS = [
 ]
 
 
-class CLIPTensorRTModel:
+class CLIPTensorRTModel(BaseCLIPModel):
     def __init__(
         self,
-        name: str = None,
+        name: str,
     ):
+        super().__init__(name)
+
         if name in _MODELS:
-            self._name = name
             cache_dir = os.path.expanduser(f'~/.cache/clip/{name.replace("/", "-")}')
 
             self._textual_path = os.path.join(
@@ -54,24 +59,24 @@ class CLIPTensorRTModel:
 
                 trt_logger: Logger = trt.Logger(trt.Logger.ERROR)
                 runtime: Runtime = trt.Runtime(trt_logger)
-                onnx_model = CLIPOnnxModel(self._name)
+                onnx_model = CLIPOnnxModel(name)
 
                 visual_engine = build_engine(
                     runtime=runtime,
                     onnx_file_path=onnx_model._visual_path,
                     logger=trt_logger,
-                    min_shape=(1, 3, MODEL_SIZE[self._name], MODEL_SIZE[self._name]),
+                    min_shape=(1, 3, onnx_model.image_size, onnx_model.image_size),
                     optimal_shape=(
                         768,
                         3,
-                        MODEL_SIZE[self._name],
-                        MODEL_SIZE[self._name],
+                        onnx_model.image_size,
+                        onnx_model.image_size,
                     ),
                     max_shape=(
                         1024,
                         3,
-                        MODEL_SIZE[self._name],
-                        MODEL_SIZE[self._name],
+                        onnx_model.image_size,
+                        onnx_model.image_size,
                     ),
                     workspace_size=10000 * 1024 * 1024,
                     fp16=False,
@@ -96,16 +101,29 @@ class CLIPTensorRTModel:
                 f'Model {name} not found or not supports Nvidia TensorRT backend; available models = {list(_MODELS.keys())}'
             )
 
+    @staticmethod
+    def get_model_name(name: str):
+        if name in _OPENCLIP_MODELS:
+            from clip_server.model.openclip_model import OpenCLIPModel
+
+            return OpenCLIPModel.get_model_name(name)
+        elif name in _MULTILINGUALCLIP_MODELS:
+            from clip_server.model.mclip_model import MultilingualCLIPModel
+
+            return MultilingualCLIPModel.get_model_name(name)
+
+        return name
+
     def start_engines(self):
         trt_logger: Logger = trt.Logger(trt.Logger.ERROR)
         runtime: Runtime = trt.Runtime(trt_logger)
         self._textual_engine = load_engine(runtime, self._textual_path)
         self._visual_engine = load_engine(runtime, self._visual_path)
 
-    def encode_image(self, onnx_image):
-        (visual_output,) = self._visual_engine(onnx_image)
+    def encode_image(self, image_input: Dict):
+        (visual_output,) = self._visual_engine(image_input)
         return visual_output
 
-    def encode_text(self, onnx_text):
-        (textual_output,) = self._textual_engine(onnx_text)
+    def encode_text(self, text_input: Dict):
+        (textual_output,) = self._textual_engine(text_input)
         return textual_output

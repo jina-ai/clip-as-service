@@ -49,7 +49,7 @@ class CLIPEncoder(Executor):
         self._model.start_engines()
 
         self._tokenizer = Tokenizer(name)
-        self._image_transform = clip._transform_ndarray(clip.MODEL_SIZE[name])
+        self._image_transform = clip._transform_ndarray(self._model.image_size)
 
     def _preproc_images(self, docs: 'DocumentArray'):
         with self.monitor(

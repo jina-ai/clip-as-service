@@ -1,7 +1,12 @@
 import os
+from typing import Dict
 
-from clip_server.model.clip import available_models
-from clip_server.model.pretrained_models import download_model
+from clip_server.model.pretrained_models import (
+    download_model,
+    _OPENCLIP_MODELS,
+    _MULTILINGUALCLIP_MODELS,
+)
+from clip_server.model.clip_model import BaseCLIPModel
 
 _S3_BUCKET = (
     'https://clip-as-service.s3.us-east-2.amazonaws.com/models/onnx/'  # Deprecated
@@ -14,16 +19,11 @@ _MODELS = {
     ),
     'RN50::yfcc15m': (),
     'RN50::cc12m': (),
-    'RN50-quickgelu::openai': (),
-    'RN50-quickgelu::yfcc15m': (),
-    'RN50-quickgelu::cc12m': (),
     'RN101::openai': (
         ('RN101/textual.onnx', '2d9efb7d184c0d68a369024cedfa97af'),
         ('RN101/visual.onnx', '0297ebc773af312faab54f8b5a622d71'),
     ),
     'RN101::yfcc15m': (),
-    'RN101-quickgelu::openai': (),
-    'RN101-quickgelu::yfcc15m': (),
     'RN50x4::openai': (
         ('RN50x4/textual.onnx', 'd9d63d3fe35fb14d4affaa2c4e284005'),
         ('RN50x4/visual.onnx', '16afe1e35b85ad862e8bbdb12265c9cb'),
@@ -43,9 +43,6 @@ _MODELS = {
     'ViT-B-32::laion2b_e16': (),
     'ViT-B-32::laion400m_e31': (),
     'ViT-B-32::laion400m_e32': (),
-    'ViT-B-32-quickgelu::openai': (),
-    'ViT-B-32-quickgelu::laion400m_e31': (),
-    'ViT-B-32-quickgelu::laion400m_e32': (),
     'ViT-B-16::openai': (
         ('ViT-B-16/textual.onnx', '6f0976629a446f95c0c8767658f12ebe'),
         ('ViT-B-16/visual.onnx', 'd5c03bfeef1abbd9bede54a8f6e1eaad'),
@@ -102,8 +99,9 @@ _MODELS = {
 }
 
 
-class CLIPOnnxModel:
-    def __init__(self, name: str = None, model_path: str = None):
+class CLIPOnnxModel(BaseCLIPModel):
+    def __init__(self, name: str, model_path: str = None):
+        super().__init__(name)
         if name in _MODELS:
             if not model_path:
                 cache_dir = os.path.expanduser(
@@ -135,12 +133,26 @@ class CLIPOnnxModel:
                         )
                 else:
                     raise RuntimeError(
-                        f'The given model path {model_path} is not a valid directory'
+                        f'The given model path {model_path} should be a folder containing both '
+                        f'`textual.onnx` and `visual.onnx`.'
                     )
         else:
             raise RuntimeError(
-                f'Model {name} not found; available models = {available_models()}'
+                f'Model {name} not found; available models = {list(_MODELS.keys())}'
             )
+
+    @staticmethod
+    def get_model_name(name: str):
+        if name in _OPENCLIP_MODELS:
+            from clip_server.model.openclip_model import OpenCLIPModel
+
+            return OpenCLIPModel.get_model_name(name)
+        elif name in _MULTILINGUALCLIP_MODELS:
+            from clip_server.model.mclip_model import MultilingualCLIPModel
+
+            return MultilingualCLIPModel.get_model_name(name)
+
+        return name
 
     def start_sessions(
         self,
@@ -154,10 +166,10 @@ class CLIPOnnxModel:
         self._textual_session = ort.InferenceSession(self._textual_path, **kwargs)
         self._textual_session.disable_fallback()
 
-    def encode_image(self, onnx_image):
-        (visual_output,) = self._visual_session.run(None, onnx_image)
+    def encode_image(self, image_input: Dict):
+        (visual_output,) = self._visual_session.run(None, image_input)
         return visual_output
 
-    def encode_text(self, onnx_text):
-        (textual_output,) = self._textual_session.run(None, onnx_text)
+    def encode_text(self, text_input: Dict):
+        (textual_output,) = self._textual_session.run(None, text_input)
         return textual_output
