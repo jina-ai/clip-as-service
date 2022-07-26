@@ -67,7 +67,7 @@ class Client:
     def encode(
         self,
         content: Iterable[str],
-        parameters: Optional[dict] = {},
+        parameters: Optional[dict] = None,
         *,
         batch_size: Optional[int] = None,
         show_progress: bool = False,
@@ -91,7 +91,7 @@ class Client:
     def encode(
         self,
         content: Union['DocumentArray', Iterable['Document']],
-        parameters: Optional[dict] = {},
+        parameters: Optional[dict] = None,
         *,
         batch_size: Optional[int] = None,
         show_progress: bool = False,
@@ -106,20 +106,20 @@ class Client:
         """
         ...
 
-    def encode(self, content, parameters, **kwargs):
+    def encode(self, content, parameters: Optional[dict] = None, **kwargs):
         if isinstance(content, str):
             raise TypeError(
                 f'content must be an Iterable of [str, Document], try `.encode(["{content}"])` instead'
             )
 
         self._prepare_streaming(
-            not kwargs.pop('show_progress', False),
+            not kwargs.get('show_progress'),
             total=len(content) if hasattr(content, '__len__') else None,
         )
         results = DocumentArray()
 
         model_name = parameters.get('model', '')
-        params = self._get_post_parameters(content, kwargs)
+        post_args = self._get_post_args(content, kwargs)
 
         with self._pbar:
             self._client.post(
@@ -127,7 +127,7 @@ class Client:
                 inputs=self._iter_doc(content),
                 parameters=parameters,
                 on_done=partial(self._gather_result, results=results),
-                **params,
+                **post_args,
             )
         return self._unboxed_result(results)
 
@@ -198,16 +198,16 @@ class Client:
                     ),
                 )
 
-    def _get_post_parameters(self, content, kwargs):
-        params = dict(
-            request_size=kwargs.pop('batch_size', 8),
+    def _get_post_args(self, content, kwargs):
+        post_args = dict(
+            request_size=kwargs.get('batch_size', 8),
             total_docs=len(content) if hasattr(content, '__len__') else None,
         )
         if self._scheme == 'grpc' and self._authorization:
-            params.update(metadata=('authorization', self._authorization))
+            post_args.update(metadata=('authorization', self._authorization))
         elif self._scheme == 'http' and self._authorization:
-            params.update(headers={'Authorization': self._authorization})
-        return params
+            post_args.update(headers={'Authorization': self._authorization})
+        return post_args
 
     def profile(self, content: Optional[str] = '') -> Dict[str, float]:
         """Profiling a single query's roundtrip including network and computation latency. Results is summarized in a table.
@@ -265,7 +265,7 @@ class Client:
     async def aencode(
         self,
         content: Iterator[str],
-        parameters: Optional[dict] = {},
+        parameters: Optional[dict] = None,
         *,
         batch_size: Optional[int] = None,
         show_progress: bool = False,
@@ -276,32 +276,32 @@ class Client:
     async def aencode(
         self,
         content: Union['DocumentArray', Iterable['Document']],
-        parameters: Optional[dict] = {},
+        parameters: Optional[dict] = None,
         *,
         batch_size: Optional[int] = None,
         show_progress: bool = False,
     ) -> 'DocumentArray':
         ...
 
-    async def aencode(self, content, parameters, **kwargs):
+    async def aencode(self, content, parameters: Optional[dict] = None, **kwargs):
         from rich import filesize
 
         self._prepare_streaming(
-            not kwargs.pop('show_progress', False),
+            not kwargs.get('show_progress'),
             total=len(content) if hasattr(content, '__len__') else None,
         )
 
         results = DocumentArray()
 
         model_name = parameters.get('model', '')
-        params = self._get_post_parameters(content, kwargs)
+        post_args = self._get_post_args(content, kwargs)
 
         with self._pbar:
             async for da in self._async_client.post(
                 on=f'/encode/{model_name}'.rstrip('/'),
                 inputs=self._iter_doc(content),
                 parameters=parameters,
-                **params,
+                **post_args,
             ):
                 if not results:
                     self._pbar.start_task(self._r_task)
@@ -388,7 +388,7 @@ class Client:
                 )
 
     def rank(
-        self, docs: Iterable['Document'], parameters: Optional[dict] = {}, **kwargs
+        self, docs: Iterable['Document'], parameters: Optional[dict] = None, **kwargs
     ) -> 'DocumentArray':
         """Rank image-text matches according to the server CLIP model.
         Given a Document with nested matches, where the root is image/text and the matches is in another modality, i.e.
@@ -401,48 +401,48 @@ class Client:
         :return: the ranked Documents in a DocumentArray.
         """
         self._prepare_streaming(
-            not kwargs.pop('show_progress', False),
+            not kwargs.get('show_progress'),
             total=len(docs),
         )
         results = DocumentArray()
 
         model_name = parameters.get('model', '')
-        params = self._get_post_parameters(docs, kwargs)
+        post_args = self._get_post_args(docs, kwargs)
 
         with self._pbar:
             self._client.post(
                 on=f'/rank/{model_name}'.rstrip('/'),
                 inputs=self._iter_rank_docs(
-                    docs, _source=kwargs.pop('source', 'matches')
+                    docs, _source=kwargs.get('source', 'matches')
                 ),
                 parameters=parameters,
                 on_done=partial(self._gather_result, results=results),
-                **params,
+                **post_args,
             )
         return results
 
     async def arank(
-        self, docs: Iterable['Document'], parameters: Optional[dict] = {}, **kwargs
+        self, docs: Iterable['Document'], parameters: Optional[dict] = None, **kwargs
     ) -> 'DocumentArray':
         from rich import filesize
 
         self._prepare_streaming(
-            not kwargs.pop('show_progress', False),
+            not kwargs.get('show_progress'),
             total=len(docs),
         )
         results = DocumentArray()
 
         model_name = parameters.get('model', '')
-        params = self._get_post_parameters(docs, kwargs)
+        post_args = self._get_post_args(docs, kwargs)
 
         with self._pbar:
             async for da in self._async_client.post(
                 on=f'/rank/{model_name}'.rstrip('/'),
                 inputs=self._iter_rank_docs(
-                    docs, _source=kwargs.pop('source', 'matches')
+                    docs, _source=kwargs.get('source', 'matches')
                 ),
                 parameters=parameters,
-                **params,
+                **post_args,
             ):
                 if not results:
                     self._pbar.start_task(self._r_task)
@@ -502,18 +502,18 @@ class Client:
             )
 
         self._prepare_streaming(
-            not kwargs.pop('show_progress', False),
+            not kwargs.get('show_progress'),
             total=len(content) if hasattr(content, '__len__') else None,
         )
         results = DocumentArray()
-        params = self._get_post_parameters(content, kwargs)
+        post_args = self._get_post_args(content, kwargs)
 
         with self._pbar:
             self._client.post(
                 on='/index',
                 inputs=self._iter_doc(content),
                 on_done=partial(self._gather_result, results=results),
-                **params,
+                **post_args,
             )
 
     @overload
@@ -540,17 +540,17 @@ class Client:
         from rich import filesize
 
         self._prepare_streaming(
-            not kwargs.pop('show_progress', False),
+            not kwargs.get('show_progress'),
             total=len(content) if hasattr(content, '__len__') else None,
         )
         results = DocumentArray()
-        params = self._get_post_parameters(content, kwargs)
+        post_args = self._get_post_args(content, kwargs)
 
         with self._pbar:
             async for da in self._async_client.post(
                 on='/index',
                 inputs=self._iter_doc(content),
-                **params,
+                **post_args,
             ):
                 if not results:
                     self._pbar.start_task(self._r_task)
@@ -569,14 +569,14 @@ class Client:
     def search(
         self,
         content: Iterable[str],
-        parameters: Optional[dict] = {},
+        parameters: Optional[dict] = None,
         *,
         batch_size: Optional[int] = None,
         show_progress: bool = False,
     ) -> 'DocumentArray':
         """Search for top k results for given query string or ``Document``.
         If the input is a string, will use this string as query. If the input is a
-        ``Document``, will use the ``text`` field as query.
+        ``Document``, will use this ``Document`` as query.
         :param content: list of queries.
         :param parameters: parameters passed to search function. Now we support:
             - limit: int, return top limit results. Default is 10.
@@ -584,10 +584,6 @@ class Client:
             - include_metadata: bool, whether return the document metadata in response. Default is True.
         :param batch_size: the number of elements in each request when sending ``content``.
         :param show_progress: if set, show a progress bar.
-        :param parameters: parameters passed to search function. Now we support:
-            - limit: int, return top limit results. Default is 10.
-            - filter: dict, apply filter when querying. Default is None.
-            - include_metadata: bool, whether return the document metadata in response. Default is True.
         :return: top limit results.
         """
         ...
@@ -596,14 +592,14 @@ class Client:
     def search(
         self,
         content: Union['DocumentArray', Iterable['Document']],
-        parameters: Optional[dict] = {},
+        parameters: Optional[dict] = None,
         *,
         batch_size: Optional[int] = None,
         show_progress: bool = False,
     ) -> 'DocumentArray':
         """Search for top k results for given query string or ``Document``.
         If the input is a string, will use this string as query. If the input is a
-        ``Document``, will use the ``text`` field as query.
+        ``Document``, will use this ``Document`` as query.
         :param content: list of queries.
         :param parameters: parameters passed to search function. Now we support:
             - limit: int, return top limit results. Default is 10.
@@ -615,19 +611,21 @@ class Client:
         """
         ...
 
-    def search(self, content, parameters, **kwargs) -> 'DocumentArray':
+    def search(
+        self, content, parameters: Optional[dict] = None, **kwargs
+    ) -> 'DocumentArray':
         if isinstance(content, str):
             raise TypeError(
                 f'content must be an Iterable of [str, Document], try `.encode(["{content}"])` instead'
             )
 
         self._prepare_streaming(
-            not kwargs.pop('show_progress', False),
+            not kwargs.get('show_progress'),
             total=len(content) if hasattr(content, '__len__') else None,
         )
         results = DocumentArray()
 
-        params = self._get_post_parameters(content, kwargs)
+        post_args = self._get_post_args(content, kwargs)
 
         with self._pbar:
             self._client.post(
@@ -635,7 +633,7 @@ class Client:
                 inputs=self._iter_doc(content),
                 parameters=parameters,
                 on_done=partial(self._gather_result, results=results),
-                **params,
+                **post_args,
             )
         return results
 
@@ -643,7 +641,7 @@ class Client:
     async def asearch(
         self,
         content: Iterator[str],
-        parameters: Optional[dict] = {},
+        parameters: Optional[dict] = None,
         *,
         limit: Optional[int] = 10,
         batch_size: Optional[int] = None,
@@ -655,7 +653,7 @@ class Client:
     async def asearch(
         self,
         content: Union['DocumentArray', Iterable['Document']],
-        parameters: Optional[dict] = {},
+        parameters: Optional[dict] = None,
         *,
         limit: Optional[int] = 10,
         batch_size: Optional[int] = None,
@@ -663,23 +661,23 @@ class Client:
     ):
         ...
 
-    async def asearch(self, content, parameters, **kwargs):
+    async def asearch(self, content, parameters: Optional[dict] = None, **kwargs):
         from rich import filesize
 
         self._prepare_streaming(
-            not kwargs.pop('show_progress', False),
+            not kwargs.get('show_progress'),
             total=len(content) if hasattr(content, '__len__') else None,
         )
         results = DocumentArray()
 
-        params = self._get_post_parameters(content, kwargs)
+        post_args = self._get_post_args(content, kwargs)
 
         with self._pbar:
             async for da in self._async_client.post(
                 on='/search',
                 inputs=self._iter_doc(content),
                 parameters=parameters,
-                **params,
+                **post_args,
             ):
                 if not results:
                     self._pbar.start_task(self._r_task)
