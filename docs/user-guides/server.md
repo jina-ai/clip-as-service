@@ -61,22 +61,142 @@ The procedure and UI of ONNX and TensorRT runtime would look the same as Pytorch
 
 ## Model support
 
-Open AI has released 9 models so far. `ViT-B/32` is used as default model in all runtimes. Due to the limitation of some runtime, not every runtime supports all nine models. Please also note that different model give different size of output dimensions. This will affect your downstream applications. For example, switching the model from one to another make your embedding incomparable, which breaks the downstream applications. Below is a list of supported models of each runtime and its corresponding size. We include the disk usage (in delta) and the peak RAM and VRAM usage (in delta) when running on a single Nvidia TITAN RTX GPU (24GB VRAM) for a series of text and image encoding tasks with `batch_size=8` using PyTorch runtime.
+Clip-as-Service support 23 models from OpenAI, OpenCLIP, and MultilingualCLIP. 
 
-| Model          | PyTorch | ONNX | TensorRT | Output Dimension | Disk Usage (MB) | Peak RAM Usage (GB) | Peak VRAM Usage (GB) |
-|----------------|---------|------|----------|------------------|-----------------|---------------------|----------------------|
-| RN50           | ✅       | ✅    | ✅        | 1024             | 256             | 2.99                | 1.36                 |
-| RN101          | ✅       | ✅    | ✅        | 512              | 292             | 3.51                | 1.40                 |
-| RN50x4         | ✅       | ✅    | ✅        | 640              | 422             | 3.23                | 1.63                 |
-| RN50x16        | ✅       | ✅    | ❌        | 768              | 661             | 3.63                | 2.02                 |
-| RN50x64        | ✅       | ✅    | ❌        | 1024             | 1382            | 4.08                | 2.98                 |
-| ViT-B/32       | ✅       | ✅    | ✅        | 512              | 351             | 3.20                | 1.40                 |
-| ViT-B/16       | ✅       | ✅    | ✅        | 512              | 354             | 3.20                | 1.44                 |
-| ViT-L/14       | ✅       | ✅    | ❌        | 768              | 933             | 3.66                | 2.04                 |
-| ViT-L/14@336px | ✅       | ✅    | ❌        | 768              | 934             | 3.74                | 2.23                 |
+`ViT-B-32::openai` is used as default model in all runtimes. Due to the limitation of some runtime, not every runtime supports all nine models. Please also note that different model give different size of output dimensions. This will affect your downstream applications. For example, switching the model from one to another make your embedding incomparable, which breaks the downstream applications. Below is a list of supported models of each runtime and its corresponding size. We include the disk usage (in delta) and the peak RAM and VRAM usage (in delta) when running on a single Nvidia TITAN RTX GPU (24GB VRAM) for a series of text and image encoding tasks with `batch_size=8` using PyTorch runtime.
 
-### Use custom model
+| Model                                 | PyTorch | ONNX | TensorRT | Output Dimension | Disk Usage (MB) | Peak RAM Usage (GB) | Peak VRAM Usage (GB) |
+|---------------------------------------|--------|----|--------|------------|-----------|-------------|--------------|
+| RN50::openai                          | ✅      | ✅  | ✅      | 1024       | 256       | 2.99        | 1.36         |
+| RN50::yfcc15m                         | ✅      |    |        |            |           |             |              |
+| RN50::cc12m                           | ✅      |    |        |            |           |             |              |
+| RN101::openai                         | ✅      | ✅  | ✅      | 512        | 292       | 3.51        | 1.40         |
+| RN101::yfcc15m                        | ✅      |    |        |            |           |             |              |
+| RN50x4::openai                        | ✅      | ✅  | ✅      | 640        | 422       | 3.23        | 1.63         |
+| RN50x16::openai                       | ✅      | ✅  | ❌      | 768        | 661       | 3.63        | 2.02         |
+| RN50x64::openai                       | ✅      | ✅  | ❌      | 1024       | 1382      | 4.08        | 2.98         |
+| ViT-B-32::openai                      | ✅      | ✅  | ✅      | 512        | 351       | 3.20        | 1.40         |
+| ViT-B-32::laion2b_e16                 | ✅      |    |        |            |           |             |              |
+| ViT-B-32::laion400m_e31               | ✅      |    |        |            |           |             |              |
+| ViT-B-32::laion400m_e32               | ✅      |    |        |            |           |             |              |
+| ViT-B-16::openai                      | ✅      | ✅  | ✅      | 512        | 354       | 3.20        | 1.44         |
+| ViT-B-16::laion400m_e31               | ✅      |    |        |            |           |             |              |
+| ViT-B-16::laion400m_e32               | ✅      |    |        |            |           |             |              |
+| ViT-B-16-plus-240::laion400m_e31      | ✅      |    |        |            |           |             |              |
+| ViT-B-16-plus-240::laion400m_e32      | ✅      |    |        |            |           |             |              |
+| ViT-L-14::openai                      | ✅      | ✅  | ❌      | 768        | 933       | 3.66        | 2.04         |
+| ViT-L-14-336::openai                  | ✅      | ✅  | ❌      | 768        | 934       | 3.74        | 2.23         |
+| M-CLIP/XLM-Roberta-Large-Vit-B-32     | ✅       |    |        |            |           |             |              |
+| M-CLIP/XLM-Roberta-Large-Vit-L-14     | ✅       |    |        |            |           |             |              |
+| M-CLIP/XLM-Roberta-Large-Vit-B-16Plus | ✅       |    |        |            |           |             |              |
+| M-CLIP/LABSE-Vit-L-14                 | ✅       |    |        |            |           |             |              |
 
+### Use custom CLIP model
+Following these simple steps you will be able to link your own CLIP with clip-as service. 
+
+You need to modify these files in site-packages/clip_server directory.
+```text
+.
+└── model/
+    ├── xxx_model.py
+    └── clip_model.py
+    └── pretrained_models.py
+└── torch-flow.yml
+```
+#### 1. Create your xxx_model.py
+The first thing is defining your CLIP model class which has 'init', 'encode_text', and 'encode_image' methods.
+
+Here is the template code of xxx_model.py.
+```python
+from clip_server.model.clip_model import BaseCLIPModel
+import torch
+
+class YourCustomCLIPModel(BaseCLIPModel):
+    def __init__(self, name: str, device: str = 'cpu', jit: bool = False, **kwargs):
+        super().__init__(name, **kwargs)
+        ...
+        self._model = Your_Model
+        self._model_name = Your_Model_Name
+
+    def encode_text(
+        self, input_ids: 'torch.Tensor', attention_mask: 'torch.Tensor', **kwargs
+    ):
+        return Your_Encode_Text(
+            input_ids=input_ids, attention_mask=attention_mask, **kwargs
+        )
+
+    def encode_image(self, pixel_values: torch.Tensor):
+        return Your_Encode_Image(pixel_values)
+```
+#### 2. Define your model names in pretrained_models.py
+Copy, paste, and write down your model's name.
+```python
+_YOUR_XXX_MODELS = {
+    'Your_Name_XXX': (),
+    ...
+}
+```
+#### 3. Import _YOUR_XXX_MODELS in clip_model.py
+Look at the first line of the file:
+```python
+from clip_server.model.pretrained_models import (
+    _VISUAL_MODEL_IMAGE_SIZE,
+    _OPENCLIP_MODELS,
+    _MULTILINGUALCLIP_MODELS,
+    # _YOUR_XXX_MODELS,
+)
+```
+#### 4. Add your model to the logic in clip_model.py
+Write another elif that is similar to other ifs.
+```python
+def __new__(cls, name: str, **kwargs):
+    if cls is CLIPModel:
+        if name in _OPENCLIP_MODELS:
+            from clip_server.model.openclip_model import OpenCLIPModel
+
+            instance = super().__new__(OpenCLIPModel)
+        elif name in _MULTILINGUALCLIP_MODELS:
+            from clip_server.model.mclip_model import MultilingualCLIPModel
+
+            instance = super().__new__(MultilingualCLIPModel)
+        # Add another elif here...
+        else:
+            raise ValueError(f'The CLIP model name=`{name}` is not supported.')
+    else:
+        instance = super().__new__(cls)
+    return instance
+```
+#### 5. Change the executor's default model name to your model name
+Edit torch-flow.yml in clip_server directory.
+
+You can learn more about YAML config in next block.
+```{code-block} yaml
+---
+emphasize-lines: 9-10
+---
+
+jtype: Flow
+version: '1'
+with:
+  port: 51000
+executors:
+  - name: clip_t
+    uses:
+      jtype: CLIPEncoder
+      with: 
+        name: Your_Name_XXX
+      metas:
+        py_modules:
+          - executors/clip_torch.py
+```
+#### 6. Run the clip server
+```bash
+python -m clip_server 
+```
+
+Now you have your-own-clip-as-service!
+
+### Use custom model for onnx
 You can also use your own model in ONNX runtime by specifying the model name and the path to model directory in YAML file.
 The model directory should have the same structure as below:
 
