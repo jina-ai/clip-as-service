@@ -67,7 +67,7 @@ class Client:
     def encode(
         self,
         content: Iterable[str],
-        parameters: Optional[dict] = None,
+        parameters: dict = {},
         *,
         batch_size: Optional[int] = None,
         show_progress: bool = False,
@@ -91,7 +91,7 @@ class Client:
     def encode(
         self,
         content: Union['DocumentArray', Iterable['Document']],
-        parameters: Optional[dict] = None,
+        parameters: dict = {},
         *,
         batch_size: Optional[int] = None,
         show_progress: bool = False,
@@ -106,7 +106,7 @@ class Client:
         """
         ...
 
-    def encode(self, content, parameters: Optional[dict] = None, **kwargs):
+    def encode(self, content, parameters: dict = {}, **kwargs):
         if isinstance(content, str):
             raise TypeError(
                 f'content must be an Iterable of [str, Document], try `.encode(["{content}"])` instead'
@@ -265,7 +265,7 @@ class Client:
     async def aencode(
         self,
         content: Iterator[str],
-        parameters: Optional[dict] = None,
+        parameters: dict = {},
         *,
         batch_size: Optional[int] = None,
         show_progress: bool = False,
@@ -276,14 +276,14 @@ class Client:
     async def aencode(
         self,
         content: Union['DocumentArray', Iterable['Document']],
-        parameters: Optional[dict] = None,
+        parameters: dict = {},
         *,
         batch_size: Optional[int] = None,
         show_progress: bool = False,
     ) -> 'DocumentArray':
         ...
 
-    async def aencode(self, content, parameters: Optional[dict] = None, **kwargs):
+    async def aencode(self, content, parameters: dict = {}, **kwargs):
         from rich import filesize
 
         self._prepare_streaming(
@@ -388,7 +388,7 @@ class Client:
                 )
 
     def rank(
-        self, docs: Iterable['Document'], parameters: Optional[dict] = None, **kwargs
+        self, docs: Iterable['Document'], parameters: dict = {}, **kwargs
     ) -> 'DocumentArray':
         """Rank image-text matches according to the server CLIP model.
         Given a Document with nested matches, where the root is image/text and the matches is in another modality, i.e.
@@ -422,7 +422,7 @@ class Client:
         return results
 
     async def arank(
-        self, docs: Iterable['Document'], parameters: Optional[dict] = None, **kwargs
+        self, docs: Iterable['Document'], parameters: dict = {}, **kwargs
     ) -> 'DocumentArray':
         from rich import filesize
 
@@ -569,7 +569,7 @@ class Client:
     def search(
         self,
         content: Iterable[str],
-        parameters: Optional[dict] = None,
+        parameters: dict = {},
         *,
         batch_size: Optional[int] = None,
         show_progress: bool = False,
@@ -592,7 +592,7 @@ class Client:
     def search(
         self,
         content: Union['DocumentArray', Iterable['Document']],
-        parameters: Optional[dict] = None,
+        parameters: dict = {},
         *,
         batch_size: Optional[int] = None,
         show_progress: bool = False,
@@ -611,9 +611,7 @@ class Client:
         """
         ...
 
-    def search(
-        self, content, parameters: Optional[dict] = None, **kwargs
-    ) -> 'DocumentArray':
+    def search(self, content, parameters: dict = {}, **kwargs) -> 'DocumentArray':
         if isinstance(content, str):
             raise TypeError(
                 f'content must be an Iterable of [str, Document], try `.encode(["{content}"])` instead'
@@ -641,7 +639,7 @@ class Client:
     async def asearch(
         self,
         content: Iterator[str],
-        parameters: Optional[dict] = None,
+        parameters: dict = {},
         *,
         limit: Optional[int] = 10,
         batch_size: Optional[int] = None,
@@ -653,7 +651,7 @@ class Client:
     async def asearch(
         self,
         content: Union['DocumentArray', Iterable['Document']],
-        parameters: Optional[dict] = None,
+        parameters: dict = {},
         *,
         limit: Optional[int] = 10,
         batch_size: Optional[int] = None,
@@ -661,7 +659,7 @@ class Client:
     ):
         ...
 
-    async def asearch(self, content, parameters: Optional[dict] = None, **kwargs):
+    async def asearch(self, content, parameters: dict = {}, **kwargs):
         from rich import filesize
 
         self._prepare_streaming(
