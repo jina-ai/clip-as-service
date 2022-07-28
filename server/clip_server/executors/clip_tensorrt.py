@@ -81,7 +81,6 @@ class CLIPEncoder(Executor):
     @requests
     async def encode(self, docs: 'DocumentArray', parameters: Dict = {}, **kwargs):
         traversal_paths = parameters.get('traversal_paths', self._traversal_paths)
-        minibatch_size = parameters.get('minibatch_size', self._minibatch_size)
 
         _img_da = DocumentArray()
         _txt_da = DocumentArray()
@@ -92,7 +91,7 @@ class CLIPEncoder(Executor):
         if _img_da:
             for minibatch, batch_data in _img_da.map_batch(
                 self._preproc_images,
-                batch_size=minibatch_size,
+                batch_size=self._minibatch_size,
                 pool=self._pool,
             ):
                 with self.monitor(
@@ -111,7 +110,7 @@ class CLIPEncoder(Executor):
         if _txt_da:
             for minibatch, batch_data in _txt_da.map_batch(
                 self._preproc_texts,
-                batch_size=minibatch_size,
+                batch_size=self._minibatch_size,
                 pool=self._pool,
             ):
                 with self.monitor(
