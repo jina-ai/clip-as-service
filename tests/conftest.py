@@ -16,15 +16,13 @@ def port_generator():
     return random_port
 
 
-@pytest.fixture(scope='session', params=['onnx', 'torch', 'hg', 'onnx_custom'])
+@pytest.fixture(scope='session', params=['onnx', 'torch', 'onnx_custom'])
 def make_flow(port_generator, request):
     if request.param != 'onnx_custom':
         if request.param == 'onnx':
             from clip_server.executors.clip_onnx import CLIPEncoder
-        elif request.param == 'torch':
-            from clip_server.executors.clip_torch import CLIPEncoder
         else:
-            from clip_server.executors.clip_hg import CLIPEncoder
+            from clip_server.executors.clip_torch import CLIPEncoder
 
         f = Flow(port=port_generator()).add(name=request.param, uses=CLIPEncoder)
     else:
@@ -54,27 +52,5 @@ def make_trt_flow(port_generator, request):
     from clip_server.executors.clip_tensorrt import CLIPEncoder
 
     f = Flow(port=port_generator()).add(name=request.param, uses=CLIPEncoder)
-    with f:
-        yield f
-
-
-@pytest.fixture(scope='session', params=['hg'])
-def make_hg_flow(port_generator, request):
-    from clip_server.executors.clip_hg import CLIPEncoder
-
-    f = Flow(port=port_generator()).add(name=request.param, uses=CLIPEncoder)
-    with f:
-        yield f
-
-
-@pytest.fixture(scope='session', params=['hg'])
-def make_hg_flow_no_default(port_generator, request):
-    from clip_server.executors.clip_hg import CLIPEncoder
-
-    f = Flow(port=port_generator()).add(
-        name=request.param,
-        uses=CLIPEncoder,
-        uses_with={'preprocessing': False},
-    )
     with f:
         yield f
