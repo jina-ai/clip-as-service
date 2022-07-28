@@ -47,7 +47,6 @@ setup(
         'torch',
         'regex',
         'torchvision',
-        'transformers>=4.16.2',
         'jina>=3.6.0',
         'prometheus-client',
         'open_clip_torch>=1.3.0',
@@ -59,6 +58,7 @@ setup(
         ]
         + (['onnxruntime-gpu>=1.8.0'] if sys.platform != 'darwin' else []),
         'tensorrt': ['nvidia-tensorrt'],
+        'mclip': ['transformers>=4.16.2'],
     },
     classifiers=[
         'Development Status :: 5 - Production/Stable',

@@ -42,6 +42,7 @@ jobs:
           python -m pip install wheel
           pip install --no-cache-dir "client/[test]"
           pip install --no-cache-dir "server/[onnx]"
+          pip install --no-cache-dir "server/[mclip]"
       - name: Test
         id: test
         run: |
