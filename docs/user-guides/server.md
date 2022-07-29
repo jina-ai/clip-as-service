@@ -129,7 +129,7 @@ executors:
       jtype: CLIPEncoder
       metas:
         py_modules:
-          - executors/clip_torch.py
+          - clip_server.executors.clip_torch
 ```
 ````
 
@@ -146,7 +146,7 @@ executors:
       jtype: CLIPEncoder
       metas:
         py_modules:
-          - executors/clip_onnx.py
+          - clip_server.executors.clip_onnx
 ```
 ````
 
@@ -164,7 +164,7 @@ executors:
       jtype: CLIPEncoder
       metas:
         py_modules:
-          - executors/clip_tensorrt.py
+          - clip_server.executors.clip_tensorrt
 ```
 ````
 
@@ -192,7 +192,7 @@ executors:
       with:
       metas:
         py_modules:
-          - executors/clip_torch.py
+          - clip_server.executors.clip_torch
 ```
 
 ````
@@ -215,7 +215,7 @@ executors:
       with: 
       metas:
         py_modules:
-          - executors/clip_torch.py
+          - clip_server.executors.clip_torch
 ```
 
 ````
@@ -238,7 +238,7 @@ executors:
       with: 
       metas:
         py_modules:
-          - executors/clip_torch.py
+          - clip_server.executors.clip_torch
 ```
 
 ````
@@ -293,7 +293,7 @@ executors:
         device: cpu
       metas:
         py_modules:
-          - executors/clip_torch.py
+          - clip_server.executors.clip_torch
 ```
 
 To use custom model in ONNX runtime, one can do:
@@ -316,7 +316,7 @@ executors:
         model_path: 'custom-model'
       metas:
         py_modules:
-          - executors/clip_onnx.py
+          - clip_server.executors.clip_onnx
 ```
 
 ```{warning}
@@ -344,7 +344,7 @@ executors:
       jtype: CLIPEncoder
       metas:
         py_modules:
-          - executors/clip_torch.py
+          - clip_server.executors.clip_torch
 ```
 
 (flow-config)=
@@ -379,7 +379,7 @@ executors:
       jtype: CLIPEncoder
       metas:
         py_modules:
-          - executors/clip_torch.py
+          - clip_server.executors.clip_torch
 ```
 
 ## Environment variables
@@ -461,7 +461,7 @@ executors:
       jtype: CLIPEncoder
       metas:
         py_modules:
-          - executors/clip_torch.py
+          - clip_server.executors.clip_torch
     monitoring: true
     port_monitoring: 9091
 ```

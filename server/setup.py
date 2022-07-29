@@ -43,16 +43,16 @@ setup(
     setup_requires=['setuptools>=18.0', 'wheel'],
     install_requires=[
         'protobuf>=3.13.0,<=3.20.1',
+        'grpcio>=1.46.0,<1.48.0',
+        'grpcio-reflection>=1.46.0,<1.48.0',
+        'grpcio-health-checking>=1.46.0,<1.48.0',
         'ftfy',
         'torch',
         'regex',
         'torchvision',
-        'jina>=3.6.0',
+        'jina>=3.7.0',
         'prometheus-client',
         'open_clip_torch>=1.3.0',
-        'grpcio>=1.46.0,<1.48.0',  # tmp requires
-        'grpcio-reflection>=1.46.0,<1.48.0',  # tmp requires
-        'grpcio-health-checking>=1.46.0,<1.48.0',  # tmp requires
     ],
     extras_require={
         'onnx': [
