@@ -8,9 +8,7 @@ class Tokenizer:
         self._name = name
         if name in _MULTILINGUALCLIP_MODELS:
             import transformers
-            import os
 
-            os.environ["TOKENIZERS_PARALLELISM"] = "false"
             self._tokenizer = transformers.AutoTokenizer.from_pretrained(name)
         else:
             from clip_server.model.simple_tokenizer import SimpleTokenizer
