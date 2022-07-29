@@ -47,7 +47,7 @@ setup(
         'torch',
         'regex',
         'torchvision',
-        'jina>=3.6.0',
+        'jina>=3.7.0',
         'prometheus-client',
         'open_clip_torch>=1.3.0',
         'grpcio>=1.46.0,<1.48.0',  # tmp requires

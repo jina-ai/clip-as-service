@@ -8,6 +8,6 @@ executors:
       jtype: CLIPEncoder
       metas:
         py_modules:
-          - executors/clip_tensorrt.py
+          - clip_server.executors.clip_tensorrt
     timeout_ready: 3000000
     replicas: 1
