@@ -53,9 +53,6 @@ setup(
         'jina>=3.7.0',
         'prometheus-client',
         'open_clip_torch>=1.3.0',
-        'grpcio>=1.46.0,<1.48.0',  # tmp requires
-        'grpcio-reflection>=1.46.0,<1.48.0',  # tmp requires
-        'grpcio-health-checking>=1.46.0,<1.48.0',  # tmp requires
     ],
     extras_require={
         'onnx': [
