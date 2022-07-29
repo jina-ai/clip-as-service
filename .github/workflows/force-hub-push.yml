@@ -54,13 +54,11 @@ jobs:
                             -t latest \
                             -t ${CAS_VERSION} \
                             -t ${CAS_MINOR_VERSION} \
-                            -t ${CAS_MAJOR_VERSION} \
                             " >> $GITHUB_ENV
             echo "GPU_TAG_ALIAS=\
                             -t latest-gpu \
                             -t ${CAS_VERSION}-gpu \
                             -t ${CAS_MINOR_VERSION}-gpu \
-                            -t ${CAS_MAJOR_VERSION}-gpu \
                             " >> $GITHUB_ENV
 
           elif [[ "${{ github.event.inputs.triggered_by }}" == "MANUAL" ]]; then

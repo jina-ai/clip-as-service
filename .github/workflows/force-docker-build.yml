@@ -67,8 +67,7 @@ jobs:
             echo "TAG_ALIAS=\
                             jinaai/clip_executor:latest${PIP_TAG}${ENGINE_TAG}, \
                             jinaai/clip_executor:${CAS_VERSION}${PIP_TAG}${ENGINE_TAG}, \
-                            jinaai/clip_executor:${CAS_MINOR_VERSION}${PIP_TAG}${ENGINE_TAG}, \
-                            jinaai/clip_executor:${CAS_MAJOR_VERSION}${PIP_TAG}${ENGINE_TAG} \
+                            jinaai/clip_executor:${CAS_MINOR_VERSION}${PIP_TAG}${ENGINE_TAG} \
                             " >> $GITHUB_ENV
             
           elif [[ "${{ github.event.inputs.triggered_by }}" == "MANUAL" ]]; then
