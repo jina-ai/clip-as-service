@@ -19,7 +19,7 @@ from torch import nn
 from torch.utils.checkpoint import checkpoint
 
 from open_clip.timm_model import TimmModel
-from open_clip.utils import freeze_batch_norm_2d
+from open_clip.utils import freeze_batch_norm_2d, to_2tuple
 
 
 class Bottleneck(nn.Module):
