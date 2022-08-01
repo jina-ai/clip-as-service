@@ -130,6 +130,9 @@ def test_docarray_traversal(make_flow, inputs, port_generator):
     from jina import Client as _Client
 
     c = _Client(host=f'grpc://0.0.0.0', port=make_flow.port)
-    r = c.post(on='/', inputs=da, parameters={'traversal_paths': '@c'})
-    assert r[0].chunks.embeddings.shape[0] == len(inputs)
-    assert '__created_by_CAS__' not in r[0].tags
+    r1 = c.post(on='/', inputs=da, parameters={'traversal_paths': '@c'})
+    r2 = c.post(on='/', inputs=da, parameters={'access_paths': '@c'})
+    assert r1[0].chunks.embeddings.shape[0] == len(inputs)
+    assert '__created_by_CAS__' not in r1[0].tags
+    assert r2[0].chunks.embeddings.shape[0] == len(inputs)
+    assert '__created_by_CAS__' not in r2[0].tags
