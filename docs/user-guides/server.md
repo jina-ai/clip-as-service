@@ -74,13 +74,13 @@ Please also note that **different model give different size of output dimensions
 | RN50x64                                | ✅       | ✅  | ❌      | 1024       | 1382      | 4.08        | 2.98         |
 | ViT-B-32                               | ✅       | ✅  | ✅      | 512        | 351       | 3.20        | 1.40         |
 | ViT-B-16                               | ✅       | ✅  | ✅      | 512        | 354       | 3.20        | 1.44         |
-| ViT-B-16-plus-240                      | ✅       | ✅  | 🚧      |            |           |             |              |
+| ViT-B-16-plus-240                      | ✅       | ✅  | 🚧     |            |           |             |              |
 | ViT-L-14                               | ✅       | ✅  | ❌      | 768        | 933       | 3.66        | 2.04         |
 | ViT-L-14@336px                         | ✅       | ✅  | ❌      | 768        | 934       | 3.74        | 2.23         |
-| M-CLIP/XLM-Roberta-Large-Vit-B-32      | ✅       | 🚧  | 🚧      |            |           |             |              |
-| M-CLIP/XLM-Roberta-Large-Vit-L-14      | ✅       | 🚧  | 🚧      |            |           |             |              |
-| M-CLIP/XLM-Roberta-Large-Vit-B-16Plus  | ✅       | 🚧  | 🚧      |            |           |             |              |
-| M-CLIP/LABSE-Vit-L-14                  | ✅       | 🚧  | 🚧      |            |           |             |              |
+| M-CLIP/XLM-Roberta-Large-Vit-B-32      | ✅       | 🚧  | 🚧     |            |           |             |              |
+| M-CLIP/XLM-Roberta-Large-Vit-L-14      | ✅       | 🚧  | ❌      |            |           |             |              |
+| M-CLIP/XLM-Roberta-Large-Vit-B-16Plus  | ✅       | 🚧  | 🚧     |            |           |             |              |
+| M-CLIP/LABSE-Vit-L-14                  | ✅       | 🚧  | ❌     |            |           |             |              |
 
 ✅ = First Class Support — 🚧 = Unsupported, but support in progress
 
