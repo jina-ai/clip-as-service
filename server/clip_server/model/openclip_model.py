@@ -5,8 +5,7 @@
 # John Miller, Hongseok Namkoong, Hannaneh Hajishirzi, Ali Farhadi,
 # Ludwig Schmidt
 
-from typing import TYPE_CHECKING
-import torch
+
 from copy import deepcopy
 
 from clip_server.model.clip_model import CLIPModel
@@ -16,8 +15,7 @@ from clip_server.model.model import CLIP, convert_weights_to_fp16
 from open_clip.openai import load_openai_model
 from open_clip.factory import _MODEL_CONFIGS
 
-if TYPE_CHECKING:
-    import torch
+import torch
 
 
 def _load_state_dict(checkpoint_path: str, map_location='cpu'):
