@@ -6,7 +6,7 @@
 # Ludwig Schmidt
 
 from typing import TYPE_CHECKING
-
+import torch
 from copy import deepcopy
 
 from clip_server.model.clip_model import CLIPModel
@@ -14,10 +14,21 @@ from clip_server.model.pretrained_models import get_model_url_md5, download_mode
 from clip_server.model.model import CLIP, convert_weights_to_fp16
 
 from open_clip.openai import load_openai_model
-from open_clip.factory import _MODEL_CONFIGS, load_checkpoint
+from open_clip.factory import _MODEL_CONFIGS
 
 if TYPE_CHECKING:
     import torch
+
+
+def _load_state_dict(checkpoint_path: str, map_location='cpu'):
+    checkpoint = torch.load(checkpoint_path, map_location=map_location)
+    if isinstance(checkpoint, dict) and 'state_dict' in checkpoint:
+        state_dict = checkpoint['state_dict']
+    else:
+        state_dict = checkpoint
+    if next(iter(state_dict.items()))[0].startswith('module'):
+        state_dict = {k[7:]: v for k, v in state_dict.items()}
+    return state_dict
 
 
 def _load_model(
@@ -52,6 +63,8 @@ def _load_model(
 
     model = CLIP(**model_cfg)
     model.eval()
+
+    model.load_state_dict(_load_state_dict(model_path))
 
     load_checkpoint(model, model_path)
     if str(device).startswith('cuda'):

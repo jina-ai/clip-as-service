@@ -7,10 +7,11 @@ Nicholas Carlini, Rohan Taori, Achal Dave, Vaishaal Shankar,
 John Miller, Hongseok Namkoong, Hannaneh Hajishirzi, Ali Farhadi,
 Ludwig Schmidt
 """
-
+import collections.abc
 from collections import OrderedDict
 from dataclasses import dataclass
 from typing import Tuple, Union, Callable, Optional
+from itertools import repeat
 
 import numpy as np
 import torch
@@ -19,7 +20,20 @@ from torch import nn
 from torch.utils.checkpoint import checkpoint
 
 from open_clip.timm_model import TimmModel
-from open_clip.utils import freeze_batch_norm_2d, to_2tuple
+from open_clip.utils import freeze_batch_norm_2d
+
+
+# From PyTorch internals
+def _ntuple(n):
+    def parse(x):
+        if isinstance(x, collections.abc.Iterable):
+            return x
+        return tuple(repeat(x, n))
+
+    return parse
+
+
+to_2tuple = _ntuple(2)
 
 
 class Bottleneck(nn.Module):
