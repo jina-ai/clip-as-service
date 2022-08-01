@@ -1,14 +1,15 @@
 import os
 
 import pytest
-from clip_server.model.clip import _transform_ndarray, _transform_blob, _download
+from clip_server.model.clip import _transform_ndarray, _transform_blob
+from clip_server.model.pretrained_models import download_model
 from docarray import Document
 from jina import Flow
 import numpy as np
 
 
 def test_server_download(tmpdir):
-    _download(
+    download_model(
         url='https://docarray.jina.ai/_static/favicon.png',
         target_folder=tmpdir,
         md5sum='a084999188f4290e2654aec43207ff2e',
@@ -25,7 +26,7 @@ def test_server_download(tmpdir):
 
     os.remove(target_path)
 
-    _download(
+    download_model(
         url='https://docarray.jina.ai/_static/favicon.png',
         target_folder=tmpdir,
         md5sum='a084999188f4290e2654aec43207ff2e',
@@ -38,7 +39,7 @@ def test_server_download(tmpdir):
 @pytest.mark.parametrize('md5', ['ABC', None, 'a084999188f4290e2654aec43207ff2e'])
 def test_server_download_md5(tmpdir, md5):
     if md5 != 'ABC':
-        _download(
+        download_model(
             url='https://docarray.jina.ai/_static/favicon.png',
             target_folder=tmpdir,
             md5sum=md5,
@@ -46,7 +47,7 @@ def test_server_download_md5(tmpdir, md5):
         )
     else:
         with pytest.raises(Exception):
-            _download(
+            download_model(
                 url='https://docarray.jina.ai/_static/favicon.png',
                 target_folder=tmpdir,
                 md5sum=md5,
@@ -56,13 +57,13 @@ def test_server_download_md5(tmpdir, md5):
 
 def test_server_download_not_regular_file(tmpdir):
     with pytest.raises(Exception):
-        _download(
+        download_model(
             url='https://docarray.jina.ai/_static/favicon.png',
             target_folder=tmpdir,
             md5sum='',
             with_resume=False,
         )
-        _download(
+        download_model(
             url='https://docarray.jina.ai/_static/',
             target_folder=tmpdir,
             md5sum='',
