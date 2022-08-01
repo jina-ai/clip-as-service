@@ -61,32 +61,34 @@ The procedure and UI of ONNX and TensorRT runtime would look the same as Pytorch
 
 ## Model support
 
-Clip-as-Service support 23 models from OpenAI, OpenCLIP, and MultilingualCLIP. 
+The various `CLIP` models implemented in the [OpenAI](https://github.com/openai/CLIP), [OpenCLIP](https://github.com/mlfoundations/open_clip), and [MultilingualCLIP](https://github.com/FreddeFrallan/Multilingual-CLIP) are supported. 
+Due to the limitation of some runtime, not every runtime supports all the models. 
+Please also note that **different model give different size of output dimensions**. This will affect your downstream applications. For example, switching the model from one to another make your embedding incomparable, which breaks the downstream applications. Below is a list of supported models of each runtime and its corresponding size. We include the disk usage (in delta) and the peak RAM and VRAM usage (in delta) when running on a single Nvidia TITAN RTX GPU (24GB VRAM) for a series of text and image encoding tasks with `batch_size=8` using PyTorch runtime.
 
-`ViT-B-32::openai` is used as default model in all runtimes. Due to the limitation of some runtime, not every runtime supports all nine models. Please also note that different model give different size of output dimensions. This will affect your downstream applications. For example, switching the model from one to another make your embedding incomparable, which breaks the downstream applications. Below is a list of supported models of each runtime and its corresponding size. We include the disk usage (in delta) and the peak RAM and VRAM usage (in delta) when running on a single Nvidia TITAN RTX GPU (24GB VRAM) for a series of text and image encoding tasks with `batch_size=8` using PyTorch runtime.
-
-| Model                                 | PyTorch | ONNX | TensorRT | Output Dimension | Disk Usage (MB) | Peak RAM Usage (GB) | Peak VRAM Usage (GB) |
-|---------------------------------------|---------|----|--------|------------|-----------|-------------|--------------|
-| RN50                                  | ✅       | ✅  | ✅      | 1024       | 256       | 2.99        | 1.36         |
-| RN101                                 | ✅       | ✅  | ✅      | 512        | 292       | 3.51        | 1.40         |
-| RN50x4                                | ✅       | ✅  | ✅      | 640        | 422       | 3.23        | 1.63         |
-| RN50x16                               | ✅       | ✅  | ❌      | 768        | 661       | 3.63        | 2.02         |
-| RN50x64                               | ✅       | ✅  | ❌      | 1024       | 1382      | 4.08        | 2.98         |
-| ViT-B-32                              | ✅       | ✅  | ✅      | 512        | 351       | 3.20        | 1.40         |
-| ViT-B-16                              | ✅       | ✅  | ✅      | 512        | 354       | 3.20        | 1.44         |
-| ViT-B-16-plus-240::laion400m_e31      | ✅       | ✅  | 🚧      |            |           |             |              |
-| ViT-L-14                              | ✅       | ✅  | ❌      | 768        | 933       | 3.66        | 2.04         |
-| ViT-L-14@336px                        | ✅       | ✅  | ❌      | 768        | 934       | 3.74        | 2.23         |
-| M-CLIP/XLM-Roberta-Large-Vit-B-32     | ✅       | 🚧  | 🚧      |            |           |             |              |
-| M-CLIP/XLM-Roberta-Large-Vit-L-14     | ✅       | 🚧  | 🚧      |            |           |             |              |
-| M-CLIP/XLM-Roberta-Large-Vit-B-16Plus | ✅       | 🚧  | 🚧      |            |           |             |              |
-| M-CLIP/LABSE-Vit-L-14                 | ✅       | 🚧  | 🚧      |            |           |             |              |
+| Model                                  | PyTorch | ONNX | TensorRT | Output Dimension | Disk Usage (MB) | Peak RAM Usage (GB) | Peak VRAM Usage (GB) |
+|----------------------------------------|---------|----|--------|------------|-----------|-------------|--------------|
+| RN50                                   | ✅       | ✅  | ✅      | 1024       | 256       | 2.99        | 1.36         |
+| RN101                                  | ✅       | ✅  | ✅      | 512        | 292       | 3.51        | 1.40         |
+| RN50x4                                 | ✅       | ✅  | ✅      | 640        | 422       | 3.23        | 1.63         |
+| RN50x16                                | ✅       | ✅  | ❌      | 768        | 661       | 3.63        | 2.02         |
+| RN50x64                                | ✅       | ✅  | ❌      | 1024       | 1382      | 4.08        | 2.98         |
+| ViT-B-32                               | ✅       | ✅  | ✅      | 512        | 351       | 3.20        | 1.40         |
+| ViT-B-16                               | ✅       | ✅  | ✅      | 512        | 354       | 3.20        | 1.44         |
+| ViT-B-16-plus-240                      | ✅       | ✅  | 🚧      |            |           |             |              |
+| ViT-L-14                               | ✅       | ✅  | ❌      | 768        | 933       | 3.66        | 2.04         |
+| ViT-L-14@336px                         | ✅       | ✅  | ❌      | 768        | 934       | 3.74        | 2.23         |
+| M-CLIP/XLM-Roberta-Large-Vit-B-32      | ✅       | 🚧  | 🚧      |            |           |             |              |
+| M-CLIP/XLM-Roberta-Large-Vit-L-14      | ✅       | 🚧  | 🚧      |            |           |             |              |
+| M-CLIP/XLM-Roberta-Large-Vit-B-16Plus  | ✅       | 🚧  | 🚧      |            |           |             |              |
+| M-CLIP/LABSE-Vit-L-14                  | ✅       | 🚧  | 🚧      |            |           |             |              |
 
 ✅ = First Class Support — 🚧 = Unsupported, but support in progress
 
+To use the pretrained models provided by `open_clip`, please use `::` to separate model name and pretrained weight name, e.g. `ViT-B/32::laion2b_e16`.
+`ViT-B-32::openai` is used as default model in all runtimes. Full list of open_clip models and weights can be found [here](https://github.com/mlfoundations/open_clip#pretrained-model-interface).
 
 ### Use custom model for onnx
-You can also use your own model in ONNX runtime by specifying the model name and the path to model directory in YAML file.
+You can also use your own model in ONNX runtime by specifying the model name and the path to ONNX model directory in YAML file.
 The model directory should have the same structure as below:
 
 ```text
@@ -258,7 +260,7 @@ For all backends, you can set the following parameters via `with`:
 
 | Parameter               | Description                                                                                                                    |
 |-------------------------|--------------------------------------------------------------------------------------------------------------------------------|
-| `name`                  | Model weights, default is `ViT-B/32`. Support all OpenAI released pretrained models.                                           |
+| `name`                  | Model weights, default is `ViT-B-32::openai`. Full list of models and weights can be found at [here](#model-support)                        |
 | `num_worker_preprocess` | The number of CPU workers for image & text prerpocessing, default 4.                                                           | 
 | `minibatch_size`        | The size of a minibatch for CPU preprocessing and GPU encoding, default 64. Reduce the size of it if you encounter OOM on GPU. |
 
