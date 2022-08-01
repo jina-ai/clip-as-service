@@ -84,8 +84,8 @@ Please also note that **different model give different size of output dimensions
 
 ✅ = First Class Support — 🚧 = Unsupported, but support in progress
 
-To use the pretrained models provided by `open_clip`, please use `::` to separate model name and pretrained weight name, e.g. `ViT-B/32::laion2b_e16`.
-`ViT-B-32::openai` is used as default model in all runtimes. Full list of open_clip models and weights can be found [here](https://github.com/mlfoundations/open_clip#pretrained-model-interface).
+`ViT-B-32::openai` is used as default model in all runtimes. To use specific pretrained models provided by `open_clip`, please use `::` to separate model name and pretrained weight name, e.g. `ViT-B-32::laion2b_e16`.
+Full list of open_clip models and weights can be found [here](https://github.com/mlfoundations/open_clip#pretrained-model-interface).
 
 ### Use custom model for onnx
 You can also use your own model in ONNX runtime by specifying the model name and the path to ONNX model directory in YAML file.
