@@ -64,7 +64,6 @@ def _load_model(
 
     model.load_state_dict(_load_state_dict(model_path))
 
-    load_checkpoint(model, model_path)
     if str(device).startswith('cuda'):
         convert_weights_to_fp16(model)
 
