@@ -264,7 +264,7 @@ For all backends, you can set the following parameters via `with`:
 
 | Parameter               | Description                                                                                                                    |
 |-------------------------|--------------------------------------------------------------------------------------------------------------------------------|
-| `name`                  | Model weights, default is `ViT-B-32::openai`. Full list of models and weights can be found at [here](#model-support)                        |
+| `name`                  | Model weights, default is `ViT-B-32::openai`. A full list of models and weights can be found {ref}`here<model-support>`                        |
 | `num_worker_preprocess` | The number of CPU workers for image & text prerpocessing, default 4.                                                           | 
 | `minibatch_size`        | The size of a minibatch for CPU preprocessing and GPU encoding, default 64. Reduce the size of it if you encounter OOM on GPU. |
 
