@@ -33,11 +33,11 @@ class CLIPEncoder(Executor):
 
         self._minibatch_size = minibatch_size
         self._access_paths = access_paths
-        if traversal_paths is not None:
+        if 'traversal_paths' in kwargs:
             warnings.warn(
                 f'`traversal_paths` is deprecated. Use `access_paths` instead.'
             )
-            self._access_paths = traversal_paths
+            self._access_paths = kwargs['traversal_paths']
 
         if not device:
             self._device = 'cuda' if torch.cuda.is_available() else 'cpu'

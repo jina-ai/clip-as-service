@@ -24,7 +24,6 @@ class CLIPEncoder(Executor):
         num_worker_preprocess: int = 4,
         minibatch_size: int = 32,
         access_paths: str = '@r',
-        traversal_paths: Optional[str] = '@r',
         model_path: Optional[str] = None,
         **kwargs,
     ):
@@ -32,11 +31,11 @@ class CLIPEncoder(Executor):
 
         self._minibatch_size = minibatch_size
         self._access_paths = access_paths
-        if traversal_paths is not None:
+        if 'traversal_paths' in kwargs:
             warnings.warn(
                 f'`traversal_paths` is deprecated. Use `access_paths` instead.'
             )
-            self._access_paths = traversal_paths
+            self._access_paths = kwargs['traversal_paths']
 
         self._pool = ThreadPool(processes=num_worker_preprocess)
 
