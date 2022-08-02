@@ -563,7 +563,7 @@ class CLIP(nn.Module):
         self.transformer.grad_checkpointing = enable
 
     def encode_image(self, image):
-        return self.visual(image)
+        return self.visual(image.type(self.dtype))
 
     def encode_text(self, text):
         x = self.token_embedding(text).type(self.dtype)  # [batch_size, n_ctx, d_model]
