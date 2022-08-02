@@ -8,7 +8,7 @@ from clip_server.model.clip_model import CLIPModel
 
 corresponding_clip_models = {
     'M-CLIP/XLM-Roberta-Large-Vit-B-32': ('ViT-B-32', 'openai'),
-    'M-CLIP/XLM-Roberta-Large-Vi-L-14': ('ViT-L-14', 'openai'),
+    'M-CLIP/XLM-Roberta-Large-Vit-L-14': ('ViT-L-14', 'openai'),
     'M-CLIP/XLM-Roberta-Large-Vit-B-16Plus': ('ViT-B-16-plus-240', 'laion400m_e31'),
     'M-CLIP/LABSE-Vit-L-14': ('ViT-L-14', 'openai'),
 }
