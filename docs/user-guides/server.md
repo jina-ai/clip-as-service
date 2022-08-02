@@ -65,27 +65,31 @@ The various `CLIP` models implemented in the [OpenAI](https://github.com/openai/
 Due to the limitation of some runtime, not every runtime supports all the models. 
 Please also note that **different model give different size of output dimensions**. This will affect your downstream applications. For example, switching the model from one to another make your embedding incomparable, which breaks the downstream applications. Below is a list of supported models of each runtime and its corresponding size. We include the disk usage (in delta) and the peak RAM and VRAM usage (in delta) when running on a single Nvidia TITAN RTX GPU (24GB VRAM) for a series of text and image encoding tasks with `batch_size=8` using PyTorch runtime.
 
-| Model                                  | PyTorch | ONNX | TensorRT | Output Dimension | Disk Usage (MB) | Peak RAM Usage (GB) | Peak VRAM Usage (GB) |
-|----------------------------------------|---------|----|--------|------------|-----------|-------------|--------------|
-| RN50                                   | ✅       | ✅  | ✅      | 1024       | 256       | 2.99        | 1.36         |
-| RN101                                  | ✅       | ✅  | ✅      | 512        | 292       | 3.51        | 1.40         |
-| RN50x4                                 | ✅       | ✅  | ✅      | 640        | 422       | 3.23        | 1.63         |
-| RN50x16                                | ✅       | ✅  | ❌      | 768        | 661       | 3.63        | 2.02         |
-| RN50x64                                | ✅       | ✅  | ❌      | 1024       | 1382      | 4.08        | 2.98         |
-| ViT-B-32                               | ✅       | ✅  | ✅      | 512        | 351       | 3.20        | 1.40         |
-| ViT-B-16                               | ✅       | ✅  | ✅      | 512        | 354       | 3.20        | 1.44         |
-| ViT-B-16-plus-240                      | ✅       | ✅  | 🚧     |            |           |             |              |
-| ViT-L-14                               | ✅       | ✅  | ❌      | 768        | 933       | 3.66        | 2.04         |
-| ViT-L-14@336px                         | ✅       | ✅  | ❌      | 768        | 934       | 3.74        | 2.23         |
-| M-CLIP/XLM-Roberta-Large-Vit-B-32      | ✅       | 🚧  | 🚧     |            |           |             |              |
-| M-CLIP/XLM-Roberta-Large-Vit-L-14      | ✅       | 🚧  | ❌      |            |           |             |              |
-| M-CLIP/XLM-Roberta-Large-Vit-B-16Plus  | ✅       | 🚧  | 🚧     |            |           |             |              |
-| M-CLIP/LABSE-Vit-L-14                  | ✅       | 🚧  | ❌     |            |           |             |              |
+| Model                                 | PyTorch | ONNX | TensorRT | Output Dimension | Disk Usage (MB) | Peak RAM Usage (GB) | Peak VRAM Usage (GB) |
+|---------------------------------------|---------|------|----------|------------------|-----------------|---------------------|----------------------|
+| RN50                                  | ✅       | ✅    | ✅        | 1024             | 256             | 2.99                | 1.36                 |
+| RN101                                 | ✅       | ✅    | ✅        | 512              | 292             | 3.05                | 1.40                 |
+| RN50x4                                | ✅       | ✅    | ✅        | 640              | 422             | 3.23                | 1.63                 |
+| RN50x16                               | ✅       | ✅    | ❌        | 768              | 661             | 3.63                | 2.02                 |
+| RN50x64                               | ✅       | ✅    | ❌        | 1024             | 1382            | 4.08                | 2.98                 |
+| ViT-B-32                              | ✅       | ✅    | ✅        | 512              | 351             | 3.20                | 1.40                 |
+| ViT-B-16                              | ✅       | ✅    | ✅        | 512              | 354             | 3.20                | 1.44                 |
+| ViT-B-16-plus-240                     | ✅       | ✅    | 🚧       | 640              |                 | 3.03                | 1.59                 |
+| ViT-L-14                              | ✅       | ✅    | ❌        | 768              | 933             | 3.66                | 2.04                 |
+| ViT-L-14@336px                        | ✅       | ✅    | ❌        | 768              | 934             | 3.74                | 2.23                 |
+| M-CLIP/XLM-Roberta-Large-Vit-B-32     | ✅       | 🚧   | 🚧       | 512              |                 | 5.37                | 1.68                 |
+| M-CLIP/XLM-Roberta-Large-Vit-L-14     | ✅       | 🚧   | ❌        | 768              |                 | 4.30                | 4.97                 |
+| M-CLIP/XLM-Roberta-Large-Vit-B-16Plus | ✅       | 🚧   | 🚧       | 640              |                 | 4.30                | 4.13                 |
+| M-CLIP/LABSE-Vit-L-14                 | ✅       | 🚧   | ❌        | 768              |                 | 4.30                | 4.70                 |
 
-✅ = First Class Support — 🚧 = Unsupported, but support in progress
+✅ = First class support — 🚧 = Unsupported, working in progress
 
-`ViT-B-32::openai` is used as default model in all runtimes. To use specific pretrained models provided by `open_clip`, please use `::` to separate model name and pretrained weight name, e.g. `ViT-B-32::laion2b_e16`.
+`ViT-B-32::openai` is used as the default model in all runtimes. To use specific pretrained models provided by `open_clip`, please use `::` to separate model name and pretrained weight name, e.g. `ViT-B-32::laion2b_e16`.
 Full list of open_clip models and weights can be found [here](https://github.com/mlfoundations/open_clip#pretrained-model-interface).
+
+```{note}
+For model definition with `-quickgelu` postfix, please use non `-quickgelu` model name.
+```
 
 ### Use custom model for onnx
 You can also use your own model in ONNX runtime by specifying the model name and the path to ONNX model directory in YAML file.
