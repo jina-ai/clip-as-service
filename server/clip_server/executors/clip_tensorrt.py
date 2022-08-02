@@ -23,7 +23,6 @@ class CLIPEncoder(Executor):
         num_worker_preprocess: int = 4,
         minibatch_size: int = 32,
         access_paths: str = '@r',
-        traversal_paths: Optional[str] = '@r',
         **kwargs,
     ):
         super().__init__(**kwargs)
