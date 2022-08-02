@@ -62,25 +62,25 @@ The procedure and UI of ONNX and TensorRT runtime would look the same as Pytorch
 ## Model support
 
 The various `CLIP` models implemented in the [OpenAI](https://github.com/openai/CLIP), [OpenCLIP](https://github.com/mlfoundations/open_clip), and [MultilingualCLIP](https://github.com/FreddeFrallan/Multilingual-CLIP) are supported. 
-Due to the limitation of some runtime, not every runtime supports all the models. 
-Please also note that **different model give different size of output dimensions**. This will affect your downstream applications. For example, switching the model from one to another make your embedding incomparable, which breaks the downstream applications. Below is a list of supported models of each runtime and its corresponding size. We include the disk usage (in delta) and the peak RAM and VRAM usage (in delta) when running on a single Nvidia TITAN RTX GPU (24GB VRAM) for a series of text and image encoding tasks with `batch_size=8` using PyTorch runtime.
+Due to the limitation of some runtimes, not every runtime supports all models. 
+Please also note that **different models give different sizes of output dimensions**. This will affect your downstream applications. For example, switching the model from one to another make your embedding incomparable, which breaks the downstream applications. Below is a list of supported models of each runtime and its corresponding size. We include the disk usage (in delta) and the peak RAM and VRAM usage (in delta) when running on a single Nvidia TITAN RTX GPU (24GB VRAM) for a series of text and image encoding tasks with `batch_size=8` using PyTorch runtime.
 
 | Model                                 | PyTorch | ONNX | TensorRT | Output Dimension | Disk Usage (MB) | Peak RAM Usage (GB) | Peak VRAM Usage (GB) |
 |---------------------------------------|---------|------|----------|------------------|-----------------|---------------------|----------------------|
-| RN50                                  | ✅       | ✅    | ✅        | 1024             | 256             | 2.99                | 1.36                 |
-| RN101                                 | ✅       | ✅    | ✅        | 512              | 292             | 3.05                | 1.40                 |
-| RN50x4                                | ✅       | ✅    | ✅        | 640              | 422             | 3.23                | 1.63                 |
-| RN50x16                               | ✅       | ✅    | ❌        | 768              | 661             | 3.63                | 2.02                 |
-| RN50x64                               | ✅       | ✅    | ❌        | 1024             | 1382            | 4.08                | 2.98                 |
-| ViT-B-32                              | ✅       | ✅    | ✅        | 512              | 351             | 3.20                | 1.40                 |
-| ViT-B-16                              | ✅       | ✅    | ✅        | 512              | 354             | 3.20                | 1.44                 |
-| ViT-B-16-plus-240                     | ✅       | ✅    | 🚧       | 640              |                 | 3.03                | 1.59                 |
-| ViT-L-14                              | ✅       | ✅    | ❌        | 768              | 933             | 3.66                | 2.04                 |
-| ViT-L-14@336px                        | ✅       | ✅    | ❌        | 768              | 934             | 3.74                | 2.23                 |
-| M-CLIP/XLM-Roberta-Large-Vit-B-32     | ✅       | 🚧   | 🚧       | 512              |                 | 5.37                | 1.68                 |
-| M-CLIP/XLM-Roberta-Large-Vit-L-14     | ✅       | 🚧   | ❌        | 768              |                 | 4.30                | 4.97                 |
-| M-CLIP/XLM-Roberta-Large-Vit-B-16Plus | ✅       | 🚧   | 🚧       | 640              |                 | 4.30                | 4.13                 |
-| M-CLIP/LABSE-Vit-L-14                 | ✅       | 🚧   | ❌        | 768              |                 | 4.30                | 4.70                 |
+| RN50                                  | ✅       | ✅    | ✅        | 1024             | 244             | 2.99                | 1.36                 |
+| RN101                                 | ✅       | ✅    | ✅        | 512              | 278             | 3.05                | 1.40                 |
+| RN50x4                                | ✅       | ✅    | ✅        | 640              | 402             | 3.23                | 1.63                 |
+| RN50x16                               | ✅       | ✅    | ❌        | 768              | 631             | 3.63                | 2.02                 |
+| RN50x64                               | ✅       | ✅    | ❌        | 1024             | 1291            | 4.08                | 2.98                 |
+| ViT-B-32                              | ✅       | ✅    | ✅        | 512              | 338             | 3.20                | 1.40                 |
+| ViT-B-16                              | ✅       | ✅    | ✅        | 512              | 335             | 3.20                | 1.44                 |
+| ViT-B-16-plus-240                     | ✅       | ✅    | 🚧       | 640              | 795             | 3.03                | 1.59                 |
+| ViT-L-14                              | ✅       | ✅    | ❌        | 768              | 890             | 3.66                | 2.04                 |
+| ViT-L-14@336px                        | ✅       | ✅    | ❌        | 768              | 891             | 3.74                | 2.23                 |
+| M-CLIP/XLM-Roberta-Large-Vit-B-32     | ✅       | 🚧   | 🚧       | 512              | 4284            | 5.37                | 1.68                 |
+| M-CLIP/XLM-Roberta-Large-Vit-L-14     | ✅       | 🚧   | ❌        | 768              | 4293            | 4.30                | 4.97                 |
+| M-CLIP/XLM-Roberta-Large-Vit-B-16Plus | ✅       | 🚧   | 🚧       | 640              | 4293            | 4.30                | 4.13                 |
+| M-CLIP/LABSE-Vit-L-14                 | ✅       | 🚧   | ❌        | 768              | 3609            | 4.30                | 4.70                 |
 
 ✅ = First class support — 🚧 = Unsupported, working in progress
 
