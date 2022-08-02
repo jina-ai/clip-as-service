@@ -43,9 +43,6 @@ setup(
     setup_requires=['setuptools>=18.0', 'wheel'],
     install_requires=[
         'protobuf>=3.13.0,<=3.20.1',
-        'grpcio>=1.46.0,<1.48.0',
-        'grpcio-reflection>=1.46.0,<1.48.0',
-        'grpcio-health-checking>=1.46.0,<1.48.0',
         'ftfy',
         'torch',
         'regex',
