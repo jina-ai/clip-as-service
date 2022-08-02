@@ -55,11 +55,14 @@ class MultilingualCLIPModel(CLIPModel):
         super().__init__(name, **kwargs)
         self._mclip_model = MultilingualCLIP.from_pretrained(name)
         self._mclip_model.to(device=device)
+        self._mclip_model.eval()
 
         clip_name, clip_pretrained = corresponding_clip_models[name]
         self._model = open_clip.create_model(
             clip_name, pretrained=clip_pretrained, device=device, jit=jit
         )
+        self._model.eval()
+
         self._clip_name = clip_name
 
     @property
