@@ -6,7 +6,7 @@ import open_clip
 
 from clip_server.model.clip_model import CLIPModel
 
-corresponding_clip_models = {
+_CLIP_MODEL_MAPS = {
     'M-CLIP/XLM-Roberta-Large-Vit-B-32': ('ViT-B-32', 'openai'),
     'M-CLIP/XLM-Roberta-Large-Vit-L-14': ('ViT-L-14', 'openai'),
     'M-CLIP/XLM-Roberta-Large-Vit-B-16Plus': ('ViT-B-16-plus-240', 'laion400m_e31'),
@@ -57,7 +57,7 @@ class MultilingualCLIPModel(CLIPModel):
         self._mclip_model.to(device=device)
         self._mclip_model.eval()
 
-        clip_name, clip_pretrained = corresponding_clip_models[name]
+        clip_name, clip_pretrained = _CLIP_MODEL_MAPS[name]
         self._model = open_clip.create_model(
             clip_name, pretrained=clip_pretrained, device=device, jit=jit
         )
