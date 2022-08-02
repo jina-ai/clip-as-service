@@ -5,32 +5,34 @@
 # John Miller, Hongseok Namkoong, Hannaneh Hajishirzi, Ali Farhadi,
 # Ludwig Schmidt
 
-from typing import TYPE_CHECKING
-
 from clip_server.model.clip_model import CLIPModel
 from clip_server.model.pretrained_models import get_model_url_md5, download_model
-import open_clip
-from open_clip.openai import load_openai_model
+from clip_server.model.model import load_openai_model, load_openclip_model
 
-if TYPE_CHECKING:
-    import torch
+import torch
 
 
 class OpenCLIPModel(CLIPModel):
     def __init__(self, name: str, device: str = 'cpu', jit: bool = False, **kwargs):
         super().__init__(name, **kwargs)
 
-        model_url, md5sum = get_model_url_md5(name)
-        if model_url:
-            model_path = download_model(model_url, md5sum=md5sum)
-            self._model = load_openai_model(model_path, device=device, jit=jit)
-            self._model_name = name
-        else:
+        if '::' in name:
             model_name, pretrained = name.split('::')
-            self._model = open_clip.create_model(
-                model_name, pretrained=pretrained, device=device, jit=jit
+        else:
+            model_name = name
+            pretrained = 'openai'
+
+        self._model_name = model_name
+
+        model_url, md5sum = get_model_url_md5(name)
+        model_path = download_model(model_url, md5sum=md5sum)
+
+        if pretrained == 'openai':
+            self._model = load_openai_model(model_path, device=device, jit=jit)
+        else:
+            self._model = load_openclip_model(
+                self._model_name, model_path=model_path, device=device, jit=jit
             )
-            self._model_name = model_name
 
     @staticmethod
     def get_model_name(name: str):

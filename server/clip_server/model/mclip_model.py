@@ -5,7 +5,6 @@ import torch
 import open_clip
 
 from clip_server.model.clip_model import CLIPModel
-from clip_server.model.pretrained_models import _VISUAL_MODEL_IMAGE_SIZE
 
 corresponding_clip_models = {
     'M-CLIP/XLM-Roberta-Large-Vit-B-32': ('ViT-B-32', 'openai'),
