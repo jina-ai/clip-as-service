@@ -51,6 +51,7 @@
 
 
 
+
 <a name=release-note-0-0-3></a>
 ## Release Note (`0.0.3`)
 
@@ -1229,4 +1230,51 @@
 ### 🍹 Other Improvements
 
  - [[```c3e75133```](https://github.com/jina-ai/clip-as-service/commit/c3e751336722b415aa88992794119f32b7ddee77)] __-__ __version__: the next version will be 0.4.20 (*Jina Dev Bot*)
+
+<a name=release-note-0-5-0></a>
+## Release Note (`0.5.0`)
+
+> Release time: 2022-08-03 05:13:06
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ numb3r3,  Ziniu Yu,  Alex Shan,  felix-wang,  Sha Zhou,  Jina Dev Bot,  Han Xiao,  🙇
+
+
+### 🆕 New Features
+
+ - [[```3402b1d1```](https://github.com/jina-ai/clip-as-service/commit/3402b1d1726120d8ed39ae561e441695f24ddeb3)] __-__ replace traversal_paths with access_paths (#791) (*Ziniu Yu*)
+ - [[```87928a7b```](https://github.com/jina-ai/clip-as-service/commit/87928a7b8be9e8a4fce4d2352e82975252db162b)] __-__ update onnx models and md5 (#785) (*Ziniu Yu*)
+ - [[```8bd83896```](https://github.com/jina-ai/clip-as-service/commit/8bd838964b7975c9c1a2394c0ae681507ed5dc18)] __-__ support onnx backend for openclip (#781) (*felix-wang*)
+ - [[```f043b4d9```](https://github.com/jina-ai/clip-as-service/commit/f043b4d934a9454b5db32e7ea7331307506a1a6f)] __-__ update openclip loader (#782) (*Alex Shan*)
+ - [[```fa62d8e9```](https://github.com/jina-ai/clip-as-service/commit/fa62d8e93baf2579b2934cc0ed8daca12c144d7d)] __-__ support openclip&amp;mclip models + refactor model loader (#774) (*Alex Shan*)
+ - [[```32b11cd6```](https://github.com/jina-ai/clip-as-service/commit/32b11cd64bb76bca5075fbcbc84b9334952c236c)] __-__ allow model selection in client (#775) (*Ziniu Yu*)
+ - [[```0ff4e252```](https://github.com/jina-ai/clip-as-service/commit/0ff4e2526394e0fa86266668f1162f4a6b922bd8)] __-__ allow credential in client (#765) (*Ziniu Yu*)
+ - [[```ee7da10d```](https://github.com/jina-ai/clip-as-service/commit/ee7da10d1f56a130e6f9a85d5fb3518b80e5df0d)] __-__ support custom onnx file and update model signatures (#761) (*Ziniu Yu*)
+ - [[```ed1b92d1```](https://github.com/jina-ai/clip-as-service/commit/ed1b92d1896cc0c12733b51bd1bd83040676f505)] __-__ __docs__: add qabot (#759) (*Sha Zhou*)
+
+### 🐞 Bug fixes
+
+ - [[```e48a7a38```](https://github.com/jina-ai/clip-as-service/commit/e48a7a38ac01fe0db47a7898ae1401f25394402f)] __-__ change onnx and trt default model name to ViT-B-32::openai (#793) (*Ziniu Yu*)
+ - [[```8b8082a9```](https://github.com/jina-ai/clip-as-service/commit/8b8082a939f67f7ea01cc9f55ebce9c5368ebe1a)] __-__ mclip cuda device (#792) (*felix-wang*)
+ - [[```8681b88e```](https://github.com/jina-ai/clip-as-service/commit/8681b88eb3a7806c1286eaefff3bd8a8ab28ff03)] __-__ fp16 inference (#790) (*felix-wang*)
+ - [[```ab00c2ae```](https://github.com/jina-ai/clip-as-service/commit/ab00c2ae4067678b8f9c8351244867257031f3c2)] __-__ upgrade jina (#788) (*felix-wang*)
+ - [[```1db43b48```](https://github.com/jina-ai/clip-as-service/commit/1db43b485b0fe368eb3949ddc052b5dd8002c279)] __-__ no allow client to change server batch size (#787) (*Ziniu Yu*)
+ - [[```58772079```](https://github.com/jina-ai/clip-as-service/commit/5877207924c088739644873d6cf654aabb1f7134)] __-__ add models and md5 (#783) (*Ziniu Yu*)
+ - [[```7c8285bb```](https://github.com/jina-ai/clip-as-service/commit/7c8285bbf7eb5d757cba1f85b56e6528be66396b)] __-__ async progress bar does not display (#779) (*Ziniu Yu*)
+ - [[```79e85eed```](https://github.com/jina-ai/clip-as-service/commit/79e85eed7c89f31c16399bfcc1bb098f0ae5c920)] __-__ miscalling clip_server in clip_client (*Han Xiao*)
+
+### 📗 Documentation
+
+ - [[```c67a7f59```](https://github.com/jina-ai/clip-as-service/commit/c67a7f59c25760e32a611b330fd9ff5959aa1e4b)] __-__ add model support (#784) (*Alex Shan*)
+ - [[```bc6b72e6```](https://github.com/jina-ai/clip-as-service/commit/bc6b72e65cce999ad7b09ecb93b25b07ff8f4de1)] __-__ add finetuner docs (#771) (*Ziniu Yu*)
+ - [[```2b78b12e```](https://github.com/jina-ai/clip-as-service/commit/2b78b12e3aa527b386eac4ee7eed74e580eadbf6)] __-__ improve model support (#768) (*Ziniu Yu*)
+
+### 🍹 Other Improvements
+
+ - [[```b00963c4```](https://github.com/jina-ai/clip-as-service/commit/b00963c45983dfdac6d05258b03298de5ad1edf6)] __-__ bump version to 0.5.0 (*numb3r3*)
+ - [[```c458dd65```](https://github.com/jina-ai/clip-as-service/commit/c458dd6579d6e3125028ad4cb2b88f9f481b4686)] __-__ remove clip_hg (#786) (*Ziniu Yu*)
+ - [[```ca03dca3```](https://github.com/jina-ai/clip-as-service/commit/ca03dca369d2e7ed55d2f2a339fa9b4e9f41667d)] __-__ fix markdown-table extention (#772) (*felix-wang*)
+ - [[```7b19bffe```](https://github.com/jina-ai/clip-as-service/commit/7b19bffecb739a74a524544472aa3ad07dff2f2a)] __-__ __version__: the next version will be 0.4.21 (*Jina Dev Bot*)
 
