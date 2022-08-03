@@ -1,7 +1,7 @@
 # CLIPTorchEncoder
 
 **CLIPTorchEncoder** is the executor implemented in [clip-as-service](https://github.com/jina-ai/clip-as-service). 
-It serves OpenAI released [CLIP](https://github.com/openai/CLIP) models with PyTorch runtime. 
+The various `CLIP` models implemented in the [OpenAI](https://github.com/openai/CLIP), [OpenCLIP](https://github.com/mlfoundations/open_clip), and [MultilingualCLIP](https://github.com/FreddeFrallan/Multilingual-CLIP) are supported with PyTorch runtime.
 The introduction of the CLIP model [can be found here](https://openai.com/blog/clip/).
 
 - 🔀 **Automatic**: Auto-detect image and text documents depending on their content.
@@ -12,19 +12,34 @@ With advances of ONNX runtime, you can use `CLIPOnnxEncoder` (see [link](https:/
 
 ## Model support
 
-Open AI has released **9 models** so far. `ViT-B/32` is used as default model. Please also note that different models give **the different sizes of output dimensions**. 
+`ViT-B-32::openai` is used as the default model. To use specific pretrained models provided by `open_clip`, please use `::` to separate model name and pretrained weight name, e.g. `ViT-B-32::laion2b_e16`. Please also note that **different models give different sizes of output dimensions**.
 
-| Model          | PyTorch | Output dimension | 
-|----------------|---------|------------------|
-| RN50           | ✅       | 1024             | 
-| RN101          | ✅       | 512              | 
-| RN50x4         | ✅       | 640              |
-| RN50x16        | ✅       | 768              |
-| RN50x64        | ✅       | 1024             |
-| ViT-B/32       | ✅       | 512              |
-| ViT-B/16       | ✅       | 512              |
-| ViT-L/14       | ✅       | 768              |
-| ViT-L/14@336px | ✅       | 768              |
+| Model                                 | PyTorch | Output dimension | 
+|---------------------------------------|---------|------------------|
+| RN50                                  | ✅       | 1024             | 
+| RN101                                 | ✅       | 512              | 
+| RN50x4                                | ✅       | 640              |
+| RN50x16                               | ✅       | 768              |
+| RN50x64                               | ✅       | 1024             |
+| ViT-B-32                              | ✅       | 512              |
+| ViT-B-16                              | ✅       | 512              |
+| ViT-B-lus-240                         | ✅       | 640              |
+| ViT-L-14                              | ✅       | 768              |
+| ViT-L-14@336px                        | ✅       | 768              |
+| M-CLIP/XLM_Roberta-Large-Vit-B-32     | ✅       | 512              |
+| M-CLIP/XLM-Roberta-Large-Vit-L-14     | ✅       | 768              |
+| M-CLIP/XLM-Roberta-Large-Vit-B-16Plus | ✅       | 640              |
+| M-CLIP/LABSE-Vit-L-14                 | ✅       | 768              |
+
+✅ = First class support
+
+
+Full list of open_clip models and weights can be found [here](https://github.com/mlfoundations/open_clip#pretrained-model-interface).
+
+```{note}
+For model definition with `-quickgelu` postfix, please use non `-quickgelu` model name.
+```
+
 
 ## Usage
 
