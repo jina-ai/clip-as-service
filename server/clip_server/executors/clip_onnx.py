@@ -23,14 +23,19 @@ class CLIPEncoder(Executor):
         device: Optional[str] = None,
         num_worker_preprocess: int = 4,
         minibatch_size: int = 32,
-        traversal_paths: str = '@r',
+        access_paths: str = '@r',
         model_path: Optional[str] = None,
         **kwargs,
     ):
         super().__init__(**kwargs)
 
         self._minibatch_size = minibatch_size
-        self._traversal_paths = traversal_paths
+        self._access_paths = access_paths
+        if 'traversal_paths' in kwargs:
+            warnings.warn(
+                f'`traversal_paths` is deprecated. Use `access_paths` instead.'
+            )
+            self._access_paths = kwargs['traversal_paths']
 
         self._pool = ThreadPool(processes=num_worker_preprocess)
 
@@ -105,11 +110,16 @@ class CLIPEncoder(Executor):
 
     @requests
     async def encode(self, docs: 'DocumentArray', parameters: Dict = {}, **kwargs):
-        traversal_paths = parameters.get('traversal_paths', self._traversal_paths)
+        access_paths = parameters.get('access_paths', self._access_paths)
+        if 'traversal_paths' in parameters:
+            warnings.warn(
+                f'`traversal_paths` is deprecated. Use `access_paths` instead.'
+            )
+            access_paths = parameters['traversal_paths']
 
         _img_da = DocumentArray()
         _txt_da = DocumentArray()
-        for d in docs[traversal_paths]:
+        for d in docs[access_paths]:
             split_img_txt_da(d, _img_da, _txt_da)
 
         # for image
