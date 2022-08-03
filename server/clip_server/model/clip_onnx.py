@@ -155,7 +155,7 @@ class CLIPOnnxModel(BaseCLIPModel):
         if name in _MODELS:
             if not model_path:
                 cache_dir = os.path.expanduser(
-                    f'~/.cache/clip/{name.replace("/", "-")}'
+                    f'~/.cache/clip/{name.replace("/", "-").replace("::", "-")}'
                 )
                 textual_model_name, textual_model_md5 = _MODELS[name][0]
                 self._textual_path = download_model(
