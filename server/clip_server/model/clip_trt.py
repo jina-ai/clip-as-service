@@ -55,7 +55,9 @@ class CLIPTensorRTModel(BaseCLIPModel):
         super().__init__(name)
 
         if name in _MODELS:
-            cache_dir = os.path.expanduser(f'~/.cache/clip/{name.replace("/", "-")}')
+            cache_dir = os.path.expanduser(
+                f'~/.cache/clip/{name.replace("/", "-").replace("::", "-")}'
+            )
 
             self._textual_path = os.path.join(
                 cache_dir,
