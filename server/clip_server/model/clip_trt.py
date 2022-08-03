@@ -21,6 +21,20 @@ from clip_server.model.clip_model import BaseCLIPModel
 from clip_server.model.clip_onnx import _MODELS as ONNX_MODELS
 
 _MODELS = [
+    'RN50::openai',
+    'RN50::yfcc15m',
+    'RN50::cc12m',
+    'RN101::openai',
+    'RN101::yfcc15m',
+    'RN50x4::openai',
+    'ViT-B-32::openai',
+    'ViT-B-32::laion2b_e16',
+    'ViT-B-32::laion400m_e31',
+    'ViT-B-32::laion400m_e32',
+    'ViT-B-16::openai',
+    'ViT-B-16::laion400m_e31',
+    'ViT-B-16::laion400m_e32',
+    # older version name format
     'RN50',
     'RN101',
     'RN50x4',
@@ -41,7 +55,9 @@ class CLIPTensorRTModel(BaseCLIPModel):
         super().__init__(name)
 
         if name in _MODELS:
-            cache_dir = os.path.expanduser(f'~/.cache/clip/{name.replace("/", "-")}')
+            cache_dir = os.path.expanduser(
+                f'~/.cache/clip/{name.replace("/", "-").replace("::", "-")}'
+            )
 
             self._textual_path = os.path.join(
                 cache_dir,

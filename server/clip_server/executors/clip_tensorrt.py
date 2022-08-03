@@ -18,7 +18,7 @@ from jina import Executor, requests, DocumentArray
 class CLIPEncoder(Executor):
     def __init__(
         self,
-        name: str = 'ViT-B/32',
+        name: str = 'ViT-B-32::openai',
         device: str = 'cuda',
         num_worker_preprocess: int = 4,
         minibatch_size: int = 32,
