@@ -146,6 +146,11 @@ _MODELS = {
         ('ViT-L-14@336px/textual.onnx', '78fab479f136403eed0db46f3e9e7ed2'),
         ('ViT-L-14@336px/visual.onnx', 'f3b1f5d55ca08d43d749e11f7e4ba27e'),
     ),
+    # MultilingualCLIP models
+    # 'M-CLIP/LABSE-Vit-L-14': (
+    #     ('M-CLIP-LABSE-Vit-L-14/textual.onnx', 'b5b649f9e064457c764874e982bca296'),
+    #     ('M-CLIP-LABSE-Vit-L-14/visual.onnx', '471951562303c9afbb804b865eedf149'),
+    # ),
 }
 
 
