@@ -73,12 +73,12 @@ def preproc_text(
 
 
 def split_img_txt_da(doc: 'Document', img_da: 'DocumentArray', txt_da: 'DocumentArray'):
-    if doc.uri:
-        img_da.append(doc)
+    if doc.text:
+        txt_da.append(doc)
     elif doc.blob or (doc.tensor is not None):
         img_da.append(doc)
-    elif doc.text:
-        txt_da.append(doc)
+    elif doc.uri:
+        img_da.append(doc)
 
 
 def set_rank(docs, _logit_scale=np.exp(4.60517)):
