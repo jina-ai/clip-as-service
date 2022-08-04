@@ -75,9 +75,7 @@ def preproc_text(
 def split_img_txt_da(doc: 'Document', img_da: 'DocumentArray', txt_da: 'DocumentArray'):
     if doc.text:
         txt_da.append(doc)
-    elif doc.blob or (doc.tensor is not None):
-        img_da.append(doc)
-    elif doc.uri:
+    elif doc.blob or (doc.tensor is not None) or doc.uri:
         img_da.append(doc)
 
 
