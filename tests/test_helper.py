@@ -44,6 +44,25 @@ def test_numpy_softmax(shape, axis):
             DocumentArray(
                 [
                     Document(text='hello, world'),
+                    Document(tensor=np.array([0, 1, 2])),
+                    Document(
+                        uri='https://docarray.jina.ai/_static/favicon.png'
+                    ).load_uri_to_blob(),
+                    Document(
+                        tensor=np.array([0, 1, 2]),
+                        uri='https://docarray.jina.ai/_static/favicon.png',
+                    ),
+                    Document(
+                        uri='https://docarray.jina.ai/_static/favicon.png',
+                    ),
+                ]
+            ),
+            (1, 4),
+        ),
+        (
+            DocumentArray(
+                [
+                    Document(text='hello, world'),
                     Document(uri='https://docarray.jina.ai/_static/favicon.png'),
                 ]
             ),
