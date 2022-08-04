@@ -55,6 +55,6 @@ def test_split_img_txt_da(inputs):
     txt_da = DocumentArray()
     img_da = DocumentArray()
     for doc in inputs[0]:
-        split_img_txt_da(doc, txt_da, img_da)
+        split_img_txt_da(doc, img_da, txt_da)
     assert len(txt_da) == inputs[1][0]
     assert len(img_da) == inputs[1][1]
