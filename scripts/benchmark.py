@@ -30,7 +30,7 @@ class BenchmarkClient(threading.Thread):
         **kwargs,
     ):
         """
-        @param server: the clip-as-service server URI
+        @param server: the CLIP-as-service server URI
         @param batch_size: number of batch sample
         @param num_iter: number of repeat run per experiment
         @param image_sample: uri of the test image

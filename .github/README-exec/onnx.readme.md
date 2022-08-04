@@ -1,7 +1,7 @@
 # CLIPOnnxEncoder
 
-**CLIPOnnxEncoder** is the executor implemented in [clip-as-service](https://github.com/jina-ai/clip-as-service). 
-It serves OpenAI released [CLIP](https://github.com/openai/CLIP) models with ONNX runtime (🚀 **3x** speed up). 
+**CLIPOnnxEncoder** is the executor implemented in [CLIP-as-service](https://github.com/jina-ai/clip-as-service). 
+The various `CLIP` models implemented in the [OpenAI](https://github.com/openai/CLIP) and [OpenCLIP](https://github.com/mlfoundations/open_clip) are supported with ONNX runtime (🚀 **3x** speed up). 
 The introduction of the CLIP model [can be found here](https://openai.com/blog/clip/).
 
 - 🔀 **Automatic**: Auto-detect image and text documents depending on their content.
@@ -11,19 +11,28 @@ The introduction of the CLIP model [can be found here](https://openai.com/blog/c
 
 ## Model support
 
-Open AI has released 9 models so far. `ViT-B/32` is used as default model. Please also note that different model give **different size of output dimensions**. 
+ `ViT-B-32::openai` is used as the default model. To use specific pretrained models provided by `open_clip`, please use `::` to separate model name and pretrained weight name, e.g. `ViT-B-32::laion2b_e16`. Please also note that **different models give different sizes of output dimensions**.
 
-| Model          | ONNX   | Output dimension | 
-|----------------|-----| --- |
-| RN50           | ✅   | 1024 | 
-| RN101          | ✅   | 512 | 
-| RN50x4         | ✅   | 640 |
-| RN50x16        | ✅   | 768 |
-| RN50x64        | ✅   | 1024 |
-| ViT-B/32       | ✅   | 512 |
-| ViT-B/16       | ✅   | 512 |
-| ViT-L/14       | ✅   | 768 |
-| ViT-L/14@336px | ✅   | 768 |
+| Model                                 | ONNX | Output dimension | 
+|---------------------------------------|------|------------------|
+| RN50                                  | ✅    | 1024             | 
+| RN101                                 | ✅    | 512              | 
+| RN50x4                                | ✅    | 640              |
+| RN50x16                               | ✅    | 768              |
+| RN50x64                               | ✅    | 1024             |
+| ViT-B-32                              | ✅    | 512              |
+| ViT-B-16                              | ✅    | 512              |
+| ViT-B-lus-240                         | ✅    | 640              |
+| ViT-L-14                              | ✅    | 768              |
+| ViT-L-14@336px                        | ✅    | 768              |
+
+✅ = First class support 
+
+Full list of open_clip models and weights can be found [here](https://github.com/mlfoundations/open_clip#pretrained-model-interface).
+
+```{note}
+For model definition with `-quickgelu` postfix, please use non `-quickgelu` model name.
+```
 
 ## Usage
 
@@ -116,7 +125,7 @@ From the output, you will see all the text and image docs have `embedding` attac
 ╰─────────────────────────────────────────────────────────────────╯
 ```
 
-👉 Access the embedding playground in **clip-as-service** [doc](https://clip-as-service.jina.ai/playground/embedding), type sentence or image URL and see **live embedding**!
+👉 Access the embedding playground in **CLIP-as-service** [doc](https://clip-as-service.jina.ai/playground/embedding), type sentence or image URL and see **live embedding**!
 
 ### Ranking
 
@@ -174,4 +183,4 @@ d = Document(
 )
 ```
 
-👉 Access the ranking playground in **clip-as-service** [doc](https://clip-as-service.jina.ai/playground/reasoning/). Just input the reasoning texts as prompts, the server will rank the prompts and return sorted prompts with scores.
+👉 Access the ranking playground in **CLIP-as-service** [doc](https://clip-as-service.jina.ai/playground/reasoning/). Just input the reasoning texts as prompts, the server will rank the prompts and return sorted prompts with scores.

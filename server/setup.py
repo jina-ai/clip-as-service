@@ -5,7 +5,7 @@ from setuptools import find_packages
 from setuptools import setup
 
 if sys.version_info < (3, 7, 0):
-    raise OSError(f'clip-as-service requires Python >=3.7, but yours is {sys.version}')
+    raise OSError(f'CLIP-as-service requires Python >=3.7, but yours is {sys.version}')
 
 try:
     pkg_name = 'clip-server'
