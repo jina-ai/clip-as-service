@@ -1,6 +1,6 @@
 # CLIPTorchEncoder
 
-**CLIPTorchEncoder** is the executor implemented in [clip-as-service](https://github.com/jina-ai/clip-as-service). 
+**CLIPTorchEncoder** is the executor implemented in [CLIP-as-service](https://github.com/jina-ai/clip-as-service). 
 The various `CLIP` models implemented in the [OpenAI](https://github.com/openai/CLIP), [OpenCLIP](https://github.com/mlfoundations/open_clip), and [MultilingualCLIP](https://github.com/FreddeFrallan/Multilingual-CLIP) are supported with PyTorch runtime.
 The introduction of the CLIP model [can be found here](https://openai.com/blog/clip/).
 
@@ -133,7 +133,7 @@ From the output, you will see all the text and image docs have `embedding` attac
 ╰─────────────────────────────────────────────────────────────────╯
 ```
 
-👉 Access the embedding playground in **clip-as-service** [doc](https://clip-as-service.jina.ai/playground/embedding), type sentence or image URL and see **live embedding**!
+👉 Access the embedding playground in **CLIP-as-service** [doc](https://clip-as-service.jina.ai/playground/embedding), type sentence or image URL and see **live embedding**!
 
 ### Ranking
 
@@ -191,4 +191,4 @@ d = Document(
 )
 ```
 
-👉 Access the ranking playground in **clip-as-service** [doc](https://clip-as-service.jina.ai/playground/reasoning/). Just input the reasoning texts as prompts, the server will rank the prompts and return sorted prompts with scores.
+👉 Access the ranking playground in **CLIP-as-service** [doc](https://clip-as-service.jina.ai/playground/reasoning/). Just input the reasoning texts as prompts, the server will rank the prompts and return sorted prompts with scores.
