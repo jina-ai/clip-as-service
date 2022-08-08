@@ -52,6 +52,7 @@
 
 
 
+
 <a name=release-note-0-0-3></a>
 ## Release Note (`0.0.3`)
 
@@ -1277,4 +1278,28 @@
  - [[```c458dd65```](https://github.com/jina-ai/clip-as-service/commit/c458dd6579d6e3125028ad4cb2b88f9f481b4686)] __-__ remove clip_hg (#786) (*Ziniu Yu*)
  - [[```ca03dca3```](https://github.com/jina-ai/clip-as-service/commit/ca03dca369d2e7ed55d2f2a339fa9b4e9f41667d)] __-__ fix markdown-table extention (#772) (*felix-wang*)
  - [[```7b19bffe```](https://github.com/jina-ai/clip-as-service/commit/7b19bffecb739a74a524544472aa3ad07dff2f2a)] __-__ __version__: the next version will be 0.4.21 (*Jina Dev Bot*)
+
+<a name=release-note-0-5-1></a>
+## Release Note (`0.5.1`)
+
+> Release time: 2022-08-08 05:11:18
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Ziniu Yu,  Jina Dev Bot,  numb3r3,  🙇
+
+
+### 🆕 New Features
+
+ - [[```65032f02```](https://github.com/jina-ai/clip-as-service/commit/65032f02db30671f7a2a6ca78e371588ae98ab2b)] __-__ encode text first when both text and uri are presented (#795) (*Ziniu Yu*)
+
+### 📗 Documentation
+
+ - [[```7c6708fa```](https://github.com/jina-ai/clip-as-service/commit/7c6708fa8a592b5ce306f1ab2f1af1504148484a)] __-__ update hub readme (#794) (*Ziniu Yu*)
+
+### 🍹 Other Improvements
+
+ - [[```a7c4f490```](https://github.com/jina-ai/clip-as-service/commit/a7c4f4903df5736bcf9e85d82bb83497d850bc4d)] __-__ __version__: the next version will be 0.5.1 (*Jina Dev Bot*)
+ - [[```b00963c4```](https://github.com/jina-ai/clip-as-service/commit/b00963c45983dfdac6d05258b03298de5ad1edf6)] __-__ bump version to 0.5.0 (*numb3r3*)
 
