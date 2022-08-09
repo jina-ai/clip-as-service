@@ -114,7 +114,8 @@ class Client:
             content
         ) > 100 * kwargs.get('batch_size', 8):
             warnings.warn(
-                f'Document size is too large, it is recommended to use smaller document size for better performance'
+                f'Document size is too large, it is recommended to use smaller document size for better performance. '
+                'Please ensure the inputs are all valid.'
             )
 
         self._prepare_streaming(
