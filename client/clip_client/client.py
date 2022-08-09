@@ -1,6 +1,7 @@
 import mimetypes
 import os
 import time
+import types
 import warnings
 from typing import (
     overload,
@@ -109,7 +110,9 @@ class Client:
                 f'content must be an Iterable of [str, Document], try `.encode(["{content}"])` instead'
             )
 
-        if len(content) > 100 * kwargs.get('batch_size', 8):
+        if not isinstance(content, types.GeneratorType) and len(
+            content
+        ) > 100 * kwargs.get('batch_size', 8):
             warnings.warn(
                 f'Document size is too large, it is recommended to use smaller document size for better performance'
             )
