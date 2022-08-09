@@ -109,6 +109,11 @@ class Client:
                 f'content must be an Iterable of [str, Document], try `.encode(["{content}"])` instead'
             )
 
+        if len(content) > 100 * kwargs.get('batch_size', 8):
+            warnings.warn(
+                f'Document size is too large, it is recommended to use smaller document size for better performance'
+            )
+
         self._prepare_streaming(
             not kwargs.get('show_progress'),
             total=len(content) if hasattr(content, '__len__') else None,
