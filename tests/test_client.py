@@ -60,7 +60,7 @@ def test_client_concurrent_requests(port_generator):
 def test_client_large_input(make_flow, port_generator):
     from clip_client.client import Client
 
-    inputs = ['hello' for _ in range(1000)]
+    inputs = ['hello' for _ in range(600)]
 
     c = Client(server=f'grpc://0.0.0.0:{make_flow.port}')
     with pytest.warns(UserWarning):
