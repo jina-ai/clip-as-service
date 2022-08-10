@@ -160,7 +160,8 @@ class Client:
                 _mime = mimetypes.guess_type(c)[0]
                 if _mime and _mime.startswith('image'):
                     yield Document(
-                        tags={'__created_by_CAS__': True}, uri=c
+                        tags={'__created_by_CAS__': True, '__loaded_by_CAS__': True},
+                        uri=c,
                     ).load_uri_to_blob()
                 else:
                     yield Document(tags={'__created_by_CAS__': True}, text=c)
@@ -169,6 +170,7 @@ class Client:
                     yield c
                 elif not c.blob and c.uri:
                     c.load_uri_to_blob()
+                    c.tags['__loaded_by_CAS__'] = True
                     yield c
                 elif c.tensor is not None:
                     yield c
@@ -331,6 +333,7 @@ class Client:
             return d
         elif not d.blob and d.uri:
             d.load_uri_to_blob()
+            d.tags['__loaded_by_CAS__'] = True
             return d
         elif d.tensor is not None:
             return d
