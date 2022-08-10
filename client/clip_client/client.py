@@ -313,8 +313,7 @@ class Client:
             )
         elif total > 500:
             warnings.warn(
-                'Input size is too large, the process may fail if the input has anything invalid. '
-                'It is recommended to use a smaller input size.'
+                'Please ensure all the inputs are valid, otherwise the request will be aborted.'
             )
 
         from docarray.array.mixins.io.pbar import get_pbar
