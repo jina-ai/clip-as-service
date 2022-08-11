@@ -16,7 +16,7 @@ def port_generator():
     return random_port
 
 
-@pytest.fixture(scope='session', params=['onnx'])
+@pytest.fixture(scope='session', params=['onnx', 'torch', 'onnx_custom'])
 def make_flow(port_generator, request):
     if request.param != 'onnx_custom':
         if request.param == 'onnx':
