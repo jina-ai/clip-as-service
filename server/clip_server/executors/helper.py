@@ -37,7 +37,7 @@ def preproc_image(
         tensors_batch.append(preprocess_fn(d.tensor).detach())
 
         # recover doc content
-        if d.tags.pop('__loaded_by_CAS__', None):
+        if d.tags.pop('__loaded_by_CAS__', False):
             d.pop('tensor')
         else:
             d.content = content

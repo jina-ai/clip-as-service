@@ -104,6 +104,8 @@ class Client:
         ...
 
     def encode(self, content, **kwargs):
+        from docarray import Document
+
         if isinstance(content, str):
             raise TypeError(
                 f'content must be an Iterable of [str, Document], try `.encode(["{content}"])` instead'
@@ -119,6 +121,11 @@ class Client:
                 **self._get_post_payload(content, kwargs),
                 on_done=partial(self._gather_result, results=results),
             )
+
+        for c in content:
+            if isinstance(c, Document) and c.tags.pop('__loaded_by_CAS__', False):
+                c.pop('blob')
+
         return self._unboxed_result(results)
 
     def _gather_result(self, response, results: 'DocumentArray'):
@@ -349,6 +356,18 @@ class Client:
         setattr(d, _source, [Client._prepare_single_doc(c) for c in _get(d)])
         return d
 
+    @staticmethod
+    def _reset_rank_doc(d: 'Document', _source: str = 'matches'):
+        _get = lambda d: getattr(d, _source)
+
+        if d.tags.pop('__loaded_by_CAS__', False):
+            d.pop('blob')
+
+        for c in _get(d):
+            if c.tags.pop('__loaded_by_CAS__', False):
+                c.pop('blob')
+        return d
+
     def _iter_rank_docs(
         self, content, _source='matches'
     ) -> Generator['Document', None, None]:
@@ -411,6 +430,9 @@ class Client:
                 **self._get_rank_payload(docs, kwargs),
                 on_done=partial(self._gather_result, results=results),
             )
+        for d in docs:
+            self._reset_rank_doc(d, _source=kwargs.get('source', 'matches'))
+
         return results
 
     async def arank(self, docs: Iterable['Document'], **kwargs) -> 'DocumentArray':
