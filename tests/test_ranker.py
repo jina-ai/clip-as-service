@@ -31,9 +31,13 @@ async def test_torch_executor_rank_img2texts(encoder_class):
         for c in d.matches:
             assert c.scores['clip_score'].value is not None
             assert '__loaded_by_CAS__' not in c.tags
+            assert not c.tensor
+            assert not c.blob
         org_score = d.matches[:, 'scores__clip_score__value']
         assert org_score == list(sorted(org_score, reverse=True))
         assert '__loaded_by_CAS__' not in d.tags
+        assert not d.tensor
+        assert not d.blob
 
 
 @pytest.mark.asyncio
@@ -56,10 +60,14 @@ async def test_torch_executor_rank_text2imgs(encoder_class):
             assert c.scores['clip_score'].value is not None
             assert c.scores['clip_score_cosine'].value is not None
             assert '__loaded_by_CAS__' not in c.tags
+            assert not c.tensor
+            assert not c.blob
         np.testing.assert_almost_equal(
             sum(c.scores['clip_score'].value for c in d.matches), 1
         )
         assert '__loaded_by_CAS__' not in d.tags
+        assert not d.tensor
+        assert not d.blob
 
 
 @pytest.mark.parametrize(

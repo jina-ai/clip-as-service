@@ -37,9 +37,10 @@ def preproc_image(
         tensors_batch.append(preprocess_fn(d.tensor).detach())
 
         # recover doc content
-        d.content = content
         if d.tags.pop('__loaded_by_CAS__', None):
             d.pop('tensor')
+        else:
+            d.content = content
 
     tensors_batch = torch.stack(tensors_batch).type(torch.float32)
 
