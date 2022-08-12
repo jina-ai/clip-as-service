@@ -308,6 +308,10 @@ class Client:
                     ),
                 )
 
+        for c in content:
+            if hasattr(c, 'tags') and c.tags.pop('__loaded_by_CAS__', False):
+                c.pop('blob')
+
         return self._unboxed_result(results)
 
     def _prepare_streaming(self, disable, total):
@@ -457,5 +461,8 @@ class Client:
                         )
                     ),
                 )
+
+        for d in docs:
+            self._reset_rank_doc(d, _source=kwargs.get('source', 'matches'))
 
         return results
