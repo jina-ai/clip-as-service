@@ -1,6 +1,7 @@
 import mimetypes
 import os
 import time
+import types
 import warnings
 from typing import (
     overload,
@@ -140,7 +141,7 @@ class Client:
     def _unboxed_result(results: 'DocumentArray'):
         if results.embeddings is None:
             raise ValueError(
-                'empty embedding returned from the server. '
+                'Empty embedding returned from the server. '
                 'This often due to a mis-config of the server, '
                 'restarting the server or changing the serving port number often solves the problem'
             )
@@ -308,7 +309,11 @@ class Client:
         if total is None:
             total = 500
             warnings.warn(
-                'the length of the input is unknown, the progressbar would not be accurate.'
+                'The length of the input is unknown, the progressbar would not be accurate.'
+            )
+        elif total > 500:
+            warnings.warn(
+                'Please ensure all the inputs are valid, otherwise the request will be aborted.'
             )
 
         from docarray.array.mixins.io.pbar import get_pbar
@@ -335,7 +340,7 @@ class Client:
         elif d.tensor is not None:
             return d
         else:
-            raise TypeError(f'unsupported input type {d!r} {d.content_type}')
+            raise TypeError(f'Unsupported input type {d!r} {d.content_type}')
 
     @staticmethod
     def _prepare_rank_doc(d: 'Document', _source: str = 'matches'):
@@ -359,7 +364,7 @@ class Client:
             if isinstance(c, Document):
                 yield self._prepare_rank_doc(c, _source)
             else:
-                raise TypeError(f'unsupported input type {c!r}')
+                raise TypeError(f'Unsupported input type {c!r}')
 
             if hasattr(self, '_pbar'):
                 self._pbar.update(

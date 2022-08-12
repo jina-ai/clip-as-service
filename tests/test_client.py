@@ -55,3 +55,13 @@ def test_client_concurrent_requests(port_generator):
 
         for r in results:
             assert len(set([d.id[:2] for d in r])) == 1
+
+
+def test_client_large_input(make_flow, port_generator):
+    from clip_client.client import Client
+
+    inputs = ['hello' for _ in range(600)]
+
+    c = Client(server=f'grpc://0.0.0.0:{make_flow.port}')
+    with pytest.warns(UserWarning):
+        c.encode(inputs if not callable(inputs) else inputs())
