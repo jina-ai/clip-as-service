@@ -104,8 +104,6 @@ class Client:
         ...
 
     def encode(self, content, **kwargs):
-        from docarray import Document
-
         if isinstance(content, str):
             raise TypeError(
                 f'content must be an Iterable of [str, Document], try `.encode(["{content}"])` instead'
@@ -123,7 +121,7 @@ class Client:
             )
 
         for c in content:
-            if isinstance(c, Document) and c.tags.pop('__loaded_by_CAS__', False):
+            if hasattr(c, 'tags') and c.tags.pop('__loaded_by_CAS__', False):
                 c.pop('blob')
 
         return self._unboxed_result(results)
