@@ -14,9 +14,10 @@ executors:
     uses:
       jtype: AnnLiteIndexer
       with:
-        dim: 512
-        data_path: /Users/jemfu/Desktop/laion400m/workspace
+        dim: 128
+        data_path: workspace
       metas:
         py_modules:
           - annlite.executor
-    replicas: 1
+    shards: 5
+    polling: {'/index': 'ANY', '/search': 'ALL', '/update': 'ALL', '/delete': 'ALL', '/status': 'ALL'}

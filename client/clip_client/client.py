@@ -692,3 +692,39 @@ class Client:
 
     def status(self):
         return self._client.post(on='/status')
+
+    def update(self, content, parameters: dict = {}, **kwargs):
+        self._prepare_streaming(
+            not kwargs.get('show_progress'),
+            total=len(content) if hasattr(content, '__len__') else None,
+        )
+
+        results = DocumentArray()
+        post_args = self._get_post_args(content, kwargs)
+
+        with self._pbar:
+            return self._client.post(
+                on='/update',
+                inputs=self._iter_doc(content),
+                parameters=parameters,
+                on_done=partial(self._gather_result, results=results),
+                **post_args,
+            )
+
+    def delete(self, content, parameters: dict = {}, **kwargs):
+        self._prepare_streaming(
+            not kwargs.get('show_progress'),
+            total=len(content) if hasattr(content, '__len__') else None,
+        )
+
+        results = DocumentArray()
+        post_args = self._get_post_args(content, kwargs)
+
+        with self._pbar:
+            return self._client.post(
+                on='/delete',
+                inputs=self._iter_doc(content),
+                parameters=parameters,
+                on_done=partial(self._gather_result, results=results),
+                **post_args,
+            )
