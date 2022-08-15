@@ -78,6 +78,9 @@ def test_docarray_inputs(make_flow, inputs, port_generator):
     assert isinstance(r, DocumentArray)
     assert r.embeddings.shape
     assert '__created_by_CAS__' not in r[0].tags
+    assert '__loaded_by_CAS__' not in r[0].tags
+    assert not r[0].tensor
+    assert not r[0].blob
 
 
 @pytest.mark.parametrize(
@@ -104,6 +107,9 @@ def test_docarray_preserve_original_inputs(make_flow, inputs, port_generator):
     assert r.embeddings.shape
     assert r.contents == inputs.contents
     assert '__created_by_CAS__' not in r[0].tags
+    assert '__loaded_by_CAS__' not in r[0].tags
+    assert not r[0].tensor
+    assert not r[0].blob
 
 
 @pytest.mark.parametrize(
@@ -134,5 +140,15 @@ def test_docarray_traversal(make_flow, inputs, port_generator):
     r2 = c.post(on='/', inputs=da, parameters={'access_paths': '@c'})
     assert r1[0].chunks.embeddings.shape[0] == len(inputs)
     assert '__created_by_CAS__' not in r1[0].tags
+    assert '__loaded_by_CAS__' not in r1[0].tags
+    assert not r1[0].tensor
+    assert not r1[0].blob
+    assert not r1[0].chunks[0].tensor
+    assert not r1[0].chunks[0].blob
     assert r2[0].chunks.embeddings.shape[0] == len(inputs)
     assert '__created_by_CAS__' not in r2[0].tags
+    assert '__loaded_by_CAS__' not in r2[0].tags
+    assert not r2[0].tensor
+    assert not r2[0].blob
+    assert not r2[0].chunks[0].tensor
+    assert not r2[0].chunks[0].blob

@@ -2,6 +2,7 @@ import pytest
 import numpy as np
 from clip_server.executors.helper import numpy_softmax
 from clip_server.executors.helper import split_img_txt_da
+from clip_server.executors.helper import preproc_image
 from docarray import Document, DocumentArray
 
 
@@ -77,3 +78,32 @@ def test_split_img_txt_da(inputs):
         split_img_txt_da(doc, img_da, txt_da)
     assert len(txt_da) == inputs[1][0]
     assert len(img_da) == inputs[1][1]
+
+
+@pytest.mark.parametrize(
+    'inputs',
+    [
+        DocumentArray(
+            [
+                Document(
+                    uri='https://docarray.jina.ai/_static/favicon.png',
+                    tags={'__loaded_by_CAS__': True},
+                ).load_uri_to_blob(),
+                Document(
+                    uri='https://docarray.jina.ai/_static/favicon.png',
+                ).load_uri_to_blob(),
+            ]
+        )
+    ],
+)
+def test_preproc_image(inputs):
+    from clip_server.model import clip
+
+    preprocess_fn = clip._transform_ndarray(224)
+    da, pixel_values = preproc_image(inputs, preprocess_fn)
+    assert len(da) == 2
+    assert not da[0].blob
+    assert da[1].blob
+    assert not da[0].tensor
+    assert not da[1].tensor
+    assert pixel_values.get('pixel_values') is not None

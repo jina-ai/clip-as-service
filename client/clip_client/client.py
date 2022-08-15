@@ -120,6 +120,11 @@ class Client:
                 **self._get_post_payload(content, kwargs),
                 on_done=partial(self._gather_result, results=results),
             )
+
+        for c in content:
+            if hasattr(c, 'tags') and c.tags.pop('__loaded_by_CAS__', False):
+                c.pop('blob')
+
         return self._unboxed_result(results)
 
     def _gather_result(self, response, results: 'DocumentArray'):
@@ -161,7 +166,8 @@ class Client:
                 _mime = mimetypes.guess_type(c)[0]
                 if _mime and _mime.startswith('image'):
                     yield Document(
-                        tags={'__created_by_CAS__': True}, uri=c
+                        tags={'__created_by_CAS__': True, '__loaded_by_CAS__': True},
+                        uri=c,
                     ).load_uri_to_blob()
                 else:
                     yield Document(tags={'__created_by_CAS__': True}, text=c)
@@ -170,6 +176,7 @@ class Client:
                     yield c
                 elif not c.blob and c.uri:
                     c.load_uri_to_blob()
+                    c.tags['__loaded_by_CAS__'] = True
                     yield c
                 elif c.tensor is not None:
                     yield c
@@ -302,6 +309,10 @@ class Client:
                     ),
                 )
 
+        for c in content:
+            if hasattr(c, 'tags') and c.tags.pop('__loaded_by_CAS__', False):
+                c.pop('blob')
+
         return self._unboxed_result(results)
 
     def _prepare_streaming(self, disable, total):
@@ -336,6 +347,7 @@ class Client:
             return d
         elif not d.blob and d.uri:
             d.load_uri_to_blob()
+            d.tags['__loaded_by_CAS__'] = True
             return d
         elif d.tensor is not None:
             return d
@@ -349,6 +361,18 @@ class Client:
             raise ValueError(f'`.rank()` requires every doc to have `.{_source}`')
         d = Client._prepare_single_doc(d)
         setattr(d, _source, [Client._prepare_single_doc(c) for c in _get(d)])
+        return d
+
+    @staticmethod
+    def _reset_rank_doc(d: 'Document', _source: str = 'matches'):
+        _get = lambda d: getattr(d, _source)
+
+        if d.tags.pop('__loaded_by_CAS__', False):
+            d.pop('blob')
+
+        for c in _get(d):
+            if c.tags.pop('__loaded_by_CAS__', False):
+                c.pop('blob')
         return d
 
     def _iter_rank_docs(
@@ -413,6 +437,9 @@ class Client:
                 **self._get_rank_payload(docs, kwargs),
                 on_done=partial(self._gather_result, results=results),
             )
+        for d in docs:
+            self._reset_rank_doc(d, _source=kwargs.get('source', 'matches'))
+
         return results
 
     async def arank(self, docs: Iterable['Document'], **kwargs) -> 'DocumentArray':
@@ -439,5 +466,8 @@ class Client:
                         )
                     ),
                 )
+
+        for d in docs:
+            self._reset_rank_doc(d, _source=kwargs.get('source', 'matches'))
 
         return results
