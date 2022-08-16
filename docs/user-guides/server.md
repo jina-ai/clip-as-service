@@ -284,7 +284,7 @@ There are also runtime-specific parameters listed below:
 | Parameter | Description                                                                                                                    |
 |-----------|--------------------------------------------------------------------------------------------------------------------------------|
 | `device`  | 'cpu' or 'cuda'. Default is None, which auto-detects the device.
-| `model_path`            | The path to the model to be used. If not specified, the model will be downloaded or loaded from the local cache. See [here](#use-custom-model-for-onnx) to learn how to use custom models.                                                                                 |
+| `model_path`            | The path to the model to be used. If not specified, the model will be downloaded or loaded from the local cache. See [here](#use-custom-model-for-onnx) to learn how to finetune custom models.                                                                                 |
 
 ````
 

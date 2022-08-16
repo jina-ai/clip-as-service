@@ -39,7 +39,7 @@ class CLIPEncoder(Executor):
             details.
         :param model_path: The path to the model to be used. If not specified, the model will be downloaded or loaded
             from the local cache. Visit https://clip-as-service.jina.ai/user-guides/server/#use-custom-model-for-onnx
-            to learn how to use custom models.
+            to learn how to finetune custom models.
         """
         super().__init__(**kwargs)
 
