@@ -28,6 +28,17 @@ class CLIPEncoder(Executor):
         access_paths: str = '@r',
         **kwargs,
     ):
+        """
+        :param name: The name of the model to be used. Default 'ViT-B-32::openai'. A list of available models can be
+            found at https://clip-as-service.jina.ai/user-guides/server/#model-support
+        :param device: 'cpu' or 'cuda'. Default is None, which auto-detects the device.
+        :param jit: Whether to use JIT compilation. Default is False.
+        :param num_worker_preprocess: The number of CPU workers to preprocess images and texts. Default is 4.
+        :param minibatch_size: The size of the minibatch for preprocessing and encoding. Default is 32. Reduce this
+            number if you encounter OOM errors.
+        :param access_paths: The access paths to traverse on the input documents to get the images and texts to be
+            processed. Visit https://docarray.jina.ai/fundamentals/documentarray/access-elements for more details.
+        """
         super().__init__(**kwargs)
 
         self._minibatch_size = minibatch_size
