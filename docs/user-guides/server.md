@@ -262,11 +262,11 @@ executors:
 
 For all backends, you can set the following parameters via `with`:
 
-| Parameter               | Description                                                                                                                    |
-|-------------------------|--------------------------------------------------------------------------------------------------------------------------------|
-| `name`                  | Model weights, default is `ViT-B-32::openai`. A full list of models and weights can be found [here](#model-support)            |
-| `num_worker_preprocess` | The number of CPU workers for image & text prerpocessing, default 4.                                                           | 
-| `minibatch_size`        | The size of a minibatch for CPU preprocessing and GPU encoding, default 32. Reduce the size of it if you encounter OOM on GPU. |
+| Parameter               | Description                                                                                                                  |
+|-------------------------|------------------------------------------------------------------------------------------------------------------------------|
+| `name`                  | The name of the model to be used. Default 'ViT-B-32::openai'. A list of available models can be found [here](#model-support) |
+| `num_worker_preprocess` | The number of CPU workers to preprocess images and texts. Default is 4.                                                      | 
+| `minibatch_size`        | The size of the minibatch for preprocessing and encoding. Default is 32. Reduce this number if you encounter OOM errors.     |
 
 There are also runtime-specific parameters listed below:
 
@@ -274,8 +274,8 @@ There are also runtime-specific parameters listed below:
 
 | Parameter | Description                                                                                                                    |
 |-----------|--------------------------------------------------------------------------------------------------------------------------------|
-| `device`  | `cuda` or `cpu`. Default is `None` means auto-detect.                                                                          |
-| `jit` | Whether to enable Torchscript JIT, default is `False`.                                                                              | 
+| `device`  | 'cpu' or 'cuda'. Default is None, which auto-detects the device.                                                               |
+| `jit`     |  Whether to use JIT compilation. Default is False.                                                                             | 
 
 ````
 
@@ -283,8 +283,8 @@ There are also runtime-specific parameters listed below:
 
 | Parameter | Description                                                                                                                    |
 |-----------|--------------------------------------------------------------------------------------------------------------------------------|
-| `device`  | `cuda` or `cpu`. Default is `None` means auto-detect.
-| `model_path`            | The path to custom CLIP model, default `None`.                                                                                   |
+| `device`  | 'cpu' or 'cuda'. Default is None, which auto-detects the device.
+| `model_path`            | The path to the model to be used. If not specified, the model will be downloaded or loaded from the local cache. See [here](#use-custom-model-for-onnx) to learn how to use custom models.                                                                                 |
 
 ````
 

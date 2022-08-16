@@ -26,16 +26,15 @@ class CLIPEncoder(Executor):
         **kwargs,
     ):
         """
-        :param name: Model weights, default is ViT-B-32::openai. A full list of models and weights can be found at
-            https://clip-as-service.jina.ai/user-guides/server/#model-support
-        :param device: 'cuda' or 'cpu'. Default 'cuda'.
-        :param jit: Whether to enable Torchscript JIT, default False.
-        :param num_worker_preprocess: The number of CPU workers for image & text prerpocessing. Default 4.
-        :param minibatch_size: The size of a minibatch for CPU preprocessing and GPU encoding. Default 32.
-            Reduce the size of it if you encounter OOM on GPU.
+        :param name: The name of the model to be used. Default 'ViT-B-32::openai'. A list of available models can be
+            found at https://clip-as-service.jina.ai/user-guides/server/#model-support
+        :param device: 'cpu' or 'cuda'. Default is 'cuda' since TensorRT is only supported on CUDA.
+        :param num_worker_preprocess: The number of CPU workers to preprocess images and texts. Default is 4.
+        :param minibatch_size: The size of the minibatch for preprocessing and encoding. Default is 32. Reduce this
+            number if you encounter OOM errors.
         :param access_paths: Default access paths for encoding, used if the access path is not passed as a parameter
-            with the request. Visit https://docarray.jina.ai/fundamentals/documentarray/access-elements/#access-documents
-            for more details.
+            with the request. Visit https://docarray.jina.ai/fundamentals/documentarray/access-elements for more
+            details.
         """
         super().__init__(**kwargs)
 
