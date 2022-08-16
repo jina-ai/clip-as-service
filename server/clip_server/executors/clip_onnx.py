@@ -27,6 +27,19 @@ class CLIPEncoder(Executor):
         model_path: Optional[str] = None,
         **kwargs,
     ):
+        """
+        :param name: Model weights, default is ViT-B-32::openai. A full list of models and weights can be found at
+            https://clip-as-service.jina.ai/user-guides/server/#model-support
+        :param device: 'cuda' or 'cpu'. Default is None means auto-detect.
+        :param num_worker_preprocess: The number of CPU workers for image & text prerpocessing. Default 4.
+        :param minibatch_size: The size of a minibatch for CPU preprocessing and GPU encoding. Default 32.
+            Reduce the size of it if you encounter OOM on GPU.
+        :param access_paths: Default access paths for encoding, used if the access path is not passed as a parameter
+            with the request. Visit https://docarray.jina.ai/fundamentals/documentarray/access-elements/#access-documents
+            for more details.
+        :param model_path: The path to custom CLIP model. Default None. Visit
+            https://clip-as-service.jina.ai/user-guides/server/#use-custom-model-for-onnx for more details.
+        """
         super().__init__(**kwargs)
 
         self._minibatch_size = minibatch_size

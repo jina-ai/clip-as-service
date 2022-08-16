@@ -76,7 +76,7 @@ Please also note that **different models give different sizes of output dimensio
 | ViT-B-16                              | ✅       | ✅    | ✅        | 512              | 335             | 3.20                | 1.44                 |
 | ViT-B-16-plus-240                     | ✅       | ✅    | 🚧       | 640              | 795             | 3.03                | 1.59                 |
 | ViT-L-14                              | ✅       | ✅    | ❌        | 768              | 890             | 3.66                | 2.04                 |
-| ViT-L-14@336px                        | ✅       | ✅    | ❌        | 768              | 891             | 3.74                | 2.23                 |
+| ViT-L-14-336                          | ✅       | ✅    | ❌        | 768              | 891             | 3.74                | 2.23                 |
 | M-CLIP/XLM-Roberta-Large-Vit-B-32     | ✅       | 🚧   | 🚧       | 512              | 4284            | 5.37                | 1.68                 |
 | M-CLIP/XLM-Roberta-Large-Vit-L-14     | ✅       | 🚧   | ❌        | 768              | 4293            | 4.30                | 4.97                 |
 | M-CLIP/XLM-Roberta-Large-Vit-B-16Plus | ✅       | 🚧   | 🚧       | 640              | 4293            | 4.30                | 4.13                 |
@@ -266,7 +266,7 @@ For all backends, you can set the following parameters via `with`:
 |-------------------------|--------------------------------------------------------------------------------------------------------------------------------|
 | `name`                  | Model weights, default is `ViT-B-32::openai`. A full list of models and weights can be found [here](#model-support)            |
 | `num_worker_preprocess` | The number of CPU workers for image & text prerpocessing, default 4.                                                           | 
-| `minibatch_size`        | The size of a minibatch for CPU preprocessing and GPU encoding, default 64. Reduce the size of it if you encounter OOM on GPU. |
+| `minibatch_size`        | The size of a minibatch for CPU preprocessing and GPU encoding, default 32. Reduce the size of it if you encounter OOM on GPU. |
 
 There are also runtime-specific parameters listed below:
 
@@ -275,7 +275,7 @@ There are also runtime-specific parameters listed below:
 | Parameter | Description                                                                                                                    |
 |-----------|--------------------------------------------------------------------------------------------------------------------------------|
 | `device`  | `cuda` or `cpu`. Default is `None` means auto-detect.                                                                          |
-| `jit` | If to enable Torchscript JIT, default is `False`.                                                                              | 
+| `jit` | Whether to enable Torchscript JIT, default is `False`.                                                                              | 
 
 ````
 
