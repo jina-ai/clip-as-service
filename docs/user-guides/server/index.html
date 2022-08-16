@@ -10,13 +10,13 @@
   
 <meta property="og:url" content="https://clip-as-service.jina.ai/user-guides/server/" />
   
-<meta property="og:site_name" content="CLIP-as-service 0.5.1 Documentation" />
+<meta property="og:site_name" content="CLIP-as-service 0.5.2 Documentation" />
   
 <meta property="og:description" content="CLIP-as-service is designed in a client-server architecture. A server is a long-running program that receives raw sentences and images from clients, and returns CLIP embeddings to the client. Additionally, clip_server is optimized for speed, low memory footprint and scalability. Horizontal scalin..." />
   
 <meta property="og:image" content="https://clip-as-service.jina.ai/_images/server-start.gif" />
   
-<meta property="og:image:alt" content="CLIP-as-service 0.5.1 Documentation" />
+<meta property="og:image:alt" content="CLIP-as-service 0.5.2 Documentation" />
   
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@JinaAI_">
@@ -39,7 +39,7 @@
         <link rel="canonical" href="https://clip-as-service.jina.ai/user-guides/server.html" />
 
     <link rel="shortcut icon" href="../../_static/favicon.png"/><meta name="generator" content="sphinx-4.5.0, furo 2022.06.21"/>
-        <title>Server API - CLIP-as-service 0.5.1 documentation</title>
+        <title>Server API - CLIP-as-service 0.5.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -172,7 +172,7 @@
         </div>
         <div class="header-center">
             <a href="../../">
-                <div class="brand">CLIP-as-service 0.5.1 documentation</div>
+                <div class="brand">CLIP-as-service 0.5.2 documentation</div>
             </a>
         </div>
         <div class="header-right">
@@ -479,7 +479,7 @@ Please also note that <strong>different models give different sizes of output di
 <td>2.04</td>
 </tr>
 <tr>
-<td>ViT-L-14@336px</td>
+<td>ViT-L-14-336</td>
 <td>✅</td>
 <td>✅</td>
 <td>❌</td>
@@ -681,15 +681,15 @@ In the same way, when you do <code class="docutils literal notranslate"><span cl
 <tbody>
 <tr>
 <td><code>name</code></td>
-<td>Model weights, default is <code>ViT-B-32::openai</code>. A full list of models and weights can be found <a href="#model-support">here</a></td>
+<td>The name of the model to be used. Default 'ViT-B-32::openai'. A list of available models can be found <a href="#model-support">here</a></td>
 </tr>
 <tr>
 <td><code>num_worker_preprocess</code></td>
-<td>The number of CPU workers for image &amp; text prerpocessing, default 4.</td>
+<td>The number of CPU workers to preprocess images and texts. Default is 4.</td>
 </tr>
 <tr>
 <td><code>minibatch_size</code></td>
-<td>The size of a minibatch for CPU preprocessing and GPU encoding, default 64. Reduce the size of it if you encounter OOM on GPU.</td>
+<td>The size of the minibatch for preprocessing and encoding. Default is 32. Reduce this number if you encounter OOM errors.</td>
 </tr>
 </tbody>
 </table>
@@ -706,11 +706,11 @@ In the same way, when you do <code class="docutils literal notranslate"><span cl
 <tbody>
 <tr>
 <td><code>device</code></td>
-<td><code>cuda</code> or <code>cpu</code>. Default is <code>None</code> means auto-detect.</td>
+<td>'cpu' or 'cuda'. Default is None, which auto-detects the device.</td>
 </tr>
 <tr>
 <td><code>jit</code></td>
-<td>If to enable Torchscript JIT, default is <code>False</code>.</td>
+<td>Whether to use JIT compilation. Default is False.</td>
 </tr>
 </tbody>
 </table>
@@ -726,11 +726,11 @@ In the same way, when you do <code class="docutils literal notranslate"><span cl
 <tbody>
 <tr>
 <td><code>device</code></td>
-<td><code>cuda</code> or <code>cpu</code>. Default is <code>None</code> means auto-detect.</td>
+<td>'cpu' or 'cuda'. Default is None, which auto-detects the device.</td>
 </tr>
 <tr>
 <td><code>model_path</code></td>
-<td>The path to custom CLIP model, default <code>None</code>.</td>
+<td>The path to the model to be used. If not specified, the model will be downloaded or loaded from the local cache. See <a href="#use-custom-model-for-onnx">here</a> to learn how to finetune custom models.</td>
 </tr>
 </tbody>
 </table>
@@ -1172,7 +1172,7 @@ docker build . -f Dockerfiles/server.Dockerfile  --build-arg <span class="nv">GR
                         <div class="copyright">
                             Copyright &#169; Jina AI Limited. All rights reserved.
                         </div><div class="last-updated">
-                            Last updated on Aug 08, 2022</div>
+                            Last updated on Aug 16, 2022</div>
                     </div>
                     <div class="right-details">
                         <div class="social-btns">

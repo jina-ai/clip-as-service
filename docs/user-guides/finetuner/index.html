@@ -10,13 +10,13 @@
   
 <meta property="og:url" content="https://clip-as-service.jina.ai/user-guides/finetuner/" />
   
-<meta property="og:site_name" content="CLIP-as-service 0.5.1 Documentation" />
+<meta property="og:site_name" content="CLIP-as-service 0.5.2 Documentation" />
   
 <meta property="og:description" content="Although CLIP-as-service has provided you a list of pre-trained models, you can also fine-tune your models. This guide will show you how to use Finetuner to fine-tune models and use them in CLIP-as-service. For installation and basic usage of Finetuner, please refer to Finetuner documentation. Yo..." />
   
 <meta property="og:image" content="https://clip-as-service.jina.ai/_static/banner.png" />
   
-<meta property="og:image:alt" content="CLIP-as-service 0.5.1 Documentation" />
+<meta property="og:image:alt" content="CLIP-as-service 0.5.2 Documentation" />
   
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@JinaAI_">
@@ -39,7 +39,7 @@
         <link rel="canonical" href="https://clip-as-service.jina.ai/user-guides/finetuner.html" />
 
     <link rel="shortcut icon" href="../../_static/favicon.png"/><meta name="generator" content="sphinx-4.5.0, furo 2022.06.21"/>
-        <title>Fine-tune Models - CLIP-as-service 0.5.1 documentation</title>
+        <title>Fine-tune Models - CLIP-as-service 0.5.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -172,7 +172,7 @@
         </div>
         <div class="header-center">
             <a href="../../">
-                <div class="brand">CLIP-as-service 0.5.1 documentation</div>
+                <div class="brand">CLIP-as-service 0.5.2 documentation</div>
             </a>
         </div>
         <div class="header-right">
@@ -328,10 +328,10 @@ This guide will show you how to use <a class="reference external" href="https://
 You can also <a class="reference external" href="https://finetuner.jina.ai/tasks/text-to-image/">learn more details about fine-tuning CLIP</a>.</p>
 <section id="prepare-training-data">
 <h2>Prepare Training Data<a class="headerlink" href="#prepare-training-data" title="Permalink to this headline">#</a></h2>
-<p>Finetuner accepts training data and evaluation data in the form of <a class="reference external" href="https://docarray.jina.ai/api/docarray.array.document/#docarray.array.document.DocumentArray" title="(in DocArray v0.14.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DocumentArray</span></code></a>.
+<p>Finetuner accepts training data and evaluation data in the form of <a class="reference external" href="https://docarray.jina.ai/api/docarray.array.document/#docarray.array.document.DocumentArray" title="(in DocArray v0.15.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DocumentArray</span></code></a>.
 The training data for CLIP is a list of (text, image) pairs.
-Each pair is stored in a <a class="reference external" href="https://docarray.jina.ai/api/docarray.document/#docarray.document.Document" title="(in DocArray v0.14.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Document</span></code></a> which wraps two <a class="reference external" href="https://docarray.jina.ai/fundamentals/document/nested/"><code class="docutils literal notranslate"><span class="pre">chunks</span></code></a> with <code class="docutils literal notranslate"><span class="pre">image</span></code> and <code class="docutils literal notranslate"><span class="pre">text</span></code> modality respectively.
-You can push the resulting <a class="reference external" href="https://docarray.jina.ai/api/docarray.array.document/#docarray.array.document.DocumentArray" title="(in DocArray v0.14.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DocumentArray</span></code></a> to the cloud using the <a class="reference external" href="https://docarray.jina.ai/api/docarray.array.document/#docarray.array.document.DocumentArray.push" title="(in DocArray v0.14.8)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">push()</span></code></a> method.</p>
+Each pair is stored in a <a class="reference external" href="https://docarray.jina.ai/api/docarray.document/#docarray.document.Document" title="(in DocArray v0.15.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Document</span></code></a> which wraps two <a class="reference external" href="https://docarray.jina.ai/fundamentals/document/nested/"><code class="docutils literal notranslate"><span class="pre">chunks</span></code></a> with <code class="docutils literal notranslate"><span class="pre">image</span></code> and <code class="docutils literal notranslate"><span class="pre">text</span></code> modality respectively.
+You can push the resulting <a class="reference external" href="https://docarray.jina.ai/api/docarray.array.document/#docarray.array.document.DocumentArray" title="(in DocArray v0.15.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DocumentArray</span></code></a> to the cloud using the <a class="reference external" href="https://docarray.jina.ai/api/docarray.array.document/#docarray.array.document.DocumentArray.push" title="(in DocArray v0.15.0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">push()</span></code></a> method.</p>
 <p>We use <a class="reference external" href="https://github.com/xuewyang/Fashion_Captioning">fashion captioning dataset</a> as a sample dataset in this tutorial.
 The following are examples of descriptions and image urls from the dataset.
 We also include a preview of each image.</p>
@@ -366,7 +366,7 @@ We also include a preview of each image.</p>
 </tr>
 </tbody>
 </table>
-<p>You can use the following script to transform the first three entries of the dataset to a <a class="reference external" href="https://docarray.jina.ai/api/docarray.array.document/#docarray.array.document.DocumentArray" title="(in DocArray v0.14.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DocumentArray</span></code></a> and push it to the cloud using the name <code class="docutils literal notranslate"><span class="pre">fashion-sample</span></code>.</p>
+<p>You can use the following script to transform the first three entries of the dataset to a <a class="reference external" href="https://docarray.jina.ai/api/docarray.array.document/#docarray.array.document.DocumentArray" title="(in DocArray v0.15.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DocumentArray</span></code></a> and push it to the cloud using the name <code class="docutils literal notranslate"><span class="pre">fashion-sample</span></code>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">docarray</span> <span class="kn">import</span> <span class="n">Document</span><span class="p">,</span> <span class="n">DocumentArray</span>
 
 <span class="n">train_da</span> <span class="o">=</span> <span class="n">DocumentArray</span><span class="p">(</span>
@@ -524,7 +524,7 @@ We also include a preview of each image.</p>
                         <div class="copyright">
                             Copyright &#169; Jina AI Limited. All rights reserved.
                         </div><div class="last-updated">
-                            Last updated on Aug 08, 2022</div>
+                            Last updated on Aug 16, 2022</div>
                     </div>
                     <div class="right-details">
                         <div class="social-btns">
