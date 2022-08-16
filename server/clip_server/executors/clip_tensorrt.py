@@ -32,9 +32,8 @@ class CLIPEncoder(Executor):
         :param num_worker_preprocess: The number of CPU workers to preprocess images and texts. Default is 4.
         :param minibatch_size: The size of the minibatch for preprocessing and encoding. Default is 32. Reduce this
             number if you encounter OOM errors.
-        :param access_paths: Default access paths for encoding, used if the access path is not passed as a parameter
-            with the request. Visit https://docarray.jina.ai/fundamentals/documentarray/access-elements for more
-            details.
+        :param access_paths: The access paths to traverse on the input documents to get the images and texts to be
+            processed. Visit https://docarray.jina.ai/fundamentals/documentarray/access-elements for more details.
         """
         super().__init__(**kwargs)
 
