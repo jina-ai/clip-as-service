@@ -1,7 +1,7 @@
 # Retrieval in CLIP-as-service
-`CLIP-as-service` offers us high quality embeddings. Retrieval is one of the most common use cases for embeddings. Retrieval in CLIP-as-service can support indexing a very large dataset(millions/billions) and querying within several million seconds.
+`CLIP-as-service` offers us high quality embeddings. Retrieval is one of the most common use cases for embeddings. Retrieval in CLIP-as-service can support indexing a very large dataset(millions/billions) and querying within 50ms.
 
-In order to implement retrieval we add an extra indexer after enocoder in CLIP-as-service. We use ['AnnLite'](https://github.com/jina-ai/annlite) in this case. 
+In order to implement retrieval we add an extra indexer after enocoder in CLIP-as-service. We use [`AnnLite`](https://github.com/jina-ai/annlite) in this case. 
 
 
 ## Fast search in CLIP-as-service
@@ -51,7 +51,13 @@ The results will be like:
 You don't need to call `client.encode()` explicitly since `client.index()` will handle this for you.
 
 
-Similar to `CLIP-as-service`, you need to prepare a YAML config:
+Similar to `clip_server`, you can directly use the YAML config we have prepared for you by simple running:
+
+```bash
+python -m clip_server search_flow.yaml
+```
+
+The YAML config looks like this:
 ```yaml
 jtype: Flow
 version: '1'
@@ -69,7 +75,6 @@ executors:
   	  jtype: AnnLiteIndexer
   	  with:
   	  	dim: 512
-  	  	data_path: workspace
   	  metas:
   	  	py_modules:
   	  	  - annlite.executor
@@ -78,7 +83,6 @@ executors:
 | Parameter               | Description                                                                                                                  |
 |-------------------------|------------------------------------------------------------------------------------------------------------------------------|
 | `dim`                  | Dimension of embeddings. Default is 512 since the output dimension of `CLIP` model is 512.|
-| `data_path` | Path of indexer files. Default is `workspace`|
 
 
 ## How to lower memory footprint?
@@ -130,7 +134,6 @@ executors:
   	  jtype: AnnLiteIndexer
   	  with:
   	  	dim: 512  # input dimension of PCA
-  	  	data_path: workspace
   	  	n_components: 128  # output dimension of PCA
   	  metas:
   	  	py_modules:
@@ -188,7 +191,6 @@ executors:
   	  jtype: AnnLiteIndexer
   	  with:
   	  	dim: 512  # input dimension of PCA
-  	  	data_path: workspace
   	  	n_components: 128  # output dimension of PCA
   	  metas:
   	  	py_modules:
