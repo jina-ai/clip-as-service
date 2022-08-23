@@ -177,6 +177,7 @@ It means the client and the server are now connected. Well done!
 
 user-guides/client
 user-guides/server
+user-guides/retrieval
 user-guides/faq
 ```
 
