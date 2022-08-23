@@ -1,5 +1,5 @@
 # Retrieval in CLIP-as-service
-`CLIP-as-service` offers us high quality embeddings. Retrieval is one of the most common use cases for embeddings. Retrieval in CLIP-as-service can support indexing a very large dataset(millions/billions) and querying within 50ms.
+`CLIP-as-service` offers us high quality embeddings. Retrieval is one of the most common use cases for embeddings. Retrieval in `CLIP-as-service` can support indexing a very large dataset (millions/billions) and querying within 50ms, depending on the machine.
 
 In order to implement retrieval we add an extra indexer after enocoder in CLIP-as-service. We use [`AnnLite`](https://github.com/jina-ai/annlite) in this case. 
 
@@ -88,18 +88,27 @@ executors:
 ## How to lower memory footprint?
 Sometimes the indexer will use a lot of memory because all embeddings and indexers are stored in memory. The efficient way to reduce memory footprint is dimension reduction. Retrieval in CLIP-as-service use [`Principal component analysis(PCA)`](https://en.wikipedia.org/wiki/Principal_component_analysis#:~:text=Principal%20component%20analysis%20(PCA)%20is,components%20and%20ignoring%20the%20rest.) to achieve this.
 
-
 ### Training PCA
-In order to train a PCA model you need prepare train data. 
+In order to train a PCA model you need to prepare train data. 
 ```python
 from annlite.index import AnnLite
 import numpy as np
 
-index = AnnLite(dim=512, n_components=128, data_path='workspace')
+index = AnnLite(dim=512, n_components=128)
 index.train(train_data)
 ```
 
-Here `train_data` is a `numpy.ndarray` which comes from embeddings you have already calculated. These embeddings can be obtained by simply calling `client.encode()`.
+| Parameter               | Description                                                                                                                  |
+|-------------------------|------------------------------------------------------------------------------------------------------------------------------|
+| `dim`                  | Dimension of embeddings. The output of the encoder as well as the input of PCA.|
+| `n_components` | Output dimension of PCA.|
+
+Here the type of `train_data` is `numpy.ndarray` which are the embeddings you have prepared for training PCA. These embeddings can be obtained by simply using:
+
+```python
+results = client.encode(your_document_array)
+train_data = results.embeddings
+```
 
 ```{tip}
 There is no need to use the whole dataset to train PCA. But the number of training data should not be less than the original dimension of embeddings: 512 in this case.
@@ -140,18 +149,11 @@ executors:
   	  	  - annlite.executor
 ```
 
-| Parameter               | Description                                                                                                                  |
-|-------------------------|------------------------------------------------------------------------------------------------------------------------------|
-| `dim`                  | Dimension of embeddings. The output of the encoder as well as the input of PCA.|
-| `n_components` | Output dimension of PCA.|
-
-
-```{warning}
-You must use the same `data_path` used in training PCA. 
-```
-
 ### Memory usage before and after PCA
-Here is the comparison of memory usage before and after PCA:
+Here is the comparison of memory usage before and after PCA when indexing 10 millions data:
+
+- X axis: the number of data we have indexed.
+- Y axis: total memory usage.
 
 ```{figure} images/memory_usage_dim_512.png
 
@@ -167,7 +169,23 @@ However, PCA will definitely lead to information losses since we remove some dim
 ```
 
 ### Whether PCA is needed in my case?
-From our experiments, the memory usage is **linear** to the data size: **1 millions data with dimension of 512 will approximately need 8G-10G**. So you can have an approximately value for memory usage based on your data size.
+From our experiments we found that the memory usage is **linear** to the data size: **1 millions data with dimension of 512 will approximately need 8G-10G**. So you can have an approximately value for memory usage based on your data size.
+
+### How to implement PCA on an existing indexer?
+It's the common case that we have limited data at the first time but then more and more data come in. So how to implement PCA on an existing indexer?
+
+We still have to prepare training data for PCA, but now the training data come from indexer files directly:
+```python
+from annlite.index import AnnLite
+import numpy as np
+
+
+index = AnnLite(dim=512, n_components=128)
+train_data = index.load_embeddings(limit=10e5)
+index.train(train_data)
+```
+
+`index.load_embeddings()` will load embeddings from `lmdb` with size of limit.
 
 
 ## How to deal with very large dataset?
@@ -226,3 +244,27 @@ Increase number of shardings will definitely alleviate the memory issue, but it 
 
 
 ## How to deploy it on cloud?
+Deployment can be easily achieved by using [`jcloud`](https://github.com/jina-ai/jcloud) or [`Amazon Kubernetes(EKS) Cluster`](https://aws.amazon.com/eks/). Taking `jcloud` as an example:
+
+One can deploy a Jina Flow on `jcloud` by running following command:
+```bash
+jc deploy search_flow.yml
+```
+
+The Flow is successfully deployed when you see:
+```text
+╭────────────── 🎉 Flow is available! ──────────────╮
+│                                                   │
+│   ID            418954ad0d                        │
+│   Endpoint(s)   grpcs://418954ad0d.wolf.jina.ai   │
+│                                                   │
+╰───────────────────────────────────────────────────╯
+```
+
+One can send request to Flow:
+```python
+from jina import Client, Document
+
+c = Client(host='https://418954ad0d.wolf.jina.ai')
+c.post('/index', Document(text='hello'))
+```
