@@ -84,7 +84,35 @@ executors:
 ## How to lower memory footprint?
 Sometimes the indexer will use a lot of memory because all embeddings and indexers are stored in memory. The efficient way to reduce memory footprint is dimension reduction. Retrieval in CLIP-as-service use [`Principal component analysis(PCA)`](https://en.wikipedia.org/wiki/Principal_component_analysis#:~:text=Principal%20component%20analysis%20(PCA)%20is,components%20and%20ignoring%20the%20rest.) to achieve this.
 
-In order to enable PCA you only need to add `n_components` inside YAML config:
+
+### Training PCA
+In order to train a PCA model you need prepare train data. 
+```python
+from annlite.index import AnnLite
+import numpy as np
+
+index = AnnLite(dim=512, n_components=128, data_path='workspace')
+index.train(train_data)
+```
+
+Here `train_data` is a `numpy.ndarray` which comes from embeddings you have already calculated. These embeddings can be obtained by simply calling `client.encode()`.
+
+```{tip}
+There is no need to use the whole dataset to train PCA. But the number of training data should not be less than the original dimension of embeddings: 512 in this case.
+```
+
+Once the training is done you will see following outputs:
+```text
+2022-08-23 15:55:42.360 | INFO     | annlite.index:__init__:105 - Initialize Projector codec (n_components=128)
+2022-08-23 15:55:42.375 | INFO     | annlite.index:train:191 - Start training Projector codec (n_components=128) with 1000 data...
+2022-08-23 15:55:42.709 | INFO     | annlite.index:train:208 - The annlite is successfully trained!
+2022-08-23 15:55:42.709 | INFO     | annlite.index:dump_model:543 - Save the parameters to workspace/parameters-dc287b278624be46d50b0d5cf7f9d59f
+```
+
+You will see a folder called `parameters-dc287b278624be46d50b0d5cf7f9d59f` under `workspace`.
+
+### Load PCA model in server
+In order to enable PCA in server side you need to add `n_components` inside YAML config:
 ```yaml
 jtype: Flow
 version: '1'
@@ -115,30 +143,32 @@ executors:
 | `n_components` | Output dimension of PCA.|
 
 
-Then you need to train a PCA model:
+```{warning}
+You must use the same `data_path` used in training PCA. 
+```
 
-
+### Memory usage before and after PCA
 Here is the comparison of memory usage before and after PCA:
 
 ```{figure} images/memory_usage_dim_512.png
-:width: 80%
 
 ```
 ```{figure} images/memory_usage_dim_128.png
-:width: 80%
 
 ```
 
 Now the memory usage for indexing 10 millions data decreases from 60GB+ to 30GB, saving more than 50% memory.
 
+```{Warning}
 However, PCA will definitely lead to information losses since we remove some dimensions. And more dimensions you remove, more information losses will be. So there will be a trade-off between efficiency and accuracy. 
+```
 
-### How do I know whether PCA is needed in my case?
+### Whether PCA is needed in my case?
 From our experiments, the memory usage is **linear** to the data size: **1 millions data with dimension of 512 will approximately need 8G-10G**. So you can have an approximately value for memory usage based on your data size.
 
 
 ## How to deal with very large dataset?
-For a very large dataset, for example 100M or even 1B, it's not possible to implement index operation on a single machine. **Sharding**, a type of partitioning that separates large dataset into smaller, faster, more easily managed parts, is needed in this case.
+For a very large dataset, for example 100 millions data or even 1 billion data, it's not possible to implement index operations on a single machine. **Sharding**, a type of partitioning that separates large dataset into smaller, faster, more easily managed parts, is needed in this case.
 
 You need to speicify the `shards` and `polling` in YAML config:
 ```yaml
@@ -171,8 +201,9 @@ executors:
 | Parameter               | Description                                                                                                                  |
 |-------------------------|------------------------------------------------------------------------------------------------------------------------------|
 | `shards`                  | Number of shardings. |
-| `polling` | Polling strategy for different endpoints.|
+| `polling` | Polling strategies for different endpoints.|
 
+Then you can perform exactly the same operations as we do in single machine.(`/encode`, `/index` and `/search`)
 
 ### Why different polling strategies are needed for different endpoints?
 
@@ -186,6 +217,10 @@ Differences between `ANY` and `ALL`:
 ```
 
 Since one data point only needed to be indexed once, there will only be one indexer executor that will handle this data point. Thus, `ANY` is used for `/index`. On the contrary, search operations needed to be handle by all indexer executors since we don't know which executor store the perfectly matched result.
+
+```{Warning}
+Increase number of shardings will definitely alleviate the memory issue, but it will increase the latency since there will be more network connections between different shards.
+```
 
 
 ## How to deploy it on cloud?
