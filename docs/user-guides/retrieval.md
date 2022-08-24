@@ -156,10 +156,10 @@ Here is the comparison of memory usage before and after PCA when indexing 10 mil
 - Y-axis: total memory usage.
 
 ```{figure} images/memory_usage_dim_512.png
-:width: 50%
+:width: 80%
 ```
 ```{figure} images/memory_usage_dim_128.png
-:width: 50%
+:width: 80%
 ```
 
 Now the memory usage for indexing 10 million data decreases from 60GB+ to 30GB, saving more than 50% memory.
