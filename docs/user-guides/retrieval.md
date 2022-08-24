@@ -142,14 +142,14 @@ executors:
         py_modules:
           - clip_server.executors.clip_torch
   - name: indexer
-  	uses:
-  	  jtype: AnnLiteIndexer
-  	  with:
-  	  	dim: 512  # input dimension of PCA
-  	  	n_components: 128  # output dimension of PCA
-  	  metas:
-  	  	py_modules:
-  	  	  - annlite.executor
+    uses:
+      jtype: AnnLiteIndexer
+      with:
+        dim: 512  # input dimension of PCA
+        n_components: 128  # output dimension of PCA
+      metas:
+        py_modules:
+          - annlite.executor
 ```
 
 ### Memory usage before and after PCA
@@ -217,16 +217,16 @@ executors:
         py_modules:
           - clip_server.executors.clip_torch
   - name: indexer
-  	uses:
-  	  jtype: AnnLiteIndexer
-  	  with:
-  	  	dim: 512  # input dimension of PCA
-  	  	n_components: 128  # output dimension of PCA
-  	  metas:
-  	  	py_modules:
-  	  	  - annlite.executor
-  	shards: 5
-  	polling: {'/index': 'ANY', '/search': 'ALL', '/update': 'ALL',
+    uses:
+      jtype: AnnLiteIndexer
+      with:
+        dim: 512  # input dimension of PCA
+        n_components: 128  # output dimension of PCA
+      metas:
+        py_modules:
+          - annlite.executor
+    shards: 5
+    polling: {'/index': 'ANY', '/search': 'ALL', '/update': 'ALL',
               '/delete': 'ALL', '/status': 'ALL'}
 ```
 
