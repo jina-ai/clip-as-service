@@ -225,7 +225,7 @@ executors:
 
 Then you can perform exactly the same operations as we do on a single machine.(`/encode`, `/index` and `/search`)
 
-### Why different polling strategies are needed for different endpoints?
+### Why different [polling strategies](https://docs.jina.ai/how-to/scale-out/?highlight=polling#different-polling-strategies) are needed for different endpoints?
 
 Differences between `ANY` and `ALL`:
 - `ANY`: requests are sent to one of the executors.
