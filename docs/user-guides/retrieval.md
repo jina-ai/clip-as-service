@@ -1,11 +1,11 @@
 # Retrieval in CLIP-as-service
-`CLIP-as-service` offers us high-quality embeddings. Retrieval is one of the most common use cases for embeddings. Retrieval in `CLIP-as-service` can support indexing a very large dataset (millions/billions) and querying within 50ms, depending on the machine.
+`CLIP-as-service` offers us high-quality embeddings. Retrieval is one of the most common use cases for embeddings. Retrieval in `CLIP-as-service` support indexing a very large dataset (millions/billions) and querying within 50ms, depending on the machine.
 
-In order to implement retrieval, we add an extra indexer after the encoder in CLIP-as-service. We use [`AnnLite`](https://github.com/jina-ai/annlite) in this case. 
+In order to implement retrieval, we add an [`AnnLite`](https://github.com/jina-ai/annlite) indexer executor after the encoder executor in CLIP-as-service.
 
 
 ## Fast search in CLIP-as-service
-Index and search are easy in `CLIP-as-service`:
+Indexing and searching are easy in `CLIP-as-service`:
 
 ```python
 from clip_client import Client
@@ -13,10 +13,13 @@ from clip_client import Client
 client = Client('grpc://0.0.0.0:23456')
 
 # index
-r = client.index(
+client.index(
     [
-        'she smiled, with pain',  # text
-        'https://clip-as-service.jina.ai/_static/favicon.png',  # image
+        Document(text='she smiled, with pain'),  # text
+        Document(uri='apple.png'),  # local image
+        Document(
+            uri='https://clip-as-service.jina.ai/_static/favicon.png'
+        ),  # online image
     ]
 )
 
@@ -24,7 +27,7 @@ r = client.index(
 client.search(['smile'])
 ```
 
-The results will be like this:
+The results will look like this:
 
 ```text
 ╭───────────────────────────── Documents Summary ─────────────────────────────╮
@@ -164,12 +167,21 @@ Here is the comparison of memory usage before and after PCA when indexing 10 mil
 
 Now the memory usage for indexing 10 million data decreases from 60GB+ to 30GB, saving more than 50% memory.
 
-```{Warning}
-However, PCA will definitely lead to information losses since we remove some dimensions. And the more dimensions you remove, the more information losses will be. So there will be a trade-off between efficiency and accuracy. 
+```{Note}
+We use a single machine which has 90GB memory and 20 cores CPU.
+```
+
+```{Tip}
+However, PCA will definitely lead to information losses since we remove some dimensions. And the more dimensions you remove, the more information losses will be. So the best practice will be estimate the memory usage first (if possible, see below) and choose the reasonable dimension after PCA.
 ```
 
 ### Whether PCA is needed in my case?
-From our experiments we found that the memory usage is **linear** to the data size: **1 million data with the dimension of 512 will approximately need 8G-10G**. So you can have an approximate value for memory usage based on your data size.
+It's hard to give a exactly number of how much memory should be used before you start indexing, but here are some facts that you can refer to:
+- Memory usage is **linear** to the data size
+- **1 million data (dim=512)** will approximately need **6G-7G memory**
+- Actual memory usage will be 3-5 times as the [theoretical memory usage of HNSW](https://github.com/nmslib/hnswlib/issues/37)
+
+So you can have an approximate estimation for memory usage based on your data size and dimension. And then compare it with the memory limit of your machine.
 
 ### How to implement PCA on an existing indexer?
 It's the common case that we have limited data at the first time but then more and more data come in. So how to implement PCA on an existing indexer?
@@ -236,7 +248,7 @@ Differences between `ANY` and `ALL`:
 
 ```
 
-Since one data point only needed to be indexed once, there will only be one indexer executor that will handle this data point. Thus, `ANY` is used for `/index`. On the contrary, search operations needed to be handled by all indexer executors since we don't know which executor store the perfectly matched result.
+Since one data point only needs to be indexed once, there will only be one indexer executor that will handle this data point. Thus, `ANY` is used for `/index`. On the contrary, we use `ALL` in for `/search` since we don't know which executor stores the perfectly matched result, so the search request should be handled by all indexer executors. (The same reason for using `ALL` in `/update`, `/delete`, `/status`)
 
 ```{Warning}
 Increasing the number of shardings will definitely alleviate the memory issue, but it will increase the latency since there will be more network connections between different shards.
