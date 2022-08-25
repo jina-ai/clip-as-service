@@ -1,7 +1,16 @@
 # Retrieval in CLIP-as-service
-`CLIP-as-service` offers us high-quality embeddings. Retrieval is one of the most common use cases for embeddings. Retrieval in `CLIP-as-service` support indexing a very large dataset (millions/billions) and querying within 50ms, depending on the machine.
+### Basics of retrieval
+Retrieval is one of the most common use cases for embeddings. Usually retrieval contains two parts: encoding and indexing:
 
-In order to implement retrieval, we add an [`AnnLite`](https://github.com/jina-ai/annlite) indexer executor after the encoder executor in CLIP-as-service.
+```{figure} images/retreival.png
+:width: 80%
+```
+
+### Multi-modality retreival in `CLIP-as-service`
+`CLIP-as-service` offers us high-quality embeddings for [multi-modality data](https://docs.jina.ai/get-started/what-is-cross-modal-multi-modal/#what-is-cross-modal-multi-modal). It enables us to achieve cross-modality search like text-image retrieval or image-text retreival. 
+And retrieval in `CLIP-as-service` support indexing a very large dataset (millions/billions) and querying within 50ms, depending on the machine.
+
+In order to implement retrieval, we add an [`AnnLite`](https://github.com/jina-ai/annlite) indexer executor(based on [`HNSW`](https://arxiv.org/abs/1603.09320)) after the encoder executor in CLIP-as-service.
 
 
 ## Fast search in CLIP-as-service
@@ -9,6 +18,7 @@ Indexing and searching are easy in `CLIP-as-service`:
 
 ```python
 from clip_client import Client
+from docarray import Document
 
 client = Client('grpc://0.0.0.0:23456')
 
@@ -90,6 +100,14 @@ executors:
 
 ## How to lower memory footprint?
 Sometimes the indexer will use a lot of memory because the HNSW indexer (which is used by `AnnLite`) is stored in memory. The efficient way to reduce memory footprint is dimension reduction. Retrieval in CLIP-as-service use [`Principal component analysis(PCA)`](https://en.wikipedia.org/wiki/Principal_component_analysis#:~:text=Principal%20component%20analysis%20(PCA)%20is,components%20and%20ignoring%20the%20rest.) to achieve this.
+
+### Whether PCA is needed in my case?
+It's hard to give an exactly number of how much memory should be used before you start indexing, but here are some facts that you can refer to:
+- Memory usage is **linear** to the data size
+- **1 million data (dim=512)** will approximately need **6G-7G memory**
+- Actual memory usage will be 3-5 times as the [theoretical memory usage of HNSW](https://github.com/nmslib/hnswlib/issues/37)
+
+So you can have an approximate estimation for memory usage based on your data size and dimension. And then compare it with the memory limit of your machine.
 
 ### Training PCA
 In order to train a PCA model, you need to prepare training data. 
@@ -174,14 +192,6 @@ We use a single machine which has 90GB memory and 20 cores CPU.
 ```{Tip}
 However, PCA will definitely lead to information losses since we remove some dimensions. And the more dimensions you remove, the more information losses will be. So the best practice will be estimate the memory usage first (if possible, see below) and choose the reasonable dimension after PCA.
 ```
-
-### Whether PCA is needed in my case?
-It's hard to give a exactly number of how much memory should be used before you start indexing, but here are some facts that you can refer to:
-- Memory usage is **linear** to the data size
-- **1 million data (dim=512)** will approximately need **6G-7G memory**
-- Actual memory usage will be 3-5 times as the [theoretical memory usage of HNSW](https://github.com/nmslib/hnswlib/issues/37)
-
-So you can have an approximate estimation for memory usage based on your data size and dimension. And then compare it with the memory limit of your machine.
 
 ### How to implement PCA on an existing indexer?
 It's the common case that we have limited data at the first time but then more and more data come in. So how to implement PCA on an existing indexer?
