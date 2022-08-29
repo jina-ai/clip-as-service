@@ -1,9 +1,5 @@
 # Host on JCloud
 
-```{warning}
-JCloud does not support GPU hosting yet. Hence `clip_server` deployed on JCloud will be run on CPU.
-```
-
 Essentially `clip_server` is a Jina [Flow](https://docs.jina.ai/fundamentals/flow/). Any Jina Flow can be hosted on [JCloud](https://docs.jina.ai/fundamentals/jcloud/), hence `clip_server` can be hosted on JCloud as well. Learn more about [JCloud here](https://docs.jina.ai/fundamentals/jcloud/).
 
 
@@ -28,9 +24,16 @@ executors:
 
 ````
 
-Note that, `port` is unnecessary here as JCloud will assign a new URL for any deployed service. 
+```{tip}
+`port` is unnecessary here as JCloud will assign a new URL for any deployed service. 
+```
 
-Executors now must start with `jinahub+docker://` as it is required by JCloud. We currently provide containerized executors [`jinahub+docker://CLIPTorchEncoder`](https://hub.jina.ai/executor/gzpbl8jh) and [`jinahub+docker://CLIPOnnxEncoder`](https://hub.jina.ai/executor/2a7auwg2) on Jina Hub. They are automatically synced on the new release of `clip_server` module. 
+Executors must start with `jinahub+docker://` as it is required by JCloud. We currently provide containerized executors [`jinahub+docker://CLIPTorchEncoder`](https://hub.jina.ai/executor/gzpbl8jh) and [`jinahub+docker://CLIPOnnxEncoder`](https://hub.jina.ai/executor/2a7auwg2) on Jina Hub. They are automatically synced on the new release of `clip_server` module. 
+Please refer [here](https://docs.jina.ai/fundamentals/jcloud/yaml-spec/#gpu) for more details on using GPU in JCloud.
+Notice that you must specify the correct docker image tag for your executor to utilize the GPU. For example `jinahub+docker://CLIPTorchEncoder/0.5.2-gpu`. 
+See the 'Tag' section in [CLIPTorchEncoder](https://hub.jina.ai/executor/gzpbl8jh) and [CLIPOnnxEncoder](https://hub.jina.ai/executor/2a7auwg2) for GPU docker image tags.
+
+
 
 To deploy,
 
