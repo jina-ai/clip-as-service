@@ -25,7 +25,7 @@ executors:
 ````
 
 ```{tip}
-`port` is unnecessary here as JCloud will assign a new URL for any deployed service. 
+`port` is unnecessary here as JCloud will assign a new hostname and port for any deployed service. 
 ```
 
 Executors must start with `jinahub+docker://` as it is required by JCloud. We currently provide containerized executors [`jinahub+docker://CLIPTorchEncoder`](https://hub.jina.ai/executor/gzpbl8jh) and [`jinahub+docker://CLIPOnnxEncoder`](https://hub.jina.ai/executor/2a7auwg2) on Jina Hub. They are automatically synced on the new release of `clip_server` module. 
