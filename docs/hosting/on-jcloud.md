@@ -33,8 +33,6 @@ Please refer [here](https://docs.jina.ai/fundamentals/jcloud/yaml-spec/#gpu) for
 Notice that you must specify the correct docker image tag for your executor to utilize the GPU. For example `jinahub+docker://CLIPTorchEncoder/0.5.2-gpu`. 
 See the 'Tag' section in [CLIPTorchEncoder](https://hub.jina.ai/executor/gzpbl8jh) and [CLIPOnnxEncoder](https://hub.jina.ai/executor/2a7auwg2) for GPU docker image tags.
 
-
-
 To deploy,
 
 ````{tab} PyTorch-backed
