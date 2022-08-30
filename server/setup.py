@@ -42,12 +42,11 @@ setup(
     zip_safe=False,
     setup_requires=['setuptools>=18.0', 'wheel'],
     install_requires=[
-        'protobuf>=3.13.0,<=3.20.1',
         'ftfy',
         'torch',
         'regex',
         'torchvision',
-        'jina>=3.7.0',
+        'jina>=3.8.0',
         'prometheus-client',
         'open_clip_torch>=1.3.0',
     ],
