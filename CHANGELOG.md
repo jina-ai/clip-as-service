@@ -53,6 +53,7 @@
 
 
 
+
 <a name=release-note-0-0-3></a>
 ## Release Note (`0.0.3`)
 
@@ -1302,4 +1303,37 @@
 
  - [[```a7c4f490```](https://github.com/jina-ai/clip-as-service/commit/a7c4f4903df5736bcf9e85d82bb83497d850bc4d)] __-__ __version__: the next version will be 0.5.1 (*Jina Dev Bot*)
  - [[```b00963c4```](https://github.com/jina-ai/clip-as-service/commit/b00963c45983dfdac6d05258b03298de5ad1edf6)] __-__ bump version to 0.5.0 (*numb3r3*)
+
+<a name=release-note-0-6-0></a>
+## Release Note (`0.6.0`)
+
+> Release time: 2022-08-30 04:19:21
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ numb3r3,  Ziniu Yu,  felix-wang,  Jina Dev Bot,  🙇
+
+
+### 🆕 New Features
+
+ - [[```3c43eed3```](https://github.com/jina-ai/clip-as-service/commit/3c43eed38afe2ff84c8b06368f4301afcd332cf5)] __-__ do not send blob from server when it is loaded in client (#804) (*Ziniu Yu*)
+ - [[```f852dfc8```](https://github.com/jina-ai/clip-as-service/commit/f852dfc876caa7b98552b5c707d4c85babc46393)] __-__ add warning if input is too large (#796) (*Ziniu Yu*)
+ - [[```65032f02```](https://github.com/jina-ai/clip-as-service/commit/65032f02db30671f7a2a6ca78e371588ae98ab2b)] __-__ encode text first when both text and uri are presented (#795) (*Ziniu Yu*)
+
+### 🐞 Bug fixes
+
+ - [[```bb2c142b```](https://github.com/jina-ai/clip-as-service/commit/bb2c142b8899075c00db3b08e506fb970fee1478)] __-__ cast dtype for fp16 (#801) (*felix-wang*)
+
+### 📗 Documentation
+
+ - [[```a5893c70```](https://github.com/jina-ai/clip-as-service/commit/a5893c70531830f236d38fde5a880a9a2556474f)] __-__ update jcloud gpu usage (#809) (*Ziniu Yu*)
+ - [[```b4fb0dd2```](https://github.com/jina-ai/clip-as-service/commit/b4fb0dd2823b6218da4395989c6b011cf3de1a38)] __-__ fix hub table typo (#803) (*Ziniu Yu*)
+
+### 🍹 Other Improvements
+
+ - [[```2a80235c```](https://github.com/jina-ai/clip-as-service/commit/2a80235c0aa16eefdc6703989fc6da670cbd5c89)] __-__ bump version to 0.6.0 (*numb3r3*)
+ - [[```59b9f771```](https://github.com/jina-ai/clip-as-service/commit/59b9f7716df9a325fb6e707d086ca6f2612da975)] __-__ update protobuf version (#810) (*Ziniu Yu*)
+ - [[```89205f06```](https://github.com/jina-ai/clip-as-service/commit/89205f06d1b740952e79c512d6b0ef6f8db18300)] __-__ update executor docstring (#806) (*Ziniu Yu*)
+ - [[```25c91e21```](https://github.com/jina-ai/clip-as-service/commit/25c91e21ee8de9e2cd1766d2c6c319f6e5609e80)] __-__ __version__: the next version will be 0.5.2 (*Jina Dev Bot*)
 
