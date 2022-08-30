@@ -35,7 +35,7 @@ To enable GPU on JCloud, you need to configure it in the YAML file and use prebu
 ```yaml
 jtype: Flow
 executors:
-  - uses: jinahub+docker://CLIPTorchEncoder/0.5.2-gpu
+  - uses: jinahub+docker://CLIPTorchEncoder/latest-gpu
     jcloud:
       resources:
         gpu: shared
