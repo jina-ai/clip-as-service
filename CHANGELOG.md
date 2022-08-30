@@ -54,6 +54,7 @@
 
 
 
+
 <a name=release-note-0-0-3></a>
 ## Release Note (`0.0.3`)
 
@@ -1336,4 +1337,24 @@
  - [[```59b9f771```](https://github.com/jina-ai/clip-as-service/commit/59b9f7716df9a325fb6e707d086ca6f2612da975)] __-__ update protobuf version (#810) (*Ziniu Yu*)
  - [[```89205f06```](https://github.com/jina-ai/clip-as-service/commit/89205f06d1b740952e79c512d6b0ef6f8db18300)] __-__ update executor docstring (#806) (*Ziniu Yu*)
  - [[```25c91e21```](https://github.com/jina-ai/clip-as-service/commit/25c91e21ee8de9e2cd1766d2c6c319f6e5609e80)] __-__ __version__: the next version will be 0.5.2 (*Jina Dev Bot*)
+
+<a name=release-note-0-6-1></a>
+## Release Note (`0.6.1`)
+
+> Release time: 2022-08-30 13:57:32
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ felix-wang,  Jina Dev Bot,  numb3r3,  🙇
+
+
+### 🐞 Bug fixes
+
+ - [[```ea239685```](https://github.com/jina-ai/clip-as-service/commit/ea239685bff56372aeadaeb3050f5c2ccc37175f)] __-__ grpc meta auth (#811) (*felix-wang*)
+
+### 🍹 Other Improvements
+
+ - [[```83a8120c```](https://github.com/jina-ai/clip-as-service/commit/83a8120c22c76cf34f0d2e5966c368031e0fe9b4)] __-__ __version__: the next version will be 0.6.1 (*Jina Dev Bot*)
+ - [[```2a80235c```](https://github.com/jina-ai/clip-as-service/commit/2a80235c0aa16eefdc6703989fc6da670cbd5c89)] __-__ bump version to 0.6.0 (*numb3r3*)
 
