@@ -61,7 +61,9 @@ class Client:
         else:
             raise ValueError(f'{server} is not a valid scheme')
 
-        self._authorization = credential.get('Authorization', None)
+        self._authorization = credential.get(
+            'Authorization', os.environ.get('CLIP_AUTH_TOKEN')
+        )
 
     @overload
     def encode(
