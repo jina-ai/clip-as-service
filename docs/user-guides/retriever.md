@@ -71,28 +71,10 @@ client.index(
 client.search(['smile'])
 ```
 
-The results will look like this:
-
+The results will look like this, the most relevant doc is "she smiled, with pain" with the cosine distance of 0.096. And the apple image has the cosine distance of 0.799.
 ```text
-╭───────────────────────────── Documents Summary ─────────────────────────────╮
-│                                                                             │
-│   Length                 1                                                  │
-│   Homogenous Documents   True                                               │
-│   Common Attributes      ('id', 'mime_type', 'text', 'tags', 'embedding')   │
-│   Multimodal dataclass   False                                              │
-│                                                                             │
-╰─────────────────────────────────────────────────────────────────────────────╯
-╭────────────────────── Attributes Summary ───────────────────────╮
-│                                                                 │
-│   Attribute   Data type      #Unique values   Has empty value   │
-│  ─────────────────────────────────────────────────────────────  │
-│   embedding   ('ndarray',)   1                False             │
-│   id          ('str',)       1                False             │
-│   mime_type   ('str',)       1                False             │
-│   tags        ('dict',)      1                False             │
-│   text        ('str',)       1                False             │
-│                                                                 │
-╰─────────────────────────────────────────────────────────────────╯
+she smiled, with pain defaultdict(<class 'docarray.score.NamedScore'>, {'cosine': {'value': 0.09604912996292114}})
+defaultdict(<class 'docarray.score.NamedScore'>, {'cosine': {'value': 0.7994112372398376}})
 ```
 
 You don't need to call `client.encode()` explicitly since `client.index()` will handle this for you.
