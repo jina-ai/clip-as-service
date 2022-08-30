@@ -14,7 +14,41 @@ In order to implement retrieval, we add an [`AnnLite`](https://github.com/jina-a
 
 
 ## Fast search in CLIP-as-service
-Indexing and searching are easy in `CLIP-as-service`:
+
+Similar to `clip_server`, you can directly use the YAML config we have prepared for you by simple running:
+
+```bash
+python -m clip_server search_flow.yaml
+```
+
+The YAML config looks like this:
+```yaml
+jtype: Flow
+version: '1'
+with:
+  port: 51000
+executors:
+  - name: encoder
+    uses:
+      jtype: CLIPEncoder
+      metas:
+        py_modules:
+          - clip_server.executors.clip_torch
+  - name: indexer
+    uses:
+      jtype: AnnLiteIndexer
+      with:
+        dim: 512
+      metas:
+        py_modules:
+          - annlite.executor
+```
+
+| Parameter               | Description                                                                                                                  |
+|-------------------------|------------------------------------------------------------------------------------------------------------------------------|
+| `dim`                  | Dimension of embeddings. Default is 512 since the output dimension of `CLIP` model is 512.|
+
+Then indexing and searching are easy in `CLIP-as-service`:
 
 ```python
 from clip_client import Client
@@ -63,39 +97,6 @@ The results will look like this:
 
 You don't need to call `client.encode()` explicitly since `client.index()` will handle this for you.
 
-
-Similar to `clip_server`, you can directly use the YAML config we have prepared for you by simple running:
-
-```bash
-python -m clip_server search_flow.yaml
-```
-
-The YAML config looks like this:
-```yaml
-jtype: Flow
-version: '1'
-with:
-  port: 51000
-executors:
-  - name: encoder
-    uses:
-      jtype: CLIPEncoder
-      metas:
-        py_modules:
-          - clip_server.executors.clip_torch
-  - name: indexer
-    uses:
-      jtype: AnnLiteIndexer
-      with:
-        dim: 512
-      metas:
-        py_modules:
-          - annlite.executor
-```
-
-| Parameter               | Description                                                                                                                  |
-|-------------------------|------------------------------------------------------------------------------------------------------------------------------|
-| `dim`                  | Dimension of embeddings. Default is 512 since the output dimension of `CLIP` model is 512.|
 
 
 ## How to lower memory footprint?
