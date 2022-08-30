@@ -42,7 +42,7 @@ executors:
 ```
 
 Please refer [here](https://docs.jina.ai/fundamentals/jcloud/yaml-spec/#gpu) for more details on using GPU in JCloud.
-Notice that you must specify a docker image GPU tag for your executor to utilize the GPU. For example `0.5.2-gpu`. 
+Notice that you must specify a docker image GPU tag for your executor to utilize the GPU. For example `latest-gpu`. 
 See the 'Tag' section in [CLIPTorchEncoder](https://hub.jina.ai/executor/gzpbl8jh) and [CLIPOnnxEncoder](https://hub.jina.ai/executor/2a7auwg2) for docker image GPU tags.
 
 To deploy,
