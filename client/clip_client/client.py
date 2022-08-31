@@ -72,6 +72,7 @@ class Client:
         *,
         batch_size: Optional[int] = None,
         show_progress: bool = False,
+        on_done: Optional[types.FunctionType] = None,
         parameters: Optional[dict] = None,
     ) -> 'np.ndarray':
         """Encode images and texts into embeddings where the input is an iterable of raw strings.
@@ -83,6 +84,7 @@ class Client:
         :param content: an iterator of image URIs or sentences, each element is an image or a text sentence as a string.
         :param batch_size: the number of elements in each request when sending ``content``
         :param show_progress: if set, show a progress bar
+        :param on_done: TODO
         :param parameters: the parameters for the encoding, you can specify the model to use when you have multiple models
         :return: the embedding in a numpy ndarray with shape ``[N, D]``. ``N`` is in the same length of ``content``
         """
@@ -95,12 +97,14 @@ class Client:
         *,
         batch_size: Optional[int] = None,
         show_progress: bool = False,
+        on_done: Optional[types.FunctionType] = None,
         parameters: Optional[dict] = None,
     ) -> 'DocumentArray':
         """Encode images and texts into embeddings where the input is an iterable of :class:`docarray.Document`.
-        :param content: an iterable of :class:`docarray.Document`, each Document must be filled with `.uri`, `.text` or `.blob`.
+        :param content: an iterable of :class:`docarray.Document`, each Document must be filled with `.uri`, `.text` or `.blob`
         :param batch_size: the number of elements in each request when sending ``content``
         :param show_progress: if set, show a progress bar
+        :param on_done: TODO
         :param parameters: the parameters for the encoding, you can specify the model to use when you have multiple models
         :return: the embedding in a numpy ndarray with shape ``[N, D]``. ``N`` is in the same length of ``content``
         """
@@ -116,11 +120,15 @@ class Client:
             not kwargs.get('show_progress'),
             total=len(content) if hasattr(content, '__len__') else None,
         )
+        on_done_cb = kwargs.get('on_done', None)
+
         results = DocumentArray()
         with self._pbar:
             self._client.post(
                 **self._get_post_payload(content, kwargs),
-                on_done=partial(self._gather_result, results=results),
+                on_done=partial(
+                    self._gather_result, results=results, callback=on_done_cb
+                ),
             )
 
         for c in content:
@@ -129,13 +137,15 @@ class Client:
 
         return self._unboxed_result(results)
 
-    def _gather_result(self, response, results: 'DocumentArray'):
+    def _gather_result(
+        self, response, results: 'DocumentArray', callback: Optional[types.FunctionType]
+    ):
         from rich import filesize
 
         if not results:
             self._pbar.start_task(self._r_task)
         r = response.data.docs
-        results.extend(r)
+
         self._pbar.update(
             self._r_task,
             advance=len(r),
@@ -143,6 +153,11 @@ class Client:
                 filesize.decimal(int(os.environ.get('JINA_GRPC_RECV_BYTES', '0')))
             ),
         )
+
+        if callback:
+            callback(r)
+        else:
+            results.extend(r)
 
     @staticmethod
     def _unboxed_result(results: 'DocumentArray'):
