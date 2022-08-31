@@ -58,7 +58,6 @@ One may wonder where is this `onnx-flow.yml` or `tensorrt-flow.yml` come from. M
 
 The procedure and UI of ONNX and TensorRT runtime would look the same as Pytorch runtime.
 
-
 ## Model support
 
 The various `CLIP` models implemented in the [OpenAI](https://github.com/openai/CLIP), [OpenCLIP](https://github.com/mlfoundations/open_clip), and [MultilingualCLIP](https://github.com/FreddeFrallan/Multilingual-CLIP) are supported. 
