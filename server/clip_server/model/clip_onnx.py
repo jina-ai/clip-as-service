@@ -193,7 +193,10 @@ class CLIPOnnxModel(BaseCLIPModel):
                     )
         else:
             raise RuntimeError(
-                f'Model {name} not found; available models = {list(_MODELS.keys())}'
+                'CLIP model {} not found or not supports ONNX backend; below is a list of all available models:\n{}'.format(
+                    name,
+                    ''.join(['\t- {}\n'.format(i) for i in list(_MODELS.keys())]),
+                )
             )
 
     @staticmethod

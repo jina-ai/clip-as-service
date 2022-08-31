@@ -114,7 +114,10 @@ class CLIPTensorRTModel(BaseCLIPModel):
                 save_engine(text_engine, self._textual_path)
         else:
             raise RuntimeError(
-                f'Model {name} not found or not supports Nvidia TensorRT backend; available models = {list(_MODELS.keys())}'
+                'CLIP model {} not found or not supports Nvidia TensorRT backend; below is a list of all available models:\n{}'.format(
+                    name,
+                    ''.join(['\t- {}\n'.format(i) for i in list(_MODELS.keys())]),
+                )
             )
 
     @staticmethod
