@@ -35,7 +35,9 @@ class CLIPModel(BaseCLIPModel):
 
                 instance = super().__new__(MultilingualCLIPModel)
             else:
-                raise ValueError(f'The CLIP model name=`{name}` is not supported.')
+                raise ValueError(
+                    f'Model {name} not found; available models = {list(_OPENCLIP_MODELS.keys()) + list(_MULTILINGUALCLIP_MODELS.keys())} '
+                )
         else:
             instance = super().__new__(cls)
         return instance
