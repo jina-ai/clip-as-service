@@ -155,7 +155,7 @@ class Client:
         )
 
         if callback:
-            callback(r)
+            callback(response)
         else:
             results.extend(r)
 
