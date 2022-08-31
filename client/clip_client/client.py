@@ -138,7 +138,10 @@ class Client:
         return self._unboxed_result(results)
 
     def _gather_result(
-        self, response, results: 'DocumentArray', callback: Optional[types.FunctionType]
+        self,
+        response,
+        results: 'DocumentArray',
+        callback: Optional[types.FunctionType] = None,
     ):
         from rich import filesize
 
