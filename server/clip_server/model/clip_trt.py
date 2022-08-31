@@ -116,13 +116,7 @@ class CLIPTensorRTModel(BaseCLIPModel):
             raise RuntimeError(
                 'CLIP model {} not found or not supports Nvidia TensorRT backend; below is a list of all available models:\n{}'.format(
                     name,
-                    ''.join(
-                        [
-                            '\t- {}\n'.format(i)
-                            for i in list(_OPENCLIP_MODELS.keys())
-                            + list(_MULTILINGUALCLIP_MODELS.keys())
-                        ]
-                    ),
+                    ''.join(['\t- {}\n'.format(i) for i in list(_MODELS.keys())]),
                 )
             )
 
