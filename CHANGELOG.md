@@ -55,6 +55,7 @@
 
 
 
+
 <a name=release-note-0-0-3></a>
 ## Release Note (`0.0.3`)
 
@@ -1357,4 +1358,28 @@
 
  - [[```83a8120c```](https://github.com/jina-ai/clip-as-service/commit/83a8120c22c76cf34f0d2e5966c368031e0fe9b4)] __-__ __version__: the next version will be 0.6.1 (*Jina Dev Bot*)
  - [[```2a80235c```](https://github.com/jina-ai/clip-as-service/commit/2a80235c0aa16eefdc6703989fc6da670cbd5c89)] __-__ bump version to 0.6.0 (*numb3r3*)
+
+<a name=release-note-0-6-2></a>
+## Release Note (`0.6.2`)
+
+> Release time: 2022-09-01 04:16:27
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Ziniu Yu,  Jina Dev Bot,  felix-wang,  🙇
+
+
+### 🐞 Bug fixes
+
+ - [[```ea239685```](https://github.com/jina-ai/clip-as-service/commit/ea239685bff56372aeadaeb3050f5c2ccc37175f)] __-__ grpc meta auth (#811) (*felix-wang*)
+
+### 📗 Documentation
+
+ - [[```4461d2e9```](https://github.com/jina-ai/clip-as-service/commit/4461d2e9ab07c01669237b220cd24cd6f95e30e8)] __-__ update model support table (#813) (*Ziniu Yu*)
+
+### 🍹 Other Improvements
+
+ - [[```f7ee26a1```](https://github.com/jina-ai/clip-as-service/commit/f7ee26a17d47c1de0efc1122ccb40d3b22d217a8)] __-__ improve model not found error msg (#812) (*Ziniu Yu*)
+ - [[```f1c0057d```](https://github.com/jina-ai/clip-as-service/commit/f1c0057d7e1c51953303bbf7b3743e19a9c300ab)] __-__ __version__: the next version will be 0.6.2 (*Jina Dev Bot*)
 
