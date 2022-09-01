@@ -113,7 +113,7 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install wheel pytest pytest-cov
           pip install --no-cache-dir "client/[test]"
-          pip install --no-cache-dir "server/[onnx]"
+          pip install --no-cache-dir --upgrade "server/[onnx]"
           pip install --no-cache-dir "server/[transformers]"
       - name: Test
         id: test
