@@ -1,6 +1,7 @@
 import mimetypes
 import os
 import time
+import types
 import warnings
 from typing import (
     overload,
@@ -121,7 +122,7 @@ class Client:
             model_name = parameters.pop('model_name', '') if parameters else ''
             self._client.post(
                 on=f'/encode/{model_name}'.rstrip('/'),
-                **self._get_post_payload(content, kwargs),
+                **self._get_post_payload(content, results, kwargs),
                 on_done=partial(self._gather_result, results=results),
                 parameters=parameters,
             )
@@ -159,32 +160,34 @@ class Client:
             results.embeddings if ('__created_by_CAS__' in results[0].tags) else results
         )
 
-    def _iter_doc(self, content) -> Generator['Document', None, None]:
+    def _iter_doc(
+        self, content, results: 'DocumentArray'
+    ) -> Generator['Document', None, None]:
         from rich import filesize
         from docarray import Document
 
         if hasattr(self, '_pbar'):
             self._pbar.start_task(self._s_task)
 
-        for c in content:
+        for i, c in enumerate(content):
             if isinstance(c, str):
                 _mime = mimetypes.guess_type(c)[0]
                 if _mime and _mime.startswith('image'):
-                    yield Document(
+                    d = Document(
                         tags={'__created_by_CAS__': True, '__loaded_by_CAS__': True},
                         uri=c,
                     ).load_uri_to_blob()
                 else:
-                    yield Document(tags={'__created_by_CAS__': True}, text=c)
+                    d = Document(tags={'__created_by_CAS__': True}, text=c)
             elif isinstance(c, Document):
                 if c.content_type in ('text', 'blob'):
-                    yield c
+                    d = c
                 elif not c.blob and c.uri:
                     c.load_uri_to_blob()
                     c.tags['__loaded_by_CAS__'] = True
-                    yield c
+                    d = c
                 elif c.tensor is not None:
-                    yield c
+                    d = c
                 else:
                     raise TypeError(f'unsupported input type {c!r} {c.content_type}')
             else:
@@ -201,9 +204,12 @@ class Client:
                     ),
                 )
 
-    def _get_post_payload(self, content, kwargs):
+            results.append(d)
+            yield d
+
+    def _get_post_payload(self, content, results, kwargs):
         payload = dict(
-            inputs=self._iter_doc(content),
+            inputs=self._iter_doc(content, results),
             request_size=kwargs.get('batch_size', 8),
             total_docs=len(content) if hasattr(content, '__len__') else None,
         )
@@ -303,7 +309,7 @@ class Client:
 
             async for da in self._async_client.post(
                 on=f'/encode/{model_name}'.rstrip('/'),
-                **self._get_post_payload(content, kwargs),
+                **self._get_post_payload(content, results, kwargs),
                 parameters=parameters,
             ):
                 if not results:
@@ -386,7 +392,7 @@ class Client:
         return d
 
     def _iter_rank_docs(
-        self, content, _source='matches'
+        self, content, results: 'DocumentArray', source='matches'
     ) -> Generator['Document', None, None]:
         from rich import filesize
         from docarray import Document
@@ -394,9 +400,9 @@ class Client:
         if hasattr(self, '_pbar'):
             self._pbar.start_task(self._s_task)
 
-        for c in content:
+        for i, c in enumerate(content):
             if isinstance(c, Document):
-                yield self._prepare_rank_doc(c, _source)
+                d = self._prepare_rank_doc(c, source)
             else:
                 raise TypeError(f'Unsupported input type {c!r}')
 
@@ -411,10 +417,13 @@ class Client:
                     ),
                 )
 
-    def _get_rank_payload(self, content, kwargs):
+            results.append(d)
+            yield d
+
+    def _get_rank_payload(self, content, results: 'DocumentArray', kwargs):
         payload = dict(
             inputs=self._iter_rank_docs(
-                content, _source=kwargs.get('source', 'matches')
+                content, results, source=kwargs.get('source', 'matches')
             ),
             request_size=kwargs.get('batch_size', 8),
             total_docs=len(content) if hasattr(content, '__len__') else None,
@@ -444,7 +453,7 @@ class Client:
             model_name = parameters.get('model_name', '') if parameters else ''
             self._client.post(
                 on=f'/rank/{model_name}'.rstrip('/'),
-                **self._get_rank_payload(docs, kwargs),
+                **self._get_rank_payload(docs, results, kwargs),
                 on_done=partial(self._gather_result, results=results),
                 parameters=parameters,
             )
@@ -466,7 +475,7 @@ class Client:
             model_name = parameters.get('model_name', '') if parameters else ''
             async for da in self._async_client.post(
                 on=f'/rank/{model_name}'.rstrip('/'),
-                **self._get_rank_payload(docs, kwargs),
+                **self._get_rank_payload(docs, results, kwargs),
                 parameters=parameters,
             ):
                 if not results:
@@ -545,7 +554,7 @@ class Client:
             parameters = kwargs.pop('parameters', None)
             self._client.post(
                 on='/index',
-                **self._get_post_payload(content, kwargs),
+                **self._get_post_payload(content, results, kwargs),
                 on_done=partial(self._gather_result, results=results),
                 parameters=parameters,
             )
@@ -589,7 +598,7 @@ class Client:
         with self._pbar:
             async for da in self._async_client.post(
                 on='/index',
-                **self._get_post_payload(content, kwargs),
+                **self._get_post_payload(content, results, kwargs),
                 parameters=kwargs.pop('parameters', None),
             ):
                 if not results:
@@ -674,7 +683,7 @@ class Client:
 
             self._client.post(
                 on='/search',
-                **self._get_post_payload(content, kwargs),
+                **self._get_post_payload(content, results, kwargs),
                 parameters=parameters,
                 on_done=partial(self._gather_result, results=results),
             )
@@ -724,7 +733,7 @@ class Client:
 
             async for da in self._async_client.post(
                 on='/search',
-                **self._get_post_payload(content, kwargs),
+                **self._get_post_payload(content, results, kwargs),
                 parameters=parameters,
             ):
                 if not results:
