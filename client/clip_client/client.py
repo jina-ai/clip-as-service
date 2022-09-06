@@ -136,10 +136,11 @@ class Client:
     def _gather_result(self, response, results: 'DocumentArray'):
         from rich import filesize
 
-        if not results:
-            self._pbar.start_task(self._r_task)
         r = response.data.docs
-        results.extend(r)
+        results[r[:, 'id']].embeddings = r.embeddings
+
+        if not self._pbar._tasks[self._r_task].started:
+            self._pbar.start_task(self._r_task)
         self._pbar.update(
             self._r_task,
             advance=len(r),
@@ -227,7 +228,9 @@ class Client:
         :return: the latency report in a dict.
         """
         st = time.perf_counter()
-        r = self._client.post('/', self._iter_doc([content]), return_responses=True)
+        r = self._client.post(
+            '/', self._iter_doc([content], DocumentArray()), return_responses=True
+        )
         ed = (time.perf_counter() - st) * 1000
         route = r[0].routes
         gateway_time = (
@@ -312,9 +315,10 @@ class Client:
                 **self._get_post_payload(content, results, kwargs),
                 parameters=parameters,
             ):
-                if not results:
+                results[da[:, 'id']].embeddings = da.embeddings
+
+                if not self._pbar._tasks[self._r_task].started:
                     self._pbar.start_task(self._r_task)
-                results.extend(da)
                 self._pbar.update(
                     self._r_task,
                     advance=len(da),
@@ -478,9 +482,10 @@ class Client:
                 **self._get_rank_payload(docs, results, kwargs),
                 parameters=parameters,
             ):
-                if not results:
+                results[da[:, 'id']][:, 'matches'] = da[:, 'matches']
+
+                if not self._pbar._tasks[self._r_task].started:
                     self._pbar.start_task(self._r_task)
-                results.extend(da)
                 self._pbar.update(
                     self._r_task,
                     advance=len(da),
