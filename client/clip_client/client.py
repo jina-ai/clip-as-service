@@ -109,8 +109,10 @@ class Client:
     def encode(self, content, **kwargs):
         if isinstance(content, str):
             raise TypeError(
-                f'content must be an Iterable of [str, Document], try `.encode(["{content}"])` instead'
+                f'Content must be an Iterable of [str, Document], try `.encode(["{content}"])` instead'
             )
+        if hasattr(content, '__len__') and len(content) == 0:
+            return DocumentArray() if isinstance(content, DocumentArray) else []
 
         self._prepare_streaming(
             not kwargs.get('show_progress'),
@@ -131,7 +133,8 @@ class Client:
             if hasattr(c, 'tags') and c.tags.pop('__loaded_by_CAS__', False):
                 c.pop('blob')
 
-        return self._unboxed_result(results)
+        _unbox = isinstance(content, list) and isinstance(content[0], str)
+        return self._unboxed_result(results, _unbox)
 
     def _gather_result(self, response, results: 'DocumentArray'):
         from rich import filesize
@@ -150,16 +153,14 @@ class Client:
         )
 
     @staticmethod
-    def _unboxed_result(results: 'DocumentArray'):
+    def _unboxed_result(results: 'DocumentArray', unbox: bool = False):
         if results.embeddings is None:
             raise ValueError(
                 'Empty embedding returned from the server. '
                 'This often due to a mis-config of the server, '
                 'restarting the server or changing the serving port number often solves the problem'
             )
-        return (
-            results.embeddings if ('__created_by_CAS__' in results[0].tags) else results
-        )
+        return results.embeddings if unbox else results
 
     def _iter_doc(
         self, content, results: 'DocumentArray'
@@ -300,10 +301,18 @@ class Client:
     async def aencode(self, content, **kwargs):
         from rich import filesize
 
+        if isinstance(content, str):
+            raise TypeError(
+                f'Content must be an Iterable of [str, Document], try `.encode(["{content}"])` instead'
+            )
+        if hasattr(content, '__len__') and len(content) == 0:
+            return DocumentArray() if isinstance(content, DocumentArray) else []
+
         self._prepare_streaming(
             not kwargs.get('show_progress'),
             total=len(content) if hasattr(content, '__len__') else None,
         )
+
 
         results = DocumentArray()
         with self._pbar:
@@ -333,10 +342,10 @@ class Client:
             if hasattr(c, 'tags') and c.tags.pop('__loaded_by_CAS__', False):
                 c.pop('blob')
 
-        return self._unboxed_result(results)
+        _unbox = isinstance(content, list) and isinstance(content[0], str)
+        return self._unboxed_result(results, _unbox)
 
     def _prepare_streaming(self, disable, total):
-
         if total is None:
             total = 500
             warnings.warn(
