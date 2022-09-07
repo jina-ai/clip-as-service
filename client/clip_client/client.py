@@ -118,6 +118,7 @@ class Client:
             not kwargs.get('show_progress'),
             total=len(content) if hasattr(content, '__len__') else None,
         )
+
         results = DocumentArray()
         with self._pbar:
             parameters = kwargs.pop('parameters', None)
