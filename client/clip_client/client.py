@@ -456,6 +456,9 @@ class Client:
         :param docs: the input Documents
         :return: the ranked Documents in a DocumentArray.
         """
+        if hasattr(docs, '__len__') and len(docs) == 0:
+            return DocumentArray() if isinstance(docs, DocumentArray) else []
+
         self._prepare_streaming(
             not kwargs.get('show_progress'),
             total=len(docs) if hasattr(docs, '__len__') else None,
@@ -477,6 +480,9 @@ class Client:
 
     async def arank(self, docs: Iterable['Document'], **kwargs) -> 'DocumentArray':
         from rich import filesize
+
+        if hasattr(docs, '__len__') and len(docs) == 0:
+            return DocumentArray() if isinstance(docs, DocumentArray) else []
 
         self._prepare_streaming(
             not kwargs.get('show_progress'),
@@ -510,7 +516,22 @@ class Client:
 
         return results
 
-    def _gather_rank_result(self, response, docs_copy: 'DocumentArray'):
+    def _gather_rank_result(self, response, results: 'DocumentArray'):
+        from rich import filesize
+
+        r = response.data.docs
+        results[r[:, 'id']][:, 'matches'] = r[:, 'matches']
+
+        if not self._pbar._tasks[self._r_task].started:
+            self._pbar.start_task(self._r_task)
+        self._pbar.update(
+            self._r_task,
+            advance=len(r),
+            total_size=str(
+                filesize.decimal(int(os.environ.get('JINA_GRPC_RECV_BYTES', '0')))
+            ),
+        )
+
     @overload
     def index(
         self,
