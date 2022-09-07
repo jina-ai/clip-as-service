@@ -133,8 +133,9 @@ class Client:
             if hasattr(c, 'tags') and c.tags.pop('__loaded_by_CAS__', False):
                 c.pop('blob')
 
-        _unbox = isinstance(content, list) and isinstance(content[0], str)
+        _unbox = hasattr(content, '__len__') and isinstance(content[0], str)
         return self._unboxed_result(results, _unbox)
+
 
     def _gather_result(self, response, results: 'DocumentArray'):
         from rich import filesize
@@ -313,7 +314,6 @@ class Client:
             total=len(content) if hasattr(content, '__len__') else None,
         )
 
-
         results = DocumentArray()
         with self._pbar:
             parameters = kwargs.pop('parameters', None)
@@ -342,7 +342,7 @@ class Client:
             if hasattr(c, 'tags') and c.tags.pop('__loaded_by_CAS__', False):
                 c.pop('blob')
 
-        _unbox = isinstance(content, list) and isinstance(content[0], str)
+        _unbox = hasattr(content, '__len__') and isinstance(content[0], str)
         return self._unboxed_result(results, _unbox)
 
     def _prepare_streaming(self, disable, total):
