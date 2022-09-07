@@ -126,7 +126,7 @@ class Client:
             self._client.post(
                 on=f'/encode/{model_name}'.rstrip('/'),
                 **self._get_post_payload(content, results, kwargs),
-                on_done=partial(self._gather_result, results=results),
+                on_done=partial(self._gather_encode_result, results=results),
                 parameters=parameters,
             )
 
@@ -137,8 +137,7 @@ class Client:
         _unbox = hasattr(content, '__len__') and isinstance(content[0], str)
         return self._unboxed_result(results, _unbox)
 
-
-    def _gather_result(self, response, results: 'DocumentArray'):
+    def _gather_encode_result(self, response, results: 'DocumentArray'):
         from rich import filesize
 
         r = response.data.docs
@@ -459,7 +458,7 @@ class Client:
         """
         self._prepare_streaming(
             not kwargs.get('show_progress'),
-            total=len(docs),
+            total=len(docs) if hasattr(docs, '__len__') else None,
         )
         results = DocumentArray()
         with self._pbar:
@@ -481,7 +480,7 @@ class Client:
 
         self._prepare_streaming(
             not kwargs.get('show_progress'),
-            total=len(docs),
+            total=len(docs) if hasattr(docs, '__len__') else None,
         )
         results = DocumentArray()
         with self._pbar:
@@ -511,6 +510,7 @@ class Client:
 
         return results
 
+    def _gather_rank_result(self, response, docs_copy: 'DocumentArray'):
     @overload
     def index(
         self,
