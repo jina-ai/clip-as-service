@@ -6,7 +6,7 @@ Retrieval is one of the most common use cases for embeddings. Usually retrieval 
 :width: 80%
 ```
 
-### Multi-modality retreival in `CLIP-as-service`
+### Multi-modality retrieval in `CLIP-as-service`
 `CLIP-as-service` offers us high-quality embeddings for [multi-modality data](https://docs.jina.ai/get-started/what-is-cross-modal-multi-modal/#what-is-cross-modal-multi-modal). It enables us to achieve cross-modality search like text-image retrieval or image-text retreival. 
 And retrieval in `CLIP-as-service` support indexing a very large dataset (millions/billions) and querying within 50ms, depending on the machine.
 
@@ -93,7 +93,16 @@ It's hard to give an exactly number of how much memory should be used before you
 So you can have an approximate estimation for memory usage based on your data size and dimension. And then compare it with the memory limit of your machine.
 
 ### Training PCA
-In order to train a PCA model, you need to prepare training data. 
+In order to train a PCA model, you need to prepare training data.
+
+The type of `train_data` is `numpy.ndarray` which are the embeddings you have prepared for training PCA. `train_data` can be obtained by simply using:
+
+```python
+results = client.encode(DocumentArray(...))  # your DocumentArray here
+train_data = results.embeddings
+```
+
+After training data is prepared, you can start training PCA model use following script:
 ```python
 from annlite.index import AnnLite
 import numpy as np
@@ -107,17 +116,6 @@ index.train(train_data)
 | `dim`                  | Dimension of embeddings. The output of the encoder as well as the input of PCA.|
 | `n_components` | Output dimension of PCA.|
 
-The type of `train_data` is `numpy.ndarray` which are the embeddings you have prepared for training PCA. These embeddings can be obtained by simply using:
-
-```python
-results = client.encode(DocumentArray(...))
-train_data = results.embeddings
-```
-
-```{tip}
-There is no need to use the whole dataset to train PCA. But the number of training data should not be less than the original dimension of embeddings: 512 in this case.
-```
-
 Once the training is done you will see the following outputs:
 ```text
 2022-08-23 15:55:42.360 | INFO     | annlite.index:__init__:105 - Initialize Projector codec (n_components=128)
@@ -127,6 +125,11 @@ Once the training is done you will see the following outputs:
 ```
 
 You will see a folder called `parameters-dc287b278624be46d50b0d5cf7f9d59f` under `workspace` which stores the PCA model.
+
+
+```{tip}
+There is no need to use the whole dataset to train PCA. But the number of training data should not be less than the original dimension of embeddings: 512 in this case.
+```
 
 ### Load PCA model in server
 In order to use PCA on the server side you need to add `n_components` inside the YAML config:
@@ -153,6 +156,8 @@ executors:
           - annlite.executor
 ```
 
+After the service starts, `AnnLiteIndexer` will automatically load the PCA model we have trained before.
+
 ### Memory usage before and after PCA
 Here is the comparison of memory usage before and after PCA when indexing 10 million data:
 
@@ -175,23 +180,6 @@ We use a single machine which has 90GB memory and 20 cores CPU.
 ```{Tip}
 However, PCA will definitely lead to information losses since we remove some dimensions. And the more dimensions you remove, the more information losses will be. So the best practice will be estimate the memory usage first (if possible, see below) and choose the reasonable dimension after PCA.
 ```
-
-### How to implement PCA on an existing indexer?
-It's the common case that we have limited data at the first time but then more and more data come in. So how to implement PCA on an existing indexer?
-
-We still have to prepare training data for PCA, but now the training data come from indexer files directly:
-```python
-from annlite.index import AnnLite
-import numpy as np
-
-
-index = AnnLite(dim=512, n_components=128)
-train_data = index.load_embeddings(limit=10e5)
-index.train(train_data)
-```
-
-`index.load_embeddings()` will load embeddings from `lmdb` with size of limit.
-
 
 ## How to deal with a very large dataset?
 For a very large dataset, for example, 100 million data or even 1 billion data, it's not possible to implement index operations on a single machine. **Sharding**, a type of partitioning that separates a large dataset into smaller, faster, more easily managed parts, is needed in this case.
