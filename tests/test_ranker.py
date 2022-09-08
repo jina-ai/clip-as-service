@@ -91,6 +91,7 @@ async def test_torch_executor_rank_text2imgs(encoder_class):
 def test_docarray_inputs(make_flow, d):
     c = Client(server=f'grpc://0.0.0.0:{make_flow.port}')
     r = c.rank([d])
+    assert d is r[0]
     assert r[0].content == d.content
     assert r[0].matches.contents == d.matches.contents
     assert '__loaded_by_CAS__' not in d.tags
@@ -132,6 +133,7 @@ async def test_async_arank(make_flow, d):
     c = Client(server=f'grpc://0.0.0.0:{make_flow.port}')
     r = await c.arank([d])
     assert isinstance(r, DocumentArray)
+    assert d is r[0]
     assert r[0].content == d.content
     assert r[0].matches.contents == d.matches.contents
     rv = r['@m', 'scores__clip_score__value']

@@ -76,6 +76,8 @@ def test_docarray_inputs(make_flow, inputs, port_generator):
     c = Client(server=f'grpc://0.0.0.0:{make_flow.port}')
     r = c.encode(inputs if not callable(inputs) else inputs())
     assert isinstance(r, DocumentArray)
+    if hasattr(inputs, '__len__'):
+        assert inputs[0] is r[0]
     assert r.embeddings.shape
     assert '__created_by_CAS__' not in r[0].tags
     assert '__loaded_by_CAS__' not in r[0].tags
@@ -104,6 +106,7 @@ def test_docarray_preserve_original_inputs(make_flow, inputs, port_generator):
     c = Client(server=f'grpc://0.0.0.0:{make_flow.port}')
     r = c.encode(inputs if not callable(inputs) else inputs())
     assert isinstance(r, DocumentArray)
+    assert inputs[0] is r[0]
     assert r.embeddings.shape
     assert r.contents == inputs.contents
     assert '__created_by_CAS__' not in r[0].tags
@@ -130,14 +133,14 @@ def test_docarray_preserve_original_inputs(make_flow, inputs, port_generator):
     ],
 )
 def test_docarray_traversal(make_flow, inputs, port_generator):
+    from jina import Client as _Client
+
     da = DocumentArray.empty(1)
     da[0].chunks = inputs
 
-    from jina import Client as _Client
-
     c = _Client(host=f'grpc://0.0.0.0', port=make_flow.port)
     r1 = c.post(on='/', inputs=da, parameters={'traversal_paths': '@c'})
-    r2 = c.post(on='/', inputs=da, parameters={'access_paths': '@c'})
+    assert isinstance(r1, DocumentArray)
     assert r1[0].chunks.embeddings.shape[0] == len(inputs)
     assert '__created_by_CAS__' not in r1[0].tags
     assert '__loaded_by_CAS__' not in r1[0].tags
@@ -145,6 +148,9 @@ def test_docarray_traversal(make_flow, inputs, port_generator):
     assert not r1[0].blob
     assert not r1[0].chunks[0].tensor
     assert not r1[0].chunks[0].blob
+
+    r2 = c.post(on='/', inputs=da, parameters={'access_paths': '@c'})
+    assert isinstance(r2, DocumentArray)
     assert r2[0].chunks.embeddings.shape[0] == len(inputs)
     assert '__created_by_CAS__' not in r2[0].tags
     assert '__loaded_by_CAS__' not in r2[0].tags
