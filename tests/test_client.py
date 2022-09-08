@@ -74,9 +74,16 @@ def test_client_large_input(make_flow):
         DocumentArray([]),
     ],
 )
-def test_client_empty_input(make_flow, inputs):
+@pytest.mark.asyncio
+async def test_client_empty_input(make_flow, inputs):
     from clip_client.client import Client
 
     c = Client(server=f'grpc://0.0.0.0:{make_flow.port}')
     with pytest.raises(Exception):
         c.encode(inputs if not callable(inputs) else inputs())
+    with pytest.raises(Exception):
+        await c.aencode(inputs if not callable(inputs) else inputs())
+    with pytest.raises(Exception):
+        c.rank(inputs if not callable(inputs) else inputs())
+    with pytest.raises(Exception):
+        await c.arank(inputs if not callable(inputs) else inputs())
