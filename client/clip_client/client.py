@@ -65,6 +65,171 @@ class Client:
             'Authorization', os.environ.get('CLIP_AUTH_TOKEN')
         )
 
+    def profile(self, content: Optional[str] = '') -> Dict[str, float]:
+        """Profiling a single query's roundtrip including network and computation latency. Results is summarized in a table.
+        :param content: the content to be sent for profiling. By default it sends an empty Document
+            that helps you understand the network latency.
+        :return: the latency report in a dict.
+        """
+        st = time.perf_counter()
+        r = self._client.post(
+            '/', self._iter_doc([content], DocumentArray()), return_responses=True
+        )
+        ed = (time.perf_counter() - st) * 1000
+        route = r[0].routes
+        gateway_time = (
+            route[0].end_time.ToMilliseconds() - route[0].start_time.ToMilliseconds()
+        )
+        clip_time = (
+            route[1].end_time.ToMilliseconds() - route[1].start_time.ToMilliseconds()
+        )
+        network_time = ed - gateway_time
+        server_network = gateway_time - clip_time
+
+        from rich.table import Table
+
+        def make_table(_title, _time, _percent):
+            table = Table(show_header=False, box=None)
+            table.add_row(
+                _title, f'[b]{_time:.0f}[/b]ms', f'[dim]{_percent * 100:.0f}%[/dim]'
+            )
+            return table
+
+        from rich.tree import Tree
+
+        t = Tree(make_table('Roundtrip', ed, 1))
+        t.add(make_table('Client-server network', network_time, network_time / ed))
+        t2 = t.add(make_table('Server', gateway_time, gateway_time / ed))
+        t2.add(
+            make_table(
+                'Gateway-CLIP network', server_network, server_network / gateway_time
+            )
+        )
+        t2.add(make_table('CLIP model', clip_time, clip_time / gateway_time))
+
+        from rich import print
+
+        print(t)
+
+        return {
+            'Roundtrip': ed,
+            'Client-server network': network_time,
+            'Server': gateway_time,
+            'Gateway-CLIP network': server_network,
+            'CLIP model': clip_time,
+        }
+
+    def _prepare_streaming(self, disable, total):
+        if total is None:
+            total = 500
+            warnings.warn(
+                'The length of the input is unknown, the progressbar would not be accurate.'
+            )
+        elif total > 500:
+            warnings.warn(
+                'Please ensure all the inputs are valid, otherwise the request will be aborted.'
+            )
+
+        from docarray.array.mixins.io.pbar import get_pbar
+
+        self._pbar = get_pbar(disable)
+
+        os.environ['JINA_GRPC_SEND_BYTES'] = '0'
+        os.environ['JINA_GRPC_RECV_BYTES'] = '0'
+
+        self._s_task = self._pbar.add_task(
+            ':arrow_up: Send', total=total, total_size=0, start=False
+        )
+        self._r_task = self._pbar.add_task(
+            ':arrow_down: Recv', total=total, total_size=0, start=False
+        )
+
+    def _iter_doc(
+        self, content, results: 'DocumentArray'
+    ) -> Generator['Document', None, None]:
+        from rich import filesize
+        from docarray import Document
+
+        if hasattr(self, '_pbar'):
+            self._pbar.start_task(self._s_task)
+
+        for i, c in enumerate(content):
+            if isinstance(c, str):
+                _mime = mimetypes.guess_type(c)[0]
+                if _mime and _mime.startswith('image'):
+                    d = Document(
+                        tags={'__created_by_CAS__': True, '__loaded_by_CAS__': True},
+                        uri=c,
+                    ).load_uri_to_blob()
+                else:
+                    d = Document(tags={'__created_by_CAS__': True}, text=c)
+            elif isinstance(c, Document):
+                if c.content_type in ('text', 'blob'):
+                    d = c
+                elif not c.blob and c.uri:
+                    c.load_uri_to_blob()
+                    c.tags['__loaded_by_CAS__'] = True
+                    d = c
+                elif c.tensor is not None:
+                    d = c
+                else:
+                    raise TypeError(f'unsupported input type {c!r} {c.content_type}')
+            else:
+                raise TypeError(f'unsupported input type {c!r}')
+
+            if hasattr(self, '_pbar'):
+                self._pbar.update(
+                    self._s_task,
+                    advance=1,
+                    total_size=str(
+                        filesize.decimal(
+                            int(os.environ.get('JINA_GRPC_SEND_BYTES', '0'))
+                        )
+                    ),
+                )
+
+            results.append(d)
+            yield d
+
+    def _get_post_payload(self, content, results: 'DocumentArray', kwargs):
+        payload = dict(
+            inputs=self._iter_doc(content, results),
+            request_size=kwargs.get('batch_size', 8),
+            total_docs=len(content) if hasattr(content, '__len__') else None,
+        )
+
+        if self._scheme == 'grpc' and self._authorization:
+            payload.update(metadata=(('authorization', self._authorization),))
+        elif self._scheme == 'http' and self._authorization:
+            payload.update(headers={'Authorization': self._authorization})
+        return payload
+
+    def _gather_encode_result(self, response, results: 'DocumentArray'):
+        from rich import filesize
+
+        r = response.data.docs
+        results[r[:, 'id']].embeddings = r.embeddings
+
+        if not self._pbar._tasks[self._r_task].started:
+            self._pbar.start_task(self._r_task)
+        self._pbar.update(
+            self._r_task,
+            advance=len(r),
+            total_size=str(
+                filesize.decimal(int(os.environ.get('JINA_GRPC_RECV_BYTES', '0')))
+            ),
+        )
+
+    @staticmethod
+    def _unboxed_result(results: 'DocumentArray', unbox: bool = False):
+        if results.embeddings is None:
+            raise ValueError(
+                'Empty embedding returned from the server. '
+                'This often due to a mis-config of the server, '
+                'restarting the server or changing the serving port number often solves the problem'
+            )
+        return results.embeddings if unbox else results
+
     @overload
     def encode(
         self,
@@ -134,148 +299,8 @@ class Client:
             if hasattr(c, 'tags') and c.tags.pop('__loaded_by_CAS__', False):
                 c.pop('blob')
 
-        _unbox = hasattr(content, '__len__') and isinstance(content[0], str)
-        return self._unboxed_result(results, _unbox)
-
-    def _gather_encode_result(self, response, results: 'DocumentArray'):
-        from rich import filesize
-
-        r = response.data.docs
-        results[r[:, 'id']].embeddings = r.embeddings
-
-        if not self._pbar._tasks[self._r_task].started:
-            self._pbar.start_task(self._r_task)
-        self._pbar.update(
-            self._r_task,
-            advance=len(r),
-            total_size=str(
-                filesize.decimal(int(os.environ.get('JINA_GRPC_RECV_BYTES', '0')))
-            ),
-        )
-
-    @staticmethod
-    def _unboxed_result(results: 'DocumentArray', unbox: bool = False):
-        if results.embeddings is None:
-            raise ValueError(
-                'Empty embedding returned from the server. '
-                'This often due to a mis-config of the server, '
-                'restarting the server or changing the serving port number often solves the problem'
-            )
-        return results.embeddings if unbox else results
-
-    def _iter_doc(
-        self, content, results: 'DocumentArray'
-    ) -> Generator['Document', None, None]:
-        from rich import filesize
-        from docarray import Document
-
-        if hasattr(self, '_pbar'):
-            self._pbar.start_task(self._s_task)
-
-        for i, c in enumerate(content):
-            if isinstance(c, str):
-                _mime = mimetypes.guess_type(c)[0]
-                if _mime and _mime.startswith('image'):
-                    d = Document(
-                        tags={'__created_by_CAS__': True, '__loaded_by_CAS__': True},
-                        uri=c,
-                    ).load_uri_to_blob()
-                else:
-                    d = Document(tags={'__created_by_CAS__': True}, text=c)
-            elif isinstance(c, Document):
-                if c.content_type in ('text', 'blob'):
-                    d = c
-                elif not c.blob and c.uri:
-                    c.load_uri_to_blob()
-                    c.tags['__loaded_by_CAS__'] = True
-                    d = c
-                elif c.tensor is not None:
-                    d = c
-                else:
-                    raise TypeError(f'unsupported input type {c!r} {c.content_type}')
-            else:
-                raise TypeError(f'unsupported input type {c!r}')
-
-            if hasattr(self, '_pbar'):
-                self._pbar.update(
-                    self._s_task,
-                    advance=1,
-                    total_size=str(
-                        filesize.decimal(
-                            int(os.environ.get('JINA_GRPC_SEND_BYTES', '0'))
-                        )
-                    ),
-                )
-
-            results.append(d)
-            yield d
-
-    def _get_post_payload(self, content, results, kwargs):
-        payload = dict(
-            inputs=self._iter_doc(content, results),
-            request_size=kwargs.get('batch_size', 8),
-            total_docs=len(content) if hasattr(content, '__len__') else None,
-        )
-
-        if self._scheme == 'grpc' and self._authorization:
-            payload.update(metadata=(('authorization', self._authorization),))
-        elif self._scheme == 'http' and self._authorization:
-            payload.update(headers={'Authorization': self._authorization})
-        return payload
-
-    def profile(self, content: Optional[str] = '') -> Dict[str, float]:
-        """Profiling a single query's roundtrip including network and computation latency. Results is summarized in a table.
-        :param content: the content to be sent for profiling. By default it sends an empty Document
-            that helps you understand the network latency.
-        :return: the latency report in a dict.
-        """
-        st = time.perf_counter()
-        r = self._client.post(
-            '/', self._iter_doc([content], DocumentArray()), return_responses=True
-        )
-        ed = (time.perf_counter() - st) * 1000
-        route = r[0].routes
-        gateway_time = (
-            route[0].end_time.ToMilliseconds() - route[0].start_time.ToMilliseconds()
-        )
-        clip_time = (
-            route[1].end_time.ToMilliseconds() - route[1].start_time.ToMilliseconds()
-        )
-        network_time = ed - gateway_time
-        server_network = gateway_time - clip_time
-
-        from rich.table import Table
-
-        def make_table(_title, _time, _percent):
-            table = Table(show_header=False, box=None)
-            table.add_row(
-                _title, f'[b]{_time:.0f}[/b]ms', f'[dim]{_percent * 100:.0f}%[/dim]'
-            )
-            return table
-
-        from rich.tree import Tree
-
-        t = Tree(make_table('Roundtrip', ed, 1))
-        t.add(make_table('Client-server network', network_time, network_time / ed))
-        t2 = t.add(make_table('Server', gateway_time, gateway_time / ed))
-        t2.add(
-            make_table(
-                'Gateway-CLIP network', server_network, server_network / gateway_time
-            )
-        )
-        t2.add(make_table('CLIP model', clip_time, clip_time / gateway_time))
-
-        from rich import print
-
-        print(t)
-
-        return {
-            'Roundtrip': ed,
-            'Client-server network': network_time,
-            'Server': gateway_time,
-            'Gateway-CLIP network': server_network,
-            'CLIP model': clip_time,
-        }
+        unbox = hasattr(content, '__len__') and isinstance(content[0], str)
+        return self._unboxed_result(results, unbox)
 
     @overload
     async def aencode(
@@ -284,7 +309,6 @@ class Client:
         *,
         batch_size: Optional[int] = None,
         show_progress: bool = False,
-        parameters: Optional[dict] = None,
     ) -> 'np.ndarray':
         ...
 
@@ -295,7 +319,6 @@ class Client:
         *,
         batch_size: Optional[int] = None,
         show_progress: bool = False,
-        parameters: Optional[dict] = None,
     ) -> 'DocumentArray':
         ...
 
@@ -320,9 +343,9 @@ class Client:
             model_name = parameters.get('model_name', '') if parameters else ''
 
             async for da in self._async_client.post(
-                on=f'/encode/{model_name}'.rstrip('/'),
-                **self._get_post_payload(content, results, kwargs),
-                parameters=parameters,
+                    on=f'/encode/{model_name}'.rstrip('/'),
+                    **self._get_post_payload(content, results, kwargs),
+                    parameters=parameters,
             ):
                 results[da[:, 'id']].embeddings = da.embeddings
 
@@ -342,67 +365,8 @@ class Client:
             if hasattr(c, 'tags') and c.tags.pop('__loaded_by_CAS__', False):
                 c.pop('blob')
 
-        _unbox = hasattr(content, '__len__') and isinstance(content[0], str)
-        return self._unboxed_result(results, _unbox)
-
-    def _prepare_streaming(self, disable, total):
-        if total is None:
-            total = 500
-            warnings.warn(
-                'The length of the input is unknown, the progressbar would not be accurate.'
-            )
-        elif total > 500:
-            warnings.warn(
-                'Please ensure all the inputs are valid, otherwise the request will be aborted.'
-            )
-
-        from docarray.array.mixins.io.pbar import get_pbar
-
-        self._pbar = get_pbar(disable)
-
-        os.environ['JINA_GRPC_SEND_BYTES'] = '0'
-        os.environ['JINA_GRPC_RECV_BYTES'] = '0'
-
-        self._s_task = self._pbar.add_task(
-            ':arrow_up: Send', total=total, total_size=0, start=False
-        )
-        self._r_task = self._pbar.add_task(
-            ':arrow_down: Recv', total=total, total_size=0, start=False
-        )
-
-    @staticmethod
-    def _prepare_single_doc(d: 'Document'):
-        if d.content_type in ('text', 'blob'):
-            return d
-        elif not d.blob and d.uri:
-            d.load_uri_to_blob()
-            d.tags['__loaded_by_CAS__'] = True
-            return d
-        elif d.tensor is not None:
-            return d
-        else:
-            raise TypeError(f'Unsupported input type {d!r} {d.content_type}')
-
-    @staticmethod
-    def _prepare_rank_doc(d: 'Document', _source: str = 'matches'):
-        _get = lambda d: getattr(d, _source)
-        if not _get(d):
-            raise ValueError(f'`.rank()` requires every doc to have `.{_source}`')
-        d = Client._prepare_single_doc(d)
-        setattr(d, _source, [Client._prepare_single_doc(c) for c in _get(d)])
-        return d
-
-    @staticmethod
-    def _reset_rank_doc(d: 'Document', _source: str = 'matches'):
-        _get = lambda d: getattr(d, _source)
-
-        if d.tags.pop('__loaded_by_CAS__', False):
-            d.pop('blob')
-
-        for c in _get(d):
-            if c.tags.pop('__loaded_by_CAS__', False):
-                c.pop('blob')
-        return d
+        unbox = hasattr(content, '__len__') and isinstance(content[0], str)
+        return self._unboxed_result(results, unbox)
 
     def _iter_rank_docs(
         self, content, results: 'DocumentArray', source='matches'
@@ -447,6 +411,56 @@ class Client:
             payload.update(headers={'Authorization': self._authorization})
         return payload
 
+    def _gather_rank_result(self, response, results: 'DocumentArray'):
+        from rich import filesize
+
+        r = response.data.docs
+        results[r[:, 'id']][:, 'matches'] = r[:, 'matches']
+
+        if not self._pbar._tasks[self._r_task].started:
+            self._pbar.start_task(self._r_task)
+        self._pbar.update(
+            self._r_task,
+            advance=len(r),
+            total_size=str(
+                filesize.decimal(int(os.environ.get('JINA_GRPC_RECV_BYTES', '0')))
+            ),
+        )
+
+    @staticmethod
+    def _prepare_single_doc(d: 'Document'):
+        if d.content_type in ('text', 'blob'):
+            return d
+        elif not d.blob and d.uri:
+            d.load_uri_to_blob()
+            d.tags['__loaded_by_CAS__'] = True
+            return d
+        elif d.tensor is not None:
+            return d
+        else:
+            raise TypeError(f'Unsupported input type {d!r} {d.content_type}')
+
+    @staticmethod
+    def _prepare_rank_doc(d: 'Document', _source: str = 'matches'):
+        _get = lambda d: getattr(d, _source)
+        if not _get(d):
+            raise ValueError(f'`.rank()` requires every doc to have `.{_source}`')
+        d = Client._prepare_single_doc(d)
+        setattr(d, _source, [Client._prepare_single_doc(c) for c in _get(d)])
+        return d
+
+    @staticmethod
+    def _reset_rank_doc(d: 'Document', _source: str = 'matches'):
+        _get = lambda d: getattr(d, _source)
+
+        if d.tags.pop('__loaded_by_CAS__', False):
+            d.pop('blob')
+
+        for c in _get(d):
+            if c.tags.pop('__loaded_by_CAS__', False):
+                c.pop('blob')
+        return d
+
     def rank(self, docs: Iterable['Document'], **kwargs) -> 'DocumentArray':
         """Rank image-text matches according to the server CLIP model.
         Given a Document with nested matches, where the root is image/text and the matches is in another modality, i.e.
@@ -471,7 +485,7 @@ class Client:
             self._client.post(
                 on=f'/rank/{model_name}'.rstrip('/'),
                 **self._get_rank_payload(docs, results, kwargs),
-                on_done=partial(self._gather_result, results=results),
+                on_done=partial(self._gather_rank_result, results=results),
                 parameters=parameters,
             )
         for d in docs:
@@ -495,9 +509,9 @@ class Client:
             parameters = kwargs.pop('parameters', None)
             model_name = parameters.get('model_name', '') if parameters else ''
             async for da in self._async_client.post(
-                on=f'/rank/{model_name}'.rstrip('/'),
-                **self._get_rank_payload(docs, results, kwargs),
-                parameters=parameters,
+                    on=f'/rank/{model_name}'.rstrip('/'),
+                    **self._get_rank_payload(docs, results, kwargs),
+                    parameters=parameters,
             ):
                 results[da[:, 'id']][:, 'matches'] = da[:, 'matches']
 
@@ -517,22 +531,6 @@ class Client:
             self._reset_rank_doc(d, _source=kwargs.get('source', 'matches'))
 
         return results
-
-    def _gather_rank_result(self, response, results: 'DocumentArray'):
-        from rich import filesize
-
-        r = response.data.docs
-        results[r[:, 'id']][:, 'matches'] = r[:, 'matches']
-
-        if not self._pbar._tasks[self._r_task].started:
-            self._pbar.start_task(self._r_task)
-        self._pbar.update(
-            self._r_task,
-            advance=len(r),
-            total_size=str(
-                filesize.decimal(int(os.environ.get('JINA_GRPC_RECV_BYTES', '0')))
-            ),
-        )
 
     @overload
     def index(
