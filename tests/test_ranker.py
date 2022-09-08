@@ -146,3 +146,50 @@ async def test_async_arank(make_flow, d):
     for v in rv:
         assert v is not None
         assert -1.0 <= v <= 1.0
+
+
+@pytest.mark.parametrize(
+    'inputs',
+    [
+        [
+            Document(text='A', matches=[Document(text='B'), Document(text='C')])
+            for _ in range(20)
+        ],
+        DocumentArray(
+            [
+                Document(text='A', matches=[Document(text='B'), Document(text='C')])
+                for _ in range(20)
+            ]
+        ),
+    ],
+)
+def test_docarray_preserve_original_order(make_flow, inputs):
+    c = Client(server=f'grpc://0.0.0.0:{make_flow.port}')
+    r = c.rank(inputs, batch_size=1)
+    assert isinstance(r, DocumentArray)
+    for i in range(len(inputs)):
+        assert inputs[i] is r[i]
+
+
+@pytest.mark.parametrize(
+    'inputs',
+    [
+        [
+            Document(text='A', matches=[Document(text='B'), Document(text='C')])
+            for _ in range(20)
+        ],
+        DocumentArray(
+            [
+                Document(text='A', matches=[Document(text='B'), Document(text='C')])
+                for _ in range(20)
+            ]
+        ),
+    ],
+)
+@pytest.mark.asyncio
+async def test_async_docarray_preserve_original_order(make_flow, inputs):
+    c = Client(server=f'grpc://0.0.0.0:{make_flow.port}')
+    r = await c.arank(inputs, batch_size=1)
+    assert isinstance(r, DocumentArray)
+    for i in range(len(inputs)):
+        assert inputs[i] is r[i]

@@ -57,7 +57,7 @@ def test_client_concurrent_requests(port_generator):
             assert len(set([d.id[:2] for d in r])) == 1
 
 
-def test_client_large_input(make_flow, port_generator):
+def test_client_large_input(make_flow):
     from clip_client.client import Client
 
     inputs = ['hello' for _ in range(600)]
@@ -74,7 +74,7 @@ def test_client_large_input(make_flow, port_generator):
         DocumentArray([]),
     ],
 )
-def test_client_empty_input(make_flow, inputs, port_generator):
+def test_client_empty_input(make_flow, inputs):
     from clip_client.client import Client
 
     c = Client(server=f'grpc://0.0.0.0:{make_flow.port}')

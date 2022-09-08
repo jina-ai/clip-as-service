@@ -40,7 +40,7 @@ def test_protocols(port_generator, protocol, jit, pytestconfig):
         ],
     ],
 )
-def test_plain_inputs(make_flow, inputs, port_generator):
+def test_plain_inputs(make_flow, inputs):
     c = Client(server=f'grpc://0.0.0.0:{make_flow.port}')
     r = c.encode(inputs if not callable(inputs) else inputs())
     assert (
@@ -71,7 +71,7 @@ def test_plain_inputs(make_flow, inputs, port_generator):
         ),
     ],
 )
-def test_docarray_inputs(make_flow, inputs, port_generator):
+def test_docarray_inputs(make_flow, inputs):
     c = Client(server=f'grpc://0.0.0.0:{make_flow.port}')
     r = c.encode(inputs if not callable(inputs) else inputs())
     assert isinstance(r, DocumentArray)
@@ -101,7 +101,7 @@ def test_docarray_inputs(make_flow, inputs, port_generator):
         ),
     ],
 )
-def test_docarray_preserve_original_inputs(make_flow, inputs, port_generator):
+def test_docarray_preserve_original_inputs(make_flow, inputs):
     c = Client(server=f'grpc://0.0.0.0:{make_flow.port}')
     r = c.encode(inputs if not callable(inputs) else inputs())
     assert isinstance(r, DocumentArray)
@@ -131,7 +131,7 @@ def test_docarray_preserve_original_inputs(make_flow, inputs, port_generator):
         ),
     ],
 )
-def test_docarray_traversal(make_flow, inputs, port_generator):
+def test_docarray_traversal(make_flow, inputs):
     from jina import Client as _Client
 
     da = DocumentArray.empty(1)
@@ -157,3 +157,18 @@ def test_docarray_traversal(make_flow, inputs, port_generator):
     assert not r2[0].blob
     assert not r2[0].chunks[0].tensor
     assert not r2[0].chunks[0].blob
+
+
+@pytest.mark.parametrize(
+    'inputs',
+    [
+        [Document(text='hello, world') for _ in range(20)],
+        DocumentArray([Document(text='hello, world') for _ in range(20)]),
+    ],
+)
+def test_docarray_preserve_original_order(make_flow, inputs):
+    c = Client(server=f'grpc://0.0.0.0:{make_flow.port}')
+    r = c.encode(inputs if not callable(inputs) else inputs(), batch_size=1)
+    assert isinstance(r, DocumentArray)
+    for i in range(len(inputs)):
+        assert inputs[i] is r[i]
