@@ -1,6 +1,7 @@
 import warnings
 from multiprocessing.pool import ThreadPool
 from typing import Optional, Dict
+from functools import partial
 
 import numpy as np
 from clip_server.executors.helper import (
@@ -23,6 +24,7 @@ class CLIPEncoder(Executor):
         num_worker_preprocess: int = 4,
         minibatch_size: int = 32,
         access_paths: str = '@r',
+        drop_image_content: bool = False,
         **kwargs,
     ):
         """
@@ -34,12 +36,14 @@ class CLIPEncoder(Executor):
             number if you encounter OOM errors.
         :param access_paths: The access paths to traverse on the input documents to get the images and texts to be
             processed. Visit https://docarray.jina.ai/fundamentals/documentarray/access-elements for more details.
+        :param drop_image_content: Whether to drop the image content from the input documents. Default is False.
         """
         super().__init__(**kwargs)
 
         self._pool = ThreadPool(processes=num_worker_preprocess)
 
         self._minibatch_size = minibatch_size
+        self._drop_image_content = drop_image_content
         self._access_paths = access_paths
         if 'traversal_paths' in kwargs:
             warnings.warn(
@@ -67,7 +71,7 @@ class CLIPEncoder(Executor):
         self._tokenizer = Tokenizer(name)
         self._image_transform = clip._transform_ndarray(self._model.image_size)
 
-    def _preproc_images(self, docs: 'DocumentArray'):
+    def _preproc_images(self, docs: 'DocumentArray', drop_image_content: bool):
         with self.monitor(
             name='preprocess_images_seconds',
             documentation='images preprocess time in seconds',
@@ -77,6 +81,7 @@ class CLIPEncoder(Executor):
                 preprocess_fn=self._image_transform,
                 device=self._device,
                 return_np=False,
+                drop_image_content=drop_image_content,
             )
 
     def _preproc_texts(self, docs: 'DocumentArray'):
@@ -90,7 +95,10 @@ class CLIPEncoder(Executor):
 
     @requests(on='/rank')
     async def rank(self, docs: 'DocumentArray', parameters: Dict, **kwargs):
-        await self.encode(docs['@r,m'])
+        drop_image_content = parameters.get(
+            'drop_image_content', self._drop_image_content
+        )
+        await self.encode(docs['@r,m'], drop_image_content=drop_image_content)
 
         set_rank(docs)
 
@@ -102,6 +110,9 @@ class CLIPEncoder(Executor):
                 f'`traversal_paths` is deprecated. Use `access_paths` instead.'
             )
             access_paths = parameters['traversal_paths']
+        drop_image_content = parameters.get(
+            'drop_image_content', self._drop_image_content
+        )
 
         _img_da = DocumentArray()
         _txt_da = DocumentArray()
@@ -111,7 +122,7 @@ class CLIPEncoder(Executor):
         # for image
         if _img_da:
             for minibatch, batch_data in _img_da.map_batch(
-                self._preproc_images,
+                partial(self._preproc_images, drop_image_content=drop_image_content),
                 batch_size=self._minibatch_size,
                 pool=self._pool,
             ):
