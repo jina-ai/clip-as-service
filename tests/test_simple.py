@@ -43,7 +43,6 @@ def test_protocols(port_generator, protocol, jit, pytestconfig):
 def test_plain_inputs(make_flow, inputs, port_generator):
     c = Client(server=f'grpc://0.0.0.0:{make_flow.port}')
     r = c.encode(inputs if not callable(inputs) else inputs())
-
     assert (
         r.shape[0] == len(list(inputs)) if not callable(inputs) else len(list(inputs()))
     )
@@ -76,13 +75,13 @@ def test_docarray_inputs(make_flow, inputs, port_generator):
     c = Client(server=f'grpc://0.0.0.0:{make_flow.port}')
     r = c.encode(inputs if not callable(inputs) else inputs())
     assert isinstance(r, DocumentArray)
-    if hasattr(inputs, '__len__'):
-        assert inputs[0] is r[0]
     assert r.embeddings.shape
     assert '__created_by_CAS__' not in r[0].tags
     assert '__loaded_by_CAS__' not in r[0].tags
     assert not r[0].tensor
     assert not r[0].blob
+    if hasattr(inputs, '__len__'):
+        assert inputs[0] is r[0]
 
 
 @pytest.mark.parametrize(
@@ -106,13 +105,13 @@ def test_docarray_preserve_original_inputs(make_flow, inputs, port_generator):
     c = Client(server=f'grpc://0.0.0.0:{make_flow.port}')
     r = c.encode(inputs if not callable(inputs) else inputs())
     assert isinstance(r, DocumentArray)
-    assert inputs[0] is r[0]
     assert r.embeddings.shape
     assert r.contents == inputs.contents
     assert '__created_by_CAS__' not in r[0].tags
     assert '__loaded_by_CAS__' not in r[0].tags
     assert not r[0].tensor
     assert not r[0].blob
+    assert inputs[0] is r[0]
 
 
 @pytest.mark.parametrize(

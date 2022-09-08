@@ -65,3 +65,18 @@ def test_client_large_input(make_flow, port_generator):
     c = Client(server=f'grpc://0.0.0.0:{make_flow.port}')
     with pytest.warns(UserWarning):
         c.encode(inputs if not callable(inputs) else inputs())
+
+
+@pytest.mark.parametrize(
+    'inputs',
+    [
+        [],
+        DocumentArray([]),
+    ],
+)
+def test_client_empty_input(make_flow, inputs, port_generator):
+    from clip_client.client import Client
+
+    c = Client(server=f'grpc://0.0.0.0:{make_flow.port}')
+    with pytest.raises(Exception):
+        c.encode(inputs if not callable(inputs) else inputs())

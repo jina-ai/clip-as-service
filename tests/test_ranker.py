@@ -91,7 +91,6 @@ async def test_torch_executor_rank_text2imgs(encoder_class):
 def test_docarray_inputs(make_flow, d):
     c = Client(server=f'grpc://0.0.0.0:{make_flow.port}')
     r = c.rank([d])
-    assert d is r[0]
     assert r[0].content == d.content
     assert r[0].matches.contents == d.matches.contents
     assert '__loaded_by_CAS__' not in d.tags
@@ -101,6 +100,7 @@ def test_docarray_inputs(make_flow, d):
     assert not d.matches[0].blob
     assert not d.matches[0].tensor
     assert isinstance(r, DocumentArray)
+    assert d is r[0]
     rv1 = r['@m', 'scores__clip_score__value']
     rv2 = r['@m', 'scores__clip_score_cosine__value']
     for v1, v2 in zip(rv1, rv2):
@@ -133,9 +133,9 @@ async def test_async_arank(make_flow, d):
     c = Client(server=f'grpc://0.0.0.0:{make_flow.port}')
     r = await c.arank([d])
     assert isinstance(r, DocumentArray)
-    assert d is r[0]
     assert r[0].content == d.content
     assert r[0].matches.contents == d.matches.contents
+    assert d is r[0]
     rv = r['@m', 'scores__clip_score__value']
     for v in rv:
         assert v is not None
