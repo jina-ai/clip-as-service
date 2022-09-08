@@ -21,6 +21,7 @@ def preproc_image(
     preprocess_fn: Callable,
     device: str = 'cpu',
     return_np: bool = False,
+    drop_image_content: bool = False,
 ) -> Tuple['DocumentArray', Dict]:
 
     tensors_batch = []
@@ -37,10 +38,10 @@ def preproc_image(
         tensors_batch.append(preprocess_fn(d.tensor).detach())
 
         # recover doc content
-        if d.tags.pop('__loaded_by_CAS__', False):
+        d.content = content
+        if drop_image_content:
+            d.pop('blob')
             d.pop('tensor')
-        else:
-            d.content = content
 
     tensors_batch = torch.stack(tensors_batch).type(torch.float32)
 
