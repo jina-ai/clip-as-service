@@ -162,8 +162,8 @@ def test_docarray_traversal(make_flow, inputs):
 @pytest.mark.parametrize(
     'inputs',
     [
-        [Document(text='hello, world') for _ in range(20)],
-        DocumentArray([Document(text='hello, world') for _ in range(20)]),
+        [Document(id=str(i), text='hello, world') for i in range(20)],
+        DocumentArray([Document(id=str(i), text='hello, world') for i in range(20)]),
     ],
 )
 def test_docarray_preserve_original_order(make_flow, inputs):
@@ -172,3 +172,4 @@ def test_docarray_preserve_original_order(make_flow, inputs):
     assert isinstance(r, DocumentArray)
     for i in range(len(inputs)):
         assert inputs[i] is r[i]
+        assert inputs[i].id == str(i)

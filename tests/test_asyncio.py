@@ -55,8 +55,8 @@ async def test_async_docarray_preserve_original_inputs(make_flow, inputs):
 @pytest.mark.parametrize(
     'inputs',
     [
-        [Document(text='hello, world') for _ in range(20)],
-        DocumentArray([Document(text='hello, world') for _ in range(20)]),
+        [Document(id=str(i), text='hello, world') for i in range(20)],
+        DocumentArray([Document(id=str(i), text='hello, world') for i in range(20)]),
     ],
 )
 @pytest.mark.asyncio
@@ -70,3 +70,4 @@ async def test_async_docarray_preserve_original_order(make_flow, inputs):
     assert isinstance(t2.result(), DocumentArray)
     for i in range(len(inputs)):
         assert inputs[i] is t2.result()[i]
+        assert inputs[i].id == str(i)

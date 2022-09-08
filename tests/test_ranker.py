@@ -152,13 +152,19 @@ async def test_async_arank(make_flow, d):
     'inputs',
     [
         [
-            Document(text='A', matches=[Document(text='B'), Document(text='C')])
-            for _ in range(20)
+            Document(
+                id=str(i), text='A', matches=[Document(text='B'), Document(text='C')]
+            )
+            for i in range(20)
         ],
         DocumentArray(
             [
-                Document(text='A', matches=[Document(text='B'), Document(text='C')])
-                for _ in range(20)
+                Document(
+                    id=str(i),
+                    text='A',
+                    matches=[Document(text='B'), Document(text='C')],
+                )
+                for i in range(20)
             ]
         ),
     ],
@@ -169,19 +175,26 @@ def test_docarray_preserve_original_order(make_flow, inputs):
     assert isinstance(r, DocumentArray)
     for i in range(len(inputs)):
         assert inputs[i] is r[i]
+        assert inputs[i].id == str(i)
 
 
 @pytest.mark.parametrize(
     'inputs',
     [
         [
-            Document(text='A', matches=[Document(text='B'), Document(text='C')])
-            for _ in range(20)
+            Document(
+                id=str(i), text='A', matches=[Document(text='B'), Document(text='C')]
+            )
+            for i in range(20)
         ],
         DocumentArray(
             [
-                Document(text='A', matches=[Document(text='B'), Document(text='C')])
-                for _ in range(20)
+                Document(
+                    id=str(i),
+                    text='A',
+                    matches=[Document(text='B'), Document(text='C')],
+                )
+                for i in range(20)
             ]
         ),
     ],
@@ -193,3 +206,4 @@ async def test_async_docarray_preserve_original_order(make_flow, inputs):
     assert isinstance(r, DocumentArray)
     for i in range(len(inputs)):
         assert inputs[i] is r[i]
+        assert inputs[i].id == str(i)
