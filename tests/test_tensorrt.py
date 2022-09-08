@@ -36,7 +36,6 @@ def test_docarray_inputs(make_trt_flow, inputs):
     c = Client(server=f'grpc://0.0.0.0:{make_trt_flow.port}')
     r = c.encode(inputs if not callable(inputs) else inputs())
     assert isinstance(r, DocumentArray)
-    assert inputs[0] is r[0]
     assert r.embeddings.shape
     if hasattr(inputs, '__len__'):
         assert inputs[0] is r[0]
