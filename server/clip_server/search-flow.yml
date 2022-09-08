@@ -3,21 +3,19 @@ version: '1'
 with:
   port: 61000
 executors:
-  - name: encoder
+  - name: clip_t
     uses:
       jtype: CLIPEncoder
       metas:
         py_modules:
           - clip_server.executors.clip_torch
-    replicas: 1
-  - name: indexer
+  - name: annlite
     uses:
       jtype: AnnLiteIndexer
       with:
-        dim: 128
-        data_path: workspace
+        dim: 512
       metas:
         py_modules:
           - annlite.executor
-    shards: 5
+    workspace: './workspace'
     polling: {'/index': 'ANY', '/search': 'ALL', '/update': 'ALL', '/delete': 'ALL', '/status': 'ALL'}
