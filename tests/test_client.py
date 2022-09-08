@@ -79,11 +79,31 @@ async def test_client_empty_input(make_flow, inputs):
     from clip_client.client import Client
 
     c = Client(server=f'grpc://0.0.0.0:{make_flow.port}')
-    with pytest.raises(Exception):
-        c.encode(inputs if not callable(inputs) else inputs())
-    with pytest.raises(Exception):
-        await c.aencode(inputs if not callable(inputs) else inputs())
-    with pytest.raises(Exception):
-        c.rank(inputs if not callable(inputs) else inputs())
-    with pytest.raises(Exception):
-        await c.arank(inputs if not callable(inputs) else inputs())
+
+    r = c.encode(inputs if not callable(inputs) else inputs())
+    if isinstance(inputs, DocumentArray):
+        assert isinstance(r, DocumentArray)
+    else:
+        assert isinstance(r, list)
+    assert len(r) == 0
+
+    r = await c.aencode(inputs if not callable(inputs) else inputs())
+    if isinstance(inputs, DocumentArray):
+        assert isinstance(r, DocumentArray)
+    else:
+        assert isinstance(r, list)
+    assert len(r) == 0
+
+    r = c.rank(inputs if not callable(inputs) else inputs())
+    if isinstance(inputs, DocumentArray):
+        assert isinstance(r, DocumentArray)
+    else:
+        assert isinstance(r, list)
+    assert len(r) == 0
+
+    r = await c.arank(inputs if not callable(inputs) else inputs())
+    if isinstance(inputs, DocumentArray):
+        assert isinstance(r, DocumentArray)
+    else:
+        assert isinstance(r, list)
+    assert len(r) == 0

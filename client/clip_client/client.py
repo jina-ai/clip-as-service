@@ -463,6 +463,7 @@ class Client:
             not kwargs.get('show_progress'),
             total=len(docs) if hasattr(docs, '__len__') else None,
         )
+
         results = DocumentArray()
         with self._pbar:
             parameters = kwargs.pop('parameters', None)
@@ -488,6 +489,7 @@ class Client:
             not kwargs.get('show_progress'),
             total=len(docs) if hasattr(docs, '__len__') else None,
         )
+
         results = DocumentArray()
         with self._pbar:
             parameters = kwargs.pop('parameters', None)
