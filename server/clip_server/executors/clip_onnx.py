@@ -26,7 +26,6 @@ class CLIPEncoder(Executor):
         minibatch_size: int = 32,
         access_paths: str = '@r',
         model_path: Optional[str] = None,
-        drop_image_content: bool = False,
         **kwargs,
     ):
         """
@@ -41,12 +40,10 @@ class CLIPEncoder(Executor):
         :param model_path: The path to the model to be used. If not specified, the model will be downloaded or loaded
             from the local cache. Visit https://clip-as-service.jina.ai/user-guides/server/#use-custom-model-for-onnx
             to learn how to finetune custom models.
-        :param drop_image_content: Whether to drop the image content from the input documents. Default is False.
         """
         super().__init__(**kwargs)
 
         self._minibatch_size = minibatch_size
-        self._drop_image_content = drop_image_content
         self._access_paths = access_paths
         if 'traversal_paths' in kwargs:
             warnings.warn(
@@ -124,10 +121,8 @@ class CLIPEncoder(Executor):
 
     @requests(on='/rank')
     async def rank(self, docs: 'DocumentArray', parameters: Dict, **kwargs):
-        drop_image_content = parameters.get(
-            'drop_image_content', self._drop_image_content
-        )
-        await self.encode(docs['@r,m'], drop_image_content=drop_image_content)
+        _drop_image_content = parameters.get('drop_image_content', False)
+        await self.encode(docs['@r,m'], drop_image_content=_drop_image_content)
 
         set_rank(docs)
 
@@ -139,9 +134,7 @@ class CLIPEncoder(Executor):
                 f'`traversal_paths` is deprecated. Use `access_paths` instead.'
             )
             access_paths = parameters['traversal_paths']
-        drop_image_content = parameters.get(
-            'drop_image_content', self._drop_image_content
-        )
+        _drop_image_content = parameters.get('drop_image_content', False)
 
         _img_da = DocumentArray()
         _txt_da = DocumentArray()
@@ -151,7 +144,7 @@ class CLIPEncoder(Executor):
         # for image
         if _img_da:
             for minibatch, batch_data in _img_da.map_batch(
-                partial(self._preproc_images, drop_image_content=drop_image_content),
+                partial(self._preproc_images, drop_image_content=_drop_image_content),
                 batch_size=self._minibatch_size,
                 pool=self._pool,
             ):
