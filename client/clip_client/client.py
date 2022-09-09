@@ -496,7 +496,7 @@ class Client:
         show_progress: bool = False,
         parameters: Optional[Dict] = None,
     ):
-        """Index the images or texts where their embeddings are already computed or computed on the fly.
+        """Index the images or texts where their embeddings are computed by the server CLIP model.
 
         Each image and text must be represented as a string. The following strings are acceptable:
             - local image filepath, will be considered as an image
@@ -520,7 +520,7 @@ class Client:
         show_progress: bool = False,
         parameters: Optional[dict] = None,
     ) -> 'DocumentArray':
-        """Index images and texts where their embeddings are already computed or computed on the fly.
+        """Index the images or texts where their embeddings are computed by the server CLIP model.
 
         :param content: an iterable of :class:`docarray.Document`, each Document must be filled with `.uri`, `.text` or `.blob`.
         :param batch_size: the number of elements in each request when sending ``content``
