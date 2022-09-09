@@ -1,8 +1,6 @@
 # Search API
 
 
-## Basics of CLIP Search
-
 CLIP Search is a search paradigm that uses the CLIP model to encode the text and image documents into a common vector space. 
 The search results are then retrieved by computing the cosine similarity between the query and the indexed documents.
 Technically, CLIP search can be designed as a two-stage process: *encoding* and *indexing*.
@@ -112,10 +110,10 @@ And the `workspace` parameter is the path to the workspace directory, which is u
 ## Connect from client
 
 ```{tip}
-You will need to install server first in Python 3.7+: `pip install clip-client>=0.7.0`.
+You will need to install client first in Python 3.7+: `pip install clip-client>=0.7.0`.
 ```
 
-Then indexing and searching are easy in `CLIP-as-service`:
+To connect to the server, you can use the following code:
 
 ```python
 from clip_client import Client
@@ -126,11 +124,9 @@ client = Client('grpc://0.0.0.0:61000')
 # index
 client.index(
     [
-        Document(text='she smiled, with pain'),  # text
-        Document(uri='apple.png'),  # local image
-        Document(
-            uri='https://clip-as-service.jina.ai/_static/favicon.png'
-        ),  # online image
+        Document(text='she smiled, with pain'),
+        Document(uri='apple.png'),
+        Document(uri='https://clip-as-service.jina.ai/_static/favicon.png'),
     ]
 )
 
@@ -146,7 +142,7 @@ defaultdict(<class 'docarray.score.NamedScore'>, {'cosine': {'value': 0.79941123
 
 You don't need to call `client.encode()` explicitly since `client.index()` will handle this for you.
 
-## How to support large-scale indexing and searching?
+## Support large-scale dataset
 
 When we want to index a large number of documents, for example, 100 million data or even 1 billion data, 
 it's not possible to implement index operations on a single machine. **Sharding**, 
@@ -166,11 +162,13 @@ executors:
       metas:
         py_modules:
           - clip_server.executors.clip_torch
+          
   - name: indexer
     uses:
       jtype: AnnLiteIndexer
       with:
         n_dim: 512
+      workspace: './workspace'
       metas:
         py_modules:
           - annlite.executor
