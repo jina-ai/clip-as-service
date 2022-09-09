@@ -56,3 +56,22 @@ def make_trt_flow(port_generator, request):
     f = Flow(port=port_generator()).add(name=request.param, uses=CLIPEncoder)
     with f:
         yield f
+
+
+@pytest.fixture(params=['torch'])
+def make_search_flow(tmpdir, port_generator, request):
+    from clip_server.executors.clip_torch import CLIPEncoder
+    from annlite.executor import AnnLiteIndexer
+
+    f = (
+        Flow(port=port_generator())
+        .add(name=request.param, uses=CLIPEncoder)
+        .add(
+            name='annlite',
+            uses=AnnLiteIndexer,
+            workspace=tmpdir,
+            uses_with={'n_dim': 512},
+        )
+    )
+    with f:
+        yield f

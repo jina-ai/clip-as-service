@@ -1,7 +1,6 @@
 import mimetypes
 import os
 import time
-import types
 import warnings
 from typing import (
     overload,
@@ -118,9 +117,13 @@ class Client:
         )
         results = DocumentArray()
         with self._pbar:
+            parameters = kwargs.pop('parameters', None)
+            model_name = parameters.pop('model_name', '') if parameters else ''
             self._client.post(
+                on=f'/encode/{model_name}'.rstrip('/'),
                 **self._get_post_payload(content, kwargs),
                 on_done=partial(self._gather_result, results=results),
+                parameters=parameters,
             )
 
         for c in content:
@@ -199,10 +202,7 @@ class Client:
                 )
 
     def _get_post_payload(self, content, kwargs):
-        parameters = kwargs.get('parameters', {})
-        model_name = parameters.get('model', '')
         payload = dict(
-            on=f'/encode/{model_name}'.rstrip('/'),
             inputs=self._iter_doc(content),
             request_size=kwargs.get('batch_size', 8),
             total_docs=len(content) if hasattr(content, '__len__') else None,
@@ -273,6 +273,7 @@ class Client:
         *,
         batch_size: Optional[int] = None,
         show_progress: bool = False,
+        parameters: Optional[dict] = None,
     ) -> 'np.ndarray':
         ...
 
@@ -283,6 +284,7 @@ class Client:
         *,
         batch_size: Optional[int] = None,
         show_progress: bool = False,
+        parameters: Optional[dict] = None,
     ) -> 'DocumentArray':
         ...
 
@@ -296,8 +298,13 @@ class Client:
 
         results = DocumentArray()
         with self._pbar:
+            parameters = kwargs.pop('parameters', None)
+            model_name = parameters.get('model_name', '') if parameters else ''
+
             async for da in self._async_client.post(
-                **self._get_post_payload(content, kwargs)
+                on=f'/encode/{model_name}'.rstrip('/'),
+                **self._get_post_payload(content, kwargs),
+                parameters=parameters,
             ):
                 if not results:
                     self._pbar.start_task(self._r_task)
@@ -405,10 +412,7 @@ class Client:
                 )
 
     def _get_rank_payload(self, content, kwargs):
-        parameters = kwargs.get('parameters', {})
-        model_name = parameters.get('model', '')
         payload = dict(
-            on=f'/rank/{model_name}'.rstrip('/'),
             inputs=self._iter_rank_docs(
                 content, _source=kwargs.get('source', 'matches')
             ),
@@ -436,9 +440,13 @@ class Client:
         )
         results = DocumentArray()
         with self._pbar:
+            parameters = kwargs.pop('parameters', None)
+            model_name = parameters.get('model_name', '') if parameters else ''
             self._client.post(
+                on=f'/rank/{model_name}'.rstrip('/'),
                 **self._get_rank_payload(docs, kwargs),
                 on_done=partial(self._gather_result, results=results),
+                parameters=parameters,
             )
         for d in docs:
             self._reset_rank_doc(d, _source=kwargs.get('source', 'matches'))
@@ -454,8 +462,12 @@ class Client:
         )
         results = DocumentArray()
         with self._pbar:
+            parameters = kwargs.pop('parameters', None)
+            model_name = parameters.get('model_name', '') if parameters else ''
             async for da in self._async_client.post(
-                **self._get_rank_payload(docs, kwargs)
+                on=f'/rank/{model_name}'.rstrip('/'),
+                **self._get_rank_payload(docs, kwargs),
+                parameters=parameters,
             ):
                 if not results:
                     self._pbar.start_task(self._r_task)
@@ -474,3 +486,262 @@ class Client:
             self._reset_rank_doc(d, _source=kwargs.get('source', 'matches'))
 
         return results
+
+    @overload
+    def index(
+        self,
+        content: Iterable[str],
+        *,
+        batch_size: Optional[int] = None,
+        show_progress: bool = False,
+        parameters: Optional[Dict] = None,
+    ):
+        """Index the images or texts where their embeddings are computed by the server CLIP model.
+
+        Each image and text must be represented as a string. The following strings are acceptable:
+            - local image filepath, will be considered as an image
+            - remote image http/https, will be considered as an image
+            - a dataURI, will be considered as an image
+            - plain text, will be considered as a sentence
+        :param content: an iterator of image URIs or sentences, each element is an image or a text sentence as a string.
+        :param batch_size: the number of elements in each request when sending ``content``
+        :param show_progress: if set, show a progress bar
+        :param parameters: the parameters for the indexing, you can specify the model to use when you have multiple models
+        :return: the embedding in a numpy ndarray with shape ``[N, D]``. ``N`` is in the same length of ``content``
+        """
+        ...
+
+    @overload
+    def index(
+        self,
+        content: Union['DocumentArray', Iterable['Document']],
+        *,
+        batch_size: Optional[int] = None,
+        show_progress: bool = False,
+        parameters: Optional[dict] = None,
+    ) -> 'DocumentArray':
+        """Index the images or texts where their embeddings are computed by the server CLIP model.
+
+        :param content: an iterable of :class:`docarray.Document`, each Document must be filled with `.uri`, `.text` or `.blob`.
+        :param batch_size: the number of elements in each request when sending ``content``
+        :param show_progress: if set, show a progress bar
+        :param parameters: the parameters for the indexing, you can specify the model to use when you have multiple models
+        :return: the embedding in a numpy ndarray with shape ``[N, D]``. ``N`` is in the same length of ``content``
+        """
+        ...
+
+    def index(self, content, **kwargs):
+        if isinstance(content, str):
+            raise TypeError(
+                f'content must be an Iterable of [str, Document], try `.index(["{content}"])` instead'
+            )
+
+        self._prepare_streaming(
+            not kwargs.get('show_progress'),
+            total=len(content) if hasattr(content, '__len__') else None,
+        )
+        results = DocumentArray()
+        with self._pbar:
+            parameters = kwargs.pop('parameters', None)
+            self._client.post(
+                on='/index',
+                **self._get_post_payload(content, kwargs),
+                on_done=partial(self._gather_result, results=results),
+                parameters=parameters,
+            )
+
+        for c in content:
+            if hasattr(c, 'tags') and c.tags.pop('__loaded_by_CAS__', False):
+                c.pop('blob')
+
+        return self._unboxed_result(results)
+
+    @overload
+    async def aindex(
+        self,
+        content: Iterator[str],
+        *,
+        batch_size: Optional[int] = None,
+        show_progress: bool = False,
+        parameters: Optional[Dict] = None,
+    ):
+        ...
+
+    @overload
+    async def aindex(
+        self,
+        content: Union['DocumentArray', Iterable['Document']],
+        *,
+        batch_size: Optional[int] = None,
+        show_progress: bool = False,
+        parameters: Optional[dict] = None,
+    ):
+        ...
+
+    async def aindex(self, content, **kwargs):
+        from rich import filesize
+
+        self._prepare_streaming(
+            not kwargs.get('show_progress'),
+            total=len(content) if hasattr(content, '__len__') else None,
+        )
+        results = DocumentArray()
+        with self._pbar:
+            async for da in self._async_client.post(
+                on='/index',
+                **self._get_post_payload(content, kwargs),
+                parameters=kwargs.pop('parameters', None),
+            ):
+                if not results:
+                    self._pbar.start_task(self._r_task)
+                results.extend(da)
+                self._pbar.update(
+                    self._r_task,
+                    advance=len(da),
+                    total_size=str(
+                        filesize.decimal(
+                            int(os.environ.get('JINA_GRPC_RECV_BYTES', '0'))
+                        )
+                    ),
+                )
+
+        for c in content:
+            if hasattr(c, 'tags') and c.tags.pop('__loaded_by_CAS__', False):
+                c.pop('blob')
+
+        return self._unboxed_result(results)
+
+    @overload
+    def search(
+        self,
+        content: Iterable[str],
+        *,
+        limit: int = 20,
+        batch_size: Optional[int] = None,
+        show_progress: bool = False,
+        parameters: Optional[Dict] = None,
+    ) -> 'DocumentArray':
+        """Search for top k results for given query string or ``Document``.
+
+        If the input is a string, will use this string as query. If the input is a ``Document``,
+        will use this ``Document`` as query.
+
+        :param content: list of queries.
+        :param limit: the number of results to return.
+        :param batch_size: the number of elements in each request when sending ``content``.
+        :param show_progress: if set, show a progress bar.
+        :param parameters: parameters passed to search function.
+        """
+        ...
+
+    @overload
+    def search(
+        self,
+        content: Union['DocumentArray', Iterable['Document']],
+        *,
+        limit: int = 20,
+        batch_size: Optional[int] = None,
+        show_progress: bool = False,
+        parameters: Optional[dict] = None,
+    ) -> 'DocumentArray':
+        """Search for top k results for given query string or ``Document``.
+
+        If the input is a string, will use this string as query. If the input is a ``Document``,
+        will use this ``Document`` as query.
+
+        :param content: list of queries.
+        :param limit: the number of results to return.
+        :param batch_size: the number of elements in each request when sending ``content``.
+        :param show_progress: if set, show a progress bar.
+        :param parameters: parameters passed to search function.
+        """
+        ...
+
+    def search(self, content, **kwargs) -> 'DocumentArray':
+        if isinstance(content, str):
+            raise TypeError(
+                f'content must be an Iterable of [str, Document], try `.search(["{content}"])` instead'
+            )
+
+        self._prepare_streaming(
+            not kwargs.get('show_progress'),
+            total=len(content) if hasattr(content, '__len__') else None,
+        )
+        results = DocumentArray()
+        with self._pbar:
+            parameters = kwargs.pop('parameters', {})
+            parameters['limit'] = kwargs.get('limit')
+
+            self._client.post(
+                on='/search',
+                **self._get_post_payload(content, kwargs),
+                parameters=parameters,
+                on_done=partial(self._gather_result, results=results),
+            )
+
+        for c in content:
+            if hasattr(c, 'tags') and c.tags.pop('__loaded_by_CAS__', False):
+                c.pop('blob')
+
+        return self._unboxed_result(results)
+
+    @overload
+    async def asearch(
+        self,
+        content: Iterator[str],
+        *,
+        limit: int = 20,
+        batch_size: Optional[int] = None,
+        show_progress: bool = False,
+        parameters: Optional[Dict] = None,
+    ):
+        ...
+
+    @overload
+    async def asearch(
+        self,
+        content: Union['DocumentArray', Iterable['Document']],
+        *,
+        limit: int = 20,
+        batch_size: Optional[int] = None,
+        show_progress: bool = False,
+        parameters: Optional[dict] = None,
+    ):
+        ...
+
+    async def asearch(self, content, **kwargs):
+        from rich import filesize
+
+        self._prepare_streaming(
+            not kwargs.get('show_progress'),
+            total=len(content) if hasattr(content, '__len__') else None,
+        )
+        results = DocumentArray()
+
+        with self._pbar:
+            parameters = kwargs.pop('parameters', {})
+            parameters['limit'] = kwargs.get('limit')
+
+            async for da in self._async_client.post(
+                on='/search',
+                **self._get_post_payload(content, kwargs),
+                parameters=parameters,
+            ):
+                if not results:
+                    self._pbar.start_task(self._r_task)
+                results.extend(da)
+                self._pbar.update(
+                    self._r_task,
+                    advance=len(da),
+                    total_size=str(
+                        filesize.decimal(
+                            int(os.environ.get('JINA_GRPC_RECV_BYTES', '0'))
+                        )
+                    ),
+                )
+
+        for c in content:
+            if hasattr(c, 'tags') and c.tags.pop('__loaded_by_CAS__', False):
+                c.pop('blob')
+
+        return self._unboxed_result(results)
