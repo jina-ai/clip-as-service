@@ -99,7 +99,6 @@ extensions = [
     'sphinx.ext.coverage',
     'sphinxcontrib.apidoc',
     'sphinxarg.ext',
-    'sphinx_markdown_tables',
     'sphinx_copybutton',
     'sphinx_sitemap',
     'sphinx.ext.intersphinx',
