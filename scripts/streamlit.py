@@ -3,7 +3,7 @@ import pandas as pd
 import streamlit as st
 from docarray import DocumentArray, Document
 
-from client.clip_client.client import Client
+from clip_client import Client
 
 client = Client('grpc://0.0.0.0:61000')
 st.title('Laion400M retrieval')
