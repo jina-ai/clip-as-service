@@ -1,52 +1,110 @@
-# Retrieval in CLIP-as-service
-### Basics of retrieval
-Retrieval is one of the most common use cases for embeddings. Usually retrieval contains two parts: encoding and indexing:
+# Search API
+
+
+## Basics of CLIP Search
+
+CLIP Search is a search paradigm that uses the CLIP model to encode the text and image documents into a common vector space. 
+The search results are then retrieved by computing the cosine similarity between the query and the indexed documents.
+Technically, CLIP search can be designed as a two-stage process: *encoding* and *indexing*.
 
 ```{figure} images/retreival.png
 :width: 80%
 ```
 
-### Multi-modality retrieval in `CLIP-as-service`
-`CLIP-as-service` offers us high-quality embeddings for [multi-modality data](https://docs.jina.ai/get-started/what-is-cross-modal-multi-modal/#what-is-cross-modal-multi-modal). It enables us to achieve cross-modality search like text-image retrieval or image-text retreival. 
-And retrieval in `CLIP-as-service` support indexing a very large dataset (millions/billions) and querying within 50ms, depending on the machine.
+At the encoding stage, the text and image documents can be encoded into a common vector space by the CLIP model. 
+It enables us to achieve cross-modal search, i.e., we can search for images given a text query, or search for text given an image query. 
+At the indexing stage, we use the encoded vectors to build an index, which is a data structure that can be used to efficiently retrieve the most relevant documents.
+Specifically, we use the [Annlite](https://github.com/jina-ai/annlite) indexer executor to build the index.
 
-In order to implement retrieval, we add an [`AnnLite`](https://github.com/jina-ai/annlite) indexer executor(based on [`HNSW`](https://arxiv.org/abs/1603.09320)) after the encoder executor in CLIP-as-service.
+This chapter will walk you through the process of building a CLIP search system.
 
 
-## Fast search in CLIP-as-service
-
-Similar to `clip_server`, you can directly use the YAML config we have prepared for you by simple running:
-
-```bash
-python -m clip_server search_flow.yaml
+```{tip}
+You will need to install server first in Python 3.7+: `pip install clip-server[search]>=0.7.0`.
 ```
 
-The YAML config looks like this:
-```yaml
+## Start the server
+
+To start the server, you can use the following command:
+
+```bash
+python -m clip_server search_flow.yml
+```
+
+The `search_flow.yml` is the yaml configuration file for the search flow. It defines a [Jina Flow](https://docs.jina.ai/fundamentals/flow/) to implement the CLIP search system.
+Below is an example of the Flow YAML file, we can put it into two subsections as below:
+
+````{tab} CLIP model config
+
+```{code-block} yaml
+---
+emphasize-lines: 9
+---
+
 jtype: Flow
 version: '1'
 with:
-  port: 51000
+  port: 61000
 executors:
   - name: encoder
     uses:
       jtype: CLIPEncoder
+      with:
       metas:
         py_modules:
           - clip_server.executors.clip_torch
+          
   - name: indexer
     uses:
       jtype: AnnLiteIndexer
       with:
-        dim: 512
+        n_dim: 512
+      workspace: './workspace'
       metas:
         py_modules:
           - annlite.executor
 ```
 
-| Parameter               | Description                                                                                                                  |
-|-------------------------|------------------------------------------------------------------------------------------------------------------------------|
-| `dim`                  | Dimension of embeddings. Default is 512 since the output dimension of `CLIP` model is 512.|
+````
+
+````{tab} Annlite indexer config
+
+```{code-block} yaml
+---
+emphasize-lines: 17,18
+---
+
+jtype: Flow
+version: '1'
+with:
+  port: 61000
+executors:
+  - name: encoder
+    uses:
+      jtype: CLIPEncoder
+      with:
+      metas:
+        py_modules:
+          - clip_server.executors.clip_torch
+          
+  - name: indexer
+    uses:
+      jtype: AnnLiteIndexer
+      with:
+        n_dim: 512
+      workspace: './workspace'
+      metas:
+        py_modules:
+          - annlite.executor
+```
+
+````
+
+## Connect from client
+
+```{tip}
+You will need to install server first in Python 3.7+: `pip install clip-client>=0.7.0`.
+```
 
 Then indexing and searching are easy in `CLIP-as-service`:
 
@@ -54,7 +112,7 @@ Then indexing and searching are easy in `CLIP-as-service`:
 from clip_client import Client
 from docarray import Document
 
-client = Client('grpc://0.0.0.0:23456')
+client = Client('grpc://0.0.0.0:61000')
 
 # index
 client.index(
@@ -82,9 +140,11 @@ You don't need to call `client.encode()` explicitly since `client.index()` will 
 
 
 ## How to lower memory footprint?
+
 Sometimes the indexer will use a lot of memory because the HNSW indexer (which is used by `AnnLite`) is stored in memory. The efficient way to reduce memory footprint is dimension reduction. Retrieval in CLIP-as-service use [`Principal component analysis(PCA)`](https://en.wikipedia.org/wiki/Principal_component_analysis#:~:text=Principal%20component%20analysis%20(PCA)%20is,components%20and%20ignoring%20the%20rest.) to achieve this.
 
 ### Whether PCA is needed in my case?
+
 It's hard to give an exactly number of how much memory should be used before you start indexing, but here are some facts that you can refer to:
 - Memory usage is **linear** to the data size
 - **1 million data (dim=512)** will approximately need **6G-7G memory**
@@ -103,17 +163,18 @@ train_data = results.embeddings
 ```
 
 After training data is prepared, you can start training PCA model use following script:
+
 ```python
 from annlite.index import AnnLite
 import numpy as np
 
-index = AnnLite(dim=512, n_components=128)
+index = AnnLite(n_dim=512, n_components=128)
 index.train(train_data)
 ```
 
-| Parameter               | Description                                                                                                                  |
-|-------------------------|------------------------------------------------------------------------------------------------------------------------------|
-| `dim`                  | Dimension of embeddings. The output of the encoder as well as the input of PCA.|
+| Parameter      | Description                                                                                                                  |
+|----------------|------------------------------------------------------------------------------------------------------------------------------|
+| `n_dim`        | Dimension of embeddings. The output of the encoder as well as the input of PCA.|
 | `n_components` | Output dimension of PCA.|
 
 Once the training is done you will see the following outputs:
@@ -132,12 +193,14 @@ There is no need to use the whole dataset to train PCA. But the number of traini
 ```
 
 ### Load PCA model in server
+
 In order to use PCA on the server side you need to add `n_components` inside the YAML config:
+
 ```yaml
 jtype: Flow
 version: '1'
 with:
-  port: 51000
+  port: 61000
 executors:
   - name: encoder
     uses:
@@ -149,7 +212,7 @@ executors:
     uses:
       jtype: AnnLiteIndexer
       with:
-        dim: 512  # input dimension of PCA
+        n_dim: 512  # input dimension of PCA
         n_components: 128  # output dimension of PCA
       metas:
         py_modules:
