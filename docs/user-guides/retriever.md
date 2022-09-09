@@ -71,7 +71,7 @@ executors:
 
 ```{code-block} yaml
 ---
-emphasize-lines: 17,18
+emphasize-lines: 17,18,19
 ---
 
 jtype: Flow
@@ -99,6 +99,15 @@ executors:
 ```
 
 ````
+
+The first part defines the CLIP model config, which is explained {ref}`here<clip-model-config>`.
+And the second part defines the Annlite indexer config, you can set the following parameters:
+
+| Parameter | Description                                                                                   |
+|-----------|-----------------------------------------------------------------------------------------------|
+| `n_dim`   | The dimension of the vector space. It should be the same as the dimension of the CLIP model.  |
+
+And the `workspace` parameter is the path to the workspace directory, which is used to store the index files.
 
 ## Connect from client
 
