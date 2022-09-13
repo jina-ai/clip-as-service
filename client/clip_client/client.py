@@ -144,6 +144,23 @@ class Client:
             ':arrow_down: Recv', total=total, total_size=0, start=False
         )
 
+    def _gather_result(self, response, results: 'DocumentArray', attribute: str = ''):
+        from rich import filesize
+
+        r = response.data.docs
+        if not attribute:
+            results[r[:, 'id']][:, attribute] = r[:, attribute]
+
+        if not self._pbar._tasks[self._r_task].started:
+            self._pbar.start_task(self._r_task)
+        self._pbar.update(
+            self._r_task,
+            advance=len(r),
+            total_size=str(
+                filesize.decimal(int(os.environ.get('JINA_GRPC_RECV_BYTES', '0')))
+            ),
+        )
+
     def _iter_doc(
         self, content, results: 'DocumentArray'
     ) -> Generator['Document', None, None]:
@@ -203,22 +220,6 @@ class Client:
         elif self._scheme == 'http' and self._authorization:
             payload.update(headers={'Authorization': self._authorization})
         return payload
-
-    def _gather_encode_result(self, response, results: 'DocumentArray'):
-        from rich import filesize
-
-        r = response.data.docs
-        results[r[:, 'id']].embeddings = r.embeddings
-
-        if not self._pbar._tasks[self._r_task].started:
-            self._pbar.start_task(self._r_task)
-        self._pbar.update(
-            self._r_task,
-            advance=len(r),
-            total_size=str(
-                filesize.decimal(int(os.environ.get('JINA_GRPC_RECV_BYTES', '0')))
-            ),
-        )
 
     @staticmethod
     def _unboxed_result(results: 'DocumentArray', unbox: bool = False):
@@ -291,7 +292,9 @@ class Client:
             self._client.post(
                 on=f'/encode/{model_name}'.rstrip('/'),
                 **self._get_post_payload(content, results, kwargs),
-                on_done=partial(self._gather_encode_result, results=results),
+                on_done=partial(
+                    self._gather_result, results=results, attribute='embedding'
+                ),
                 parameters=parameters,
             )
 
@@ -343,9 +346,9 @@ class Client:
             model_name = parameters.get('model_name', '') if parameters else ''
 
             async for da in self._async_client.post(
-                    on=f'/encode/{model_name}'.rstrip('/'),
-                    **self._get_post_payload(content, results, kwargs),
-                    parameters=parameters,
+                on=f'/encode/{model_name}'.rstrip('/'),
+                **self._get_post_payload(content, results, kwargs),
+                parameters=parameters,
             ):
                 results[da[:, 'id']].embeddings = da.embeddings
 
@@ -411,22 +414,6 @@ class Client:
             payload.update(headers={'Authorization': self._authorization})
         return payload
 
-    def _gather_rank_result(self, response, results: 'DocumentArray'):
-        from rich import filesize
-
-        r = response.data.docs
-        results[r[:, 'id']][:, 'matches'] = r[:, 'matches']
-
-        if not self._pbar._tasks[self._r_task].started:
-            self._pbar.start_task(self._r_task)
-        self._pbar.update(
-            self._r_task,
-            advance=len(r),
-            total_size=str(
-                filesize.decimal(int(os.environ.get('JINA_GRPC_RECV_BYTES', '0')))
-            ),
-        )
-
     @staticmethod
     def _prepare_single_doc(d: 'Document'):
         if d.content_type in ('text', 'blob'):
@@ -485,7 +472,9 @@ class Client:
             self._client.post(
                 on=f'/rank/{model_name}'.rstrip('/'),
                 **self._get_rank_payload(docs, results, kwargs),
-                on_done=partial(self._gather_rank_result, results=results),
+                on_done=partial(
+                    self._gather_result, results=results, attribute='matches'
+                ),
                 parameters=parameters,
             )
         for d in docs:
@@ -509,9 +498,9 @@ class Client:
             parameters = kwargs.pop('parameters', None)
             model_name = parameters.get('model_name', '') if parameters else ''
             async for da in self._async_client.post(
-                    on=f'/rank/{model_name}'.rstrip('/'),
-                    **self._get_rank_payload(docs, results, kwargs),
-                    parameters=parameters,
+                on=f'/rank/{model_name}'.rstrip('/'),
+                **self._get_rank_payload(docs, results, kwargs),
+                parameters=parameters,
             ):
                 results[da[:, 'id']][:, 'matches'] = da[:, 'matches']
 
@@ -721,7 +710,9 @@ class Client:
                 on='/search',
                 **self._get_post_payload(content, results, kwargs),
                 parameters=parameters,
-                on_done=partial(self._gather_result, results=results),
+                on_done=partial(
+                    self._gather_result, results=results, attribute='matches'
+                ),
             )
 
         for c in content:
