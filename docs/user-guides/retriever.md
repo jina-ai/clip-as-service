@@ -90,10 +90,11 @@ executors:
       jtype: AnnLiteIndexer
       with:
         n_dim: 512
-      workspace: './workspace'
+        limit: 10
       metas:
         py_modules:
           - annlite.executor
+    workspace: './workspace'
 ```
 
 ````
@@ -101,9 +102,10 @@ executors:
 The first part defines the CLIP model config, which is explained [here](https://clip-as-service.jina.ai/user-guides/server/#clip-model-config).
 And the second part defines the Annlite indexer config, you can set the following parameters:
 
-| Parameter | Description                                                                                   |
-|-----------|-----------------------------------------------------------------------------------------------|
-| `n_dim`   | The dimension of the vector space. It should be the same as the dimension of the CLIP model.  |
+| Parameter | Description                                                                                  |
+|-----------|----------------------------------------------------------------------------------------------|
+| `n_dim`   | The dimension of the vector space. It should be the same as the dimension of the CLIP model. |
+| `limit`   | The number of the most relevant documents to be retrieved. The default value is 10.          |
 
 And the `workspace` parameter is the path to the workspace directory, which is used to store the index files.
 
@@ -168,10 +170,10 @@ executors:
       jtype: AnnLiteIndexer
       with:
         n_dim: 512
-      workspace: './workspace'
       metas:
         py_modules:
           - annlite.executor
+    workspace: './workspace'
     shards: 5
     polling: {'/index': 'ANY', '/search': 'ALL', '/update': 'ALL',
               '/delete': 'ALL', '/status': 'ALL'}

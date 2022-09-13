@@ -616,7 +616,7 @@ class Client:
         self,
         content: Iterable[str],
         *,
-        limit: int = 20,
+        limit: int = 10,
         batch_size: Optional[int] = None,
         show_progress: bool = False,
         parameters: Optional[Dict] = None,
@@ -639,7 +639,7 @@ class Client:
         self,
         content: Union['DocumentArray', Iterable['Document']],
         *,
-        limit: int = 20,
+        limit: int = 10,
         batch_size: Optional[int] = None,
         show_progress: bool = False,
         parameters: Optional[dict] = None,
@@ -657,7 +657,7 @@ class Client:
         """
         ...
 
-    def search(self, content, **kwargs) -> 'DocumentArray':
+    def search(self, content, limit: int = 10, **kwargs) -> 'DocumentArray':
         if isinstance(content, str):
             raise TypeError(
                 f'content must be an Iterable of [str, Document], try `.search(["{content}"])` instead'
@@ -670,7 +670,7 @@ class Client:
         results = DocumentArray()
         with self._pbar:
             parameters = kwargs.pop('parameters', {})
-            parameters['limit'] = kwargs.get('limit')
+            parameters['limit'] = limit
 
             self._client.post(
                 on='/search',
@@ -690,7 +690,7 @@ class Client:
         self,
         content: Iterator[str],
         *,
-        limit: int = 20,
+        limit: int = 10,
         batch_size: Optional[int] = None,
         show_progress: bool = False,
         parameters: Optional[Dict] = None,
@@ -702,14 +702,14 @@ class Client:
         self,
         content: Union['DocumentArray', Iterable['Document']],
         *,
-        limit: int = 20,
+        limit: int = 10,
         batch_size: Optional[int] = None,
         show_progress: bool = False,
         parameters: Optional[dict] = None,
     ):
         ...
 
-    async def asearch(self, content, **kwargs):
+    async def asearch(self, content, limit: int = 10, **kwargs):
         from rich import filesize
 
         self._prepare_streaming(
@@ -720,7 +720,7 @@ class Client:
 
         with self._pbar:
             parameters = kwargs.pop('parameters', {})
-            parameters['limit'] = kwargs.get('limit')
+            parameters['limit'] = limit
 
             async for da in self._async_client.post(
                 on='/search',
