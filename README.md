@@ -36,7 +36,19 @@ CLIP-as-service is a low-latency high-scalability service for embedding images a
 
 ## Try it!
 
-An always-online demo server loaded with `ViT-L/14-336px` is there for you to play & test: 
+An always-online server `api.clip.jina.ai` loaded with `ViT-L/14-336px` is there for you to play & test.
+Before you start, make sure you have created access token from our [console website](https://console.clip.jina.ai/get_started), 
+or CLI as described in [this guide](https://github.com/jina-ai/jina-hubble-sdk#create-a-new-pat).
+
+```bash 
+jina auth token create <name of PAT> -e <expiration days>
+```
+
+Then, you need to set the created token in HTTP request header `Authorization` as `<your access token>`, 
+or configure it in the parameter `credential` of the client in python.
+
+⚠️ Our demo server `demo-cas.jina.ai` is sunset and no longer available after **15th of Sept 2022**. 
+
 
 ### Text & image embedding
 
@@ -50,8 +62,9 @@ An always-online demo server loaded with `ViT-L/14-336px` is there for you to pl
 
 ```bash
 curl \
--X POST https://demo-cas.jina.ai:8443/post \
+-X POST https://api.clip.jina.ai:8443/post \
 -H 'Content-Type: application/json' \
+-H 'Authorization: <your access token>' \
 -d '{"data":[{"text": "First do it"}, 
     {"text": "then do it right"}, 
     {"text": "then do it better"}, 
@@ -66,7 +79,9 @@ curl \
 # pip install clip-client
 from clip_client import Client
 
-c = Client('grpcs://demo-cas.jina.ai:2096')
+c = Client(
+    'grpcs://api.clip.jina.ai:2096', credential={'Authorization': '<your access token>'}
+)
 
 r = c.encode(
     [
@@ -101,8 +116,9 @@ There are four basic visual reasoning skills: object recognition, object countin
 
 ```bash
 curl \
--X POST https://demo-cas.jina.ai:8443/post \
+-X POST https://api.clip.jina.ai:8443/post \
 -H 'Content-Type: application/json' \
+-H 'Authorization: <your access token>' \
 -d '{"data":[{"uri": "https://picsum.photos/id/1/300/300",
 "matches": [{"text": "there is a woman in the photo"},
             {"text": "there is a man in the photo"}]}],
@@ -129,8 +145,9 @@ gives:
 
 ```bash
 curl \
--X POST https://demo-cas.jina.ai:8443/post \
+-X POST https://api.clip.jina.ai:8443/post \
 -H 'Content-Type: application/json' \
+-H 'Authorization: <your access token>' \
 -d '{"data":[{"uri": "https://picsum.photos/id/133/300/300",
 "matches": [
 {"text": "the blue car is on the left, the red car is on the right"},
@@ -165,8 +182,9 @@ gives:
 
 ```bash
 curl \
--X POST https://demo-cas.jina.ai:8443/post \
+-X POST https://api.clip.jina.ai:8443/post \
 -H 'Content-Type: application/json' \
+-H 'Authorization: <your access token>' \
 -d '{"data":[{"uri": "https://picsum.photos/id/102/300/300",
 "matches": [{"text": "this is a photo of one berry"},
             {"text": "this is a photo of two berries"},
@@ -653,6 +671,7 @@ Fun time! Note, unlike the previous example, here the input is an image and the 
 <td>I saw them the night before last</td>
 </tr>
 </table>
+
 
 
 ### Rank image-text matches via CLIP model
