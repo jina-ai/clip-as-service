@@ -683,7 +683,7 @@ class Client:
             if hasattr(c, 'tags') and c.tags.pop('__loaded_by_CAS__', False):
                 c.pop('blob')
 
-        return self._unboxed_result(results)
+        return results
 
     @overload
     async def asearch(
@@ -744,4 +744,4 @@ class Client:
             if hasattr(c, 'tags') and c.tags.pop('__loaded_by_CAS__', False):
                 c.pop('blob')
 
-        return self._unboxed_result(results)
+        return results
