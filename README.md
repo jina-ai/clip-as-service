@@ -47,7 +47,7 @@ jina auth token create <name of PAT> -e <expiration days>
 Then, you need to set the created token in HTTP request header `Authorization` as `<your access token>`, 
 or configure it in the parameter `credential` of the client in python.
 
-⚠️: Our demo server `demo-cas.jina.ai` is sunset and no longer available after **15th of Sept 2022**. 
+⚠️ Our demo server `demo-cas.jina.ai` is sunset and no longer available after **15th of Sept 2022**. 
 
 
 ### Text & image embedding
