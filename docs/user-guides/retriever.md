@@ -137,9 +137,9 @@ client.index(
 You don't need to call `client.encode()` explicitly since `client.index()` will handle this for you.
 
 
-## Search Documents
+### Search Documents
 
-Then, you can use the client function {func}`~clip_client.Client.search`
+Then, you can use the client function {func}`~clip_client.Client.search` to search for similar documents:
 
 ```python
 result = client.search(['smile'], limit=2)
@@ -151,7 +151,7 @@ The results will look like this, the most relevant doc is "she smiled, with pain
 ```text
 [['she smiled, with pain', ''], [{'value': 0.09604918956756592}, {'value': 0.7994111776351929}]]
 ```
-You can set the `limit` parameter to control the number of the most relevant documents to be retrieved.
+You can set the `limit` parameter (default is `10`) to control the number of the most similar documents to be retrieved.
 
 
 ## Support large-scale dataset
