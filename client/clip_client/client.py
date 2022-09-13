@@ -144,11 +144,13 @@ class Client:
             ':arrow_down: Recv', total=total, total_size=0, start=False
         )
 
-    def _gather_result(self, response, results: 'DocumentArray', attribute: str = ''):
+    def _gather_result(
+        self, response, results: 'DocumentArray', attribute: Optional[str] = ''
+    ):
         from rich import filesize
 
         r = response.data.docs
-        if not attribute:
+        if attribute:
             results[r[:, 'id']][:, attribute] = r[:, attribute]
 
         if not self._pbar._tasks[self._r_task].started:
@@ -580,7 +582,9 @@ class Client:
             self._client.post(
                 on='/index',
                 **self._get_post_payload(content, results, kwargs),
-                on_done=partial(self._gather_result, results=results),
+                on_done=partial(
+                    self._gather_result, results=results, attribute='embedding'
+                ),
                 parameters=parameters,
             )
 
@@ -626,9 +630,10 @@ class Client:
                 **self._get_post_payload(content, results, kwargs),
                 parameters=kwargs.pop('parameters', None),
             ):
-                if not results:
+                results[da[:, 'id']].embeddings = da.embeddings
+
+                if not self._pbar._tasks[self._r_task].started:
                     self._pbar.start_task(self._r_task)
-                results.extend(da)
                 self._pbar.update(
                     self._r_task,
                     advance=len(da),
@@ -763,9 +768,10 @@ class Client:
                 **self._get_post_payload(content, results, kwargs),
                 parameters=parameters,
             ):
-                if not results:
+                results[da[:, 'id']][:, 'matches'] = da[:, 'matches']
+
+                if not self._pbar._tasks[self._r_task].started:
                     self._pbar.start_task(self._r_task)
-                results.extend(da)
                 self._pbar.update(
                     self._r_task,
                     advance=len(da),
