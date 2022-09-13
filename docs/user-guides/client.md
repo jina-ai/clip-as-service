@@ -334,6 +334,41 @@ Finally, in the return you can observe the matches are re-ranked according to `.
 [0.9920725226402283, 0.006038925610482693, 0.0009973491542041302, 0.00078492151806131, 0.00010626466246321797]]
 ```
 
+(indexing)=
+## Indexing
+
+```{tip}
+This feature is only available with clip_client>=0.7.0, and the server is running with 
+a FLOW consisting of encoder and indexer.
+``` 
+
+You can index Documents via {func}`~clip_client.client.Client.index` or {func}`~clip_client.client.Client.aindex`. 
+
+```python
+from clip_client import Client
+from docarray import Document
+
+c = Client('grpc://0.0.0.0:61000')
+
+da = [
+    Document(text='she smiled, with pain'),
+    Document(uri='apple.png'),
+    Document(uri='apple.png').load_uri_to_image_tensor(),
+    Document(blob=open('apple.png', 'rb').read()),
+    Document(uri='https://clip-as-service.jina.ai/_static/favicon.png'),
+    Document(
+        uri='data:image/gif;base64,R0lGODlhEAAQAMQAAORHHOVSKudfOulrSOp3WOyDZu6QdvCchPGolfO0o/XBs/fNwfjZ0frl3/zy7////wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAkAABAALAAAAAAQABAAAAVVICSOZGlCQAosJ6mu7fiyZeKqNKToQGDsM8hBADgUXoGAiqhSvp5QAnQKGIgUhwFUYLCVDFCrKUE1lBavAViFIDlTImbKC5Gm2hB0SlBCBMQiB0UjIQA7'
+    ),
+]
+
+r = c.index(da)
+```
+
+(searching)=
+## Searching
+
+Now, you can use {func}`~clip_client.client.Client.search` or {func}`~clip_client.client.Client.asearch`
+to find similarity documents. 
 
 (profiling)=
 ## Profiling
