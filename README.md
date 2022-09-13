@@ -37,14 +37,16 @@ CLIP-as-service is a low-latency high-scalability service for embedding images a
 ## Try it!
 
 An always-online server `api.clip.jina.ai` loaded with `ViT-L/14-336px` is there for you to play & test.
-Before you start, make sure you have created access token from [here](https://console.clip.jina.ai/get_started), 
-or you can create your own access token via CLI:
+Before you start, make sure you have created access token from our [console website](https://console.clip.jina.ai/get_started), 
+or CLI as described in [this guide](https://github.com/jina-ai/jina-hubble-sdk#create-a-new-pat).
 
 ```bash 
 jina auth token create <name of PAT> -e <expiration days>
 ```
 
-Then, you need to set it as the crenetial for the client:
+Then, you need to set the created token in HTTP request header `Authorization` as `<your access token>`, 
+or configure it in the parameter `credential` of the client in python.
+
 
 ### Text & image embedding
 
