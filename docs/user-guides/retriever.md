@@ -109,7 +109,7 @@ And the second part defines the Annlite indexer config, you can set the followin
 
 And the `workspace` parameter is the path to the workspace directory, which is used to store the index files.
 
-## Index and Search Documents
+## Index and search documents
 
 ```{tip}
 You will need to install client first in Python 3.7+: `pip install clip-client>=0.7.0`.
