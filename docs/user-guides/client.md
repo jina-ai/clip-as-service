@@ -413,8 +413,6 @@ she smiled, with pain defaultdict(<class 'docarray.score.NamedScore'>, {'cosine'
 defaultdict(<class 'docarray.score.NamedScore'>, {'cosine': {'value': 0.7994112372398376}})
 ```
 
-```text
-``
 
 (profiling)=
 ## Profiling
