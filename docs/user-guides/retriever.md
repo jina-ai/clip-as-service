@@ -1,4 +1,4 @@
-# Search API
+# CLIP Search
 
 
 CLIP Search is a search paradigm that uses the CLIP model to encode the text and image documents into a common vector space. 
@@ -51,16 +51,16 @@ executors:
       metas:
         py_modules:
           - clip_server.executors.clip_torch
-          
+    
   - name: indexer
     uses:
       jtype: AnnLiteIndexer
       with:
         n_dim: 512
-      workspace: './workspace'
       metas:
         py_modules:
           - annlite.executor
+    workspace: './workspace'
 ```
 
 ````
@@ -90,10 +90,11 @@ executors:
       jtype: AnnLiteIndexer
       with:
         n_dim: 512
-      workspace: './workspace'
+        limit: 10
       metas:
         py_modules:
           - annlite.executor
+    workspace: './workspace'
 ```
 
 ````
@@ -101,19 +102,22 @@ executors:
 The first part defines the CLIP model config, which is explained [here](https://clip-as-service.jina.ai/user-guides/server/#clip-model-config).
 And the second part defines the Annlite indexer config, you can set the following parameters:
 
-| Parameter | Description                                                                                   |
-|-----------|-----------------------------------------------------------------------------------------------|
-| `n_dim`   | The dimension of the vector space. It should be the same as the dimension of the CLIP model.  |
+| Parameter | Description                                                                                  |
+|-----------|----------------------------------------------------------------------------------------------|
+| `n_dim`   | The dimension of the vector space. It should be the same as the dimension of the CLIP model. |
+| `limit`   | The number of the most relevant documents to be retrieved. The default value is 10.          |
 
 And the `workspace` parameter is the path to the workspace directory, which is used to store the index files.
 
-## Connect from client
+## Index and search documents
 
 ```{tip}
 You will need to install client first in Python 3.7+: `pip install clip-client>=0.7.0`.
 ```
 
-To connect to the server, you can use the following code:
+### Index Documents
+
+To index image or text documents in the CLIP search server, you can use the client function {func}`~clip_client.Client.index`:
 
 ```python
 from clip_client import Client
@@ -121,7 +125,6 @@ from docarray import Document
 
 client = Client('grpc://0.0.0.0:61000')
 
-# index
 client.index(
     [
         Document(text='she smiled, with pain'),
@@ -129,18 +132,27 @@ client.index(
         Document(uri='https://clip-as-service.jina.ai/_static/favicon.png'),
     ]
 )
+```
 
-# search
-client.search(['smile'])
+You don't need to call `client.encode()` explicitly since `client.index()` will handle this for you.
+
+
+### Search Documents
+
+Then, you can use the client function {func}`~clip_client.Client.search` to search for similar documents:
+
+```python
+result = client.search(['smile'], limit=2)
+
+print(result['@m', ['text', 'scores__cosine']])
 ```
 
 The results will look like this, the most relevant doc is "she smiled, with pain" with the cosine distance of 0.096. And the apple image has the cosine distance of 0.799.
 ```text
-she smiled, with pain defaultdict(<class 'docarray.score.NamedScore'>, {'cosine': {'value': 0.09604912996292114}})
-defaultdict(<class 'docarray.score.NamedScore'>, {'cosine': {'value': 0.7994112372398376}})
+[['she smiled, with pain', ''], [{'value': 0.09604918956756592}, {'value': 0.7994111776351929}]]
 ```
+You can set the `limit` parameter (default is `10`) to control the number of the most similar documents to be retrieved.
 
-You don't need to call `client.encode()` explicitly since `client.index()` will handle this for you.
 
 ## Support large-scale dataset
 
@@ -168,10 +180,10 @@ executors:
       jtype: AnnLiteIndexer
       with:
         n_dim: 512
-      workspace: './workspace'
       metas:
         py_modules:
           - annlite.executor
+    workspace: './workspace'
     shards: 5
     polling: {'/index': 'ANY', '/search': 'ALL', '/update': 'ALL',
               '/delete': 'ALL', '/status': 'ALL'}
