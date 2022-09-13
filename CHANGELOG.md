@@ -56,6 +56,7 @@
 
 
 
+
 <a name=release-note-0-0-3></a>
 ## Release Note (`0.0.3`)
 
@@ -1382,4 +1383,36 @@
 
  - [[```f7ee26a1```](https://github.com/jina-ai/clip-as-service/commit/f7ee26a17d47c1de0efc1122ccb40d3b22d217a8)] __-__ improve model not found error msg (#812) (*Ziniu Yu*)
  - [[```f1c0057d```](https://github.com/jina-ai/clip-as-service/commit/f1c0057d7e1c51953303bbf7b3743e19a9c300ab)] __-__ __version__: the next version will be 0.6.2 (*Jina Dev Bot*)
+
+<a name=release-note-0-7-0></a>
+## Release Note (`0.7.0`)
+
+> Release time: 2022-09-13 13:47:54
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ numb3r3,  felix-wang,  Jie Fu,  Ziniu Yu,  Jina Dev Bot,  🙇
+
+
+### 🆕 New Features
+
+ - [[```a07a5218```](https://github.com/jina-ai/clip-as-service/commit/a07a52182d02b3cab1135235c9aee8e1af4f280c)] __-__ support clip retrieval (#816) (*felix-wang*)
+
+### 🐞 Bug fixes
+
+ - [[```213ecc28```](https://github.com/jina-ai/clip-as-service/commit/213ecc28afa20bbb0984efd4ab28dd08443e9369)] __-__ always return docarray as search result (#821) (*felix-wang*)
+ - [[```eca57745```](https://github.com/jina-ai/clip-as-service/commit/eca577455a0d378cc4d9974ef3109f2d2e74c1b3)] __-__ __readme__: use new demo server (#819) (*felix-wang*)
+
+### 📗 Documentation
+
+ - [[```8d9725fb```](https://github.com/jina-ai/clip-as-service/commit/8d9725fb874d94944cb1129ca2ccc8293c52dc90)] __-__ update clip search (#820) (*felix-wang*)
+ - [[```fa7e5776```](https://github.com/jina-ai/clip-as-service/commit/fa7e577606d68e65a0e7952048c64d2b3a28e231)] __-__ docs for retrieval (#808) (*Jie Fu*)
+ - [[```47144c23```](https://github.com/jina-ai/clip-as-service/commit/47144c23fd6b10f9aed0dfc4a2e37f83bc33f284)] __-__ enable horizontal scrolling in wide tables (#818) (*Ziniu Yu*)
+
+### 🍹 Other Improvements
+
+ - [[```53636cea```](https://github.com/jina-ai/clip-as-service/commit/53636cea63bf8063bcfd744aae4577df8e0eab2e)] __-__ bump version to 0.7.0 (*numb3r3*)
+ - [[```eda4aa8e```](https://github.com/jina-ai/clip-as-service/commit/eda4aa8e958bbbd83dddcd5932622bcf041f3918)] __-__ __version__: the next version will be 0.6.3 (*Jina Dev Bot*)
+ - [[```f7ee26a1```](https://github.com/jina-ai/clip-as-service/commit/f7ee26a17d47c1de0efc1122ccb40d3b22d217a8)] __-__ improve model not found error msg (#812) (*Ziniu Yu*)
 
