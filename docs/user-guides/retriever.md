@@ -1,4 +1,4 @@
-# Text & Image Search
+# CLIP Search
 
 
 CLIP Search is a search paradigm that uses the CLIP model to encode the text and image documents into a common vector space. 
