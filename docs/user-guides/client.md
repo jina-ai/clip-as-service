@@ -403,15 +403,18 @@ from clip_client import Client
 
 c = Client('grpc://0.0.0.0:23456')
 
-result = c.search(['smile'])
-```
+result = c.search(['smile'], limit=2)
 
+
+print(result['@m', ['text', 'scores__cosine']])
+```
 
 The results will look like this, the most relevant doc is "she smiled, with pain" with the cosine distance of 0.096. And the apple image has the cosine distance of 0.799.
 ```text
-she smiled, with pain defaultdict(<class 'docarray.score.NamedScore'>, {'cosine': {'value': 0.09604912996292114}})
-defaultdict(<class 'docarray.score.NamedScore'>, {'cosine': {'value': 0.7994112372398376}})
+[['she smiled, with pain', ''], [{'value': 0.09604918956756592}, {'value': 0.7994111776351929}]]
 ```
+You can set the `limit` parameter (default is `10`) to control the number of the most similar documents to be retrieved.
+
 
 
 (profiling)=
