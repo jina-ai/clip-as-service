@@ -1,4 +1,4 @@
-# Text & Image Retrieval
+# Text & Image CLIP Search
 
 
 CLIP Search is a search paradigm that uses the CLIP model to encode the text and image documents into a common vector space. 
@@ -131,7 +131,7 @@ client.index(
 )
 
 # search
-client.search(['smile'])
+result = client.search(['smile'])
 ```
 
 The results will look like this, the most relevant doc is "she smiled, with pain" with the cosine distance of 0.096. And the apple image has the cosine distance of 0.799.
