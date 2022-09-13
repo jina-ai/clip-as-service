@@ -195,6 +195,7 @@ hosting/on-jcloud
 
 playground/embedding
 playground/reasoning
+playground/searching
 ```
 
 
