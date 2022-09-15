@@ -1,7 +1,6 @@
 import mimetypes
 import os
 import time
-import types
 import warnings
 from typing import (
     overload,
