@@ -107,3 +107,27 @@ async def test_client_empty_input(make_flow, inputs):
     else:
         assert isinstance(r, list)
     assert len(r) == 0
+
+
+@pytest.mark.asyncio
+async def test_str_input(make_torch_flow):
+    from clip_client.client import Client
+
+    c = Client(server=f'grpc://0.0.0.0:{make_torch_flow.port}')
+
+    with pytest.raises(Exception):
+        c.encode('hello')
+    with pytest.raises(Exception):
+        await c.aencode('hello')
+    with pytest.raises(Exception):
+        c.rank('hello')
+    with pytest.raises(Exception):
+        await c.arank('hello')
+    with pytest.raises(Exception):
+        c.index('hello')
+    with pytest.raises(Exception):
+        await c.aindex('hello')
+    with pytest.raises(Exception):
+        c.search('hello')
+    with pytest.raises(Exception):
+        await c.asearch('hello')

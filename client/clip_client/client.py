@@ -333,7 +333,7 @@ class Client:
 
         if isinstance(content, str):
             raise TypeError(
-                f'Content must be an Iterable of [str, Document], try `.encode(["{content}"])` instead'
+                f'Content must be an Iterable of [str, Document], try `.aencode(["{content}"])` instead'
             )
         if hasattr(content, '__len__') and len(content) == 0:
             return DocumentArray() if isinstance(content, DocumentArray) else []
@@ -593,7 +593,7 @@ class Client:
             if hasattr(c, 'tags') and c.tags.pop('__loaded_by_CAS__', False):
                 c.pop('blob')
 
-        return self._unboxed_result(results)
+        return results
 
     @overload
     async def aindex(
@@ -619,6 +619,11 @@ class Client:
 
     async def aindex(self, content, **kwargs):
         from rich import filesize
+
+        if isinstance(content, str):
+            raise TypeError(
+                f'content must be an Iterable of [str, Document], try `.aindex(["{content}"])` instead'
+            )
 
         self._prepare_streaming(
             not kwargs.get('show_progress'),
@@ -649,7 +654,7 @@ class Client:
             if hasattr(c, 'tags') and c.tags.pop('__loaded_by_CAS__', False):
                 c.pop('blob')
 
-        return self._unboxed_result(results)
+        return results
 
     @overload
     def search(
@@ -753,6 +758,11 @@ class Client:
 
     async def asearch(self, content, limit: int = 10, **kwargs):
         from rich import filesize
+
+        if isinstance(content, str):
+            raise TypeError(
+                f'content must be an Iterable of [str, Document], try `.asearch(["{content}"])` instead'
+            )
 
         self._prepare_streaming(
             not kwargs.get('show_progress'),
