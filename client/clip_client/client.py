@@ -313,6 +313,7 @@ class Client:
         *,
         batch_size: Optional[int] = None,
         show_progress: bool = False,
+        parameters: Optional[dict] = None,
     ) -> 'np.ndarray':
         ...
 
@@ -323,6 +324,7 @@ class Client:
         *,
         batch_size: Optional[int] = None,
         show_progress: bool = False,
+        parameters: Optional[dict] = None,
     ) -> 'DocumentArray':
         ...
 
