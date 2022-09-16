@@ -110,7 +110,7 @@ async def test_client_empty_input(make_torch_flow, inputs):
 
 
 @pytest.mark.asyncio
-async def test_str_input(make_torch_flow):
+async def test_wrong_input_type(make_torch_flow):
     from clip_client.client import Client
 
     c = Client(server=f'grpc://0.0.0.0:{make_torch_flow.port}')

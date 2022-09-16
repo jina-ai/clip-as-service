@@ -144,7 +144,7 @@ class Client:
         )
 
     def _gather_result(
-        self, response, results: 'DocumentArray', attribute: Optional[str] = ''
+        self, response, results: 'DocumentArray', attribute: Optional[str] = None
     ):
         from rich import filesize
 
@@ -171,7 +171,7 @@ class Client:
         if hasattr(self, '_pbar'):
             self._pbar.start_task(self._s_task)
 
-        for i, c in enumerate(content):
+        for c in content:
             if isinstance(c, str):
                 _mime = mimetypes.guess_type(c)[0]
                 if _mime and _mime.startswith('image'):
@@ -299,9 +299,9 @@ class Client:
                 parameters=parameters,
             )
 
-        for c in content:
-            if hasattr(c, 'tags') and c.tags.pop('__loaded_by_CAS__', False):
-                c.pop('blob')
+        for r in results:
+            if hasattr(r, 'tags') and r.tags.pop('__loaded_by_CAS__', False):
+                r.pop('blob')
 
         unbox = hasattr(content, '__len__') and isinstance(content[0], str)
         return self._unboxed_result(results, unbox)
@@ -367,9 +367,9 @@ class Client:
                     ),
                 )
 
-        for c in content:
-            if hasattr(c, 'tags') and c.tags.pop('__loaded_by_CAS__', False):
-                c.pop('blob')
+        for r in results:
+            if hasattr(r, 'tags') and r.tags.pop('__loaded_by_CAS__', False):
+                r.pop('blob')
 
         unbox = hasattr(content, '__len__') and isinstance(content[0], str)
         return self._unboxed_result(results, unbox)
@@ -383,7 +383,7 @@ class Client:
         if hasattr(self, '_pbar'):
             self._pbar.start_task(self._s_task)
 
-        for i, c in enumerate(content):
+        for c in content:
             if isinstance(c, Document):
                 d = self._prepare_rank_doc(c, source)
             else:
@@ -443,15 +443,21 @@ class Client:
     def _reset_rank_doc(d: 'Document', _source: str = 'matches'):
         _get = lambda d: getattr(d, _source)
 
+        print(123123)
         if d.tags.pop('__loaded_by_CAS__', False):
+            print(111)
             d.pop('blob')
+        else:
+            print(222)
 
         for c in _get(d):
             if c.tags.pop('__loaded_by_CAS__', False):
                 c.pop('blob')
         return d
 
-    def rank(self, docs: Iterable['Document'], **kwargs) -> 'DocumentArray':
+    def rank(
+        self, docs: Union['DocumentArray', Iterable['Document']], **kwargs
+    ) -> 'DocumentArray':
         """Rank image-text matches according to the server CLIP model.
         Given a Document with nested matches, where the root is image/text and the matches is in another modality, i.e.
         text/image; this method ranks the matches according to the CLIP model.
@@ -480,8 +486,9 @@ class Client:
                 ),
                 parameters=parameters,
             )
-        for d in docs:
-            self._reset_rank_doc(d, _source=kwargs.get('source', 'matches'))
+
+        for r in results:
+            self._reset_rank_doc(r, _source=kwargs.get('source', 'matches'))
 
         return results
 
@@ -519,8 +526,8 @@ class Client:
                     ),
                 )
 
-        for d in docs:
-            self._reset_rank_doc(d, _source=kwargs.get('source', 'matches'))
+        for r in results:
+            self._reset_rank_doc(r, _source=kwargs.get('source', 'matches'))
 
         return results
 
@@ -589,9 +596,9 @@ class Client:
                 parameters=parameters,
             )
 
-        for c in content:
-            if hasattr(c, 'tags') and c.tags.pop('__loaded_by_CAS__', False):
-                c.pop('blob')
+        for r in results:
+            if hasattr(r, 'tags') and r.tags.pop('__loaded_by_CAS__', False):
+                r.pop('blob')
 
         return results
 
@@ -650,9 +657,9 @@ class Client:
                     ),
                 )
 
-        for c in content:
-            if hasattr(c, 'tags') and c.tags.pop('__loaded_by_CAS__', False):
-                c.pop('blob')
+        for r in results:
+            if hasattr(r, 'tags') and r.tags.pop('__loaded_by_CAS__', False):
+                r.pop('blob')
 
         return results
 
@@ -726,9 +733,9 @@ class Client:
                 ),
             )
 
-        for c in content:
-            if hasattr(c, 'tags') and c.tags.pop('__loaded_by_CAS__', False):
-                c.pop('blob')
+        for r in results:
+            if hasattr(r, 'tags') and r.tags.pop('__loaded_by_CAS__', False):
+                r.pop('blob')
 
         return results
 
@@ -793,8 +800,8 @@ class Client:
                     ),
                 )
 
-        for c in content:
-            if hasattr(c, 'tags') and c.tags.pop('__loaded_by_CAS__', False):
-                c.pop('blob')
+        for r in results:
+            if hasattr(r, 'tags') and r.tags.pop('__loaded_by_CAS__', False):
+                r.pop('blob')
 
         return results

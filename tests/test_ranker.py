@@ -71,36 +71,74 @@ async def test_torch_executor_rank_text2imgs(encoder_class):
 
 
 @pytest.mark.parametrize(
-    'd',
+    'inputs',
     [
-        Document(
-            uri='https://docarray.jina.ai/_static/favicon.png',
-            matches=[Document(text='hello, world'), Document(text='goodbye, world')],
-        ),
-        Document(
-            text='hello, world',
-            matches=[
-                Document(uri='https://docarray.jina.ai/_static/favicon.png'),
+        [
+            Document(
+                uri='https://docarray.jina.ai/_static/favicon.png',
+                matches=[
+                    Document(text='hello, world'),
+                    Document(text='goodbye, world'),
+                ],
+            ),
+            Document(
+                uri='https://docarray.jina.ai/_static/favicon.png',
+                matches=[
+                    Document(text='hello, world'),
+                    Document(text='goodbye, world'),
+                ],
+            ),
+        ],
+        DocumentArray(
+            [
                 Document(
-                    uri=f'{os.path.dirname(os.path.abspath(__file__))}/img/00000.jpg'
+                    uri='https://docarray.jina.ai/_static/favicon.png',
+                    matches=[
+                        Document(text='hello, world'),
+                        Document(text='goodbye, world'),
+                    ],
                 ),
-            ],
+                Document(
+                    uri='https://docarray.jina.ai/_static/favicon.png',
+                    matches=[
+                        Document(text='hello, world'),
+                        Document(text='goodbye, world'),
+                    ],
+                ),
+            ]
+        ),
+        lambda: (
+            Document(
+                uri='https://docarray.jina.ai/_static/favicon.png',
+                matches=[
+                    Document(text='hello, world'),
+                    Document(text='goodbye, world'),
+                ],
+            )
+            for _ in range(10)
+        ),
+        DocumentArray(
+            [
+                Document(
+                    text='hello, world',
+                    matches=[
+                        Document(uri='https://docarray.jina.ai/_static/favicon.png'),
+                        Document(
+                            uri=f'{os.path.dirname(os.path.abspath(__file__))}/img/00000.jpg'
+                        ),
+                    ],
+                )
+            ]
         ),
     ],
 )
-def test_docarray_inputs(make_flow, d):
+def test_docarray_inputs(make_flow, inputs):
     c = Client(server=f'grpc://0.0.0.0:{make_flow.port}')
-    r = c.rank([d])
-    assert r[0].content == d.content
-    assert r[0].matches.contents == d.matches.contents
-    assert '__loaded_by_CAS__' not in d.tags
-    assert not d.blob
-    assert not d.tensor
-    assert '__loaded_by_CAS__' not in d.matches[0].tags
-    assert not d.matches[0].blob
-    assert not d.matches[0].tensor
+    r = c.rank(inputs if not callable(inputs) else inputs())
+    assert '__loaded_by_CAS__' not in r[0].tags
+    assert not r[0].blob
+    assert not r[0].tensor
     assert isinstance(r, DocumentArray)
-    assert d is r[0]
     rv1 = r['@m', 'scores__clip_score__value']
     rv2 = r['@m', 'scores__clip_score_cosine__value']
     for v1, v2 in zip(rv1, rv2):
@@ -111,31 +149,75 @@ def test_docarray_inputs(make_flow, d):
 
 
 @pytest.mark.parametrize(
-    'd',
+    'inputs',
     [
-        Document(
-            uri='https://docarray.jina.ai/_static/favicon.png',
-            matches=[Document(text='hello, world'), Document(text='goodbye, world')],
-        ),
-        Document(
-            text='hello, world',
-            matches=[
-                Document(uri='https://docarray.jina.ai/_static/favicon.png'),
+        [
+            Document(
+                uri='https://docarray.jina.ai/_static/favicon.png',
+                matches=[
+                    Document(text='hello, world'),
+                    Document(text='goodbye, world'),
+                ],
+            ),
+            Document(
+                uri='https://docarray.jina.ai/_static/favicon.png',
+                matches=[
+                    Document(text='hello, world'),
+                    Document(text='goodbye, world'),
+                ],
+            ),
+        ],
+        DocumentArray(
+            [
                 Document(
-                    uri=f'{os.path.dirname(os.path.abspath(__file__))}/img/00000.jpg'
+                    uri='https://docarray.jina.ai/_static/favicon.png',
+                    matches=[
+                        Document(text='hello, world'),
+                        Document(text='goodbye, world'),
+                    ],
                 ),
-            ],
+                Document(
+                    uri='https://docarray.jina.ai/_static/favicon.png',
+                    matches=[
+                        Document(text='hello, world'),
+                        Document(text='goodbye, world'),
+                    ],
+                ),
+            ]
+        ),
+        lambda: (
+            Document(
+                uri='https://docarray.jina.ai/_static/favicon.png',
+                matches=[
+                    Document(text='hello, world'),
+                    Document(text='goodbye, world'),
+                ],
+            )
+            for _ in range(10)
+        ),
+        DocumentArray(
+            [
+                Document(
+                    text='hello, world',
+                    matches=[
+                        Document(uri='https://docarray.jina.ai/_static/favicon.png'),
+                        Document(
+                            uri=f'{os.path.dirname(os.path.abspath(__file__))}/img/00000.jpg'
+                        ),
+                    ],
+                )
+            ]
         ),
     ],
 )
 @pytest.mark.asyncio
-async def test_async_arank(make_flow, d):
+async def test_async_arank(make_flow, inputs):
     c = Client(server=f'grpc://0.0.0.0:{make_flow.port}')
-    r = await c.arank([d])
+    r = await c.arank(inputs)
+    assert '__loaded_by_CAS__' not in r[0].tags
+    assert not r[0].blob
+    assert not r[0].tensor
     assert isinstance(r, DocumentArray)
-    assert r[0].content == d.content
-    assert r[0].matches.contents == d.matches.contents
-    assert d is r[0]
     rv = r['@m', 'scores__clip_score__value']
     for v in rv:
         assert v is not None
