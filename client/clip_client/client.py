@@ -443,8 +443,12 @@ class Client:
     def _reset_rank_doc(d: 'Document', _source: str = 'matches'):
         _get = lambda d: getattr(d, _source)
 
+        print(123123)
         if d.tags.pop('__loaded_by_CAS__', False):
+            print(111)
             d.pop('blob')
+        else:
+            print(222)
 
         for c in _get(d):
             if c.tags.pop('__loaded_by_CAS__', False):
