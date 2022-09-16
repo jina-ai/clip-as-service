@@ -492,7 +492,9 @@ class Client:
 
         return results
 
-    async def arank(self, docs: Iterable['Document'], **kwargs) -> 'DocumentArray':
+    async def arank(
+        self, docs: Union['DocumentArray', Iterable['Document']], **kwargs
+    ) -> 'DocumentArray':
         from rich import filesize
 
         if hasattr(docs, '__len__') and len(docs) == 0:

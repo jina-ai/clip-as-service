@@ -213,7 +213,7 @@ def test_docarray_inputs(make_flow, inputs):
 @pytest.mark.asyncio
 async def test_async_arank(make_flow, inputs):
     c = Client(server=f'grpc://0.0.0.0:{make_flow.port}')
-    r = await c.arank(inputs)
+    r = await c.arank(inputs if not callable(inputs) else inputs())
     assert '__loaded_by_CAS__' not in r[0].tags
     assert not r[0].blob
     assert not r[0].tensor
