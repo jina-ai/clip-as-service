@@ -40,8 +40,7 @@ def preproc_image(
         # recover doc content
         d.content = content
         if drop_image_content:
-            d.pop('blob')
-            d.pop('tensor')
+            d.pop('blob', 'tensor')
 
     tensors_batch = torch.stack(tensors_batch).type(torch.float32)
 

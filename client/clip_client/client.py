@@ -176,17 +176,15 @@ class Client:
                 _mime = mimetypes.guess_type(c)[0]
                 if _mime and _mime.startswith('image'):
                     d = Document(
-                        tags={'__created_by_CAS__': True, '__loaded_by_CAS__': True},
                         uri=c,
                     ).load_uri_to_blob()
                 else:
-                    d = Document(tags={'__created_by_CAS__': True}, text=c)
+                    d = Document(text=c)
             elif isinstance(c, Document):
                 if c.content_type in ('text', 'blob'):
                     d = c
                 elif not c.blob and c.uri:
                     c.load_uri_to_blob()
-                    c.tags['__loaded_by_CAS__'] = True
                     d = c
                 elif c.tensor is not None:
                     d = c
@@ -288,8 +286,10 @@ class Client:
 
         results = DocumentArray()
         with self._pbar:
-            parameters = kwargs.pop('parameters', None)
+            parameters = kwargs.pop('parameters', {})
+            parameters['drop_image_content'] = True
             model_name = parameters.pop('model_name', '') if parameters else ''
+
             self._client.post(
                 on=f'/encode/{model_name}'.rstrip('/'),
                 **self._get_post_payload(content, results, kwargs),
@@ -298,10 +298,6 @@ class Client:
                 ),
                 parameters=parameters,
             )
-
-        for r in results:
-            if hasattr(r, 'tags') and r.tags.pop('__loaded_by_CAS__', False):
-                r.pop('blob')
 
         unbox = hasattr(content, '__len__') and isinstance(content[0], str)
         return self._unboxed_result(results, unbox)
@@ -345,7 +341,8 @@ class Client:
 
         results = DocumentArray()
         with self._pbar:
-            parameters = kwargs.pop('parameters', None)
+            parameters = kwargs.pop('parameters', {})
+            parameters['drop_image_content'] = True
             model_name = parameters.get('model_name', '') if parameters else ''
 
             async for da in self._async_client.post(
@@ -366,10 +363,6 @@ class Client:
                         )
                     ),
                 )
-
-        for r in results:
-            if hasattr(r, 'tags') and r.tags.pop('__loaded_by_CAS__', False):
-                r.pop('blob')
 
         unbox = hasattr(content, '__len__') and isinstance(content[0], str)
         return self._unboxed_result(results, unbox)
@@ -423,7 +416,6 @@ class Client:
             return d
         elif not d.blob and d.uri:
             d.load_uri_to_blob()
-            d.tags['__loaded_by_CAS__'] = True
             return d
         elif d.tensor is not None:
             return d
@@ -437,18 +429,6 @@ class Client:
             raise ValueError(f'`.rank()` requires every doc to have `.{_source}`')
         d = Client._prepare_single_doc(d)
         setattr(d, _source, [Client._prepare_single_doc(c) for c in _get(d)])
-        return d
-
-    @staticmethod
-    def _reset_rank_doc(d: 'Document', _source: str = 'matches'):
-        _get = lambda d: getattr(d, _source)
-
-        if d.tags.pop('__loaded_by_CAS__', False):
-            d.pop('blob')
-
-        for c in _get(d):
-            if c.tags.pop('__loaded_by_CAS__', False):
-                c.pop('blob')
         return d
 
     def rank(
@@ -474,8 +454,10 @@ class Client:
 
         results = DocumentArray()
         with self._pbar:
-            parameters = kwargs.pop('parameters', None)
+            parameters = kwargs.pop('parameters', {})
+            parameters['drop_image_content'] = True
             model_name = parameters.get('model_name', '') if parameters else ''
+
             self._client.post(
                 on=f'/rank/{model_name}'.rstrip('/'),
                 **self._get_rank_payload(docs, results, kwargs),
@@ -484,9 +466,6 @@ class Client:
                 ),
                 parameters=parameters,
             )
-
-        for r in results:
-            self._reset_rank_doc(r, _source=kwargs.get('source', 'matches'))
 
         return results
 
@@ -507,8 +486,10 @@ class Client:
 
         results = DocumentArray()
         with self._pbar:
-            parameters = kwargs.pop('parameters', None)
+            parameters = kwargs.pop('parameters', {})
+            parameters['drop_image_content'] = True
             model_name = parameters.get('model_name', '') if parameters else ''
+
             async for da in self._async_client.post(
                 on=f'/rank/{model_name}'.rstrip('/'),
                 **self._get_rank_payload(docs, results, kwargs),
@@ -527,9 +508,6 @@ class Client:
                         )
                     ),
                 )
-
-        for r in results:
-            self._reset_rank_doc(r, _source=kwargs.get('source', 'matches'))
 
         return results
 
@@ -581,14 +559,19 @@ class Client:
             raise TypeError(
                 f'content must be an Iterable of [str, Document], try `.index(["{content}"])` instead'
             )
+        if hasattr(content, '__len__') and len(content) == 0:
+            return DocumentArray()
 
         self._prepare_streaming(
             not kwargs.get('show_progress'),
             total=len(content) if hasattr(content, '__len__') else None,
         )
+
         results = DocumentArray()
         with self._pbar:
-            parameters = kwargs.pop('parameters', None)
+            parameters = kwargs.pop('parameters', {})
+            parameters['drop_image_content'] = True
+
             self._client.post(
                 on='/index',
                 **self._get_post_payload(content, results, kwargs),
@@ -597,10 +580,6 @@ class Client:
                 ),
                 parameters=parameters,
             )
-
-        for r in results:
-            if hasattr(r, 'tags') and r.tags.pop('__loaded_by_CAS__', False):
-                r.pop('blob')
 
         return results
 
@@ -633,17 +612,23 @@ class Client:
             raise TypeError(
                 f'content must be an Iterable of [str, Document], try `.aindex(["{content}"])` instead'
             )
+        if hasattr(content, '__len__') and len(content) == 0:
+            return DocumentArray()
 
         self._prepare_streaming(
             not kwargs.get('show_progress'),
             total=len(content) if hasattr(content, '__len__') else None,
         )
+
         results = DocumentArray()
         with self._pbar:
+            parameters = kwargs.pop('parameters', {})
+            parameters['drop_image_content'] = True
+
             async for da in self._async_client.post(
                 on='/index',
                 **self._get_post_payload(content, results, kwargs),
-                parameters=kwargs.pop('parameters', None),
+                parameters=parameters,
             ):
                 results[da[:, 'id']].embeddings = da.embeddings
 
@@ -658,10 +643,6 @@ class Client:
                         )
                     ),
                 )
-
-        for r in results:
-            if hasattr(r, 'tags') and r.tags.pop('__loaded_by_CAS__', False):
-                r.pop('blob')
 
         return results
 
@@ -716,15 +697,19 @@ class Client:
             raise TypeError(
                 f'content must be an Iterable of [str, Document], try `.search(["{content}"])` instead'
             )
+        if hasattr(content, '__len__') and len(content) == 0:
+            return DocumentArray()
 
         self._prepare_streaming(
             not kwargs.get('show_progress'),
             total=len(content) if hasattr(content, '__len__') else None,
         )
+
         results = DocumentArray()
         with self._pbar:
             parameters = kwargs.pop('parameters', {})
             parameters['limit'] = limit
+            parameters['drop_image_content'] = True
 
             self._client.post(
                 on='/search',
@@ -734,10 +719,6 @@ class Client:
                     self._gather_result, results=results, attribute='matches'
                 ),
             )
-
-        for r in results:
-            if hasattr(r, 'tags') and r.tags.pop('__loaded_by_CAS__', False):
-                r.pop('blob')
 
         return results
 
@@ -772,16 +753,19 @@ class Client:
             raise TypeError(
                 f'content must be an Iterable of [str, Document], try `.asearch(["{content}"])` instead'
             )
+        if hasattr(content, '__len__') and len(content) == 0:
+            return DocumentArray()
 
         self._prepare_streaming(
             not kwargs.get('show_progress'),
             total=len(content) if hasattr(content, '__len__') else None,
         )
-        results = DocumentArray()
 
+        results = DocumentArray()
         with self._pbar:
             parameters = kwargs.pop('parameters', {})
             parameters['limit'] = limit
+            parameters['drop_image_content'] = True
 
             async for da in self._async_client.post(
                 on='/search',
@@ -801,9 +785,5 @@ class Client:
                         )
                     ),
                 )
-
-        for r in results:
-            if hasattr(r, 'tags') and r.tags.pop('__loaded_by_CAS__', False):
-                r.pop('blob')
 
         return results
