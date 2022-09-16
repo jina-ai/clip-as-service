@@ -159,23 +159,9 @@ def test_docarray_inputs(make_flow, inputs):
                     Document(text='goodbye, world'),
                 ],
             ),
-            Document(
-                uri='https://docarray.jina.ai/_static/favicon.png',
-                matches=[
-                    Document(text='hello, world'),
-                    Document(text='goodbye, world'),
-                ],
-            ),
         ],
         DocumentArray(
             [
-                Document(
-                    uri='https://docarray.jina.ai/_static/favicon.png',
-                    matches=[
-                        Document(text='hello, world'),
-                        Document(text='goodbye, world'),
-                    ],
-                ),
                 Document(
                     uri='https://docarray.jina.ai/_static/favicon.png',
                     matches=[
@@ -193,7 +179,7 @@ def test_docarray_inputs(make_flow, inputs):
                     Document(text='goodbye, world'),
                 ],
             )
-            for _ in range(10)
+            for _ in range(1)
         ),
         DocumentArray(
             [

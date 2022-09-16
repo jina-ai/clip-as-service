@@ -443,12 +443,8 @@ class Client:
     def _reset_rank_doc(d: 'Document', _source: str = 'matches'):
         _get = lambda d: getattr(d, _source)
 
-        print(123123)
         if d.tags.pop('__loaded_by_CAS__', False):
-            print(111)
             d.pop('blob')
-        else:
-            print(222)
 
         for c in _get(d):
             if c.tags.pop('__loaded_by_CAS__', False):
@@ -466,6 +462,8 @@ class Client:
         :param docs: the input Documents
         :return: the ranked Documents in a DocumentArray.
         """
+        if isinstance(docs, str):
+            raise TypeError(f'Content must be an Iterable of [Document]')
         if hasattr(docs, '__len__') and len(docs) == 0:
             return DocumentArray() if isinstance(docs, DocumentArray) else []
 
@@ -497,6 +495,8 @@ class Client:
     ) -> 'DocumentArray':
         from rich import filesize
 
+        if isinstance(docs, str):
+            raise TypeError(f'Content must be an Iterable of [Document]')
         if hasattr(docs, '__len__') and len(docs) == 0:
             return DocumentArray() if isinstance(docs, DocumentArray) else []
 
