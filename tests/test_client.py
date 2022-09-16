@@ -108,6 +108,22 @@ async def test_client_empty_input(make_torch_flow, inputs):
         assert isinstance(r, list)
     assert len(r) == 0
 
+    r = c.index(inputs if not callable(inputs) else inputs())
+    assert isinstance(r, DocumentArray)
+    assert len(r) == 0
+
+    r = await c.aindex(inputs if not callable(inputs) else inputs())
+    assert isinstance(r, DocumentArray)
+    assert len(r) == 0
+
+    r = c.search(inputs if not callable(inputs) else inputs())
+    assert isinstance(r, DocumentArray)
+    assert len(r) == 0
+
+    r = await c.asearch(inputs if not callable(inputs) else inputs())
+    assert isinstance(r, DocumentArray)
+    assert len(r) == 0
+
 
 @pytest.mark.asyncio
 async def test_wrong_input_type(make_torch_flow):

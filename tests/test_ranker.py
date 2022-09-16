@@ -30,14 +30,10 @@ async def test_torch_executor_rank_img2texts(encoder_class):
     for d in da:
         for c in d.matches:
             assert c.scores['clip_score'].value is not None
-            assert '__loaded_by_CAS__' not in c.tags
             assert not c.tensor
-            assert not c.blob
         org_score = d.matches[:, 'scores__clip_score__value']
         assert org_score == list(sorted(org_score, reverse=True))
-        assert '__loaded_by_CAS__' not in d.tags
         assert not d.tensor
-        assert not d.blob
 
 
 @pytest.mark.asyncio
@@ -59,13 +55,10 @@ async def test_torch_executor_rank_text2imgs(encoder_class):
         for c in d.matches:
             assert c.scores['clip_score'].value is not None
             assert c.scores['clip_score_cosine'].value is not None
-            assert '__loaded_by_CAS__' not in c.tags
             assert not c.tensor
-            assert not c.blob
         np.testing.assert_almost_equal(
             sum(c.scores['clip_score'].value for c in d.matches), 1
         )
-        assert '__loaded_by_CAS__' not in d.tags
         assert not d.tensor
         assert not d.blob
 
@@ -135,8 +128,6 @@ async def test_torch_executor_rank_text2imgs(encoder_class):
 def test_docarray_inputs(make_flow, inputs):
     c = Client(server=f'grpc://0.0.0.0:{make_flow.port}')
     r = c.rank(inputs if not callable(inputs) else inputs())
-    assert '__loaded_by_CAS__' not in r[0].tags
-    assert not r[0].blob
     assert not r[0].tensor
     assert isinstance(r, DocumentArray)
     rv1 = r['@m', 'scores__clip_score__value']
@@ -200,8 +191,6 @@ def test_docarray_inputs(make_flow, inputs):
 async def test_async_arank(make_flow, inputs):
     c = Client(server=f'grpc://0.0.0.0:{make_flow.port}')
     r = await c.arank(inputs if not callable(inputs) else inputs())
-    assert '__loaded_by_CAS__' not in r[0].tags
-    assert not r[0].blob
     assert not r[0].tensor
     assert isinstance(r, DocumentArray)
     rv = r['@m', 'scores__clip_score__value']
