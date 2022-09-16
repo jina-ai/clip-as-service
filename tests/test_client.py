@@ -23,7 +23,7 @@ class Exec2(Executor):
 
     @requests
     async def process(self, docs, **kwargs):
-        results = await self._client.aencode(docs, request_size=2)
+        results = await self._client.aencode(docs, batch_size=2)
         return results
 
 
@@ -75,10 +75,10 @@ def test_client_large_input(make_torch_flow):
     ],
 )
 @pytest.mark.asyncio
-async def test_client_empty_input(make_flow, inputs):
+async def test_client_empty_input(make_torch_flow, inputs):
     from clip_client.client import Client
 
-    c = Client(server=f'grpc://0.0.0.0:{make_flow.port}')
+    c = Client(server=f'grpc://0.0.0.0:{make_torch_flow.port}')
 
     r = c.encode(inputs if not callable(inputs) else inputs())
     if isinstance(inputs, DocumentArray):
