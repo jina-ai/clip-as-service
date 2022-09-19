@@ -2,6 +2,7 @@ import os
 import warnings
 from multiprocessing.pool import ThreadPool
 from typing import Optional, Dict
+from functools import partial
 
 import onnxruntime as ort
 from clip_server.executors.helper import (
@@ -99,13 +100,16 @@ class CLIPEncoder(Executor):
 
         self._model.start_sessions(sess_options=sess_options, providers=providers)
 
-    def _preproc_images(self, docs: 'DocumentArray'):
+    def _preproc_images(self, docs: 'DocumentArray', drop_image_content: bool):
         with self.monitor(
             name='preprocess_images_seconds',
             documentation='images preprocess time in seconds',
         ):
             return preproc_image(
-                docs, preprocess_fn=self._image_transform, return_np=True
+                docs,
+                preprocess_fn=self._image_transform,
+                return_np=True,
+                drop_image_content=drop_image_content,
             )
 
     def _preproc_texts(self, docs: 'DocumentArray'):
@@ -117,7 +121,8 @@ class CLIPEncoder(Executor):
 
     @requests(on='/rank')
     async def rank(self, docs: 'DocumentArray', parameters: Dict, **kwargs):
-        await self.encode(docs['@r,m'])
+        _drop_image_content = parameters.get('drop_image_content', False)
+        await self.encode(docs['@r,m'], drop_image_content=_drop_image_content)
 
         set_rank(docs)
 
@@ -129,6 +134,7 @@ class CLIPEncoder(Executor):
                 f'`traversal_paths` is deprecated. Use `access_paths` instead.'
             )
             access_paths = parameters['traversal_paths']
+        _drop_image_content = parameters.get('drop_image_content', False)
 
         _img_da = DocumentArray()
         _txt_da = DocumentArray()
@@ -138,7 +144,7 @@ class CLIPEncoder(Executor):
         # for image
         if _img_da:
             for minibatch, batch_data in _img_da.map_batch(
-                self._preproc_images,
+                partial(self._preproc_images, drop_image_content=_drop_image_content),
                 batch_size=self._minibatch_size,
                 pool=self._pool,
             ):
