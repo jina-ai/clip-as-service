@@ -287,7 +287,9 @@ class Client:
         results = DocumentArray()
         with self._pbar:
             parameters = kwargs.pop('parameters', {})
-            parameters['drop_image_content'] = True
+            parameters['drop_image_content'] = parameters.get(
+                'drop_image_content', True
+            )
             model_name = parameters.pop('model_name', '') if parameters else ''
 
             self._client.post(
@@ -342,7 +344,9 @@ class Client:
         results = DocumentArray()
         with self._pbar:
             parameters = kwargs.pop('parameters', {})
-            parameters['drop_image_content'] = True
+            parameters['drop_image_content'] = parameters.get(
+                'drop_image_content', True
+            )
             model_name = parameters.get('model_name', '') if parameters else ''
 
             async for da in self._async_client.post(
@@ -455,7 +459,9 @@ class Client:
         results = DocumentArray()
         with self._pbar:
             parameters = kwargs.pop('parameters', {})
-            parameters['drop_image_content'] = True
+            parameters['drop_image_content'] = parameters.get(
+                'drop_image_content', True
+            )
             model_name = parameters.get('model_name', '') if parameters else ''
 
             self._client.post(
@@ -487,7 +493,9 @@ class Client:
         results = DocumentArray()
         with self._pbar:
             parameters = kwargs.pop('parameters', {})
-            parameters['drop_image_content'] = True
+            parameters['drop_image_content'] = parameters.get(
+                'drop_image_content', True
+            )
             model_name = parameters.get('model_name', '') if parameters else ''
 
             async for da in self._async_client.post(
@@ -570,7 +578,9 @@ class Client:
         results = DocumentArray()
         with self._pbar:
             parameters = kwargs.pop('parameters', {})
-            parameters['drop_image_content'] = True
+            parameters['drop_image_content'] = parameters.get(
+                'drop_image_content', True
+            )
 
             self._client.post(
                 on='/index',
@@ -623,7 +633,9 @@ class Client:
         results = DocumentArray()
         with self._pbar:
             parameters = kwargs.pop('parameters', {})
-            parameters['drop_image_content'] = True
+            parameters['drop_image_content'] = parameters.get(
+                'drop_image_content', True
+            )
 
             async for da in self._async_client.post(
                 on='/index',
@@ -709,7 +721,9 @@ class Client:
         with self._pbar:
             parameters = kwargs.pop('parameters', {})
             parameters['limit'] = limit
-            parameters['drop_image_content'] = True
+            parameters['drop_image_content'] = parameters.get(
+                'drop_image_content', True
+            )
 
             self._client.post(
                 on='/search',
@@ -765,7 +779,9 @@ class Client:
         with self._pbar:
             parameters = kwargs.pop('parameters', {})
             parameters['limit'] = limit
-            parameters['drop_image_content'] = True
+            parameters['drop_image_content'] = parameters.get(
+                'drop_image_content', True
+            )
 
             async for da in self._async_client.post(
                 on='/search',
