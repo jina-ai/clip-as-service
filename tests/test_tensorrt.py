@@ -37,6 +37,8 @@ def test_docarray_inputs(make_trt_flow, inputs):
     r = c.encode(inputs if not callable(inputs) else inputs())
     assert isinstance(r, DocumentArray)
     assert r.embeddings.shape
+    if hasattr(inputs, '__len__'):
+        assert inputs[0] is r[0]
 
 
 @pytest.mark.gpu
@@ -63,6 +65,7 @@ async def test_async_arank(make_trt_flow, d):
     c = Client(server=f'grpc://0.0.0.0:{make_trt_flow.port}')
     r = await c.arank([d])
     assert isinstance(r, DocumentArray)
+    assert d is r[0]
     rv = r['@m', 'scores__clip_score__value']
     for v in rv:
         assert v is not None

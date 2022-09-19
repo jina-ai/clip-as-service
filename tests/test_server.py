@@ -71,7 +71,7 @@ def test_server_download_not_regular_file(tmpdir):
         )
 
 
-def test_make_onnx_flow_wrong_name_path(port_generator):
+def test_make_onnx_flow_wrong_name_path():
     from clip_server.executors.clip_onnx import CLIPEncoder
 
     with pytest.raises(Exception):

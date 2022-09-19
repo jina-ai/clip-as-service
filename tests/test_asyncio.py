@@ -37,9 +37,7 @@ async def test_async_encode(make_flow):
     ],
 )
 @pytest.mark.asyncio
-async def test_async_docarray_preserve_original_inputs(
-    make_flow, inputs, port_generator
-):
+async def test_async_docarray_preserve_original_inputs(make_flow, inputs):
     c = Client(server=f'grpc://0.0.0.0:{make_flow.port}')
     t1 = asyncio.create_task(another_heavylifting_job())
     t2 = asyncio.create_task(c.aencode(inputs if not callable(inputs) else inputs()))
@@ -51,3 +49,25 @@ async def test_async_docarray_preserve_original_inputs(
     assert '__loaded_by_CAS__' not in t2.result()[0].tags
     assert not t2.result()[0].tensor
     assert not t2.result()[0].blob
+    assert inputs[0] is t2.result()[0]
+
+
+@pytest.mark.parametrize(
+    'inputs',
+    [
+        [Document(id=str(i), text='hello, world') for i in range(20)],
+        DocumentArray([Document(id=str(i), text='hello, world') for i in range(20)]),
+    ],
+)
+@pytest.mark.asyncio
+async def test_async_docarray_preserve_original_order(make_flow, inputs):
+    c = Client(server=f'grpc://0.0.0.0:{make_flow.port}')
+    t1 = asyncio.create_task(another_heavylifting_job())
+    t2 = asyncio.create_task(
+        c.aencode(inputs if not callable(inputs) else inputs(), batch_size=1)
+    )
+    await asyncio.gather(t1, t2)
+    assert isinstance(t2.result(), DocumentArray)
+    for i in range(len(inputs)):
+        assert inputs[i] is t2.result()[i]
+        assert inputs[i].id == str(i)

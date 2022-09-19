@@ -23,7 +23,7 @@ class Exec2(Executor):
 
     @requests
     async def process(self, docs, **kwargs):
-        results = await self._client.aencode(docs, request_size=2)
+        results = await self._client.aencode(docs, batch_size=2)
         return results
 
 
@@ -57,11 +57,77 @@ def test_client_concurrent_requests(port_generator):
             assert len(set([d.id[:2] for d in r])) == 1
 
 
-def test_client_large_input(make_flow, port_generator):
+def test_client_large_input(make_torch_flow):
     from clip_client.client import Client
 
     inputs = ['hello' for _ in range(600)]
 
-    c = Client(server=f'grpc://0.0.0.0:{make_flow.port}')
+    c = Client(server=f'grpc://0.0.0.0:{make_torch_flow.port}')
     with pytest.warns(UserWarning):
         c.encode(inputs if not callable(inputs) else inputs())
+
+
+@pytest.mark.parametrize(
+    'inputs',
+    [
+        [],
+        DocumentArray([]),
+    ],
+)
+@pytest.mark.asyncio
+async def test_client_empty_input(make_torch_flow, inputs):
+    from clip_client.client import Client
+
+    c = Client(server=f'grpc://0.0.0.0:{make_torch_flow.port}')
+
+    r = c.encode(inputs if not callable(inputs) else inputs())
+    if isinstance(inputs, DocumentArray):
+        assert isinstance(r, DocumentArray)
+    else:
+        assert isinstance(r, list)
+    assert len(r) == 0
+
+    r = await c.aencode(inputs if not callable(inputs) else inputs())
+    if isinstance(inputs, DocumentArray):
+        assert isinstance(r, DocumentArray)
+    else:
+        assert isinstance(r, list)
+    assert len(r) == 0
+
+    r = c.rank(inputs if not callable(inputs) else inputs())
+    if isinstance(inputs, DocumentArray):
+        assert isinstance(r, DocumentArray)
+    else:
+        assert isinstance(r, list)
+    assert len(r) == 0
+
+    r = await c.arank(inputs if not callable(inputs) else inputs())
+    if isinstance(inputs, DocumentArray):
+        assert isinstance(r, DocumentArray)
+    else:
+        assert isinstance(r, list)
+    assert len(r) == 0
+
+
+@pytest.mark.asyncio
+async def test_wrong_input_type(make_torch_flow):
+    from clip_client.client import Client
+
+    c = Client(server=f'grpc://0.0.0.0:{make_torch_flow.port}')
+
+    with pytest.raises(Exception):
+        c.encode('hello')
+    with pytest.raises(Exception):
+        await c.aencode('hello')
+    with pytest.raises(Exception):
+        c.rank('hello')
+    with pytest.raises(Exception):
+        await c.arank('hello')
+    with pytest.raises(Exception):
+        c.index('hello')
+    with pytest.raises(Exception):
+        await c.aindex('hello')
+    with pytest.raises(Exception):
+        c.search('hello')
+    with pytest.raises(Exception):
+        await c.asearch('hello')
