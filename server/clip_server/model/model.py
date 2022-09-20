@@ -49,17 +49,17 @@ class Bottleneck(nn.Module):
         # all conv layers have stride 1. an avgpool is performed after the second convolution when stride > 1
         self.conv1 = nn.Conv2d(inplanes, planes, 1, bias=False)
         self.bn1 = nn.BatchNorm2d(planes)
-        self.relu1 = nn.ReLU(inplace=True)
+        self.act1 = nn.ReLU(inplace=True)
 
         self.conv2 = nn.Conv2d(planes, planes, 3, padding=1, bias=False)
         self.bn2 = nn.BatchNorm2d(planes)
-        self.relu2 = nn.ReLU(inplace=True)
+        self.act2 = nn.ReLU(inplace=True)
 
         self.avgpool = nn.AvgPool2d(stride) if stride > 1 else nn.Identity()
 
         self.conv3 = nn.Conv2d(planes, planes * self.expansion, 1, bias=False)
         self.bn3 = nn.BatchNorm2d(planes * self.expansion)
-        self.relu3 = nn.ReLU(inplace=True)
+        self.act3 = nn.ReLU(inplace=True)
 
         self.downsample = None
         self.stride = stride
@@ -88,8 +88,8 @@ class Bottleneck(nn.Module):
     def forward(self, x: torch.Tensor):
         identity = x
 
-        out = self.relu1(self.bn1(self.conv1(x)))
-        out = self.relu2(self.bn2(self.conv2(out)))
+        out = self.act1(self.bn1(self.conv1(x)))
+        out = self.act2(self.bn2(self.conv2(out)))
         out = self.avgpool(out)
         out = self.bn3(self.conv3(out))
 
@@ -97,7 +97,7 @@ class Bottleneck(nn.Module):
             identity = self.downsample(x)
 
         out += identity
-        out = self.relu3(out)
+        out = self.act3(out)
         return out
 
 
@@ -166,15 +166,15 @@ class ModifiedResNet(nn.Module):
             3, width // 2, kernel_size=3, stride=2, padding=1, bias=False
         )
         self.bn1 = nn.BatchNorm2d(width // 2)
-        self.relu1 = nn.ReLU(inplace=True)
+        self.act1 = nn.ReLU(inplace=True)
         self.conv2 = nn.Conv2d(
             width // 2, width // 2, kernel_size=3, padding=1, bias=False
         )
         self.bn2 = nn.BatchNorm2d(width // 2)
-        self.relu2 = nn.ReLU(inplace=True)
+        self.act2 = nn.ReLU(inplace=True)
         self.conv3 = nn.Conv2d(width // 2, width, kernel_size=3, padding=1, bias=False)
         self.bn3 = nn.BatchNorm2d(width)
-        self.relu3 = nn.ReLU(inplace=True)
+        self.act3 = nn.ReLU(inplace=True)
         self.avgpool = nn.AvgPool2d(2)
 
         # residual layers
@@ -226,9 +226,9 @@ class ModifiedResNet(nn.Module):
         pass
 
     def stem(self, x):
-        x = self.relu1(self.bn1(self.conv1(x)))
-        x = self.relu2(self.bn2(self.conv2(x)))
-        x = self.relu3(self.bn3(self.conv3(x)))
+        x = self.act1(self.bn1(self.conv1(x)))
+        x = self.act2(self.bn2(self.conv2(x)))
+        x = self.act3(self.bn3(self.conv3(x)))
         x = self.avgpool(x)
         return x
 
@@ -273,22 +273,29 @@ class ResidualAttentionBlock(nn.Module):
         n_head: int,
         mlp_ratio: float = 4.0,
         act_layer: Callable = nn.GELU,
+        scale_cosine_attn: bool = False,
+        scale_heads: bool = False,
+        scale_attn: bool = False,
+        scale_fc: bool = False,
     ):
         super().__init__()
 
-        self.attn = nn.MultiheadAttention(d_model, n_head)
         self.ln_1 = LayerNorm(d_model)
+        self.attn = nn.MultiheadAttention(d_model, n_head)
+        self.ln_attn = LayerNorm(d_model) if scale_attn else nn.Identity()
+
+        self.ln_2 = LayerNorm(d_model)
         mlp_width = int(d_model * mlp_ratio)
         self.mlp = nn.Sequential(
             OrderedDict(
                 [
                     ("c_fc", nn.Linear(d_model, mlp_width)),
+                    ('ln', LayerNorm(mlp_width) if scale_fc else nn.Identity()),
                     ("gelu", act_layer()),
                     ("c_proj", nn.Linear(mlp_width, d_model)),
                 ]
             )
         )
-        self.ln_2 = LayerNorm(d_model)
 
     def attention(self, x: torch.Tensor, attn_mask: Optional[torch.Tensor] = None):
         return self.attn(x, x, x, need_weights=False, attn_mask=attn_mask)[0]
@@ -296,7 +303,7 @@ class ResidualAttentionBlock(nn.Module):
     def forward(self, x: torch.Tensor, attn_mask: Optional[torch.Tensor] = None):
         if attn_mask is not None:
             attn_mask = attn_mask.to(dtype=x.dtype, device=x.device)
-        x = x + self.attention(self.ln_1(x), attn_mask=attn_mask)
+        x = x + self.ln_attn(self.attention(self.ln_1(x), attn_mask=attn_mask))
         x = x + self.mlp(self.ln_2(x))
         return x
 
