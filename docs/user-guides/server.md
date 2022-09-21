@@ -196,7 +196,6 @@ Basically, each YAML file defines a [Jina Flow](https://docs.jina.ai/fundamental
 Looking at the YAML file again, we can put it into three subsections as below:
 
 
-
 ````{tab} CLIP model config
 
 ```{code-block} yaml
