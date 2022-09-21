@@ -117,14 +117,6 @@ _MODELS = {
         ('ViT-L-14@336px/textual.onnx', '78fab479f136403eed0db46f3e9e7ed2'),
         ('ViT-L-14@336px/visual.onnx', 'f3b1f5d55ca08d43d749e11f7e4ba27e'),
     ),
-    'ViT-H-14::laion2B-s32B-b79K': (
-        ('ViT-H-14-laion2B-s32B-b79K/textual.onnx', '41e73c0c871d0e8e5d5e236f917f1ec3'),
-        ('ViT-H-14-laion2B-s32B-b79K/visual.onnx', '9c8213d09e2f8f35f684b468b0b0df17'),
-    ),
-    'ViT-g-14::laion2B-s12B-b42K': (
-        ('ViT-g-14-laion2B-s12B-b42K/textual.onnx', 'e597b7ab4414ecd92f715d47e79a033f'),
-        ('ViT-g-14-laion2B-s12B-b42K/visual.onnx', 'd51a6d197542793f1053f843baf6266c'),
-    ),
     # older version name format
     'RN50': (
         ('RN50/textual.onnx', '722418bfe47a1f5c79d1f44884bb3103'),
