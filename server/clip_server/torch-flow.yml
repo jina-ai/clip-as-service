@@ -9,4 +9,5 @@ executors:
       metas:
         py_modules:
           - clip_server.executors.clip_torch
+    timeout_ready: 3000000
     replicas: 1
