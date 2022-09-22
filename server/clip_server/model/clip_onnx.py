@@ -226,10 +226,34 @@ class CLIPOnnxModel(BaseCLIPModel):
     ):
         import onnxruntime as ort
 
-        self._visual_session = ort.InferenceSession(self._visual_path, **kwargs)
+        if self._visual_path.endswith('.zip'):
+            import zipfile
+            import tempfile
+
+            with zipfile.ZipFile(
+                self._visual_path, 'r'
+            ) as zip_ref, tempfile.TemporaryDirectory() as tmp_dir:
+                zip_ref.extractall(tmp_dir)
+                self._visual_session = ort.InferenceSession(
+                    tmp_dir + '/visual.onnx', **kwargs
+                )
+        else:
+            self._visual_session = ort.InferenceSession(self._visual_path, **kwargs)
         self._visual_session.disable_fallback()
 
-        self._textual_session = ort.InferenceSession(self._textual_path, **kwargs)
+        if self._textual_path.endswith('.zip'):
+            import zipfile
+            import tempfile
+
+            with zipfile.ZipFile(
+                self._textual_path, 'r'
+            ) as zip_ref, tempfile.TemporaryDirectory() as tmp_dir:
+                zip_ref.extractall(tmp_dir)
+                self._textual_session = ort.InferenceSession(
+                    tmp_dir + '/textual.onnx', **kwargs
+                )
+        else:
+            self._textual_session = ort.InferenceSession(self._textual_path, **kwargs)
         self._textual_session.disable_fallback()
 
     def encode_image(self, image_input: Dict):
