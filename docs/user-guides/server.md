@@ -92,10 +92,10 @@ Please also note that **different models give different sizes of output dimensio
 | ViT-L-14-336::openai                  | ✅       | ✅    | ❌        | 768              | 891             | 3.74                | 2.23                 |
 | ViT-H-14::laion2B-s32B-b79K           | ✅       | ✅    | ❌        | 1024             | 3762            | 4.45                | 3.26                 |
 | ViT-g-14::laion2B-s12B-b42K           | ✅       | ✅    | ❌        | 1024             | 5214            | 5.16                | 4.00                 |
-| M-CLIP/XLM-Roberta-Large-Vit-B-32     | ✅       | ✅    | 🚧       | 512              | 4284            | 5.37                | 1.68                 |
-| M-CLIP/XLM-Roberta-Large-Vit-L-14     | ✅       | ✅    | ❌        | 768              | 4293            | 4.30                | 4.97                 |
-| M-CLIP/XLM-Roberta-Large-Vit-B-16Plus | ✅       | ✅    | 🚧       | 640              | 4293            | 4.30                | 4.13                 |
 | M-CLIP/LABSE-Vit-L-14                 | ✅       | ✅    | ❌        | 768              | 3609            | 4.30                | 4.70                 |
+| M-CLIP/XLM-Roberta-Large-Vit-B-32     | ✅       | ✅    | 🚧       | 512              | 4284            | 5.37                | 1.68                 |
+| M-CLIP/XLM-Roberta-Large-Vit-B-16Plus | ✅       | ✅    | 🚧       | 640              | 4293            | 4.30                | 4.13                 |
+| M-CLIP/XLM-Roberta-Large-Vit-L-14     | ✅       | ✅    | ❌        | 768              | 4293            | 4.30                | 4.97                 |
 
 ✅ = Supported — 🚧 = Working in progress — ❌ = Not supported
 

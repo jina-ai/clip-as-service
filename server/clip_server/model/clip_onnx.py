@@ -117,6 +117,14 @@ _MODELS = {
         ('ViT-L-14@336px/textual.onnx', '78fab479f136403eed0db46f3e9e7ed2'),
         ('ViT-L-14@336px/visual.onnx', 'f3b1f5d55ca08d43d749e11f7e4ba27e'),
     ),
+    'ViT-H-14::laion2B-s32B-b79K': (
+        ('ViT-H-14-laion2B-s32B-b79K/textual.onnx', '41e73c0c871d0e8e5d5e236f917f1ec3'),
+        ('ViT-H-14-laion2B-s32B-b79K/visual.zip', '38151ea5985d73de94520efef38db4e7'),
+    ),
+    'ViT-g-14::laion2B-s12B-b42K': (
+        ('ViT-g-14-laion2B-s12B-b42K/textual.onnx', 'e597b7ab4414ecd92f715d47e79a033f'),
+        ('ViT-g-14-laion2B-s12B-b42K/visual.zip', '6d0ac4329de9b02474f4752a5d16ba82'),
+    ),
     # older version name format
     'RN50': (
         ('RN50/textual.onnx', '722418bfe47a1f5c79d1f44884bb3103'),
@@ -155,10 +163,40 @@ _MODELS = {
         ('ViT-L-14@336px/visual.onnx', 'f3b1f5d55ca08d43d749e11f7e4ba27e'),
     ),
     # MultilingualCLIP models
-    # 'M-CLIP/LABSE-Vit-L-14': (
-    #     ('M-CLIP-LABSE-Vit-L-14/textual.onnx', 'b5b649f9e064457c764874e982bca296'),
-    #     ('M-CLIP-LABSE-Vit-L-14/visual.onnx', '471951562303c9afbb804b865eedf149'),
-    # ),
+    'M-CLIP/LABSE-Vit-L-14': (
+        ('M-CLIP-LABSE-Vit-L-14/textual.onnx', 'b5b649f9e064457c764874e982bca296'),
+        ('M-CLIP-LABSE-Vit-L-14/visual.onnx', '471951562303c9afbb804b865eedf149'),
+    ),
+    'M-CLIP/XLM-Roberta-Large-Vit-B-32': (
+        (
+            'M-CLIP-XLM-Roberta-Large-Vit-B-32/textual.zip',
+            '6c3e55f7d2d6c12f2c1f1dd36fdec607',
+        ),
+        (
+            'M-CLIP-XLM-Roberta-Large-Vit-B-32/visual.onnx',
+            '467a3ef3e5f50abcf850c3db9e705f8e',
+        ),
+    ),
+    'M-CLIP/XLM-Roberta-Large-Vit-B-16Plus': (
+        (
+            'M-CLIP-XLM-Roberta-Large-Vit-B-16Plus/textual.zip',
+            '6c3e55f7d2d6c12f2c1f1dd36fdec607',
+        ),
+        (
+            'M-CLIP-XLM-Roberta-Large-Vit-B-16Plus/visual.onnx',
+            '467a3ef3e5f50abcf850c3db9e705f8e',
+        ),
+    ),
+    'M-CLIP/XLM-Roberta-Large-Vit-L-14': (
+        (
+            'M-CLIP-XLM-Roberta-Large-Vit-L-14/textual.zip',
+            '3dff00335dc3093acb726dab975ae57d',
+        ),
+        (
+            'M-CLIP-XLM-Roberta-Large-Vit-L-14/visual.onnx',
+            'a78028eab30084c3913edfb0c8411f15',
+        ),
+    ),
 }
 
 
