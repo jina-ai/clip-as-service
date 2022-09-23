@@ -32,7 +32,9 @@ def make_flow(port_generator, request):
         f = Flow(port=port_generator()).add(
             name=request.param,
             uses=CLIPEncoder,
-            uses_with={'model_path': os.path.expanduser('~/.cache/clip/ViT-B-32')},
+            uses_with={
+                'model_path': os.path.expanduser('~/.cache/clip/ViT-B-32-openai')
+            },
         )
     with f:
         yield f
