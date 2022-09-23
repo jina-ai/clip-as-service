@@ -27,6 +27,10 @@ _OPENCLIP_MODELS = {
         'ViT-B-32-laion400m_e32.pt',
         '359e0dba4a419f175599ee0c63a110d8',
     ),
+    'ViT-B-32::laion2B-s34B-b79K': (
+        'ViT-B-32-laion2B-s34B-b79K.bin',
+        '2fc036aea9cd7306f5ce7ce6abb8d0bf',
+    ),
     'ViT-B-16::openai': ('ViT-B-16.pt', '44c3d804ecac03d9545ac1a3adbca3a6'),
     'ViT-B-16::laion400m_e31': (
         'ViT-B-16-laion400m_e31.pt',
@@ -53,7 +57,19 @@ _OPENCLIP_MODELS = {
         'ViT-L-14-laion400m_e32.pt',
         'a76cde1bc744ca38c6036b920c847a89',
     ),
+    'ViT-L-14::laion2B-s32B-b82K': (
+        'ViT-L-14-laion2B-s32B-b82K.bin',
+        '4d2275fc7b2d7ee9db174f9b57ddecbd',
+    ),
     'ViT-L-14-336::openai': ('ViT-L-14-336px.pt', 'b311058cae50cb10fbfa2a44231c9473'),
+    'ViT-H-14::laion2B-s32B-b79K': (
+        'ViT-H-14-laion2B-s32B-b79K.bin',
+        '2aa6c46521b165a0daeb8cdc6668c7d3',
+    ),
+    'ViT-g-14::laion2B-s12B-b42K': (
+        'ViT-g-14-laion2B-s12B-b42K.bin',
+        '3bf99353f6f1829faac0bb155be4382a',
+    ),
     # older version name format
     'RN50': ('RN50.pt', '9140964eaaf9f68c95aa8df6ca13777c'),
     'RN101': ('RN101.pt', 'fa9d5f64ebf152bc56a18db245071014'),
@@ -81,10 +97,12 @@ _VISUAL_MODEL_IMAGE_SIZE = {
     'RN50x64': 448,
     'ViT-B-32': 224,
     'ViT-B-16': 224,
+    'Vit-B-16Plus': 240,
     'ViT-B-16-plus-240': 240,
     'ViT-L-14': 224,
     'ViT-L-14-336': 336,
-    'Vit-B-16Plus': 240,
+    'ViT-H-14': 224,
+    'ViT-g-14': 224,
 }
 
 

@@ -61,6 +61,10 @@ _MODELS = {
         ('ViT-B-32-laion400m_e32/textual.onnx', '93284915937ba42a2b52ae8d3e5283a0'),
         ('ViT-B-32-laion400m_e32/visual.onnx', 'db220821a31fe9795fd8c2ba419078c5'),
     ),
+    'ViT-B-32::laion2B-s34B-b79K': (
+        ('ViT-B-32-laion2B-s34B-b79K/textual.onnx', '84af5ae53da56464c76e67fe50fddbe9'),
+        ('ViT-B-32-laion2B-s34B-b79K/visual.onnx', 'a2d4cbd1cf2632cd09ffce9b40bfd8bd'),
+    ),
     'ViT-B-16::openai': (
         ('ViT-B-16/textual.onnx', '6f0976629a446f95c0c8767658f12ebe'),
         ('ViT-B-16/visual.onnx', 'd5c03bfeef1abbd9bede54a8f6e1eaad'),
@@ -104,6 +108,10 @@ _MODELS = {
     'ViT-L-14::laion400m_e32': (
         ('ViT-L-14-laion400m_e32/textual.onnx', '8ba5b76ba71992923470c0261b10a67c'),
         ('ViT-L-14-laion400m_e32/visual.onnx', '49db3ba92bd816001e932530ad92d76c'),
+    ),
+    'ViT-L-14::laion2B-s32B-b82K': (
+        ('ViT-L-14-laion2B-s32B-b82K/textual.onnx', 'da36a6cbed4f56abf576fdea8b6fe2ee'),
+        ('ViT-L-14-laion2B-s32B-b82K/visual.onnx', '1e337a190abba6a8650237dfae4740b7'),
     ),
     'ViT-L-14-336::openai': (
         ('ViT-L-14@336px/textual.onnx', '78fab479f136403eed0db46f3e9e7ed2'),
