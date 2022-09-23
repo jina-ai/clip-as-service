@@ -29,6 +29,7 @@ def make_flow(port_generator, request):
         import os
         from clip_server.executors.clip_onnx import CLIPEncoder
 
+        CLIPEncoder('ViT-B-32::openai')
         f = Flow(port=port_generator()).add(
             name=request.param,
             uses=CLIPEncoder,
