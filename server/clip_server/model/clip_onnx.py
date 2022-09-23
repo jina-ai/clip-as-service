@@ -264,7 +264,7 @@ class CLIPOnnxModel(BaseCLIPModel):
     ):
         import onnxruntime as ort
 
-        def load_zip_model(model_path, model_type):
+        def _load_session_from_zip(model_path: str, model_type: str):
             """Load a model from a zip file."""
             import zipfile
             import tempfile
@@ -276,13 +276,15 @@ class CLIPOnnxModel(BaseCLIPModel):
                 return ort.InferenceSession(tmp_dir + f'/{model_type}.onnx', **kwargs)
 
         if self._visual_path.endswith('.zip'):
-            self._visual_session = load_zip_model(self._visual_path, 'visual')
+            self._visual_session = _load_session_from_zip(self._visual_path, 'visual')
         else:
             self._visual_session = ort.InferenceSession(self._visual_path, **kwargs)
         self._visual_session.disable_fallback()
 
         if self._textual_path.endswith('.zip'):
-            self._textual_session = load_zip_model(self._textual_path, 'textual')
+            self._textual_session = _load_session_from_zip(
+                self._textual_path, 'textual'
+            )
         else:
             self._textual_session = ort.InferenceSession(self._textual_path, **kwargs)
         self._textual_session.disable_fallback()
