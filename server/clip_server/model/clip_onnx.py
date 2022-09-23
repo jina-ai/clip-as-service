@@ -164,17 +164,17 @@ _MODELS = {
     ),
     # MultilingualCLIP models
     'M-CLIP/LABSE-Vit-L-14': (
-        ('M-CLIP-LABSE-Vit-L-14/textual.onnx', 'b5b649f9e064457c764874e982bca296'),
-        ('M-CLIP-LABSE-Vit-L-14/visual.onnx', '471951562303c9afbb804b865eedf149'),
+        ('M-CLIP-LABSE-Vit-L-14/textual.onnx', '03727820116e63c7d19c72bb5d839488'),
+        ('M-CLIP-LABSE-Vit-L-14/visual.onnx', 'a78028eab30084c3913edfb0c8411f15'),
     ),
     'M-CLIP/XLM-Roberta-Large-Vit-B-32': (
         (
             'M-CLIP-XLM-Roberta-Large-Vit-B-32/textual.zip',
-            '6c3e55f7d2d6c12f2c1f1dd36fdec607',
+            '41f51ec9af4754d11c7b7929e2caf5b9',
         ),
         (
             'M-CLIP-XLM-Roberta-Large-Vit-B-32/visual.onnx',
-            '467a3ef3e5f50abcf850c3db9e705f8e',
+            '5f18f68ac94e294863bfd1f695c8c5ca',
         ),
     ),
     'M-CLIP/XLM-Roberta-Large-Vit-B-16Plus': (
