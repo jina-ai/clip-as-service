@@ -264,32 +264,25 @@ class CLIPOnnxModel(BaseCLIPModel):
     ):
         import onnxruntime as ort
 
-        if self._visual_path.endswith('.zip'):
+        def load_zip_model(model_path, model_type):
+            """Load a model from a zip file."""
             import zipfile
             import tempfile
 
             with zipfile.ZipFile(
-                self._visual_path, 'r'
+                model_path, 'r'
             ) as zip_ref, tempfile.TemporaryDirectory() as tmp_dir:
                 zip_ref.extractall(tmp_dir)
-                self._visual_session = ort.InferenceSession(
-                    tmp_dir + '/visual.onnx', **kwargs
-                )
+                return ort.InferenceSession(tmp_dir + f'/{model_type}.onnx', **kwargs)
+
+        if self._visual_path.endswith('.zip'):
+            self._visual_session = load_zip_model(self._visual_path, 'visual')
         else:
             self._visual_session = ort.InferenceSession(self._visual_path, **kwargs)
         self._visual_session.disable_fallback()
 
         if self._textual_path.endswith('.zip'):
-            import zipfile
-            import tempfile
-
-            with zipfile.ZipFile(
-                self._textual_path, 'r'
-            ) as zip_ref, tempfile.TemporaryDirectory() as tmp_dir:
-                zip_ref.extractall(tmp_dir)
-                self._textual_session = ort.InferenceSession(
-                    tmp_dir + '/textual.onnx', **kwargs
-                )
+            self._textual_session = load_zip_model(self._textual_path, 'textual')
         else:
             self._textual_session = ort.InferenceSession(self._textual_path, **kwargs)
         self._textual_session.disable_fallback()
