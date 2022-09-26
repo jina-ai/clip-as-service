@@ -33,7 +33,7 @@ def make_flow(port_generator, request):
             name=request.param,
             uses=CLIPEncoder,
             uses_with={
-                'model_path': os.path.expanduser('~/.cache/clip/ViT-B-32-openai')
+                'model_path': os.path.expanduser('~/.cache/clip/vit-b-32-openai')
             },
         )
     with f:
