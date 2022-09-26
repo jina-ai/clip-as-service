@@ -26,11 +26,11 @@ class BaseCLIPModel:
 class CLIPModel(BaseCLIPModel):
     def __new__(cls, name: str, **kwargs):
         if cls is CLIPModel:
-            if name in _OPENCLIP_MODELS:
+            if name.lower() in _OPENCLIP_MODELS:
                 from clip_server.model.openclip_model import OpenCLIPModel
 
                 instance = super().__new__(OpenCLIPModel)
-            elif name in _MULTILINGUALCLIP_MODELS:
+            elif name.lower() in _MULTILINGUALCLIP_MODELS:
                 from clip_server.model.mclip_model import MultilingualCLIPModel
 
                 instance = super().__new__(MultilingualCLIPModel)

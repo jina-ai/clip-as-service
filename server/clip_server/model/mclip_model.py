@@ -7,15 +7,22 @@ from clip_server.model.clip_model import CLIPModel
 from clip_server.model.openclip_model import OpenCLIPModel
 
 _CLIP_MODEL_MAPS = {
-    'M-CLIP/XLM-Roberta-Large-Vit-B-32': 'ViT-B-32::openai',
-    'M-CLIP/XLM-Roberta-Large-Vit-L-14': 'ViT-L-14::openai',
-    'M-CLIP/XLM-Roberta-Large-Vit-B-16Plus': 'ViT-B-16-plus-240::laion400m_e31',
-    'M-CLIP/LABSE-Vit-L-14': 'ViT-L-14::openai',
+    'm-clip/xlm-roberta-large-vit-b-32': 'vit-b-32::openai',
+    'm-clip/xlm-roberta-large-vit-l-14': 'vit-l-14::openai',
+    'm-clip/xlm-roberta-large-vit-b-16plus': 'vit-b-16-plus-240::laion400m_e31',
+    'm-clip/labse-vit-l-14': 'vit-l-14::openai',
+}
+
+_MCLIP_MODEL_MAPS = {
+    'm-clip/xlm-roberta-large-vit-b-32': 'M-CLIP/XLM-Roberta-Large-Vit-B-32',
+    'm-clip/xlm-roberta-large-vit-l-14': 'M-CLIP/XLM-Roberta-Large-Vit-L-14',
+    'm-clip/xlm-roberta-large-vit-b-16plus': 'M-CLIP/XLM-Roberta-Large-Vit-B-16Plus',
+    'm-clip/labse-vit-l-14': 'M-CLIP/LABSE-Vit-L-14',
 }
 
 
 class MCLIPConfig(transformers.PretrainedConfig):
-    model_type = "M-CLIP"
+    model_type = 'm-clip'
 
     def __init__(
         self,
@@ -53,10 +60,14 @@ class MultilingualCLIP(transformers.PreTrainedModel):
 class MultilingualCLIPModel(CLIPModel):
     def __init__(self, name: str, device: str = 'cpu', jit: bool = False, **kwargs):
         super().__init__(name, **kwargs)
-        self._mclip_model = MultilingualCLIP.from_pretrained(name)
+        self._mclip_model = MultilingualCLIP.from_pretrained(
+            _MCLIP_MODEL_MAPS[name.lower()]
+        )
         self._mclip_model.to(device=device)
         self._mclip_model.eval()
-        self._model = OpenCLIPModel(_CLIP_MODEL_MAPS[name], device=device, jit=jit)
+        self._model = OpenCLIPModel(
+            _CLIP_MODEL_MAPS[name.lower()], device=device, jit=jit
+        )
 
     @staticmethod
     def get_model_name(name: str):

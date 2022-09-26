@@ -14,17 +14,17 @@ import torch
 
 class OpenCLIPModel(CLIPModel):
     def __init__(self, name: str, device: str = 'cpu', jit: bool = False, **kwargs):
-        super().__init__(name, **kwargs)
+        super().__init__(name.lower(), **kwargs)
 
-        if '::' in name:
-            model_name, pretrained = name.split('::')
+        if '::' in name.lower():
+            model_name, pretrained = name.lower().split('::')
         else:
-            model_name = name
+            model_name = name.lower()
             pretrained = 'openai'
 
         self._model_name = model_name
 
-        model_url, md5sum = get_model_url_md5(name)
+        model_url, md5sum = get_model_url_md5(name.lower())
         model_path = download_model(model_url, md5sum=md5sum)
 
         if pretrained == 'openai':
@@ -40,8 +40,8 @@ class OpenCLIPModel(CLIPModel):
             model_name, pretrained = name.split('::')
         else:
             model_name = name
-        if model_name == 'ViT-L/14@336px':
-            return 'ViT-L-14-336'
+        if model_name == 'vit-l/14@336px':
+            return 'vit-l-14-336'
         return model_name.replace('/', '-')
 
     def encode_text(self, input_ids: 'torch.Tensor', **kwargs):

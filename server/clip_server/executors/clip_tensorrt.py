@@ -19,7 +19,7 @@ from jina import Executor, requests, DocumentArray
 class CLIPEncoder(Executor):
     def __init__(
         self,
-        name: str = 'ViT-B-32::openai',
+        name: str = 'vit-b-32::openai',
         device: str = 'cuda',
         num_worker_preprocess: int = 4,
         minibatch_size: int = 32,
@@ -61,11 +61,11 @@ class CLIPEncoder(Executor):
             torch.cuda.is_available()
         ), "CUDA/GPU is not available on Pytorch. Please check your CUDA installation"
 
-        self._model = CLIPTensorRTModel(name)
+        self._model = CLIPTensorRTModel(name.lower())
 
         self._model.start_engines()
 
-        self._tokenizer = Tokenizer(name)
+        self._tokenizer = Tokenizer(name.lower())
         self._image_transform = clip._transform_ndarray(self._model.image_size)
 
     def _preproc_images(self, docs: 'DocumentArray', drop_image_content: bool):

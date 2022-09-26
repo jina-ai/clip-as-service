@@ -21,7 +21,7 @@ from jina import Executor, requests, DocumentArray
 class CLIPEncoder(Executor):
     def __init__(
         self,
-        name: str = 'ViT-B-32::openai',
+        name: str = 'vit-b-32::openai',
         device: Optional[str] = None,
         jit: bool = False,
         num_worker_preprocess: int = 4,
@@ -74,8 +74,8 @@ class CLIPEncoder(Executor):
             torch.set_num_interop_threads(1)
         self._pool = ThreadPool(processes=num_worker_preprocess)
 
-        self._model = CLIPModel(name, device=self._device, jit=jit, **kwargs)
-        self._tokenizer = Tokenizer(name)
+        self._model = CLIPModel(name.lower(), device=self._device, jit=jit, **kwargs)
+        self._tokenizer = Tokenizer(name.lower())
         self._image_transform = clip._transform_ndarray(self._model.image_size)
 
     def _preproc_images(self, docs: 'DocumentArray', drop_image_content: bool):

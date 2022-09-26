@@ -20,7 +20,7 @@ from jina import Executor, requests, DocumentArray
 class CLIPEncoder(Executor):
     def __init__(
         self,
-        name: str = 'ViT-B-32::openai',
+        name: str = 'vit-b-32::openai',
         device: Optional[str] = None,
         num_worker_preprocess: int = 4,
         minibatch_size: int = 32,
@@ -53,8 +53,8 @@ class CLIPEncoder(Executor):
 
         self._pool = ThreadPool(processes=num_worker_preprocess)
 
-        self._model = CLIPOnnxModel(name, model_path)
-        self._tokenizer = Tokenizer(name)
+        self._model = CLIPOnnxModel(name.lower(), model_path)
+        self._tokenizer = Tokenizer(name.lower())
 
         self._image_transform = clip._transform_ndarray(self._model.image_size)
 

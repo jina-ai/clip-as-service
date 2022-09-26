@@ -6,87 +6,87 @@ import urllib
 
 _OPENCLIP_S3_BUCKET = 'https://clip-as-service.s3.us-east-2.amazonaws.com/models/torch'
 _OPENCLIP_MODELS = {
-    'RN50::openai': ('RN50.pt', '9140964eaaf9f68c95aa8df6ca13777c'),
-    'RN50::yfcc15m': ('RN50-yfcc15m.pt', 'e9c564f91ae7dc754d9043fdcd2a9f22'),
-    'RN50::cc12m': ('RN50-cc12m.pt', '37cb01eb52bb6efe7666b1ff2d7311b5'),
-    'RN101::openai': ('RN101.pt', 'fa9d5f64ebf152bc56a18db245071014'),
-    'RN101::yfcc15m': ('RN101-yfcc15m.pt', '48f7448879ce25e355804f6bb7928cb8'),
-    'RN50x4::openai': ('RN50x4.pt', '03830990bc768e82f7fb684cde7e5654'),
-    'RN50x16::openai': ('RN50x16.pt', '83d63878a818c65d0fb417e5fab1e8fe'),
-    'RN50x64::openai': ('RN50x64.pt', 'a6631a0de003c4075d286140fc6dd637'),
-    'ViT-B-32::openai': ('ViT-B-32.pt', '3ba34e387b24dfe590eeb1ae6a8a122b'),
-    'ViT-B-32::laion2b_e16': (
+    'rn50::openai': ('RN50.pt', '9140964eaaf9f68c95aa8df6ca13777c'),
+    'rn50::yfcc15m': ('RN50-yfcc15m.pt', 'e9c564f91ae7dc754d9043fdcd2a9f22'),
+    'rn50::cc12m': ('RN50-cc12m.pt', '37cb01eb52bb6efe7666b1ff2d7311b5'),
+    'rn101::openai': ('RN101.pt', 'fa9d5f64ebf152bc56a18db245071014'),
+    'rn101::yfcc15m': ('RN101-yfcc15m.pt', '48f7448879ce25e355804f6bb7928cb8'),
+    'rn50x4::openai': ('RN50x4.pt', '03830990bc768e82f7fb684cde7e5654'),
+    'rn50x16::openai': ('RN50x16.pt', '83d63878a818c65d0fb417e5fab1e8fe'),
+    'rn50x64::openai': ('RN50x64.pt', 'a6631a0de003c4075d286140fc6dd637'),
+    'vit-b-32::openai': ('ViT-B-32.pt', '3ba34e387b24dfe590eeb1ae6a8a122b'),
+    'vit-b-32::laion2b_e16': (
         'ViT-B-32-laion2b_e16.pt',
         'df08de3d9f2dc53c71ea26e184633902',
     ),
-    'ViT-B-32::laion400m_e31': (
-        'ViT-B-32-laion400m_e31.pt',
-        'ca8015f98ab0f8780510710681d7b73e',
-    ),
-    'ViT-B-32::laion400m_e32': (
-        'ViT-B-32-laion400m_e32.pt',
-        '359e0dba4a419f175599ee0c63a110d8',
-    ),
-    'ViT-B-32::laion2B-s34B-b79K': (
+    'vit-b-32::laion2b-s34b-b79k': (
         'ViT-B-32-laion2B-s34B-b79K.bin',
         '2fc036aea9cd7306f5ce7ce6abb8d0bf',
     ),
-    'ViT-B-16::openai': ('ViT-B-16.pt', '44c3d804ecac03d9545ac1a3adbca3a6'),
-    'ViT-B-16::laion400m_e31': (
+    'vit-b-32::laion400m_e31': (
+        'ViT-B-32-laion400m_e31.pt',
+        'ca8015f98ab0f8780510710681d7b73e',
+    ),
+    'vit-b-32::laion400m_e32': (
+        'ViT-B-32-laion400m_e32.pt',
+        '359e0dba4a419f175599ee0c63a110d8',
+    ),
+    'vit-b-16::openai': ('ViT-B-16.pt', '44c3d804ecac03d9545ac1a3adbca3a6'),
+    'vit-b-16::laion400m_e31': (
         'ViT-B-16-laion400m_e31.pt',
         '31306a44224cc46fec1bc3b82fd0c4e6',
     ),
-    'ViT-B-16::laion400m_e32': (
+    'vit-b-16::laion400m_e32': (
         'ViT-B-16-laion400m_e32.pt',
         '07283adc5c17899f2ed22d82b563c54b',
     ),
-    'ViT-B-16-plus-240::laion400m_e31': (
+    'vit-b-16-plus-240::laion400m_e31': (
         'ViT-B-16-plus-240-laion400m_e31.pt',
         'c88f453644a998ecb094d878a2f0738d',
     ),
-    'ViT-B-16-plus-240::laion400m_e32': (
+    'vit-b-16-plus-240::laion400m_e32': (
         'ViT-B-16-plus-240-laion400m_e32.pt',
         'e573af3cef888441241e35022f30cc95',
     ),
-    'ViT-L-14::openai': ('ViT-L-14.pt', '096db1af569b284eb76b3881534822d9'),
-    'ViT-L-14::laion400m_e31': (
+    'vit-l-14::openai': ('ViT-L-14.pt', '096db1af569b284eb76b3881534822d9'),
+    'vit-l-14::laion400m_e31': (
         'ViT-L-14-laion400m_e31.pt',
         '09d223a6d41d2c5c201a9da618d833aa',
     ),
-    'ViT-L-14::laion400m_e32': (
+    'vit-l-14::laion400m_e32': (
         'ViT-L-14-laion400m_e32.pt',
         'a76cde1bc744ca38c6036b920c847a89',
     ),
-    'ViT-L-14::laion2B-s32B-b82K': (
+    'vit-l-14::laion2b-s32B-b82K': (
         'ViT-L-14-laion2B-s32B-b82K.bin',
         '4d2275fc7b2d7ee9db174f9b57ddecbd',
     ),
-    'ViT-L-14-336::openai': ('ViT-L-14-336px.pt', 'b311058cae50cb10fbfa2a44231c9473'),
-    'ViT-H-14::laion2B-s32B-b79K': (
+    'vit-l-14-336::openai': ('ViT-L-14-336px.pt', 'b311058cae50cb10fbfa2a44231c9473'),
+    'vit-h-14::laion2B-s32B-b79K': (
         'ViT-H-14-laion2B-s32B-b79K.bin',
         '2aa6c46521b165a0daeb8cdc6668c7d3',
     ),
-    'ViT-g-14::laion2B-s12B-b42K': (
+    'vit-g-14::laion2B-s12B-b42K': (
         'ViT-g-14-laion2B-s12B-b42K.bin',
         '3bf99353f6f1829faac0bb155be4382a',
     ),
     # older version name format
-    'RN50': ('RN50.pt', '9140964eaaf9f68c95aa8df6ca13777c'),
-    'RN101': ('RN101.pt', 'fa9d5f64ebf152bc56a18db245071014'),
-    'RN50x4': ('RN50x4.pt', '03830990bc768e82f7fb684cde7e5654'),
-    'RN50x16': ('RN50x16.pt', '83d63878a818c65d0fb417e5fab1e8fe'),
-    'RN50x64': ('RN50x64.pt', 'a6631a0de003c4075d286140fc6dd637'),
-    'ViT-B/32': ('ViT-B-32.pt', '3ba34e387b24dfe590eeb1ae6a8a122b'),
-    'ViT-B/16': ('ViT-B-16.pt', '44c3d804ecac03d9545ac1a3adbca3a6'),
-    'ViT-L/14': ('ViT-L-14.pt', '096db1af569b284eb76b3881534822d9'),
-    'ViT-L/14@336px': ('ViT-L-14-336px.pt', 'b311058cae50cb10fbfa2a44231c9473'),
+    'rn50': ('RN50.pt', '9140964eaaf9f68c95aa8df6ca13777c'),
+    'rn101': ('RN101.pt', 'fa9d5f64ebf152bc56a18db245071014'),
+    'rn50x4': ('RN50x4.pt', '03830990bc768e82f7fb684cde7e5654'),
+    'rn50x16': ('RN50x16.pt', '83d63878a818c65d0fb417e5fab1e8fe'),
+    'rn50x64': ('RN50x64.pt', 'a6631a0de003c4075d286140fc6dd637'),
+    'vit-b/32': ('ViT-B-32.pt', '3ba34e387b24dfe590eeb1ae6a8a122b'),
+    'vit-b/16': ('ViT-B-16.pt', '44c3d804ecac03d9545ac1a3adbca3a6'),
+    'vit-l/14': ('ViT-L-14.pt', '096db1af569b284eb76b3881534822d9'),
+    'vit-l/14@336px': ('ViT-L-14-336px.pt', 'b311058cae50cb10fbfa2a44231c9473'),
 }
 
 _MULTILINGUALCLIP_MODELS = {
-    'M-CLIP/XLM-Roberta-Large-Vit-B-32': (),
-    'M-CLIP/XLM-Roberta-Large-Vit-L-14': (),
-    'M-CLIP/XLM-Roberta-Large-Vit-B-16Plus': (),
-    'M-CLIP/LABSE-Vit-L-14': (),
+    'm-clip/xlm-roberta-large-vit-b-32': (),
+    'm-clip/xlm-roberta-large-vit-l-14': (),
+    'm-clip/xlm-roberta-large-vit-b-16plus': (),
+    'm-clip/labse-vit-l-14': (),
 }
 
 _VISUAL_MODEL_IMAGE_SIZE = {
