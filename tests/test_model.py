@@ -1,5 +1,6 @@
 import pytest
 from clip_server.model.clip_model import CLIPModel
+from clip_server.model.clip_onnx import CLIPOnnxModel
 from clip_server.model.openclip_model import OpenCLIPModel
 from clip_server.model.mclip_model import MultilingualCLIPModel
 
@@ -8,10 +9,22 @@ from clip_server.model.mclip_model import MultilingualCLIPModel
     'name, model_cls',
     [
         ('ViT-L/14@336px', OpenCLIPModel),
-        ('RN101::openai', OpenCLIPModel),
-        ('M-CLIP/XLM-Roberta-Large-Vit-B-32', MultilingualCLIPModel),
+        ('RN50::openai', OpenCLIPModel),
+        ('M-CLIP/LABSE-Vit-L-14', MultilingualCLIPModel),
     ],
 )
-def test_model_name(name, model_cls):
+def test_torch_model(name, model_cls):
     model = CLIPModel(name)
     assert model.__class__ == model_cls
+
+
+@pytest.mark.parametrize(
+    'name',
+    [
+        'RN50::openai',
+        'ViT-H-14::laion2B-s32B-b79K',
+        'M-CLIP/LABSE-Vit-L-14',
+    ],
+)
+def test_onnx_model(name):
+    CLIPOnnxModel(name)

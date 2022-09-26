@@ -117,6 +117,14 @@ _MODELS = {
         ('ViT-L-14@336px/textual.onnx', '78fab479f136403eed0db46f3e9e7ed2'),
         ('ViT-L-14@336px/visual.onnx', 'f3b1f5d55ca08d43d749e11f7e4ba27e'),
     ),
+    'ViT-H-14::laion2B-s32B-b79K': (
+        ('ViT-H-14-laion2B-s32B-b79K/textual.onnx', '41e73c0c871d0e8e5d5e236f917f1ec3'),
+        ('ViT-H-14-laion2B-s32B-b79K/visual.zip', '38151ea5985d73de94520efef38db4e7'),
+    ),
+    'ViT-g-14::laion2B-s12B-b42K': (
+        ('ViT-g-14-laion2B-s12B-b42K/textual.onnx', 'e597b7ab4414ecd92f715d47e79a033f'),
+        ('ViT-g-14-laion2B-s12B-b42K/visual.zip', '6d0ac4329de9b02474f4752a5d16ba82'),
+    ),
     # older version name format
     'RN50': (
         ('RN50/textual.onnx', '722418bfe47a1f5c79d1f44884bb3103'),
@@ -155,10 +163,40 @@ _MODELS = {
         ('ViT-L-14@336px/visual.onnx', 'f3b1f5d55ca08d43d749e11f7e4ba27e'),
     ),
     # MultilingualCLIP models
-    # 'M-CLIP/LABSE-Vit-L-14': (
-    #     ('M-CLIP-LABSE-Vit-L-14/textual.onnx', 'b5b649f9e064457c764874e982bca296'),
-    #     ('M-CLIP-LABSE-Vit-L-14/visual.onnx', '471951562303c9afbb804b865eedf149'),
-    # ),
+    'M-CLIP/LABSE-Vit-L-14': (
+        ('M-CLIP-LABSE-Vit-L-14/textual.onnx', '03727820116e63c7d19c72bb5d839488'),
+        ('M-CLIP-LABSE-Vit-L-14/visual.onnx', 'a78028eab30084c3913edfb0c8411f15'),
+    ),
+    'M-CLIP/XLM-Roberta-Large-Vit-B-32': (
+        (
+            'M-CLIP-XLM-Roberta-Large-Vit-B-32/textual.zip',
+            '41f51ec9af4754d11c7b7929e2caf5b9',
+        ),
+        (
+            'M-CLIP-XLM-Roberta-Large-Vit-B-32/visual.onnx',
+            '5f18f68ac94e294863bfd1f695c8c5ca',
+        ),
+    ),
+    'M-CLIP/XLM-Roberta-Large-Vit-B-16Plus': (
+        (
+            'M-CLIP-XLM-Roberta-Large-Vit-B-16Plus/textual.zip',
+            '6c3e55f7d2d6c12f2c1f1dd36fdec607',
+        ),
+        (
+            'M-CLIP-XLM-Roberta-Large-Vit-B-16Plus/visual.onnx',
+            '467a3ef3e5f50abcf850c3db9e705f8e',
+        ),
+    ),
+    'M-CLIP/XLM-Roberta-Large-Vit-L-14': (
+        (
+            'M-CLIP-XLM-Roberta-Large-Vit-L-14/textual.zip',
+            '3dff00335dc3093acb726dab975ae57d',
+        ),
+        (
+            'M-CLIP-XLM-Roberta-Large-Vit-L-14/visual.onnx',
+            'a78028eab30084c3913edfb0c8411f15',
+        ),
+    ),
 }
 
 
@@ -226,10 +264,29 @@ class CLIPOnnxModel(BaseCLIPModel):
     ):
         import onnxruntime as ort
 
-        self._visual_session = ort.InferenceSession(self._visual_path, **kwargs)
+        def _load_session_from_zip(model_path: str, model_type: str):
+            """Load a model from a zip file."""
+            import zipfile
+            import tempfile
+
+            with zipfile.ZipFile(
+                model_path, 'r'
+            ) as zip_ref, tempfile.TemporaryDirectory() as tmp_dir:
+                zip_ref.extractall(tmp_dir)
+                return ort.InferenceSession(tmp_dir + f'/{model_type}.onnx', **kwargs)
+
+        if self._visual_path.endswith('.zip'):
+            self._visual_session = _load_session_from_zip(self._visual_path, 'visual')
+        else:
+            self._visual_session = ort.InferenceSession(self._visual_path, **kwargs)
         self._visual_session.disable_fallback()
 
-        self._textual_session = ort.InferenceSession(self._textual_path, **kwargs)
+        if self._textual_path.endswith('.zip'):
+            self._textual_session = _load_session_from_zip(
+                self._textual_path, 'textual'
+            )
+        else:
+            self._textual_session = ort.InferenceSession(self._textual_path, **kwargs)
         self._textual_session.disable_fallback()
 
     def encode_image(self, image_input: Dict):

@@ -2,15 +2,15 @@
 
 import transformers
 import torch
-import open_clip
 
 from clip_server.model.clip_model import CLIPModel
+from clip_server.model.openclip_model import OpenCLIPModel
 
 _CLIP_MODEL_MAPS = {
-    'M-CLIP/XLM-Roberta-Large-Vit-B-32': ('ViT-B-32', 'openai'),
-    'M-CLIP/XLM-Roberta-Large-Vit-L-14': ('ViT-L-14', 'openai'),
-    'M-CLIP/XLM-Roberta-Large-Vit-B-16Plus': ('ViT-B-16-plus-240', 'laion400m_e31'),
-    'M-CLIP/LABSE-Vit-L-14': ('ViT-L-14', 'openai'),
+    'M-CLIP/XLM-Roberta-Large-Vit-B-32': 'ViT-B-32::openai',
+    'M-CLIP/XLM-Roberta-Large-Vit-L-14': 'ViT-L-14::openai',
+    'M-CLIP/XLM-Roberta-Large-Vit-B-16Plus': 'ViT-B-16-plus-240::laion400m_e31',
+    'M-CLIP/LABSE-Vit-L-14': 'ViT-L-14::openai',
 }
 
 
@@ -56,18 +56,11 @@ class MultilingualCLIPModel(CLIPModel):
         self._mclip_model = MultilingualCLIP.from_pretrained(name)
         self._mclip_model.to(device=device)
         self._mclip_model.eval()
+        self._model = OpenCLIPModel(_CLIP_MODEL_MAPS[name], device=device, jit=jit)
 
-        clip_name, clip_pretrained = _CLIP_MODEL_MAPS[name]
-        self._model = open_clip.create_model(
-            clip_name, pretrained=clip_pretrained, device=device, jit=jit
-        )
-        self._model.eval()
-
-        self._clip_name = clip_name
-
-    @property
-    def model_name(self):
-        return self._clip_name
+    @staticmethod
+    def get_model_name(name: str):
+        return _CLIP_MODEL_MAPS[name].split('::')[0]
 
     def encode_text(
         self, input_ids: 'torch.Tensor', attention_mask: 'torch.Tensor', **kwargs
