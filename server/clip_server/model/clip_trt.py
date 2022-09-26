@@ -52,20 +52,19 @@ class CLIPTensorRTModel(BaseCLIPModel):
         self,
         name: str,
     ):
-        super().__init__(name)
-
-        if name in _MODELS:
+        super().__init__(name.lower())
+        if name.lower() in _MODELS:
             cache_dir = os.path.expanduser(
-                f'~/.cache/clip/{name.replace("/", "-").replace("::", "-")}'
+                f'~/.cache/clip/{name.lower().replace("/", "-").replace("::", "-")}'
             )
 
             self._textual_path = os.path.join(
                 cache_dir,
-                f'textual.{ONNX_MODELS[name][0][1]}.trt',
+                f'textual.{ONNX_MODELS[name.lower()][0][1]}.trt',
             )
             self._visual_path = os.path.join(
                 cache_dir,
-                f'visual.{ONNX_MODELS[name][1][1]}.trt',
+                f'visual.{ONNX_MODELS[name.lower()][1][1]}.trt',
             )
 
             if not os.path.exists(self._textual_path) or not os.path.exists(
@@ -75,7 +74,7 @@ class CLIPTensorRTModel(BaseCLIPModel):
 
                 trt_logger: Logger = trt.Logger(trt.Logger.ERROR)
                 runtime: Runtime = trt.Runtime(trt_logger)
-                onnx_model = CLIPOnnxModel(name)
+                onnx_model = CLIPOnnxModel(name.lower())
 
                 visual_engine = build_engine(
                     runtime=runtime,
