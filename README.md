@@ -14,6 +14,8 @@
 <a href="https://slack.jina.ai"><img src="https://img.shields.io/badge/Slack-3.1k-blueviolet?logo=slack&amp;logoColor=white&style=flat-square"></a>
 <a href="https://codecov.io/gh/jina-ai/clip-as-service"><img alt="Codecov branch" src="https://img.shields.io/codecov/c/github/jina-ai/clip-as-service/main?logo=Codecov&logoColor=white&style=flat-square"></a>
 <a href="https://colab.research.google.com/github/jina-ai/clip-as-service/blob/main/docs/hosting/cas-on-colab.ipynb"><img src="https://img.shields.io/badge/Host-on%20Google%20Colab%20(GPU/TPU)-brightgreen?style=flat-square&logo=googlecolab&&logoColor=white" alt="Host on Google Colab with GPU/TPU support"></a>
+<a href="https://kandi.openweaver.com/python/jina-ai/clip-as-service"><img src="https://kandi.openweaver.com/badges/featured.svg"></a>
+ 
 </p>
 
 <!-- start elevator-pitch -->
