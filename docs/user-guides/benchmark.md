@@ -1,14 +1,17 @@
 # CLIP Benchmark
 
+In order to evaluate the performance of different CLIP models, we conducted a benchmark on a series of tasks using different datasets. You can find the benchmark results in the following tables. The best results are highlighted in bold. They can be used as a guide to choose the best model for your application.
+
+
 ## Basic statistics
 
 We include the disk usage (in delta) and the peak RAM and VRAM usage (in delta) when running on a single Nvidia TITAN RTX GPU (24GB VRAM) for a series of text and image encoding tasks with `batch_size=8` using PyTorch runtime.
 
 | Model                                 | Disk Usage (MB) | Peak RAM Usage (GB) | Peak VRAM Usage (GB) |
 |---------------------------------------|-----------------|---------------------|----------------------|
-| RN50::openai                          | 244             | 2.99                | 1.36                 |
-| RN50::yfcc15m                         | 389             | 2.86                | 1.36                 |
-| RN50::cc12m                           | 389             | 2.84                | 1.36                 |
+| RN50::openai                          | **244**         | 2.99                | **1.36**             |
+| RN50::yfcc15m                         | 389             | 2.86                | **1.36**             |
+| RN50::cc12m                           | 389             | **2.84**            | **1.36**             |
 | RN101::openai                         | 278             | 3.05                | 1.40                 |
 | RN101::yfcc15m                        | 457             | 2.88                | 1.40                 |
 | RN50x4::openai                        | 402             | 3.23                | 1.63                 |
