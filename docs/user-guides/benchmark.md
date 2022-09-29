@@ -21,7 +21,7 @@ We include the disk usage (in delta) and the peak RAM and VRAM usage (in delta) 
 | ViT-B-32::laion400m_e31               | 577             | 2.93                | 1.40                 |
 | ViT-B-32::laion400m_e32               | 577             | 2.94                | 1.40                 |
 | ViT-B-32::laion2b_e16                 | 577             | 2.93                | 1.40                 |
-| ViT-B-32::laion2b-s34B-b79k           | 577             | 2.94                | 1.40                 |
+| ViT-B-32::laion2b-s34b-b79k           | 577             | 2.94                | 1.40                 |
 | ViT-B-16::openai                      | 335             | 3.20                | 1.44                 |
 | ViT-B-16::laion400m_e31               | 571             | 2.93                | 1.44                 |
 | ViT-B-16::laion400m_e32               | 571             | 2.94                | 1.44                 |
@@ -32,8 +32,8 @@ We include the disk usage (in delta) and the peak RAM and VRAM usage (in delta) 
 | ViT-L-14::laion400m_e32               | 1631            | 3.42                | 2.03                 |
 | ViT-L-14::laion2b-s32b-b82k           | 1631            | 3.43                | 2.03                 |
 | ViT-L-14-336::openai                  | 891             | 3.74                | 2.23                 |
-| ViT-H-14::laion2b-s32B-b79k           | 3762            | 4.45                | 3.26                 |
-| ViT-g-14::laion2b-s12B-b42k           | 5214            | 5.16                | 4.00                 |
+| ViT-H-14::laion2b-s32b-b79k           | 3762            | 4.45                | 3.26                 |
+| ViT-g-14::laion2b-s12b-b42k           | 5214            | 5.16                | 4.00                 |
 | M-CLIP/LABSE-Vit-L-14                 | 3609            | 4.30                | 4.70                 |
 | M-CLIP/XLM-Roberta-Large-Vit-B-32     | 4284            | 5.37                | 1.68                 |
 | M-CLIP/XLM-Roberta-Large-Vit-B-16Plus | 4293            | 4.30                | 4.13                 |
