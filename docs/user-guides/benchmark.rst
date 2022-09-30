@@ -9,7 +9,7 @@ They can be used as a guide to choose the best model for your application.
 Basic statistics
 ----------------
 
-In the table belowe, we include the disk usage (in delta) and the peak RAM and VRAM usage (in delta) when running on a single Nvidia TITAN RTX GPU (24GB VRAM) for a series of text and image encoding tasks with :code:`batch_size=8` using PyTorch runtime.
+In the table below, we include the disk usage (in delta) and the peak RAM and VRAM usage (in delta) when running on a single Nvidia TITAN RTX GPU (24GB VRAM) for a series of text and image encoding tasks with :code:`batch_size=8` using PyTorch runtime.
 
 +----------------------------------------+------------------+----------------------+-----------------------+
 | Model                                  | Disk Usage (MB)  | Peak RAM Usage (GB)  | Peak VRAM Usage (GB)  |
@@ -73,8 +73,12 @@ In the table belowe, we include the disk usage (in delta) and the peak RAM and V
 | M-CLIP/XLM-Roberta-Large-Vit-L-14      | 4293             | 4.30                 | 4.97                  |
 +----------------------------------------+------------------+----------------------+-----------------------+
 
+
+CLIP benchmark
+--------------
+
 Zero-shot retrieval
--------------------
++++++++++++++++++++
 
 In zero-shot retrieval benchmark, each model is evaluated on the following datasets: `COCO Caption <https://github.com/tylin/coco-caption>`_, `Flickr8k <http://hockenmaier.cs.illinois.edu/8k-pictures.html>`_ and `Flickr30k <https://shannon.cs.illinois.edu/DenotationGraph/>`_.
 For the above datasets, there are five corresponding description sentences for each image written by humans.
@@ -140,7 +144,7 @@ The top-5 image-to-text retrieval recall for each image is the number of top-5 r
 +----------------------------------+---------------+---------------+-----------+---------------+---------------+-----------+---------------+---------------+-----------+
 
 Zero-shot classification
-------------------------
+++++++++++++++++++++++++
 
 In zero-shot classification benchmark, each model is evaluated on the following datasets: `ImageNetV2 <https://github.com/modestyachts/ImageNetV2>`_, `VOC2007 <http://host.robots.ox.ac.uk/pascal/VOC/voc2007/>`_ and 19 `VTAB datasets <https://github.com/google-research/task_adaptation>`_. 
 The results are shown in the following table. 
