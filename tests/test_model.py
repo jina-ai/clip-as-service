@@ -22,7 +22,7 @@ def test_torch_model(name, model_cls):
     'name',
     [
         'RN50::openai',
-        'ViT-H-14::laion2B-s32B-b79K',
+        'ViT-H-14::laion2b-s32b-b79k',
         'M-CLIP/LABSE-Vit-L-14',
     ],
 )

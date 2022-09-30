@@ -61,9 +61,9 @@ _MODELS = {
         ('ViT-B-32-laion400m_e32/textual.onnx', '93284915937ba42a2b52ae8d3e5283a0'),
         ('ViT-B-32-laion400m_e32/visual.onnx', 'db220821a31fe9795fd8c2ba419078c5'),
     ),
-    'ViT-B-32::laion2B-s34B-b79K': (
-        ('ViT-B-32-laion2B-s34B-b79K/textual.onnx', '84af5ae53da56464c76e67fe50fddbe9'),
-        ('ViT-B-32-laion2B-s34B-b79K/visual.onnx', 'a2d4cbd1cf2632cd09ffce9b40bfd8bd'),
+    'ViT-B-32::laion2b-s34b-b79k': (
+        ('ViT-B-32-laion2b-s34b-b79k/textual.onnx', '84af5ae53da56464c76e67fe50fddbe9'),
+        ('ViT-B-32-laion2b-s34b-b79k/visual.onnx', 'a2d4cbd1cf2632cd09ffce9b40bfd8bd'),
     ),
     'ViT-B-16::openai': (
         ('ViT-B-16/textual.onnx', '6f0976629a446f95c0c8767658f12ebe'),
@@ -109,21 +109,21 @@ _MODELS = {
         ('ViT-L-14-laion400m_e32/textual.onnx', '8ba5b76ba71992923470c0261b10a67c'),
         ('ViT-L-14-laion400m_e32/visual.onnx', '49db3ba92bd816001e932530ad92d76c'),
     ),
-    'ViT-L-14::laion2B-s32B-b82K': (
-        ('ViT-L-14-laion2B-s32B-b82K/textual.onnx', 'da36a6cbed4f56abf576fdea8b6fe2ee'),
-        ('ViT-L-14-laion2B-s32B-b82K/visual.onnx', '1e337a190abba6a8650237dfae4740b7'),
+    'ViT-L-14::laion2b-s32b-b82k': (
+        ('ViT-L-14-laion2b-s32b-b82k/textual.onnx', 'da36a6cbed4f56abf576fdea8b6fe2ee'),
+        ('ViT-L-14-laion2b-s32b-b82k/visual.onnx', '1e337a190abba6a8650237dfae4740b7'),
     ),
     'ViT-L-14-336::openai': (
         ('ViT-L-14@336px/textual.onnx', '78fab479f136403eed0db46f3e9e7ed2'),
         ('ViT-L-14@336px/visual.onnx', 'f3b1f5d55ca08d43d749e11f7e4ba27e'),
     ),
-    'ViT-H-14::laion2B-s32B-b79K': (
-        ('ViT-H-14-laion2B-s32B-b79K/textual.onnx', '41e73c0c871d0e8e5d5e236f917f1ec3'),
-        ('ViT-H-14-laion2B-s32B-b79K/visual.zip', '38151ea5985d73de94520efef38db4e7'),
+    'ViT-H-14::laion2b-s32b-b79k': (
+        ('ViT-H-14-laion2b-s32b-b79k/textual.onnx', '41e73c0c871d0e8e5d5e236f917f1ec3'),
+        ('ViT-H-14-laion2b-s32b-b79k/visual.zip', '38151ea5985d73de94520efef38db4e7'),
     ),
-    'ViT-g-14::laion2B-s12B-b42K': (
-        ('ViT-g-14-laion2B-s12B-b42K/textual.onnx', 'e597b7ab4414ecd92f715d47e79a033f'),
-        ('ViT-g-14-laion2B-s12B-b42K/visual.zip', '6d0ac4329de9b02474f4752a5d16ba82'),
+    'ViT-g-14::laion2b-s12b-b42k': (
+        ('ViT-g-14-laion2b-s12b-b42k/textual.onnx', 'e597b7ab4414ecd92f715d47e79a033f'),
+        ('ViT-g-14-laion2b-s12b-b42k/visual.zip', '6d0ac4329de9b02474f4752a5d16ba82'),
     ),
     # older version name format
     'RN50': (
