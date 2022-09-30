@@ -71,37 +71,642 @@ We include the disk usage (in delta) and the peak RAM and VRAM usage (in delta) 
 | ViT-L-14::openai                 | 0.610        | 0.793 | 0.599     | 0.767 | 0.494      | 0.717 |
 | ViT-L-14-336::openai             | 0.616        | 0.812 | 0.629     | 0.779 | 0.533      | 0.741 |
 
-````{dropdown} Zero-shot retrieval: MS COCO Captions
 
-| model_fullname                   | image_retrieval_recall@5 | text_retrieval_recall@5 |
-|----------------------------------|--------------------------|-------------------------|
-| RN50::openai                     | 0.5291883349             | 0.7282000184            |
-| RN50::yfcc15m                    | 0.3610555828             | 0.5338000059            |
-| RN50::cc12m                      | 0.4464214444             | 0.6065999866            |
-| RN101::openai                    | 0.5550180078             | 0.7447999716            |
-| RN101::yfcc15m                   | 0.3760095835             | 0.5490000248            |
-| RN50x4::openai                   | 0.5814074278             | 0.7670000196            |
-| RN50x16::openai                  | 0.6001599431             | 0.7868000269            |
-| RN50x64::openai                  | 0.5992003083             | 0.8033999801            |
-| ViT-B-32::openai                 | 0.5596161485             | 0.7491999865            |
-| ViT-B-32::laion400m_e31          | 0.600039959              | 0.7630000114            |
-| ViT-B-32::laion400m_e32          | 0.6000000238             | 0.7645999789            |
-| ViT-B-32::laion2b_e16            | 0.6468212605             | 0.7950000167            |
-| ViT-B-32::laion2b_s34b_b79k      | 0.6540184021             | 0.7983999848            |
-| ViT-B-16::openai                 | 0.5842063427             | 0.7671999931            |
-| ViT-B-16::laion400m_e31          | 0.6368252635             | 0.7961999774            |
-| ViT-B-16::laion400m_e32          | 0.6363854408             | 0.7964000106            |
-| ViT-B-16-plus-240::laion400m_e31 | 0.6604158282             | 0.8090000153            |
-| ViT-B-16-plus-240::laion400m_e32 | 0.6618952155             | 0.8108000159            |
-| ViT-L-14::openai                 | 0.610355854              | 0.793200016             |
-| ViT-L-14::laion400m_e31          | 0.679688096              | 0.82099998              |
-| ViT-L-14::laion400m_e32          | 0.6801279783             | 0.8212000132            |
-| ViT-L-14::laion2b_s32b_b82k      | 0.7109556198             | 0.8399999738            |
-| ViT-L-14-336::openai             | 0.6162734628             | 0.8123999834            |
-| ViT-H-14::laion2b_s32b_b79k      | 0.7339064479             | 0.8605999947            |
-| ViT-g-14::laion2b_s12b_b42k      | 0.7235905528             | 0.853399992             |
-
-````
+<table class="tg">
+<thead>
+  <tr>
+    <th class="tg-0pky" rowspan="2">model_fullname</th>
+    <th class="tg-0pky" rowspan="2">imagenetv2</th>
+    <th class="tg-0pky" rowspan="2">voc2007</th>
+    <th class="tg-0pky" colspan="7">Class 1</th>
+    <th class="tg-0pky" colspan="4">Class 2</th>
+    <th class="tg-0pky" colspan="8">Class 3</th>
+  </tr>
+  <tr>
+    <th class="tg-0pky">vtab/caltech101</th>
+    <th class="tg-0pky">vtab/cifar10</th>
+    <th class="tg-0pky">vtab/cifar100</th>
+    <th class="tg-0pky">vtab/dtd</th>
+    <th class="tg-0pky">vtab/flowers</th>
+    <th class="tg-0pky">vtab/pets</th>
+    <th class="tg-0pky">vtab/svhn</th>
+    <th class="tg-0pky">vtab/eurosat</th>
+    <th class="tg-0pky">vtab/resisc45</th>
+    <th class="tg-0pky">vtab/pcam</th>
+    <th class="tg-0pky">vtab/diabetic_retinopathy</th>
+    <th class="tg-0pky">vtab/clevr_count_all</th>
+    <th class="tg-0pky">vtab/clevr_closest_object_distance</th>
+    <th class="tg-0pky">vtab/dsprites_label_x_position</th>
+    <th class="tg-0pky">vtab/dsprites_label_orientation</th>
+    <th class="tg-0pky">vtab/smallnorb_label_azimuth</th>
+    <th class="tg-0pky">vtab/smallnorb_label_elevation</th>
+    <th class="tg-0pky">vtab/dmlab</th>
+    <th class="tg-0pky">vtab/kitti_closest_vehicle_distance</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td class="tg-0pky">RN101 openai</td>
+    <td class="tg-0pky">0.561</td>
+    <td class="tg-0pky">0.651</td>
+    <td class="tg-0pky">0.780</td>
+    <td class="tg-0pky">0.807</td>
+    <td class="tg-0pky">0.476</td>
+    <td class="tg-0pky">0.432</td>
+    <td class="tg-0pky">0.652</td>
+    <td class="tg-0pky">0.869</td>
+    <td class="tg-0pky">0.226</td>
+    <td class="tg-0pky">0.314</td>
+    <td class="tg-0pky">0.547</td>
+    <td class="tg-0pky">0.583</td>
+    <td class="tg-0pky">0.280</td>
+    <td class="tg-za14">0.242</td>
+    <td class="tg-0pky">0.130</td>
+    <td class="tg-0pky">0.031</td>
+    <td class="tg-0pky">0.021</td>
+    <td class="tg-0pky">0.054</td>
+    <td class="tg-0pky">0.111</td>
+    <td class="tg-0pky">0.139</td>
+    <td class="tg-0pky">0.263</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky">RN101 yfcc15m</td>
+    <td class="tg-0pky">0.221</td>
+    <td class="tg-0pky">0.243</td>
+    <td class="tg-0pky">0.469</td>
+    <td class="tg-0pky">0.299</td>
+    <td class="tg-0pky">0.125</td>
+    <td class="tg-0pky">0.117</td>
+    <td class="tg-0pky">0.210</td>
+    <td class="tg-0pky">0.177</td>
+    <td class="tg-0pky">0.137</td>
+    <td class="tg-0pky">0.151</td>
+    <td class="tg-0pky">0.099</td>
+    <td class="tg-0pky">0.479</td>
+    <td class="tg-0pky">0.584</td>
+    <td class="tg-za14">0.109</td>
+    <td class="tg-0pky">0.159</td>
+    <td class="tg-0pky">0.031</td>
+    <td class="tg-0pky">0.019</td>
+    <td class="tg-0pky">0.055</td>
+    <td class="tg-0pky">0.097</td>
+    <td class="tg-0pky">0.153</td>
+    <td class="tg-0pky">0.252</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky">RN50 cc12m</td>
+    <td class="tg-0pky">0.224</td>
+    <td class="tg-0pky">0.438</td>
+    <td class="tg-0pky">0.582</td>
+    <td class="tg-0pky">0.395</td>
+    <td class="tg-0pky">0.178</td>
+    <td class="tg-0pky">0.135</td>
+    <td class="tg-0pky">0.095</td>
+    <td class="tg-0pky">0.331</td>
+    <td class="tg-0pky">0.102</td>
+    <td class="tg-0pky">0.148</td>
+    <td class="tg-0pky">0.117</td>
+    <td class="tg-0pky">0.535</td>
+    <td class="tg-0pky">0.293</td>
+    <td class="tg-za14">0.184</td>
+    <td class="tg-0pky">0.222</td>
+    <td class="tg-0pky">0.031</td>
+    <td class="tg-0pky">0.025</td>
+    <td class="tg-0pky">0.047</td>
+    <td class="tg-0pky">0.096</td>
+    <td class="tg-0pky">0.161</td>
+    <td class="tg-0pky">0.155</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky">RN50 openai</td>
+    <td class="tg-0pky">0.529</td>
+    <td class="tg-0pky">0.650</td>
+    <td class="tg-0pky">0.772</td>
+    <td class="tg-0pky">0.715</td>
+    <td class="tg-0pky">0.403</td>
+    <td class="tg-0pky">0.415</td>
+    <td class="tg-0pky">0.660</td>
+    <td class="tg-0pky">0.857</td>
+    <td class="tg-0pky">0.303</td>
+    <td class="tg-0pky">0.408</td>
+    <td class="tg-0pky">0.453</td>
+    <td class="tg-0pky">0.636</td>
+    <td class="tg-0pky">0.171</td>
+    <td class="tg-za14">0.217</td>
+    <td class="tg-0pky">0.148</td>
+    <td class="tg-0pky">0.034</td>
+    <td class="tg-0pky">0.014</td>
+    <td class="tg-0pky">0.056</td>
+    <td class="tg-0pky">0.110</td>
+    <td class="tg-0pky">0.145</td>
+    <td class="tg-0pky">0.170</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky">RN50 yfcc15m</td>
+    <td class="tg-0pky">0.214</td>
+    <td class="tg-0pky">0.215</td>
+    <td class="tg-0pky">0.402</td>
+    <td class="tg-0pky">0.291</td>
+    <td class="tg-0pky">0.116</td>
+    <td class="tg-0pky">0.122</td>
+    <td class="tg-0pky">0.167</td>
+    <td class="tg-0pky">0.174</td>
+    <td class="tg-0pky">0.157</td>
+    <td class="tg-0pky">0.172</td>
+    <td class="tg-0pky">0.123</td>
+    <td class="tg-0pky">0.533</td>
+    <td class="tg-0pky">0.358</td>
+    <td class="tg-za14">0.151</td>
+    <td class="tg-0pky">0.158</td>
+    <td class="tg-0pky">0.032</td>
+    <td class="tg-0pky">0.024</td>
+    <td class="tg-0pky">0.053</td>
+    <td class="tg-0pky">0.120</td>
+    <td class="tg-0pky">0.160</td>
+    <td class="tg-0pky">0.336</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky">RN50x16 openai</td>
+    <td class="tg-0pky">0.643</td>
+    <td class="tg-0pky">0.680</td>
+    <td class="tg-0pky">0.810</td>
+    <td class="tg-0pky">0.813</td>
+    <td class="tg-0pky">0.522</td>
+    <td class="tg-0pky">0.524</td>
+    <td class="tg-0pky">0.724</td>
+    <td class="tg-0pky">0.898</td>
+    <td class="tg-0pky">0.409</td>
+    <td class="tg-0pky">0.433</td>
+    <td class="tg-0pky">0.589</td>
+    <td class="tg-0pky">0.625</td>
+    <td class="tg-0pky">0.715</td>
+    <td class="tg-za14">0.195</td>
+    <td class="tg-0pky">0.213</td>
+    <td class="tg-0pky">0.030</td>
+    <td class="tg-0pky">0.026</td>
+    <td class="tg-0pky">0.050</td>
+    <td class="tg-0pky">0.116</td>
+    <td class="tg-0pky">0.146</td>
+    <td class="tg-0pky">0.229</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky">RN50x4 openai</td>
+    <td class="tg-0pky">0.594</td>
+    <td class="tg-0pky">0.682</td>
+    <td class="tg-0pky">0.781</td>
+    <td class="tg-0pky">0.794</td>
+    <td class="tg-0pky">0.451</td>
+    <td class="tg-0pky">0.486</td>
+    <td class="tg-0pky">0.698</td>
+    <td class="tg-0pky">0.887</td>
+    <td class="tg-0pky">0.367</td>
+    <td class="tg-0pky">0.335</td>
+    <td class="tg-0pky">0.532</td>
+    <td class="tg-0pky">0.569</td>
+    <td class="tg-0pky">0.318</td>
+    <td class="tg-za14">0.205</td>
+    <td class="tg-0pky">0.082</td>
+    <td class="tg-0pky">0.031</td>
+    <td class="tg-0pky">0.026</td>
+    <td class="tg-0pky">0.056</td>
+    <td class="tg-0pky">0.108</td>
+    <td class="tg-0pky">0.162</td>
+    <td class="tg-0pky">0.233</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky">RN50x64 openai</td>
+    <td class="tg-0pky">0.670</td>
+    <td class="tg-0pky">0.740</td>
+    <td class="tg-0pky">0.834</td>
+    <td class="tg-0pky">0.851</td>
+    <td class="tg-0pky">0.598</td>
+    <td class="tg-0pky">0.531</td>
+    <td class="tg-0pky">0.788</td>
+    <td class="tg-0pky">0.936</td>
+    <td class="tg-0pky">0.481</td>
+    <td class="tg-0pky">0.577</td>
+    <td class="tg-0pky">0.628</td>
+    <td class="tg-0pky">0.539</td>
+    <td class="tg-0pky">0.073</td>
+    <td class="tg-za14">0.227</td>
+    <td class="tg-0pky">0.200</td>
+    <td class="tg-0pky">0.034</td>
+    <td class="tg-0pky">0.025</td>
+    <td class="tg-0pky">0.056</td>
+    <td class="tg-0pky">0.125</td>
+    <td class="tg-0pky">0.158</td>
+    <td class="tg-0pky">0.311</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky">ViT-B-16 laion400m_e31</td>
+    <td class="tg-0pky">0.594</td>
+    <td class="tg-0pky">0.767</td>
+    <td class="tg-0pky">0.838</td>
+    <td class="tg-0pky">0.917</td>
+    <td class="tg-0pky">0.712</td>
+    <td class="tg-0pky">0.513</td>
+    <td class="tg-0pky">0.694</td>
+    <td class="tg-0pky">0.892</td>
+    <td class="tg-0pky">0.380</td>
+    <td class="tg-0pky">0.503</td>
+    <td class="tg-0pky">0.585</td>
+    <td class="tg-0pky">0.593</td>
+    <td class="tg-0pky">0.062</td>
+    <td class="tg-za14">0.289</td>
+    <td class="tg-0pky">0.245</td>
+    <td class="tg-0pky">0.031</td>
+    <td class="tg-0pky">0.030</td>
+    <td class="tg-0pky">0.059</td>
+    <td class="tg-0pky">0.100</td>
+    <td class="tg-0pky">0.152</td>
+    <td class="tg-0pky">0.200</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky">ViT-B-16 laion400m_e32</td>
+    <td class="tg-0pky">0.597</td>
+    <td class="tg-0pky">0.768</td>
+    <td class="tg-0pky">0.837</td>
+    <td class="tg-0pky">0.917</td>
+    <td class="tg-0pky">0.712</td>
+    <td class="tg-0pky">0.513</td>
+    <td class="tg-0pky">0.692</td>
+    <td class="tg-0pky">0.892</td>
+    <td class="tg-0pky">0.385</td>
+    <td class="tg-0pky">0.501</td>
+    <td class="tg-0pky">0.585</td>
+    <td class="tg-0pky">0.598</td>
+    <td class="tg-0pky">0.077</td>
+    <td class="tg-za14">0.287</td>
+    <td class="tg-0pky">0.245</td>
+    <td class="tg-0pky">0.032</td>
+    <td class="tg-0pky">0.029</td>
+    <td class="tg-0pky">0.060</td>
+    <td class="tg-0pky">0.099</td>
+    <td class="tg-0pky">0.151</td>
+    <td class="tg-0pky">0.183</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky">ViT-B-16 openai</td>
+    <td class="tg-0pky">0.619</td>
+    <td class="tg-0pky">0.783</td>
+    <td class="tg-0pky">0.819</td>
+    <td class="tg-0pky">0.908</td>
+    <td class="tg-0pky">0.669</td>
+    <td class="tg-0pky">0.449</td>
+    <td class="tg-0pky">0.712</td>
+    <td class="tg-0pky">0.890</td>
+    <td class="tg-0pky">0.313</td>
+    <td class="tg-0pky">0.559</td>
+    <td class="tg-0pky">0.582</td>
+    <td class="tg-0pky">0.507</td>
+    <td class="tg-0pky">0.036</td>
+    <td class="tg-za14">0.209</td>
+    <td class="tg-0pky">0.158</td>
+    <td class="tg-0pky">0.030</td>
+    <td class="tg-0pky">0.023</td>
+    <td class="tg-0pky">0.053</td>
+    <td class="tg-0pky">0.122</td>
+    <td class="tg-0pky">0.155</td>
+    <td class="tg-0pky">0.263</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky">ViT-B-16-plus-240 laion400m_e31</td>
+    <td class="tg-0pky">0.614</td>
+    <td class="tg-0pky">0.764</td>
+    <td class="tg-0pky">0.832</td>
+    <td class="tg-0pky">0.925</td>
+    <td class="tg-0pky">0.733</td>
+    <td class="tg-0pky">0.555</td>
+    <td class="tg-0pky">0.706</td>
+    <td class="tg-0pky">0.904</td>
+    <td class="tg-0pky">0.355</td>
+    <td class="tg-0pky">0.569</td>
+    <td class="tg-0pky">0.615</td>
+    <td class="tg-0pky">0.551</td>
+    <td class="tg-0pky">0.093</td>
+    <td class="tg-za14">0.240</td>
+    <td class="tg-0pky">0.159</td>
+    <td class="tg-0pky">0.041</td>
+    <td class="tg-0pky">0.026</td>
+    <td class="tg-0pky">0.056</td>
+    <td class="tg-0pky">0.111</td>
+    <td class="tg-0pky">0.149</td>
+    <td class="tg-0pky">0.280</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky">ViT-B-16-plus-240 laion400m_e32</td>
+    <td class="tg-0pky">0.615</td>
+    <td class="tg-0pky">0.764</td>
+    <td class="tg-0pky">0.833</td>
+    <td class="tg-0pky">0.928</td>
+    <td class="tg-0pky">0.738</td>
+    <td class="tg-0pky">0.555</td>
+    <td class="tg-0pky">0.711</td>
+    <td class="tg-0pky">0.902</td>
+    <td class="tg-0pky">0.362</td>
+    <td class="tg-0pky">0.581</td>
+    <td class="tg-0pky">0.613</td>
+    <td class="tg-0pky">0.551</td>
+    <td class="tg-0pky">0.095</td>
+    <td class="tg-za14">0.238</td>
+    <td class="tg-0pky">0.160</td>
+    <td class="tg-0pky">0.043</td>
+    <td class="tg-0pky">0.027</td>
+    <td class="tg-0pky">0.054</td>
+    <td class="tg-0pky">0.110</td>
+    <td class="tg-0pky">0.148</td>
+    <td class="tg-0pky">0.281</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky">ViT-B-32 laion2b_e16</td>
+    <td class="tg-0pky">0.573</td>
+    <td class="tg-0pky">0.788</td>
+    <td class="tg-0pky">0.831</td>
+    <td class="tg-0pky">0.941</td>
+    <td class="tg-0pky">0.754</td>
+    <td class="tg-0pky">0.539</td>
+    <td class="tg-0pky">0.691</td>
+    <td class="tg-0pky">0.893</td>
+    <td class="tg-0pky">0.388</td>
+    <td class="tg-0pky">0.503</td>
+    <td class="tg-0pky">0.619</td>
+    <td class="tg-0pky">0.506</td>
+    <td class="tg-0pky">0.195</td>
+    <td class="tg-za14">0.192</td>
+    <td class="tg-0pky">0.167</td>
+    <td class="tg-0pky">0.031</td>
+    <td class="tg-0pky">0.024</td>
+    <td class="tg-0pky">0.052</td>
+    <td class="tg-0pky">0.110</td>
+    <td class="tg-0pky">0.189</td>
+    <td class="tg-0pky">0.176</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky">ViT-B-32 laion2b_s34b_b79k</td>
+    <td class="tg-0pky">0.581</td>
+    <td class="tg-0pky">0.791</td>
+    <td class="tg-0pky">0.839</td>
+    <td class="tg-0pky">0.936</td>
+    <td class="tg-0pky">0.755</td>
+    <td class="tg-0pky">0.557</td>
+    <td class="tg-0pky">0.716</td>
+    <td class="tg-0pky">0.909</td>
+    <td class="tg-0pky">0.410</td>
+    <td class="tg-0pky">0.482</td>
+    <td class="tg-0pky">0.610</td>
+    <td class="tg-0pky">0.598</td>
+    <td class="tg-0pky">0.734</td>
+    <td class="tg-za14">0.153</td>
+    <td class="tg-0pky">0.189</td>
+    <td class="tg-0pky">0.029</td>
+    <td class="tg-0pky">0.034</td>
+    <td class="tg-0pky">0.062</td>
+    <td class="tg-0pky">0.113</td>
+    <td class="tg-0pky">0.159</td>
+    <td class="tg-0pky">0.262</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky">ViT-B-32 laion400m_e31</td>
+    <td class="tg-0pky">0.523</td>
+    <td class="tg-0pky">0.731</td>
+    <td class="tg-0pky">0.818</td>
+    <td class="tg-0pky">0.883</td>
+    <td class="tg-0pky">0.678</td>
+    <td class="tg-0pky">0.521</td>
+    <td class="tg-0pky">0.659</td>
+    <td class="tg-0pky">0.856</td>
+    <td class="tg-0pky">0.220</td>
+    <td class="tg-0pky">0.470</td>
+    <td class="tg-0pky">0.510</td>
+    <td class="tg-0pky">0.549</td>
+    <td class="tg-0pky">0.259</td>
+    <td class="tg-za14">0.155</td>
+    <td class="tg-0pky">0.161</td>
+    <td class="tg-0pky">0.033</td>
+    <td class="tg-0pky">0.021</td>
+    <td class="tg-0pky">0.053</td>
+    <td class="tg-0pky">0.117</td>
+    <td class="tg-0pky">0.173</td>
+    <td class="tg-0pky">0.122</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky">ViT-B-32 laion400m_e32</td>
+    <td class="tg-0pky">0.523</td>
+    <td class="tg-0pky">0.733</td>
+    <td class="tg-0pky">0.817</td>
+    <td class="tg-0pky">0.885</td>
+    <td class="tg-0pky">0.677</td>
+    <td class="tg-0pky">0.523</td>
+    <td class="tg-0pky">0.658</td>
+    <td class="tg-0pky">0.854</td>
+    <td class="tg-0pky">0.223</td>
+    <td class="tg-0pky">0.476</td>
+    <td class="tg-0pky">0.510</td>
+    <td class="tg-0pky">0.548</td>
+    <td class="tg-0pky">0.240</td>
+    <td class="tg-za14">0.153</td>
+    <td class="tg-0pky">0.161</td>
+    <td class="tg-0pky">0.033</td>
+    <td class="tg-0pky">0.021</td>
+    <td class="tg-0pky">0.054</td>
+    <td class="tg-0pky">0.117</td>
+    <td class="tg-0pky">0.173</td>
+    <td class="tg-0pky">0.118</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky">ViT-B-32 openai</td>
+    <td class="tg-0pky">0.559</td>
+    <td class="tg-0pky">0.764</td>
+    <td class="tg-0pky">0.815</td>
+    <td class="tg-0pky">0.898</td>
+    <td class="tg-0pky">0.643</td>
+    <td class="tg-0pky">0.443</td>
+    <td class="tg-0pky">0.664</td>
+    <td class="tg-0pky">0.873</td>
+    <td class="tg-0pky">0.135</td>
+    <td class="tg-0pky">0.504</td>
+    <td class="tg-0pky">0.537</td>
+    <td class="tg-0pky">0.623</td>
+    <td class="tg-0pky">0.447</td>
+    <td class="tg-za14">0.232</td>
+    <td class="tg-0pky">0.164</td>
+    <td class="tg-0pky">0.037</td>
+    <td class="tg-0pky">0.024</td>
+    <td class="tg-0pky">0.061</td>
+    <td class="tg-0pky">0.127</td>
+    <td class="tg-0pky">0.193</td>
+    <td class="tg-0pky">0.274</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky">ViT-g-14 laion2b_s12b_b42k</td>
+    <td class="tg-0pky">0.696</td>
+    <td class="tg-0pky">0.811</td>
+    <td class="tg-0pky">0.851</td>
+    <td class="tg-0pky">0.971</td>
+    <td class="tg-0pky">0.839</td>
+    <td class="tg-0pky">0.682</td>
+    <td class="tg-0pky">0.776</td>
+    <td class="tg-0pky">0.943</td>
+    <td class="tg-0pky">0.603</td>
+    <td class="tg-0pky">0.648</td>
+    <td class="tg-0pky">0.718</td>
+    <td class="tg-0pky">0.560</td>
+    <td class="tg-0pky">0.580</td>
+    <td class="tg-za14">0.332</td>
+    <td class="tg-0pky">0.175</td>
+    <td class="tg-0pky">0.036</td>
+    <td class="tg-0pky">0.031</td>
+    <td class="tg-0pky">0.060</td>
+    <td class="tg-0pky">0.115</td>
+    <td class="tg-0pky">0.190</td>
+    <td class="tg-0pky">0.138</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky">ViT-H-14 laion2b_s32b_b79k</td>
+    <td class="tg-0pky">0.709</td>
+    <td class="tg-0pky">0.777</td>
+    <td class="tg-0pky">0.850</td>
+    <td class="tg-0pky">0.975</td>
+    <td class="tg-0pky">0.847</td>
+    <td class="tg-0pky">0.678</td>
+    <td class="tg-0pky">0.801</td>
+    <td class="tg-0pky">0.945</td>
+    <td class="tg-0pky">0.563</td>
+    <td class="tg-0pky">0.726</td>
+    <td class="tg-0pky">0.699</td>
+    <td class="tg-0pky">0.542</td>
+    <td class="tg-0pky">0.297</td>
+    <td class="tg-za14">0.268</td>
+    <td class="tg-0pky">0.169</td>
+    <td class="tg-0pky">0.032</td>
+    <td class="tg-0pky">0.027</td>
+    <td class="tg-0pky">0.054</td>
+    <td class="tg-0pky">0.111</td>
+    <td class="tg-0pky">0.140</td>
+    <td class="tg-0pky">0.110</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky">ViT-L-14 laion2b_s32b_b82k</td>
+    <td class="tg-0pky">0.677</td>
+    <td class="tg-0pky">0.805</td>
+    <td class="tg-0pky">0.851</td>
+    <td class="tg-0pky">0.966</td>
+    <td class="tg-0pky">0.833</td>
+    <td class="tg-0pky">0.629</td>
+    <td class="tg-0pky">0.758</td>
+    <td class="tg-0pky">0.932</td>
+    <td class="tg-0pky">0.459</td>
+    <td class="tg-0pky">0.646</td>
+    <td class="tg-0pky">0.668</td>
+    <td class="tg-0pky">0.563</td>
+    <td class="tg-0pky">0.116</td>
+    <td class="tg-za14">0.312</td>
+    <td class="tg-0pky">0.161</td>
+    <td class="tg-0pky">0.032</td>
+    <td class="tg-0pky">0.020</td>
+    <td class="tg-0pky">0.056</td>
+    <td class="tg-0pky">0.108</td>
+    <td class="tg-0pky">0.224</td>
+    <td class="tg-0pky">0.229</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky">ViT-L-14 laion400m_e31</td>
+    <td class="tg-0pky">0.654</td>
+    <td class="tg-0pky">0.758</td>
+    <td class="tg-0pky">0.839</td>
+    <td class="tg-0pky">0.947</td>
+    <td class="tg-0pky">0.774</td>
+    <td class="tg-0pky">0.598</td>
+    <td class="tg-0pky">0.757</td>
+    <td class="tg-0pky">0.917</td>
+    <td class="tg-0pky">0.378</td>
+    <td class="tg-0pky">0.632</td>
+    <td class="tg-0pky">0.671</td>
+    <td class="tg-0pky">0.487</td>
+    <td class="tg-0pky">0.058</td>
+    <td class="tg-za14">0.242</td>
+    <td class="tg-0pky">0.149</td>
+    <td class="tg-0pky">0.030</td>
+    <td class="tg-0pky">0.026</td>
+    <td class="tg-0pky">0.053</td>
+    <td class="tg-0pky">0.109</td>
+    <td class="tg-0pky">0.186</td>
+    <td class="tg-0pky">0.200</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky">ViT-L-14 laion400m_e32</td>
+    <td class="tg-0pky">0.654</td>
+    <td class="tg-0pky">0.756</td>
+    <td class="tg-0pky">0.839</td>
+    <td class="tg-0pky">0.946</td>
+    <td class="tg-0pky">0.774</td>
+    <td class="tg-0pky">0.605</td>
+    <td class="tg-0pky">0.756</td>
+    <td class="tg-0pky">0.919</td>
+    <td class="tg-0pky">0.380</td>
+    <td class="tg-0pky">0.622</td>
+    <td class="tg-0pky">0.675</td>
+    <td class="tg-0pky">0.493</td>
+    <td class="tg-0pky">0.061</td>
+    <td class="tg-za14">0.243</td>
+    <td class="tg-0pky">0.149</td>
+    <td class="tg-0pky">0.030</td>
+    <td class="tg-0pky">0.026</td>
+    <td class="tg-0pky">0.053</td>
+    <td class="tg-0pky">0.110</td>
+    <td class="tg-0pky">0.186</td>
+    <td class="tg-0pky">0.203</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky">ViT-L-14 openai</td>
+    <td class="tg-0pky">0.698</td>
+    <td class="tg-0pky">0.783</td>
+    <td class="tg-0pky">0.835</td>
+    <td class="tg-0pky">0.956</td>
+    <td class="tg-0pky">0.758</td>
+    <td class="tg-0pky">0.554</td>
+    <td class="tg-0pky">0.792</td>
+    <td class="tg-0pky">0.932</td>
+    <td class="tg-0pky">0.571</td>
+    <td class="tg-0pky">0.626</td>
+    <td class="tg-0pky">0.633</td>
+    <td class="tg-0pky">0.520</td>
+    <td class="tg-0pky">0.733</td>
+    <td class="tg-za14">0.194</td>
+    <td class="tg-0pky">0.161</td>
+    <td class="tg-0pky">0.032</td>
+    <td class="tg-0pky">0.023</td>
+    <td class="tg-0pky">0.045</td>
+    <td class="tg-0pky">0.115</td>
+    <td class="tg-0pky">0.163</td>
+    <td class="tg-0pky">0.218</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky">ViT-L-14-336 openai</td>
+    <td class="tg-0pky">0.709</td>
+    <td class="tg-0pky">0.781</td>
+    <td class="tg-0pky">0.837</td>
+    <td class="tg-0pky">0.949</td>
+    <td class="tg-0pky">0.744</td>
+    <td class="tg-0pky">0.556</td>
+    <td class="tg-0pky">0.783</td>
+    <td class="tg-0pky">0.937</td>
+    <td class="tg-0pky">0.560</td>
+    <td class="tg-0pky">0.615</td>
+    <td class="tg-0pky">0.638</td>
+    <td class="tg-0pky">0.608</td>
+    <td class="tg-0pky">0.733</td>
+    <td class="tg-za14">0.200</td>
+    <td class="tg-0pky">0.158</td>
+    <td class="tg-0pky">0.032</td>
+    <td class="tg-0pky">0.024</td>
+    <td class="tg-0pky">0.046</td>
+    <td class="tg-0pky">0.113</td>
+    <td class="tg-0pky">0.158</td>
+    <td class="tg-0pky">0.262</td>
+  </tr>
+</tbody>
+</table>
 
 ## Zero-shot classification
 
