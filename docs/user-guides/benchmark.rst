@@ -1,22 +1,24 @@
 CLIP Benchmark
 ==============
 
-In order to evaluate the performance of different CLIP models, we conducted a benchmark on a series of tasks using different datasets. You can find the benchmark results in the following tables. The best results are highlighted in bold. They can be used as a guide to choose the best model for your application.
-
+In order to evaluate the performance of different CLIP models, we conducted a benchmark on a series of tasks using different datasets. 
+You can find the benchmark results in the following tables. 
+The best results are highlighted in bold. 
+They can be used as a guide to choose the best model for your application.
 
 Basic statistics
-^^^^^^^^^^^^^^^^
+----------------
 
-We include the disk usage (in delta) and the peak RAM and VRAM usage (in delta) when running on a single Nvidia TITAN RTX GPU (24GB VRAM) for a series of text and image encoding tasks with `batch_size=8` using PyTorch runtime.
+We include the disk usage (in delta) and the peak RAM and VRAM usage (in delta) when running on a single Nvidia TITAN RTX GPU (24GB VRAM) for a series of text and image encoding tasks with :code:`batch_size=8` using PyTorch runtime.
 
 +----------------------------------------+------------------+----------------------+-----------------------+
 | Model                                  | Disk Usage (MB)  | Peak RAM Usage (GB)  | Peak VRAM Usage (GB)  |
 +========================================+==================+======================+=======================+
-| RN50::openai                           | 244              | 2.99                 | 1.36                  |
+| RN50::openai                           | **244**          | 2.99                 | **1.36**              |
 +----------------------------------------+------------------+----------------------+-----------------------+
-| RN50::yfcc15m                          | 389              | 2.86                 | 1.36                  |
+| RN50::yfcc15m                          | 389              | 2.86                 | **1.36**              |
 +----------------------------------------+------------------+----------------------+-----------------------+
-| RN50::cc12m                            | 389              | 2.84                 | 1.36                  |
+| RN50::cc12m                            | 389              | **2.84**             | **1.36**              |
 +----------------------------------------+------------------+----------------------+-----------------------+
 | RN101::openai                          | 278              | 3.05                 | 1.40                  |
 +----------------------------------------+------------------+----------------------+-----------------------+
@@ -71,9 +73,15 @@ We include the disk usage (in delta) and the peak RAM and VRAM usage (in delta) 
 | M-CLIP/XLM-Roberta-Large-Vit-L-14      | 4293             | 4.30                 | 4.97                  |
 +----------------------------------------+------------------+----------------------+-----------------------+
 
-
 Zero-shot retrieval
-^^^^^^^^^^^^^^^^^^^
+-------------------
+
+In zero-shot retrieval benchmark, each model is evaluated on the following datasets: COCO Caption, Flickr 8k and Flickr 30k.
+For the above datasets, there are five corresponding description sentences for each image written by humans.
+The results are reported in terms of top-5 text-to-image retrieval recall, top-5 image-to-text retrieval recall and their averages.
+More specifically, the top-5 text-to-image retrieval recall for each retrieved image is either 1 or 0.
+It is 1 if the input text matches one of the image descriptions among the top-5.
+The top-5 image-to-text retrieval recall for each image is the number of top-5 retrieved texts matching that image descriptions.
 
 +----------------------------------+-------------------------+-------------------------+-------------------------+
 | Model                            | COCO Caption            | Flickr 8k               | Flickr 30k              |
@@ -131,9 +139,12 @@ Zero-shot retrieval
 | ViT-L-14-336::openai             | 0.616 | 0.812 | 0.714   | 0.629 | 0.779 | 0.704   | 0.533 | 0.741 | 0.637   |
 +----------------------------------+-------+-------+---------+-------+-------+---------+-------+-------+---------+
 
-
 Zero-shot classification
-^^^^^^^^^^^^^^^^^^^^^^^^
+------------------------
+
+In zero-shot classification benchmark, each model is evaluated on the following datasets: ImageNet V2, VOC 2007 and 19 VTAB datasets. 
+The results are shown in the following table. 
+For each dataset, we report the top-1 accuracy.
 
 +---------------------------------+------------+---------+-----------------+--------------+---------------+----------+--------------+-----------+-----------+--------------+---------------+-----------+---------------------------+----------------------+------------------------------------+--------------------------------+---------------------------------+------------------------------+--------------------------------+------------+-------------------------------------+
 | model_fullname                  | imagenetv2 | voc2007 | vtab/caltech101 | vtab/cifar10 | vtab/cifar100 | vtab/dtd | vtab/flowers | vtab/pets | vtab/svhn | vtab/eurosat | vtab/resisc45 | vtab/pcam | vtab/diabetic_retinopathy | vtab/clevr_count_all | vtab/clevr_closest_object_distance | vtab/dsprites_label_x_position | vtab/dsprites_label_orientation | vtab/smallnorb_label_azimuth | vtab/smallnorb_label_elevation | vtab/dmlab | vtab/kitti_closest_vehicle_distance |
