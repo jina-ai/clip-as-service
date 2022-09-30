@@ -1,10 +1,12 @@
 # Text & Image Searching
 
-This is the demo for [CLIP search](../user-guides/retriever.md). We support text-to-image search and image-to-image search now.
+CLIP-as-service enables us to encode text and images into a common space and perform cross-modality search. This is a powerful tool for many applications, such as cross-modality search.
 
-In this demo we use test sets of [``Open-Image-Datset-V6``](https://storage.googleapis.com/openimages/web/download.html). There are 125,346 images in total. 
+[CLIP search](../user-guides/retriever.md) uses the CLIP-as-service to encode the text and the image. The text and the image are then used to calculate the similarity between them. The similarity score is used to sort the results.
 
-This ``Flow`` is deployed on ``JCloud`` and we use CPU to encode.
+This demo demonstrates the text-to-image and image-to-image searching in CLIP search. You can type text query or upload the local image as a query, and it will return the top 10 similar images for you.
+
+For dataset used in this demo, we have used the [``Open-Image-Datset``](https://storage.googleapis.com/openimages/web/download.html) dataset. It contains 125,346 images in total.
 
 <iframe frameborder="0" allowtransparency="true" scrolling="no" src="https://jemmyshin-laion5b-streamlit-streamlit-demo-rddbqz.streamlitapp.com?embedded=true" style="overflow:hidden;overflow-x:hidden;overflow-y:hidden;height:100vh;width:100%"></iframe>
 
