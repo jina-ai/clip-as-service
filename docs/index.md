@@ -180,7 +180,6 @@ user-guides/server
 user-guides/retriever
 user-guides/benchmark
 user-guides/faq
-user-guides/test
 ```
 
 ```{toctree}
