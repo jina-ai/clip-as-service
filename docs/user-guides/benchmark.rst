@@ -9,7 +9,7 @@ They can be used as a guide to choose the best model for your application.
 Basic statistics
 ----------------
 
-We include the disk usage (in delta) and the peak RAM and VRAM usage (in delta) when running on a single Nvidia TITAN RTX GPU (24GB VRAM) for a series of text and image encoding tasks with :code:`batch_size=8` using PyTorch runtime.
+In the table belowe, we include the disk usage (in delta) and the peak RAM and VRAM usage (in delta) when running on a single Nvidia TITAN RTX GPU (24GB VRAM) for a series of text and image encoding tasks with :code:`batch_size=8` using PyTorch runtime.
 
 +----------------------------------------+------------------+----------------------+-----------------------+
 | Model                                  | Disk Usage (MB)  | Peak RAM Usage (GB)  | Peak VRAM Usage (GB)  |
@@ -76,7 +76,7 @@ We include the disk usage (in delta) and the peak RAM and VRAM usage (in delta) 
 Zero-shot retrieval
 -------------------
 
-In zero-shot retrieval benchmark, each model is evaluated on the following datasets: COCO Caption, Flickr8k and Flickr30k.
+In zero-shot retrieval benchmark, each model is evaluated on the following datasets: `COCO Caption<https://github.com/tylin/coco-caption>`, `Flickr8k<http://hockenmaier.cs.illinois.edu/8k-pictures.html>` and `Flickr30k<https://shannon.cs.illinois.edu/DenotationGraph/>`.
 For the above datasets, there are five corresponding description sentences for each image written by humans.
 The results are reported in terms of top-5 text-to-image retrieval recall, top-5 image-to-text retrieval recall and their averages.
 More specifically, the top-5 text-to-image retrieval recall for each retrieved image is either 1 or 0.
@@ -142,7 +142,7 @@ The top-5 image-to-text retrieval recall for each image is the number of top-5 r
 Zero-shot classification
 ------------------------
 
-In zero-shot classification benchmark, each model is evaluated on the following datasets: ImageNetV2, VOC2007 and 19 VTAB datasets. 
+In zero-shot classification benchmark, each model is evaluated on the following datasets: `ImageNetV2<https://github.com/modestyachts/ImageNetV2>`, `VOC2007<http://host.robots.ox.ac.uk/pascal/VOC/voc2007/>` and 19 `VTAB datasets<https://github.com/google-research/task_adaptation>`. 
 The results are shown in the following table. 
 For each dataset, we report the top-1 accuracy, which is whether the top-1 retrieved class of a image matches its true class.
 
