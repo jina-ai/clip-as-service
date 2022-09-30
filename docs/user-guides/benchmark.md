@@ -72,6 +72,15 @@ We include the disk usage (in delta) and the peak RAM and VRAM usage (in delta) 
 | ViT-L-14-336::openai             | 0.616        | 0.812 | 0.629     | 0.779 | 0.533      | 0.741 |
 
 
+<style type="text/css">
+.tg  {border-collapse:collapse;border-spacing:0;}
+.tg td{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
+  overflow:hidden;padding:10px 5px;word-break:normal;}
+.tg th{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;
+  font-weight:normal;overflow:hidden;padding:10px 5px;word-break:normal;}
+.tg .tg-0pky{border-color:inherit;text-align:left;vertical-align:top}
+.tg .tg-za14{border-color:inherit;text-align:left;vertical-align:bottom}
+</style>
 <table class="tg">
 <thead>
   <tr>
