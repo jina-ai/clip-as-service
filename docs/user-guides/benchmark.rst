@@ -145,8 +145,8 @@ The top-5 image-to-text retrieval recall for each image is the number of top-5 r
 +----------------------------------+---------------+---------------+-----------+---------------+---------------+-----------+---------------+---------------+-----------+
 
 From the table, we observe that the ViT models outperform the RN models in general.
-More specifically, the ViT-H-14::laion2b_s32b_b79k model and ViT-g-14::laion2b_s12b_b42k model achieve the best and second-best results on all zero-shot retrieval tasks.
-For ViT models, the results of the same base model are better on those pre-trained with larger datasets (e.g., ViT-B-32::openai vs ViT-B-32::laion400m_e31 vs ViT-B-32::laion2b-s34b-b79k).
+More specifically, the ``ViT-H-14::laion2b_s32b_b79k`` model and ``ViT-g-14::laion2b_s12b_b42k`` model achieve the best and second-best results on all zero-shot retrieval tasks.
+For ViT models, the results of the same base model are better on those pre-trained with larger datasets (e.g., ``ViT-B-32::openai`` vs ``ViT-B-32::laion400m_e31`` vs ``ViT-B-32::laion2b-s34b-b79k``).
 
 Zero-shot classification
 ++++++++++++++++++++++++
@@ -211,8 +211,8 @@ For each dataset, we report the top-1 accuracy, which is whether the top-1 retri
 | ViT-g-14::laion2b_s12b_b42k      | 0.696      | **0.811** | **0.851**  | 0.839     | **0.682** | 0.776      | 0.943     | **0.962** | **0.603** | 0.648     | 0.718     | 0.560          | 0.580       | **0.332**   | 0.175          | 0.036             | 0.031                | 0.060             | 0.115               | 0.190     | 0.138          |
 +----------------------------------+------------+-----------+------------+-----------+-----------+------------+-----------+-----------+-----------+-----------+-----------+----------------+-------------+-------------+----------------+-------------------+----------------------+-------------------+---------------------+-----------+----------------+
 
-From the table, we observe that the ViT models still outperform the RN models in most tasks, except for the Patch Camelyon dataset where RN50::openai has the best top-1 accuracy of 0.636, and the KITTI/distance dataset where RN50::yfcc15m has the best result of 0.336.
-Similar to retrieval results, the ViT-H-14::laion2b_s32b_b79k model and ViT-g-14::laion2b_s12b_b42k model still have the best or close to the best results on 12/21 zero-shot classification tasks.
+From the table, we observe that the ViT models still outperform the RN models in most tasks, except for the Patch Camelyon dataset where ``RN50::openai`` has the best top-1 accuracy of 0.636, and the KITTI/distance dataset where ``RN50::yfcc15m`` has the best result of 0.336.
+Similar to retrieval results, the ``ViT-H-14::laion2b_s32b_b79k`` model and ``ViT-g-14::laion2b_s12b_b42k`` model still have the best or close to the best results on 12/21 zero-shot classification tasks.
 All models tend to perform well on ImageNetV2, VOC2007, VTAB natural and VTAB specialized (except for Retinopathy) datasets, whereas they perform poorly on VTAB structured datasets.
 We do not observe any significant difference between the ViT models of the same base model. 
 
@@ -221,9 +221,9 @@ Select the best model
 
 In general, you can select the best model for your application from different perspectives: disk usage, peak RAM and VRAM usages, and most importantly, the performance.
 Based on our experiments, we recommend the ViT models over the RN models for most general applications.
-More specifically, the ViT-H-14::laion2b_s32b_b79k model and ViT-g-14::laion2b_s12b_b42k model should be first considered since they have the best or close to the best performance in most cases.
+More specifically, the ``ViT-H-14::laion2b_s32b_b79k`` model and ``ViT-g-14::laion2b_s12b_b42k`` model should be first considered since they have the best or close to the best performance in most cases.
 However, you should choose the model that best fits your requirements.
-For example, if you are labelling images for Diabetic Retinopathy, you should probably select the ViT-B-32::laion2b_s34b_b79k model since it has the best top-1 accuracy of 0.734 on zero-shot classification of the Retinopathy dataset.
+For example, if you are labelling images for Diabetic Retinopathy, you should probably select the ``ViT-B-32::laion2b_s34b_b79k`` model since it has the best top-1 accuracy of 0.734 on zero-shot classification of the Retinopathy dataset.
 
 Appendix: Datasets description
 ------------------------------
