@@ -2,6 +2,7 @@ CLIP Benchmark
 ==============
 
 In order to evaluate the performance of different CLIP models, we conducted a benchmark on a series of tasks using different datasets. 
+We fork the `CLIP benchmark repo <https://github.com/LAION-AI/CLIP_benchmark>`_, slightly modify the codebase and apply it to all Vision Transformers (ViT) and ResNet (RN) CLIP models. 
 You can find the benchmark results in the following tables. 
 The best results are highlighted in bold. 
 They can be used as a guide to choose the best model for your application.
@@ -143,6 +144,10 @@ The top-5 image-to-text retrieval recall for each image is the number of top-5 r
 | ViT-g-14::laion2b_s12b_b42k      | 0.724         | 0.853         | 0.788     | 0.730         | 0.846         | 0.788     | 0.639         | 0.806         | 0.722     |
 +----------------------------------+---------------+---------------+-----------+---------------+---------------+-----------+---------------+---------------+-----------+
 
+From the table, we observe that the ViT models outperform the RN models in general.
+More specifically, the ViT-H-14::laion2b_s32b_b79k model and ViT-g-14::laion2b_s12b_b42k model achieve the best and second-best results on all zero-shot retrieval tasks.
+For ViT models, the results of the same base model are better on those pre-trained with larger datasets (e.g., ViT-B-32::openai vs ViT-B-32::laion400m_e31 vs ViT-B-32::laion2b-s34b-b79k).
+
 Zero-shot classification
 ++++++++++++++++++++++++
 
@@ -206,44 +211,73 @@ For each dataset, we report the top-1 accuracy, which is whether the top-1 retri
 | ViT-g-14::laion2b_s12b_b42k      | 0.696      | **0.811** | **0.851**  | 0.839     | **0.682** | 0.776      | 0.943     | **0.962** | **0.603** | 0.648     | 0.718     | 0.560          | 0.580       | **0.332**   | 0.175          | 0.036             | 0.031                | 0.060             | 0.115               | 0.190     | 0.138          |
 +----------------------------------+------------+-----------+------------+-----------+-----------+------------+-----------+-----------+-----------+-----------+-----------+----------------+-------------+-------------+----------------+-------------------+----------------------+-------------------+---------------------+-----------+----------------+
 
+From the table, we observe that the ViT models still outperform the RN models in most tasks, except for the Patch Camelyon dataset where RN50::openai has the best top-1 accuracy of 0.636, and the KITTI/distance dataset where RN50::yfcc15m has the best result of 0.336.
+Similar to retrieval results, the ViT-H-14::laion2b_s32b_b79k model and ViT-g-14::laion2b_s12b_b42k model still have the best or close to the best results on 12/21 zero-shot classification tasks.
+All models tend to perform well on ImageNetV2, VOC2007, VTAB natural and VTAB specialized (except for Retinopathy) datasets, whereas they perform poorly on VTAB structured datasets.
+We do not observe any significant difference between the ViT models of the same base model. 
+
+Select the best model
++++++++++++++++++++++
+
+In general, you can select the best model for your application from different perspectives: disk usage, peak RAM and VRAM usages, and most importantly, the performance.
+Based on our experiments, we recommend the ViT models over the RN models for most general applications.
+More specifically, the ViT-H-14::laion2b_s32b_b79k model and ViT-g-14::laion2b_s12b_b42k model should be first considered since they have the best or close to the best performance in most cases.
+However, you should choose the model that best fits your requirements.
+For example, if you are labelling images for Diabetic Retinopathy, you should probably select the ViT-B-32::laion2b_s34b_b79k model since it has the best top-1 accuracy of 0.734 on zero-shot classification of the Retinopathy dataset.
 
 Appendix: Datasets description
 ------------------------------
 
-* **Caltech101**: The task consists in classifying pictures of objects (101 classes plus a background clutter class), including animals, airplanes, chairs, or scissors. The image size varies, but it typically ranges from 200-300 pixels per edge.
+* **COCO Caption**: The dataset contains over one and a half million captions describing over 330,000 images. For the training and validation images, five independent human generated captions are provided.
 
-* **CIFAR-100**: The task consists in classifying natural images (100 classes, with 500 training images each). Some examples include apples, bottles, dinosaurs, and bicycles. The image size is 32x32.
+* **Flickr 8k**: The dataset consists of 8,000 images that are each paired with five different captions which provide clear descriptions of the salient entities and events. The images were chosen from six different Flickr groups, and tend not to contain any well-known people or locations, but were manually selected to depict a variety of scenes and situations.
 
-* **DTD**: The task consists in classifying images of textural patterns (47 classes, with 120 training images each). Some of the textures are banded, bubbly, meshed, lined, or porous. The image size ranges between 300x300 and 640x640 pixels.
+* **Flickr 30k**: The dataset is an extension of the Flickr 8k Dataset. It consists of 158,915 crowd-sourced captions describing 31,783 images.
 
-* **Flowers102**: The task consists in classifying images of flowers present in the UK (102 classes, with between 40 and 248 training images per class). Azalea, Californian Poppy, Sunflower, or Petunia are some examples. Each image dimension has at least 500 pixels.
+* **ImageNetV2**: ImageNetV2 contains three test sets with 10,000 new images each. Importantly, these test sets were sampled after a decade of progress on the original ImageNet dataset. This makes the new test data independent of existing models and guarantees that the accuracy scores are not affected by adaptive overfitting.
 
-* **Pets**: The task consists in classifying pictures of cat and dog breeds (37 classes with around 200 images each), including Persian cat, Chihuahua dog, English Setter dog, or Bengal cat. Images dimensions are typically 200 pixels or larger.
+* **VOC2007**: The training data provided consists of a set of images; each image has an annotation file giving a bounding box and object class label for each object in one of the twenty classes present in the image. Note that multiple objects from multiple classes may be present in the same image.
 
-* **Sun397**: The Sun397 task is a scenery benchmark with 397 classes and, at least, 100 images per class. Classes have a hierarchy structure, and include cathedral, staircase, shelter, river, or archipelago. The images are (colour) 200x200 pixels or larger.
+* **VTAB natural group**: The natural group represents classical vision problems. These tasks contain natural images captured using standard cameras. The classes may represent generic, fine-grained, or abstract objects.
 
-* **SVHN**: This task consists in classifying images of Google's street-view house numbers (10 classes, with more than 1000 training images each). The image size is 32x32 pixels.
+  * **Caltech101**: The task consists in classifying pictures of objects (101 classes plus a background clutter class), including animals, airplanes, chairs, or scissors. The image size varies, but it typically ranges from 200-300 pixels per edge.
 
-* **EuroSAT**: The task consists in classifying Sentinel-2 satellite images into 10 different types of land use (Residential, Industrial, River, Highway, etc). The spatial resolution corresponds to 10 meters per pixel, and the image size is 64x64 pixels.
+  * **CIFAR-100**: The task consists in classifying natural images (100 classes, with 500 training images each). Some examples include apples, bottles, dinosaurs, and bicycles. The image size is 32x32.
 
-* **Resisc45**: The Remote Sensing Image Scene Classification (RESISC) dataset is a scene classification task from remote sensing images. There are 45 classes, containing 700 images each, including tennis court, ship, island, lake, parking lot, sparse residential, or stadium. The image size is RGB 256x256 pixels.
+  * **DTD**: The task consists in classifying images of textural patterns (47 classes, with 120 training images each). Some of the textures are banded, bubbly, meshed, lined, or porous. The image size ranges between 300x300 and 640x640 pixels.
 
-* **Patch Camelyon**: The Patch Camelyon dataset contains 327,680 images of histopathologic scans of lymph node sections. The classification task consists in predicting the presence of metastatic tissue in given image (i.e., two classes). All images are 96x96 pixels.
+  * **Flowers102**: The task consists in classifying images of flowers present in the UK (102 classes, with between 40 and 248 training images per class). Azalea, Californian Poppy, Sunflower, or Petunia are some examples. Each image dimension has at least 500 pixels.
 
-* **Retinopathy**: The Diabetic Retinopathy dataset consists of image-label pairs with high-resolution retina images, and labels that indicate the presence of Diabetic Retinopahy (DR) in a 0-4 scale (No DR, Mild, Moderate, Severe, or Proliferative DR).
+  * **Pets**: The task consists in classifying pictures of cat and dog breeds (37 classes with around 200 images each), including Persian cat, Chihuahua dog, English Setter dog, or Bengal cat. Images dimensions are typically 200 pixels or larger.
 
-* **Clevr/count**: CLEVR is a visual question and answer dataset designed to evaluate algorithmic visual reasoning. We use just the images from this dataset, and create a synthetic task by setting the label equal to the number of objects in the images.
+  * **Sun397**: The Sun397 task is a scenery benchmark with 397 classes and, at least, 100 images per class. Classes have a hierarchy structure, and include cathedral, staircase, shelter, river, or archipelago. The images are (colour) 200x200 pixels or larger.
 
-* **Clevr/distance**: Another synthetic task we create from CLEVR consists of predicting the depth of the closest object in the image from the camera. The depths are bucketed into size bins.
+  * **SVHN**: This task consists in classifying images of Google's street-view house numbers (10 classes, with more than 1000 training images each). The image size is 32x32 pixels.
 
-* **dSprites/location**: The dSprites dataset was originally designed to asses disentanglement properties of unsupervised learning algorithms. In particular, each image is a 2D shape where six factors are controlled: color, shape, scale, rotation, and (x,y) center coordinates. Images have 64x64 black-and-white pixels. This task consists in predicting the x (horizontal) coordinate of the object. The locations are bucketed into 16 bins.
+* **VTAB specialized group**: The specialized group also contains images of the world, but captured through specialist equipment. These images have different invariances to those in the specialized tasks. Nonetheless, humans recognize the structures therein, thus generic visual representations should also capture the visual concepts. It two sub-groups: remote sensing, and medical.
 
-* **dSprites/orientation**: We create another task from dSprites consists in predicting the orientation of each object, bucketed into 16 bins.
+  * **EuroSAT**: The task consists in classifying Sentinel-2 satellite images into 10 different types of land use (Residential, Industrial, River, Highway, etc). The spatial resolution corresponds to 10 meters per pixel, and the image size is 64x64 pixels.
 
-* **SmallNORB/azimuth**: The Small NORB dataset contains images of 3D-toys from 50 classes, including animals, human figures, airplanes, trucks, and cars. The image size is 640x480 pixels. In this case, we define labels depending on the azimuth (angle of horizontal deviation), in intervals of 20 degrees (18 classes).
+  * **Resisc45**: The Remote Sensing Image Scene Classification (RESISC) dataset is a scene classification task from remote sensing images. There are 45 classes, containing 700 images each, including tennis court, ship, island, lake, parking lot, sparse residential, or stadium. The image size is RGB 256x256 pixels.
 
-* **SmallNORB/elevation**: Another synthetic task we create from Small NORB consists in predicting the elevation in the image. There are 9 classes, corresponding to 9 different elevations ranging from 30 to 70 degrees, in intervals of 5 degrees.
+  * **Patch Camelyon**: The Patch Camelyon dataset contains 327,680 images of histopathologic scans of lymph node sections. The classification task consists in predicting the presence of metastatic tissue in given image (i.e., two classes). All images are 96x96 pixels.
 
-* **DMLab**: The DMLab (DeepMind Lab) is a set of control environments focused on 3D navigation and puzzle-solving tasks. The Dmlab dataset contains frames observed by the agent acting in the DeepMind Lab environment, which are annotated by the distance between the agent and various objects present in the environment. The goal is to evaluate the ability of a visual model to reason about distances from the visual input in 3D environments. The Dmlab dataset consists of 360x480 color images in 6 classes. The classes are {close, far, very far} x {positive reward, negative reward} respectively.
+  * **Retinopathy**: The Diabetic Retinopathy dataset consists of image-label pairs with high-resolution retina images, and labels that indicate the presence of Diabetic Retinopahy (DR) in a 0-4 scale (No DR, Mild, Moderate, Severe, or Proliferative DR).
 
-* **KITTI-Dist**: The KITTI task consists in predicting the (binned) depth to the vehicle (car, van, or truck) in the image. There are 4 bins / classes.
+* **VTAB structured group**: The structured group assesses comprehension of the structure of a scene, for example, object counting, or 3D depth prediction. Most of these tasks are generated from simulated environments, whose structure is easy for a human to determine, but whose domain differs greatly to datasets like ImageNet. These tasks are intended as a step towards useful representations for perceptual control.
+
+  * **Clevr/count**: CLEVR is a visual question and answer dataset designed to evaluate algorithmic visual reasoning. We use just the images from this dataset, and create a synthetic task by setting the label equal to the number of objects in the images.
+
+  * **Clevr/distance**: Another synthetic task we create from CLEVR consists of predicting the depth of the closest object in the image from the camera. The depths are bucketed into size bins.
+
+  * **dSprites/location**: The dSprites dataset was originally designed to asses disentanglement properties of unsupervised learning algorithms. In particular, each image is a 2D shape where six factors are controlled: color, shape, scale, rotation, and (x,y) center coordinates. Images have 64x64 black-and-white pixels. This task consists in predicting the x (horizontal) coordinate of the object. The locations are bucketed into 16 bins.
+
+  * **dSprites/orientation**: We create another task from dSprites consists in predicting the orientation of each object, bucketed into 16 bins.
+
+  * **SmallNORB/azimuth**: The Small NORB dataset contains images of 3D-toys from 50 classes, including animals, human figures, airplanes, trucks, and cars. The image size is 640x480 pixels. In this case, we define labels depending on the azimuth (angle of horizontal deviation), in intervals of 20 degrees (18 classes).
+
+  * **SmallNORB/elevation**: Another synthetic task we create from Small NORB consists in predicting the elevation in the image. There are 9 classes, corresponding to 9 different elevations ranging from 30 to 70 degrees, in intervals of 5 degrees.
+
+  * **DMLab**: The DMLab (DeepMind Lab) is a set of control environments focused on 3D navigation and puzzle-solving tasks. The Dmlab dataset contains frames observed by the agent acting in the DeepMind Lab environment, which are annotated by the distance between the agent and various objects present in the environment. The goal is to evaluate the ability of a visual model to reason about distances from the visual input in 3D environments. The Dmlab dataset consists of 360x480 color images in 6 classes. The classes are {close, far, very far} x {positive reward, negative reward} respectively.
+
+  * **KITTI-Dist**: The KITTI task consists in predicting the (binned) depth to the vehicle (car, van, or truck) in the image. There are 4 bins / classes.
