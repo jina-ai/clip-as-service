@@ -228,17 +228,17 @@ For example, if you are labelling images for Diabetic Retinopathy, you should pr
 Appendix: Datasets description
 ------------------------------
 
-* **COCO Caption**: The dataset contains over one and a half million captions describing over 330,000 images. For the training and validation images, five independent human generated captions are provided.
+* **COCO Caption** [1]_: The dataset contains over one and a half million captions describing over 330,000 images. For the training and validation images, five independent human generated captions are provided.
 
-* **Flickr 8k**: The dataset consists of 8,000 images that are each paired with five different captions which provide clear descriptions of the salient entities and events. The images were chosen from six different Flickr groups, and tend not to contain any well-known people or locations, but were manually selected to depict a variety of scenes and situations.
+* **Flickr 8k** [2]_: The dataset consists of 8,000 images that are each paired with five different captions which provide clear descriptions of the salient entities and events. The images were chosen from six different Flickr groups, and tend not to contain any well-known people or locations, but were manually selected to depict a variety of scenes and situations.
 
-* **Flickr 30k**: The dataset is an extension of the Flickr 8k Dataset. It consists of 158,915 crowd-sourced captions describing 31,783 images.
+* **Flickr 30k** [3]_: The dataset is an extension of the Flickr 8k Dataset. It consists of 158,915 crowd-sourced captions describing 31,783 images.
 
-* **ImageNetV2**: ImageNetV2 contains three test sets with 10,000 new images each. Importantly, these test sets were sampled after a decade of progress on the original ImageNet dataset. This makes the new test data independent of existing models and guarantees that the accuracy scores are not affected by adaptive overfitting.
+* **ImageNetV2** [4]_: ImageNetV2 contains three test sets with 10,000 new images each. Importantly, these test sets were sampled after a decade of progress on the original ImageNet dataset. This makes the new test data independent of existing models and guarantees that the accuracy scores are not affected by adaptive overfitting.
 
-* **VOC2007**: The training data provided consists of a set of images; each image has an annotation file giving a bounding box and object class label for each object in one of the twenty classes present in the image. Note that multiple objects from multiple classes may be present in the same image.
+* **VOC2007** [5]_: The training data provided consists of a set of images; each image has an annotation file giving a bounding box and object class label for each object in one of the twenty classes present in the image. Note that multiple objects from multiple classes may be present in the same image.
 
-* **VTAB natural group**: The natural group represents classical vision problems. These tasks contain natural images captured using standard cameras. The classes may represent generic, fine-grained, or abstract objects.
+* **VTAB natural group** [6]_: The natural group represents classical vision problems. These tasks contain natural images captured using standard cameras. The classes may represent generic, fine-grained, or abstract objects.
 
   * **Caltech101**: The task consists in classifying pictures of objects (101 classes plus a background clutter class), including animals, airplanes, chairs, or scissors. The image size varies, but it typically ranges from 200-300 pixels per edge.
 
@@ -281,3 +281,10 @@ Appendix: Datasets description
   * **DMLab**: The DMLab (DeepMind Lab) is a set of control environments focused on 3D navigation and puzzle-solving tasks. The Dmlab dataset contains frames observed by the agent acting in the DeepMind Lab environment, which are annotated by the distance between the agent and various objects present in the environment. The goal is to evaluate the ability of a visual model to reason about distances from the visual input in 3D environments. The Dmlab dataset consists of 360x480 color images in 6 classes. The classes are {close, far, very far} x {positive reward, negative reward} respectively.
 
   * **KITTI-Dist**: The KITTI task consists in predicting the (binned) depth to the vehicle (car, van, or truck) in the image. There are 4 bins / classes.
+
+.. [1] https://arxiv.org/pdf/1504.00325.pdf
+.. [2] https://www.kaggle.com/datasets/adityajn105/flickr8k
+.. [3] https://shannon.cs.illinois.edu/DenotationGraph/
+.. [4] https://github.com/modestyachts/ImageNetV2
+.. [5] http://host.robots.ox.ac.uk/pascal/VOC/voc2007/
+.. [6] https://arxiv.org/pdf/1910.04867.pdf
