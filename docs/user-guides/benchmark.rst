@@ -225,7 +225,8 @@ In general, you can select the best model for your application from different pe
 
 Based on our experiments, we recommend the ViT models over the RN models for most general applications.
 More specifically, the ``ViT-H-14::laion2b_s32b_b79k`` model and ``ViT-g-14::laion2b_s12b_b42k`` model should be first considered since they have the best or close to the best performance in most cases.
-However, you should choose the model that best fits your requirements.
+However, if you are concerned about the encoding speed, you can consider other ViT models because they have higher QPS with decent performance.
+Anyway, you should choose the model that best fits your requirements.
 For example, if you are labelling images for Diabetic Retinopathy, you should probably select the ``ViT-B-32::laion2b_s34b_b79k`` model since it has the best top-1 accuracy of 0.734 on zero-shot classification of the Retinopathy dataset.
 
 Appendix: Datasets description
