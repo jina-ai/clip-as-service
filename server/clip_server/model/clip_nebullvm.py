@@ -49,14 +49,12 @@ class CLIPNebullvmModel:
         self._visual_model = optimize_model(
             self._visual_path,
             input_data=[((torch.randn(1, 3, self.pixel_size, self.pixel_size),), 0)],
-            ignore_compilers=["tvm"],
             **general_kwargs,
         )
 
         self._textual_model = optimize_model(
             self._textual_path,
             input_data=[((torch.randint(0, 100, (1, 77)),), 0)],
-            ignore_compilers=["tvm"],
             **general_kwargs,
         )
 
