@@ -11,6 +11,7 @@ Basic statistics
 ----------------
 
 In the table below, we include the disk usage (in delta) and the peak RAM and VRAM usage (in delta) when running on a single Nvidia TITAN RTX GPU (24GB VRAM) with a Intel® Core™ i7-10700K Processor (128GB RAM) for a series of text and image encoding tasks with ``batch_size=8`` using PyTorch runtime.
+We use ``clip_client==3.7.0``, ``clip_server==3.7.0``, ``jina==3.10.1`` and ``docarry==0.17.0``.
 We also include the QPS (Queries Per Second) for the text and image encoding tasks using ``clip_client`` with PyTorch runtime.
 
 +----------------------------------------+------------------+----------------------+-----------------------+-----------+------------+
