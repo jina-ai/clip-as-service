@@ -35,7 +35,7 @@ class CLIPNebullvmModel:
         self,
         **kwargs,
     ):
-        from nebullvm.api.frontend.onnx import optimize_onnx_model
+        from nebullvm.api.functions import optimize_model
 
         save_dir = os.path.expanduser("~/.cache/clip/nebullvm")
         Path(save_dir).mkdir(exist_ok=True)
@@ -43,23 +43,19 @@ class CLIPNebullvmModel:
         Path(visual_save_dir).mkdir(exist_ok=True)
         text_save_dir = os.path.join(save_dir, "text")
         Path(text_save_dir).mkdir(exist_ok=True)
-        general_kwargs = {
-            "batch_size": 1,
-        }
+        general_kwargs = {}
         general_kwargs.update(kwargs)
-        self._visual_model = optimize_onnx_model(
+
+        self._visual_model = optimize_model(
             self._visual_path,
-            input_sizes=[(3, self.pixel_size, self.pixel_size)],
-            save_dir=visual_save_dir,
+            input_data=[((torch.randn(1, 3, self.pixel_size, self.pixel_size),), 0)],
             ignore_compilers=["tvm"],
             **general_kwargs,
         )
 
-        self._textual_model = optimize_onnx_model(
+        self._textual_model = optimize_model(
             self._textual_path,
-            input_sizes=[(77,)],
-            save_dir=text_save_dir,
-            input_types=["int"],
+            input_data=[((torch.randint(0, 100, (1, 77)),), 0)],
             ignore_compilers=["tvm"],
             **general_kwargs,
         )
