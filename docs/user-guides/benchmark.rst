@@ -10,7 +10,7 @@ They can be used as a guide to choose the best model for your application.
 Basic statistics
 ----------------
 
-In the table below, we include the disk usage (in delta) and the peak RAM and VRAM usage (in delta) when running on a single Nvidia TITAN RTX GPU (24GB VRAM) for a series of text and image encoding tasks with ``batch_size=8`` using PyTorch runtime.
+In the table below, we include the disk usage (in delta) and the peak RAM and VRAM usage (in delta) when running on a single Nvidia TITAN RTX GPU (24GB VRAM) with a Intel® Core™ i7-10700K Processor (128GB RAM) for a series of text and image encoding tasks with ``batch_size=8`` using PyTorch runtime.
 We also include the QPS (Queries Per Second) for the text and image encoding tasks using ``clip_client`` with PyTorch runtime.
 
 +----------------------------------------+------------------+----------------------+-----------------------+-----------+------------+
@@ -227,7 +227,8 @@ Based on our experiments, we recommend the ViT models over the RN models for mos
 More specifically, the ``ViT-H-14::laion2b_s32b_b79k`` model and ``ViT-g-14::laion2b_s12b_b42k`` model should be first considered since they have the best or close to the best performance in most cases.
 However, if you are concerned about the encoding speed, you can consider other ViT models because they have higher QPS with decent performance.
 Anyway, you should choose the model that best fits your requirements.
-For example, if you are labelling images for Diabetic Retinopathy, you should probably select the ``ViT-B-32::laion2b_s34b_b79k`` model since it has the best top-1 accuracy of 0.734 on zero-shot classification of the Retinopathy dataset.
+For example, if you are labeling images for diabetic retinopathy, you should probably select the ``ViT-B-32::laion2b_s34b_b79k`` model since it has the best top-1 accuracy of 0.734 on zero-shot classification of the Retinopathy dataset.
+Or if you are dealing with histopathologic images, you should probably select the RN50::openai model since it has the best top-1 accuracy of 0.636 on zero-shot classification of the Patch Camelyon dataset.
 
 Appendix: Datasets description
 ------------------------------
