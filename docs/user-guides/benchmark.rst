@@ -82,7 +82,7 @@ Zero-shot performance
 ----------------------------
 
 In this section, we will report the zero-shot performance of the models on classification and retrieval tasks across different datasets.
-
+In the following tables, we will highlight the best results in bold for each dataset (higher is better).
 
 Zero-shot retrieval
 +++++++++++++++++++
