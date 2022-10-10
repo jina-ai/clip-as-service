@@ -156,7 +156,7 @@ You can set the `limit` parameter (default is `10`) to control the number of the
 
 ### Memory Profile
 
-AnnLite keeps `HNSW` indexer and cell_table (stores columns which will be used for filtering) in memory. We estimate the memory usage of HNSW indexer and cell_table as below:
+AnnLite keeps `HNSW` indexer and `cell_table` (stores columns which will be used for filtering) in memory. We estimate the memory usage of HNSW indexer and `cell_table` as below:
 
 - `HNSW` indexer: 1.1 * (4 * `dimension` + 8 * `max_connection`), where `dimension` is the dimension of the embedding vectors, and `max_connection` is the maximum number of connections in the graph. 
 For more information about the memory usage of `HNSW` indexer, you can refer to [this](https://opensearch.org/docs/latest/search-plugins/knn/knn-index/#memory-estimation)
