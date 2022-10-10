@@ -1,8 +1,6 @@
 Benchmark
 =========
 
-As OpenAI noted in their blog post, We can see that CLIP is able to zero-shot perform
-including image classification and image retrieval.
 In order to understand the zero-shot performance of CLIP and its limitations, we conducted a benchmark
 across a variety of computer vision datasets (the dataset details are in the appendix). Here, thanks for the
 open-source `CLIP Benchmark toolkit <https://github.com/LAION-AI/CLIP_benchmark>`_, we can easily reproduce the results.
