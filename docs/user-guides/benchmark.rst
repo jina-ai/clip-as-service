@@ -8,7 +8,7 @@ open-source `CLIP Benchmark toolkit <https://github.com/LAION-AI/CLIP_benchmark>
 We hope that this benchmark can help you to better understand the performance of CLIP models and choose the best model for your application.
 
 
-Model Size and Efficiency
+Size and Efficiency
 -------------------------
 
 We first present the model's size and efficiency in terms of query time and memory usage (including the peak RAM and VRAM usage).
@@ -78,7 +78,7 @@ All of the results are obtained on a single Nvidia TITAN RTX GPU (24GB VRAM) wit
 
 
 
-Model Zero-shot Performance
+Zero-shot Performance
 ----------------------------
 
 In this section, we will report the zero-shot performance of the models on classification and retrieval tasks across different datasets.
@@ -222,8 +222,8 @@ Similar to retrieval results, the ``ViT-H-14::laion2b_s32b_b79k`` model and ``Vi
 All models tend to perform well on ImageNetV2, VOC2007, VTAB natural and VTAB specialized (except for Retinopathy) datasets, whereas they perform poorly on VTAB structured datasets.
 We do not observe any significant difference between the ViT models of the same base model. 
 
-How to choose the right model?
--------------------------------
+Select the right model
+-----------------------
 
 In general, you can select the best model for your application from different perspectives: disk usage, peak RAM and VRAM usages, QPS, and most importantly, the performance.
 
