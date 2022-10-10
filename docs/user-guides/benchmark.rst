@@ -1,27 +1,29 @@
-CLIP Benchmark
-==============
+Benchmark
+=========
 
-In order to evaluate the performance of different CLIP models, we conducted a benchmark on a series of tasks using different datasets. 
-We fork the `CLIP benchmark repo <https://github.com/LAION-AI/CLIP_benchmark>`_, slightly modify the codebase and apply it to all Vision Transformers (ViT) and ResNet (RN) CLIP models. 
-You can find the benchmark results in the following tables. 
-The best results are highlighted in bold. 
-They can be used as a guide to choose the best model for your application.
+As OpenAI noted in their blog post, We can see that CLIP is able to zero-shot perform
+including image classification and image retrieval.
+In order to understand the zero-shot performance of CLIP and its limitations, we conducted a benchmark
+across a variety of computer vision datasets (the dataset details are in the appendix). Here, thanks for the
+open-source `CLIP Benchmark toolkit <https://github.com/LAION-AI/CLIP_benchmark>`_, we can easily reproduce the results.
 
-Basic statistics
-----------------
+We hope that this benchmark can help you to better understand the performance of CLIP models and choose the best model for your application.
 
-In the table below, we include the disk usage (in delta) and the peak RAM and VRAM usage (in delta) when running on a single Nvidia TITAN RTX GPU (24GB VRAM) with a Intel® Core™ i7-10700K Processor (128GB RAM) for a series of text and image encoding tasks with ``batch_size=8`` using PyTorch runtime.
-We use ``clip_client==3.7.0``, ``clip_server==3.7.0``, ``jina==3.10.1`` and ``docarry==0.17.0``.
-We also include the QPS (Queries Per Second) for the text and image encoding tasks using ``clip_client`` with PyTorch runtime.
+
+Model Size and Efficiency
+-------------------------
+
+We first present the model's size and efficiency in terms of query time and memory usage (including the peak RAM and VRAM usage).
+All of the results are obtained on a single Nvidia TITAN RTX GPU (24GB VRAM) with default server settings.
 
 +----------------------------------------+------------------+----------------------+-----------------------+-----------+------------+
 | Model                                  | Disk Usage (MB)  | Peak RAM Usage (GB)  | Peak VRAM Usage (GB)  | Text QPS  | Image QPS  |
 +========================================+==================+======================+=======================+===========+============+
-| RN50::openai                           | **244**          | 2.99                 | **1.36**              | 1019      | 269        |
+| RN50::openai                           | 244              | 2.99                 | 1.36                  | 1019      | 269        |
 +----------------------------------------+------------------+----------------------+-----------------------+-----------+------------+
-| RN50::yfcc15m                          | 389              | 2.86                 | **1.36**              | 1083      | 262        |
+| RN50::yfcc15m                          | 389              | 2.86                 | 1.36                  | 1083      | 262        |
 +----------------------------------------+------------------+----------------------+-----------------------+-----------+------------+
-| RN50::cc12m                            | 389              | **2.84**             | **1.36**              | 1064      | 264        |
+| RN50::cc12m                            | 389              | 2.84                 | 1.36                  | 1064      | 264        |
 +----------------------------------------+------------------+----------------------+-----------------------+-----------+------------+
 | RN101::openai                          | 278              | 3.05                 | 1.40                  | 1047      | 222        |
 +----------------------------------------+------------------+----------------------+-----------------------+-----------+------------+
@@ -35,7 +37,7 @@ We also include the QPS (Queries Per Second) for the text and image encoding tas
 +----------------------------------------+------------------+----------------------+-----------------------+-----------+------------+
 | ViT-B-32::openai                       | 338              | 3.20                 | 1.40                  | 1064      | 286        |
 +----------------------------------------+------------------+----------------------+-----------------------+-----------+------------+
-| ViT-B-32::laion2b_e16                  | 577              | 2.93                 | 1.40                  | **1120**  | **292**    |
+| ViT-B-32::laion2b_e16                  | 577              | 2.93                 | 1.40                  | 1120      | 292        |
 +----------------------------------------+------------------+----------------------+-----------------------+-----------+------------+
 | ViT-B-32::laion400m_e31                | 577              | 2.93                 | 1.40                  | 1080      | 287        |
 +----------------------------------------+------------------+----------------------+-----------------------+-----------+------------+
