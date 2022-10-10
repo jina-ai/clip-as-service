@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 
+import numpy as np
 import torch.cuda
 
 from .clip import _download, available_models
@@ -37,24 +38,45 @@ class CLIPNebullvmModel:
     ):
         from nebullvm.api.functions import optimize_model
 
-        save_dir = os.path.expanduser("~/.cache/clip/nebullvm")
-        Path(save_dir).mkdir(exist_ok=True)
-        visual_save_dir = os.path.join(save_dir, "visual")
-        Path(visual_save_dir).mkdir(exist_ok=True)
-        text_save_dir = os.path.join(save_dir, "text")
-        Path(text_save_dir).mkdir(exist_ok=True)
         general_kwargs = {}
         general_kwargs.update(kwargs)
 
+        dynamic_info = {
+            "inputs": [
+                {0: 'batch', 1: 'num_channels', 2: 'pixel_size', 3: 'pixel_size'}
+            ],
+            "outputs": [{0: 'batch'}],
+        }
+
         self._visual_model = optimize_model(
             self._visual_path,
-            input_data=[((torch.randn(1, 3, self.pixel_size, self.pixel_size),), 0)],
+            input_data=[
+                (
+                    (
+                        np.random.randn(1, 3, self.pixel_size, self.pixel_size).astype(
+                            np.float32
+                        ),
+                    ),
+                    0,
+                )
+            ],
+            dynamic_info=dynamic_info,
             **general_kwargs,
         )
 
+        dynamic_info = {
+            "inputs": [
+                {0: 'batch', 1: 'num_tokens'},
+            ],
+            "outputs": [
+                {0: 'batch'},
+            ],
+        }
+
         self._textual_model = optimize_model(
             self._textual_path,
-            input_data=[((torch.randint(0, 100, (1, 77)),), 0)],
+            input_data=[((np.random.randint(0, 100, (1, 77)),), 0)],
+            dynamic_info=dynamic_info,
             **general_kwargs,
         )
 
