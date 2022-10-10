@@ -63,39 +63,41 @@ The procedure and UI of ONNX and TensorRT runtime would look the same as Pytorch
 The various `CLIP` models implemented in the [OpenAI](https://github.com/openai/CLIP), [OpenCLIP](https://github.com/mlfoundations/open_clip), and [MultilingualCLIP](https://github.com/FreddeFrallan/Multilingual-CLIP) are supported. 
 `ViT-B-32::openai` is used as the default model in all runtimes. 
 Due to the limitation of some runtimes, not every runtime supports all models. 
-Please also note that **different models give different sizes of output dimensions**. This will affect your downstream applications. For example, switching the model from one to another make your embedding incomparable, which breaks the downstream applications. Below is a list of supported models of each runtime and its corresponding size. We include the disk usage (in delta) and the peak RAM and VRAM usage (in delta) when running on a single Nvidia TITAN RTX GPU (24GB VRAM) for a series of text and image encoding tasks with `batch_size=8` using PyTorch runtime.
+Please also note that **different models give different sizes of output dimensions**. This will affect your downstream applications. For example, switching the model from one to another make your embedding incomparable, which breaks the downstream applications. Below is a list of supported models of each runtime and its corresponding size.
 
-| Model                                 | PyTorch | ONNX | TensorRT | Output Dimension | Disk Usage (MB) | Peak RAM Usage (GB) | Peak VRAM Usage (GB) |
-|---------------------------------------|---------|------|----------|------------------|-----------------|---------------------|----------------------|
-| RN50::openai                          | ✅       | ✅    | ✅        | 1024             | 244             | 2.99                | 1.36                 |
-| RN50::yfcc15m                         | ✅       | ✅    | ✅        | 1024             | 389             | 2.86                | 1.36                 |
-| RN50::cc12m                           | ✅       | ✅    | ✅        | 1024             | 389             | 2.84                | 1.36                 |
-| RN101::openai                         | ✅       | ✅    | ✅        | 512              | 278             | 3.05                | 1.40                 |
-| RN101::yfcc15m                        | ✅       | ✅    | ✅        | 512              | 457             | 2.88                | 1.40                 |
-| RN50x4::openai                        | ✅       | ✅    | ✅        | 640              | 402             | 3.23                | 1.63                 |
-| RN50x16::openai                       | ✅       | ✅    | ❌        | 768              | 631             | 3.63                | 2.02                 |
-| RN50x64::openai                       | ✅       | ✅    | ❌        | 1024             | 1291            | 4.08                | 2.98                 |
-| ViT-B-32::openai                      | ✅       | ✅    | ✅        | 512              | 338             | 3.20                | 1.40                 |
-| ViT-B-32::laion2b_e16                 | ✅       | ✅    | ✅        | 512              | 577             | 2.93                | 1.40                 |
-| ViT-B-32::laion400m_e31               | ✅       | ✅    | ✅        | 512              | 577             | 2.93                | 1.40                 |
-| ViT-B-32::laion400m_e32               | ✅       | ✅    | ✅        | 512              | 577             | 2.94                | 1.40                 |
-| ViT-B-32::laion2b-s34b-b79k           | ✅       | ✅    | ❌        | 512              | 577             | 2.94                | 1.40                 |
-| ViT-B-16::openai                      | ✅       | ✅    | ✅        | 512              | 335             | 3.20                | 1.44                 |
-| ViT-B-16::laion400m_e31               | ✅       | ✅    | ✅        | 512              | 571             | 2.93                | 1.44                 |
-| ViT-B-16::laion400m_e32               | ✅       | ✅    | ✅        | 512              | 571             | 2.94                | 1.44                 |
-| ViT-B-16-plus-240::laion400m_e31      | ✅       | ✅    | 🚧       | 640              | 795             | 3.03                | 1.59                 |
-| ViT-B-16-plus-240::laion400m_e32      | ✅       | ✅    | 🚧       | 640              | 795             | 3.03                | 1.59                 |
-| ViT-L-14::openai                      | ✅       | ✅    | ❌        | 768              | 890             | 3.66                | 2.04                 |
-| ViT-L-14::laion400m_e31               | ✅       | ✅    | ❌        | 768              | 1631            | 3.43                | 2.03                 |
-| ViT-L-14::laion400m_e32               | ✅       | ✅    | ❌        | 768              | 1631            | 3.42                | 2.03                 |
-| ViT-L-14::laion2b-s32b-b82k           | ✅       | ✅    | ❌        | 768              | 1631            | 3.43                | 2.03                 |
-| ViT-L-14-336::openai                  | ✅       | ✅    | ❌        | 768              | 891             | 3.74                | 2.23                 |
-| ViT-H-14::laion2b-s32b-b79k           | ✅       | ✅    | ❌        | 1024             | 3762            | 4.45                | 3.26                 |
-| ViT-g-14::laion2b-s12b-b42k           | ✅       | ✅    | ❌        | 1024             | 5214            | 5.16                | 4.00                 |
-| M-CLIP/LABSE-Vit-L-14                 | ✅       | ✅    | ❌        | 768              | 3609            | 4.30                | 4.70                 |
-| M-CLIP/XLM-Roberta-Large-Vit-B-32     | ✅       | ✅    | 🚧       | 512              | 4284            | 5.37                | 1.68                 |
-| M-CLIP/XLM-Roberta-Large-Vit-B-16Plus | ✅       | ✅    | 🚧       | 640              | 4293            | 4.30                | 4.13                 |
-| M-CLIP/XLM-Roberta-Large-Vit-L-14     | ✅       | ✅    | ❌        | 768              | 4293            | 4.30                | 4.97                 |
+For more details about the models and how to select the best model for your application, please refer to the [CLIP benchmark page](benchmark.rst).
+
+| Model                                 | PyTorch | ONNX | TensorRT | Output Dimension |
+|---------------------------------------|---------|------|----------|------------------|
+| RN50::openai                          | ✅       | ✅    | ✅        | 1024             |
+| RN50::yfcc15m                         | ✅       | ✅    | ✅        | 1024             |
+| RN50::cc12m                           | ✅       | ✅    | ✅        | 1024             |
+| RN101::openai                         | ✅       | ✅    | ✅        | 512              |
+| RN101::yfcc15m                        | ✅       | ✅    | ✅        | 512              |
+| RN50x4::openai                        | ✅       | ✅    | ✅        | 640              |
+| RN50x16::openai                       | ✅       | ✅    | ❌        | 768              |
+| RN50x64::openai                       | ✅       | ✅    | ❌        | 1024             |
+| ViT-B-32::openai                      | ✅       | ✅    | ✅        | 512              |
+| ViT-B-32::laion2b_e16                 | ✅       | ✅    | ✅        | 512              |
+| ViT-B-32::laion400m_e31               | ✅       | ✅    | ✅        | 512              |
+| ViT-B-32::laion400m_e32               | ✅       | ✅    | ✅        | 512              |
+| ViT-B-32::laion2b-s34b-b79k           | ✅       | ✅    | ❌        | 512              |
+| ViT-B-16::openai                      | ✅       | ✅    | ✅        | 512              |
+| ViT-B-16::laion400m_e31               | ✅       | ✅    | ✅        | 512              |
+| ViT-B-16::laion400m_e32               | ✅       | ✅    | ✅        | 512              |
+| ViT-B-16-plus-240::laion400m_e31      | ✅       | ✅    | 🚧       | 640              |
+| ViT-B-16-plus-240::laion400m_e32      | ✅       | ✅    | 🚧       | 640              |
+| ViT-L-14::openai                      | ✅       | ✅    | ❌        | 768              |
+| ViT-L-14::laion400m_e31               | ✅       | ✅    | ❌        | 768              |
+| ViT-L-14::laion400m_e32               | ✅       | ✅    | ❌        | 768              |
+| ViT-L-14::laion2b-s32b-b82k           | ✅       | ✅    | ❌        | 768              |
+| ViT-L-14-336::openai                  | ✅       | ✅    | ❌        | 768              |
+| ViT-H-14::laion2b-s32b-b79k           | ✅       | ✅    | ❌        | 1024             |
+| ViT-g-14::laion2b-s12b-b42k           | ✅       | ✅    | ❌        | 1024             |
+| M-CLIP/LABSE-Vit-L-14                 | ✅       | ✅    | ❌        | 768              |
+| M-CLIP/XLM-Roberta-Large-Vit-B-32     | ✅       | ✅    | 🚧       | 512              |
+| M-CLIP/XLM-Roberta-Large-Vit-B-16Plus | ✅       | ✅    | 🚧       | 640              |
+| M-CLIP/XLM-Roberta-Large-Vit-L-14     | ✅       | ✅    | ❌        | 768              |
 
 ✅ = Supported — 🚧 = Working in progress — ❌ = Not supported
 
