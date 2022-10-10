@@ -8,7 +8,7 @@ open-source `CLIP Benchmark toolkit <https://github.com/LAION-AI/CLIP_benchmark>
 We hope that this benchmark can help you to better understand the performance of CLIP models and choose the best model for your application.
 
 
-Size and Efficiency
+Size and efficiency
 -------------------------
 
 We first present the model's size and efficiency in terms of query time and memory usage (including the peak RAM and VRAM usage).
@@ -78,13 +78,13 @@ All of the results are obtained on a single Nvidia TITAN RTX GPU (24GB VRAM) wit
 
 
 
-Zero-shot Performance
+Zero-shot performance
 ----------------------------
 
 In this section, we will report the zero-shot performance of the models on classification and retrieval tasks across different datasets.
 
 
-Zero-shot Retrieval
+Zero-shot retrieval
 +++++++++++++++++++
 
 In zero-shot retrieval benchmark, each model is evaluated on the following datasets: `COCO Caption <https://github.com/tylin/coco-caption>`_, `Flickr8k <http://hockenmaier.cs.illinois.edu/8k-pictures.html>`_ and `Flickr30k <https://shannon.cs.illinois.edu/DenotationGraph/>`_.
@@ -154,7 +154,7 @@ From the table, we observe that the ViT models outperform the RN models in gener
 More specifically, the ``ViT-H-14::laion2b_s32b_b79k`` model and ``ViT-g-14::laion2b_s12b_b42k`` model achieve the best and second-best results on all zero-shot retrieval tasks.
 For ViT models, the results of the same base model are better on those pre-trained with larger datasets (e.g., ``ViT-B-32::openai`` vs ``ViT-B-32::laion400m_e31`` vs ``ViT-B-32::laion2b-s34b-b79k``).
 
-Zero-shot Classification
+Zero-shot classification
 ++++++++++++++++++++++++
 
 In zero-shot classification benchmark, each model is evaluated on the following datasets: `ImageNetV2 <https://github.com/modestyachts/ImageNetV2>`_, `VOC2007 <http://host.robots.ox.ac.uk/pascal/VOC/voc2007/>`_ and 19 `VTAB datasets <https://github.com/google-research/task_adaptation>`_.
