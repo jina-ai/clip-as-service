@@ -223,7 +223,7 @@ All models tend to perform well on ImageNetV2, VOC2007, VTAB natural and VTAB sp
 We do not observe any significant difference between the ViT models of the same base model. 
 
 How to choose the right model?
-++++++++++++++++++++++++++++++++++++++++++
+-------------------------------
 
 In general, you can select the best model for your application from different perspectives: disk usage, peak RAM and VRAM usages, QPS, and most importantly, the performance.
 
