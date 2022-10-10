@@ -78,10 +78,13 @@ All of the results are obtained on a single Nvidia TITAN RTX GPU (24GB VRAM) wit
 
 
 
-CLIP benchmark
---------------
+Model Zero-shot Performance
+----------------------------
 
-Zero-shot retrieval
+In this section, we will report the zero-shot performance of the models on classification and retrieval tasks across different datasets.
+
+
+Zero-shot Retrieval
 +++++++++++++++++++
 
 In zero-shot retrieval benchmark, each model is evaluated on the following datasets: `COCO Caption <https://github.com/tylin/coco-caption>`_, `Flickr8k <http://hockenmaier.cs.illinois.edu/8k-pictures.html>`_ and `Flickr30k <https://shannon.cs.illinois.edu/DenotationGraph/>`_.
@@ -151,7 +154,7 @@ From the table, we observe that the ViT models outperform the RN models in gener
 More specifically, the ``ViT-H-14::laion2b_s32b_b79k`` model and ``ViT-g-14::laion2b_s12b_b42k`` model achieve the best and second-best results on all zero-shot retrieval tasks.
 For ViT models, the results of the same base model are better on those pre-trained with larger datasets (e.g., ``ViT-B-32::openai`` vs ``ViT-B-32::laion400m_e31`` vs ``ViT-B-32::laion2b-s34b-b79k``).
 
-Zero-shot classification
+Zero-shot Classification
 ++++++++++++++++++++++++
 
 In zero-shot classification benchmark, each model is evaluated on the following datasets: `ImageNetV2 <https://github.com/modestyachts/ImageNetV2>`_, `VOC2007 <http://host.robots.ox.ac.uk/pascal/VOC/voc2007/>`_ and 19 `VTAB datasets <https://github.com/google-research/task_adaptation>`_.
@@ -219,8 +222,8 @@ Similar to retrieval results, the ``ViT-H-14::laion2b_s32b_b79k`` model and ``Vi
 All models tend to perform well on ImageNetV2, VOC2007, VTAB natural and VTAB specialized (except for Retinopathy) datasets, whereas they perform poorly on VTAB structured datasets.
 We do not observe any significant difference between the ViT models of the same base model. 
 
-Select the best model
-+++++++++++++++++++++
+How to choose the right model?
+++++++++++++++++++++++++++++++++++++++++++
 
 In general, you can select the best model for your application from different perspectives: disk usage, peak RAM and VRAM usages, QPS, and most importantly, the performance.
 

@@ -177,8 +177,8 @@ It means the client and the server are now connected. Well done!
 
 user-guides/client
 user-guides/server
-user-guides/retriever
 user-guides/benchmark
+user-guides/retriever
 user-guides/faq
 ```
 
