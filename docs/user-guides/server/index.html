@@ -35,7 +35,7 @@
 </script>
 
 <script async defer src="https://buttons.github.io/buttons.js"></script>
-    <link rel="index" title="Index" href="../../genindex/" /><link rel="search" title="Search" href="../../search/" /><link rel="next" title="CLIP Search" href="../retriever/" /><link rel="prev" title="Client API" href="../client/" />
+    <link rel="index" title="Index" href="../../genindex/" /><link rel="search" title="Search" href="../../search/" /><link rel="next" title="Benchmark" href="../benchmark/" /><link rel="prev" title="Client API" href="../client/" />
         <link rel="canonical" href="https://clip-as-service.jina.ai/user-guides/server.html" />
 
     <link rel="shortcut icon" href="../../_static/favicon.png"/><meta name="generator" content="sphinx-4.5.0, furo 2022.09.29"/>
@@ -225,6 +225,7 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../client/">Client API</a></li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Server API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../benchmark/">Benchmark</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../retriever/">CLIP Search</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../faq/">FAQ</a></li>
 </ul>
@@ -376,7 +377,8 @@ python -m clip_server tensorrt-flow.yml
 <p>The various <code class="docutils literal notranslate"><span class="pre">CLIP</span></code> models implemented in the <a class="reference external" href="https://github.com/openai/CLIP">OpenAI</a>, <a class="reference external" href="https://github.com/mlfoundations/open_clip">OpenCLIP</a>, and <a class="reference external" href="https://github.com/FreddeFrallan/Multilingual-CLIP">MultilingualCLIP</a> are supported.
 <code class="docutils literal notranslate"><span class="pre">ViT-B-32::openai</span></code> is used as the default model in all runtimes.
 Due to the limitation of some runtimes, not every runtime supports all models.
-Please also note that <strong>different models give different sizes of output dimensions</strong>. This will affect your downstream applications. For example, switching the model from one to another make your embedding incomparable, which breaks the downstream applications. Below is a list of supported models of each runtime and its corresponding size. We include the disk usage (in delta) and the peak RAM and VRAM usage (in delta) when running on a single Nvidia TITAN RTX GPU (24GB VRAM) for a series of text and image encoding tasks with <code class="docutils literal notranslate"><span class="pre">batch_size=8</span></code> using PyTorch runtime.</p>
+Please also note that <strong>different models give different sizes of output dimensions</strong>. This will affect your downstream applications. For example, switching the model from one to another make your embedding incomparable, which breaks the downstream applications. Below is a list of supported models of each runtime and its corresponding size.</p>
+<p>For more details about the models and how to select the best model for your application, please refer to the <a class="reference internal" href="../benchmark/"><span class="doc std std-doc">CLIP benchmark page</span></a>.</p>
 <div class="table-wrapper colwidths-auto docutils container">
 <table class="colwidths-auto docutils align-default">
 <thead>
@@ -385,9 +387,6 @@ Please also note that <strong>different models give different sizes of output di
 <th class="head"><p>ONNX</p></th>
 <th class="head"><p>TensorRT</p></th>
 <th class="head"><p>Output Dimension</p></th>
-<th class="head"><p>Disk Usage (MB)</p></th>
-<th class="head"><p>Peak RAM Usage (GB)</p></th>
-<th class="head"><p>Peak VRAM Usage (GB)</p></th>
 </tr>
 </thead>
 <tbody>
@@ -396,261 +395,174 @@ Please also note that <strong>different models give different sizes of output di
 <td><p>✅</p></td>
 <td><p>✅</p></td>
 <td><p>1024</p></td>
-<td><p>244</p></td>
-<td><p>2.99</p></td>
-<td><p>1.36</p></td>
 </tr>
 <tr class="row-odd"><td><p>RN50::yfcc15m</p></td>
 <td><p>✅</p></td>
 <td><p>✅</p></td>
 <td><p>✅</p></td>
 <td><p>1024</p></td>
-<td><p>389</p></td>
-<td><p>2.86</p></td>
-<td><p>1.36</p></td>
 </tr>
 <tr class="row-even"><td><p>RN50::cc12m</p></td>
 <td><p>✅</p></td>
 <td><p>✅</p></td>
 <td><p>✅</p></td>
 <td><p>1024</p></td>
-<td><p>389</p></td>
-<td><p>2.84</p></td>
-<td><p>1.36</p></td>
 </tr>
 <tr class="row-odd"><td><p>RN101::openai</p></td>
 <td><p>✅</p></td>
 <td><p>✅</p></td>
 <td><p>✅</p></td>
 <td><p>512</p></td>
-<td><p>278</p></td>
-<td><p>3.05</p></td>
-<td><p>1.40</p></td>
 </tr>
 <tr class="row-even"><td><p>RN101::yfcc15m</p></td>
 <td><p>✅</p></td>
 <td><p>✅</p></td>
 <td><p>✅</p></td>
 <td><p>512</p></td>
-<td><p>457</p></td>
-<td><p>2.88</p></td>
-<td><p>1.40</p></td>
 </tr>
 <tr class="row-odd"><td><p>RN50x4::openai</p></td>
 <td><p>✅</p></td>
 <td><p>✅</p></td>
 <td><p>✅</p></td>
 <td><p>640</p></td>
-<td><p>402</p></td>
-<td><p>3.23</p></td>
-<td><p>1.63</p></td>
 </tr>
 <tr class="row-even"><td><p>RN50x16::openai</p></td>
 <td><p>✅</p></td>
 <td><p>✅</p></td>
 <td><p>❌</p></td>
 <td><p>768</p></td>
-<td><p>631</p></td>
-<td><p>3.63</p></td>
-<td><p>2.02</p></td>
 </tr>
 <tr class="row-odd"><td><p>RN50x64::openai</p></td>
 <td><p>✅</p></td>
 <td><p>✅</p></td>
 <td><p>❌</p></td>
 <td><p>1024</p></td>
-<td><p>1291</p></td>
-<td><p>4.08</p></td>
-<td><p>2.98</p></td>
 </tr>
 <tr class="row-even"><td><p>ViT-B-32::openai</p></td>
 <td><p>✅</p></td>
 <td><p>✅</p></td>
 <td><p>✅</p></td>
 <td><p>512</p></td>
-<td><p>338</p></td>
-<td><p>3.20</p></td>
-<td><p>1.40</p></td>
 </tr>
 <tr class="row-odd"><td><p>ViT-B-32::laion2b_e16</p></td>
 <td><p>✅</p></td>
 <td><p>✅</p></td>
 <td><p>✅</p></td>
 <td><p>512</p></td>
-<td><p>577</p></td>
-<td><p>2.93</p></td>
-<td><p>1.40</p></td>
 </tr>
 <tr class="row-even"><td><p>ViT-B-32::laion400m_e31</p></td>
 <td><p>✅</p></td>
 <td><p>✅</p></td>
 <td><p>✅</p></td>
 <td><p>512</p></td>
-<td><p>577</p></td>
-<td><p>2.93</p></td>
-<td><p>1.40</p></td>
 </tr>
 <tr class="row-odd"><td><p>ViT-B-32::laion400m_e32</p></td>
 <td><p>✅</p></td>
 <td><p>✅</p></td>
 <td><p>✅</p></td>
 <td><p>512</p></td>
-<td><p>577</p></td>
-<td><p>2.94</p></td>
-<td><p>1.40</p></td>
 </tr>
 <tr class="row-even"><td><p>ViT-B-32::laion2b-s34b-b79k</p></td>
 <td><p>✅</p></td>
 <td><p>✅</p></td>
 <td><p>❌</p></td>
 <td><p>512</p></td>
-<td><p>577</p></td>
-<td><p>2.94</p></td>
-<td><p>1.40</p></td>
 </tr>
 <tr class="row-odd"><td><p>ViT-B-16::openai</p></td>
 <td><p>✅</p></td>
 <td><p>✅</p></td>
 <td><p>✅</p></td>
 <td><p>512</p></td>
-<td><p>335</p></td>
-<td><p>3.20</p></td>
-<td><p>1.44</p></td>
 </tr>
 <tr class="row-even"><td><p>ViT-B-16::laion400m_e31</p></td>
 <td><p>✅</p></td>
 <td><p>✅</p></td>
 <td><p>✅</p></td>
 <td><p>512</p></td>
-<td><p>571</p></td>
-<td><p>2.93</p></td>
-<td><p>1.44</p></td>
 </tr>
 <tr class="row-odd"><td><p>ViT-B-16::laion400m_e32</p></td>
 <td><p>✅</p></td>
 <td><p>✅</p></td>
 <td><p>✅</p></td>
 <td><p>512</p></td>
-<td><p>571</p></td>
-<td><p>2.94</p></td>
-<td><p>1.44</p></td>
 </tr>
 <tr class="row-even"><td><p>ViT-B-16-plus-240::laion400m_e31</p></td>
 <td><p>✅</p></td>
 <td><p>✅</p></td>
 <td><p>🚧</p></td>
 <td><p>640</p></td>
-<td><p>795</p></td>
-<td><p>3.03</p></td>
-<td><p>1.59</p></td>
 </tr>
 <tr class="row-odd"><td><p>ViT-B-16-plus-240::laion400m_e32</p></td>
 <td><p>✅</p></td>
 <td><p>✅</p></td>
 <td><p>🚧</p></td>
 <td><p>640</p></td>
-<td><p>795</p></td>
-<td><p>3.03</p></td>
-<td><p>1.59</p></td>
 </tr>
 <tr class="row-even"><td><p>ViT-L-14::openai</p></td>
 <td><p>✅</p></td>
 <td><p>✅</p></td>
 <td><p>❌</p></td>
 <td><p>768</p></td>
-<td><p>890</p></td>
-<td><p>3.66</p></td>
-<td><p>2.04</p></td>
 </tr>
 <tr class="row-odd"><td><p>ViT-L-14::laion400m_e31</p></td>
 <td><p>✅</p></td>
 <td><p>✅</p></td>
 <td><p>❌</p></td>
 <td><p>768</p></td>
-<td><p>1631</p></td>
-<td><p>3.43</p></td>
-<td><p>2.03</p></td>
 </tr>
 <tr class="row-even"><td><p>ViT-L-14::laion400m_e32</p></td>
 <td><p>✅</p></td>
 <td><p>✅</p></td>
 <td><p>❌</p></td>
 <td><p>768</p></td>
-<td><p>1631</p></td>
-<td><p>3.42</p></td>
-<td><p>2.03</p></td>
 </tr>
 <tr class="row-odd"><td><p>ViT-L-14::laion2b-s32b-b82k</p></td>
 <td><p>✅</p></td>
 <td><p>✅</p></td>
 <td><p>❌</p></td>
 <td><p>768</p></td>
-<td><p>1631</p></td>
-<td><p>3.43</p></td>
-<td><p>2.03</p></td>
 </tr>
 <tr class="row-even"><td><p>ViT-L-14-336::openai</p></td>
 <td><p>✅</p></td>
 <td><p>✅</p></td>
 <td><p>❌</p></td>
 <td><p>768</p></td>
-<td><p>891</p></td>
-<td><p>3.74</p></td>
-<td><p>2.23</p></td>
 </tr>
 <tr class="row-odd"><td><p>ViT-H-14::laion2b-s32b-b79k</p></td>
 <td><p>✅</p></td>
 <td><p>✅</p></td>
 <td><p>❌</p></td>
 <td><p>1024</p></td>
-<td><p>3762</p></td>
-<td><p>4.45</p></td>
-<td><p>3.26</p></td>
 </tr>
 <tr class="row-even"><td><p>ViT-g-14::laion2b-s12b-b42k</p></td>
 <td><p>✅</p></td>
 <td><p>✅</p></td>
 <td><p>❌</p></td>
 <td><p>1024</p></td>
-<td><p>5214</p></td>
-<td><p>5.16</p></td>
-<td><p>4.00</p></td>
 </tr>
 <tr class="row-odd"><td><p>M-CLIP/LABSE-Vit-L-14</p></td>
 <td><p>✅</p></td>
 <td><p>✅</p></td>
 <td><p>❌</p></td>
 <td><p>768</p></td>
-<td><p>3609</p></td>
-<td><p>4.30</p></td>
-<td><p>4.70</p></td>
 </tr>
 <tr class="row-even"><td><p>M-CLIP/XLM-Roberta-Large-Vit-B-32</p></td>
 <td><p>✅</p></td>
 <td><p>✅</p></td>
 <td><p>🚧</p></td>
 <td><p>512</p></td>
-<td><p>4284</p></td>
-<td><p>5.37</p></td>
-<td><p>1.68</p></td>
 </tr>
 <tr class="row-odd"><td><p>M-CLIP/XLM-Roberta-Large-Vit-B-16Plus</p></td>
 <td><p>✅</p></td>
 <td><p>✅</p></td>
 <td><p>🚧</p></td>
 <td><p>640</p></td>
-<td><p>4293</p></td>
-<td><p>4.30</p></td>
-<td><p>4.13</p></td>
 </tr>
 <tr class="row-even"><td><p>M-CLIP/XLM-Roberta-Large-Vit-L-14</p></td>
 <td><p>✅</p></td>
 <td><p>✅</p></td>
 <td><p>❌</p></td>
 <td><p>768</p></td>
-<td><p>4293</p></td>
-<td><p>4.30</p></td>
-<td><p>4.97</p></td>
 </tr>
 </tbody>
 </table>
@@ -1241,12 +1153,12 @@ docker build . -f Dockerfiles/server.Dockerfile  --build-arg <span class="nv">GR
             <footer>
                 
                 <div class="related-pages">
-                    <a class="next-page" href="../retriever/">
+                    <a class="next-page" href="../benchmark/">
                         <div class="page-info">
                             <div class="context">
                                 <span>Next</span>
                             </div>
-                            <div class="title">CLIP Search</div>
+                            <div class="title">Benchmark</div>
                         </div>
                         <svg class="furo-related-icon">
                             <use href="#svg-arrow-right"></use>
@@ -1271,7 +1183,7 @@ docker build . -f Dockerfiles/server.Dockerfile  --build-arg <span class="nv">GR
                         <div class="copyright">
                             Copyright &#169; Jina AI Limited. All rights reserved.
                         </div><div class="last-updated">
-                            Last updated on Sep 30, 2022</div>
+                            Last updated on Oct 10, 2022</div>
                     </div>
                     <div class="right-details">
                         <div class="social-btns">
