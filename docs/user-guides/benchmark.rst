@@ -1,27 +1,27 @@
-CLIP Benchmark
-==============
+Benchmark
+=========
 
-In order to evaluate the performance of different CLIP models, we conducted a benchmark on a series of tasks using different datasets. 
-We fork the `CLIP benchmark repo <https://github.com/LAION-AI/CLIP_benchmark>`_, slightly modify the codebase and apply it to all Vision Transformers (ViT) and ResNet (RN) CLIP models. 
-You can find the benchmark results in the following tables. 
-The best results are highlighted in bold. 
-They can be used as a guide to choose the best model for your application.
+In order to understand the zero-shot performance of CLIP and its limitations, we conducted a benchmark
+across a variety of computer vision datasets (the dataset details are in the appendix). Here, thanks for the
+open-source `CLIP Benchmark toolkit <https://github.com/LAION-AI/CLIP_benchmark>`_, we can easily reproduce the results.
 
-Basic statistics
-----------------
+We hope that this benchmark can help you to better understand the performance of CLIP models and choose the best model for your application.
 
-In the table below, we include the disk usage (in delta) and the peak RAM and VRAM usage (in delta) when running on a single Nvidia TITAN RTX GPU (24GB VRAM) with a Intel® Core™ i7-10700K Processor (128GB RAM) for a series of text and image encoding tasks with ``batch_size=8`` using PyTorch runtime.
-We use ``clip_client==3.7.0``, ``clip_server==3.7.0``, ``jina==3.10.1`` and ``docarry==0.17.0``.
-We also include the QPS (Queries Per Second) for the text and image encoding tasks using ``clip_client`` with PyTorch runtime.
+
+Size and efficiency
+-------------------------
+
+We first present the model's size and efficiency in terms of query time and memory usage (including the peak RAM and VRAM usage).
+All of the results are obtained on a single Nvidia TITAN RTX GPU (24GB VRAM) with default server settings.
 
 +----------------------------------------+------------------+----------------------+-----------------------+-----------+------------+
 | Model                                  | Disk Usage (MB)  | Peak RAM Usage (GB)  | Peak VRAM Usage (GB)  | Text QPS  | Image QPS  |
 +========================================+==================+======================+=======================+===========+============+
-| RN50::openai                           | **244**          | 2.99                 | **1.36**              | 1019      | 269        |
+| RN50::openai                           | 244              | 2.99                 | 1.36                  | 1019      | 269        |
 +----------------------------------------+------------------+----------------------+-----------------------+-----------+------------+
-| RN50::yfcc15m                          | 389              | 2.86                 | **1.36**              | 1083      | 262        |
+| RN50::yfcc15m                          | 389              | 2.86                 | 1.36                  | 1083      | 262        |
 +----------------------------------------+------------------+----------------------+-----------------------+-----------+------------+
-| RN50::cc12m                            | 389              | **2.84**             | **1.36**              | 1064      | 264        |
+| RN50::cc12m                            | 389              | 2.84                 | 1.36                  | 1064      | 264        |
 +----------------------------------------+------------------+----------------------+-----------------------+-----------+------------+
 | RN101::openai                          | 278              | 3.05                 | 1.40                  | 1047      | 222        |
 +----------------------------------------+------------------+----------------------+-----------------------+-----------+------------+
@@ -35,7 +35,7 @@ We also include the QPS (Queries Per Second) for the text and image encoding tas
 +----------------------------------------+------------------+----------------------+-----------------------+-----------+------------+
 | ViT-B-32::openai                       | 338              | 3.20                 | 1.40                  | 1064      | 286        |
 +----------------------------------------+------------------+----------------------+-----------------------+-----------+------------+
-| ViT-B-32::laion2b_e16                  | 577              | 2.93                 | 1.40                  | **1120**  | **292**    |
+| ViT-B-32::laion2b_e16                  | 577              | 2.93                 | 1.40                  | 1120      | 292        |
 +----------------------------------------+------------------+----------------------+-----------------------+-----------+------------+
 | ViT-B-32::laion400m_e31                | 577              | 2.93                 | 1.40                  | 1080      | 287        |
 +----------------------------------------+------------------+----------------------+-----------------------+-----------+------------+
@@ -78,8 +78,11 @@ We also include the QPS (Queries Per Second) for the text and image encoding tas
 
 
 
-CLIP benchmark
---------------
+Zero-shot performance
+----------------------------
+
+In this section, we will report the zero-shot performance of the models on classification and retrieval tasks across different datasets.
+In the following tables, we will highlight the best results in bold for each dataset (higher is better).
 
 Zero-shot retrieval
 +++++++++++++++++++
@@ -219,8 +222,8 @@ Similar to retrieval results, the ``ViT-H-14::laion2b_s32b_b79k`` model and ``Vi
 All models tend to perform well on ImageNetV2, VOC2007, VTAB natural and VTAB specialized (except for Retinopathy) datasets, whereas they perform poorly on VTAB structured datasets.
 We do not observe any significant difference between the ViT models of the same base model. 
 
-Select the best model
-+++++++++++++++++++++
+Select the right model
+-----------------------
 
 In general, you can select the best model for your application from different perspectives: disk usage, peak RAM and VRAM usages, QPS, and most importantly, the performance.
 
