@@ -154,12 +154,14 @@ The results will look like this, the most relevant doc is "she smiled, with pain
 You can set the `limit` parameter (default is `10`) to control the number of the most similar documents to be retrieved.
 
 
-### Memory Profile
+### Memory Estimation
 
-AnnLite keeps `HNSW` indexer and `cell_table` (stores columns which will be used for filtering) in memory. We estimate the memory usage of `HNSW` indexer and `cell_table` as below:
+Here, we will show how to estimate the memory usage of `AnnLite` indexer.
+This is useful for determining the amount of memory required for indexing and querying.
 
-- `HNSW` indexer: 1.1 * (4 bytes * `dimension` + 8 bytes * `max_connection`), where `dimension` is the dimension of the embedding vectors, and `max_connection` is the maximum number of connections in the graph. 
-For more information about the memory usage of `HNSW` indexer, you can refer to [this](https://opensearch.org/docs/latest/search-plugins/knn/knn-index/#memory-estimation)
+In `AnnLite`, the memory usage is determined by the following two components:
+
+- `HNSW` indexer: N * 1.1 * (4 bytes * `dimension` + 8 bytes * `max_connection`), where N is the number of embedding vectors, `dimension` is the dimension of the embedding vectors, and `max_connection` is the maximum number of connections in the graph. 
 - `cell_table`: it's almost linear to the number of columns and number of data. If the default setting is used (no columns used for filtering), the memory usage of `cell_table` is 0.12GB per million data.
 Columns used for filtering are stored in string type so the memory usage is depended on the length of the string.
 
