@@ -92,6 +92,7 @@ run = finetuner.fit(
     learning_rate=1e-5,
     loss='CLIPLoss',
     cpu=False,
+    to_onnx=True,
 )
 ```
 
@@ -172,10 +173,6 @@ executors:
         name: ViT-B/32
         model_path: 'clip-fashion-cas' # path to clip-fashion-cas
     replicas: 1
-```
-
-```{warning}
-Note that Finetuner only support ViT-B/32 CLIP model currently. The model name should match the fine-tuned model, or you will get incorrect output.
 ```
 
 You can now start the `clip_server` using fine-tuned model to get a performance boost:
