@@ -57,6 +57,7 @@
 
 
 
+
 <a name=release-note-0-0-3></a>
 ## Release Note (`0.0.3`)
 
@@ -1415,4 +1416,37 @@
  - [[```53636cea```](https://github.com/jina-ai/clip-as-service/commit/53636cea63bf8063bcfd744aae4577df8e0eab2e)] __-__ bump version to 0.7.0 (*numb3r3*)
  - [[```eda4aa8e```](https://github.com/jina-ai/clip-as-service/commit/eda4aa8e958bbbd83dddcd5932622bcf041f3918)] __-__ __version__: the next version will be 0.6.3 (*Jina Dev Bot*)
  - [[```f7ee26a1```](https://github.com/jina-ai/clip-as-service/commit/f7ee26a17d47c1de0efc1122ccb40d3b22d217a8)] __-__ improve model not found error msg (#812) (*Ziniu Yu*)
+
+<a name=release-note-0-8-0></a>
+## Release Note (`0.8.0`)
+
+> Release time: 2022-10-12 08:11:40
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ numb3r3,  Jie Fu,  Ziniu Yu,  felix-wang,  Jina Dev Bot,  🙇
+
+
+### 🆕 New Features
+
+ - [[```2ba8a4fe```](https://github.com/jina-ai/clip-as-service/commit/2ba8a4fe71f26faa5e92d62df04edb616389f6bd)] __-__ support large ONNX model files (#828) (*Ziniu Yu*)
+ - [[```09d15485```](https://github.com/jina-ai/clip-as-service/commit/09d15485d50c51a77cb57380f4b848b41764a1b6)] __-__ support B/32, L/14, H/14, and g/14 trained on LAION-2B (#825) (*Ziniu Yu*)
+ - [[```c690c247```](https://github.com/jina-ai/clip-as-service/commit/c690c247946017d178d9340d8c951342c0321943)] __-__ drop image content to boost latency (#824) (*felix-wang*)
+ - [[```bcce9900```](https://github.com/jina-ai/clip-as-service/commit/bcce990032abfd618cea408ab3f0fb4e352789ae)] __-__ in-place result in clip_client; preserve output order by uid (#815) (*Ziniu Yu*)
+
+### 📗 Documentation
+
+ - [[```87fdc548```](https://github.com/jina-ai/clip-as-service/commit/87fdc5489c5b33b76e28dd1c0b54017a51dd4abe)] __-__ add memory profile (#841) (*Jie Fu*)
+ - [[```7ee58c8b```](https://github.com/jina-ai/clip-as-service/commit/7ee58c8b2751f949790983f223209ad1d2261fca)] __-__ clip benchmark on zeroshot classification and retrieval tasks (#832) (*Ziniu Yu*)
+
+### 🍹 Other Improvements
+
+ - [[```920b3107```](https://github.com/jina-ai/clip-as-service/commit/920b31070f54b1b6af4d4e58e7db351a576e0783)] __-__ bump version to 0.8.0 (*numb3r3*)
+ - [[```54e99786```](https://github.com/jina-ai/clip-as-service/commit/54e99786ea07b9ad109f593890e3b4945d39b768)] __-__ add description for retrieval playground (#834) (*Jie Fu*)
+ - [[```a26a883f```](https://github.com/jina-ai/clip-as-service/commit/a26a883fa15a47243450c9cebbfc7f472e6cfa04)] __-__ use open clip naming convention for model names (#836) (*Ziniu Yu*)
+ - [[```f40513d5```](https://github.com/jina-ai/clip-as-service/commit/f40513d57c0c3f7e466160f41547c970618af85a)] __-__ fix docs website template (#833) (*Ziniu Yu*)
+ - [[```d520ebb8```](https://github.com/jina-ai/clip-as-service/commit/d520ebb835e2814f7696148a0dcabbbf8bdadc76)] __-__ remove unused md (*numb3r3*)
+ - [[```2c3c61f9```](https://github.com/jina-ai/clip-as-service/commit/2c3c61f9d6f5a351f235dbad45879f0c7c4fd986)] __-__ __version__: the next version will be 0.7.1 (*Jina Dev Bot*)
+ - [[```53636cea```](https://github.com/jina-ai/clip-as-service/commit/53636cea63bf8063bcfd744aae4577df8e0eab2e)] __-__ bump version to 0.7.0 (*numb3r3*)
 
