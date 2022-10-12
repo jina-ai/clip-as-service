@@ -1,0 +1,242 @@
+<script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
+
+<div id="demo-embed">
+    <table class="embeddingInput">
+        <tr>
+            <td>Input an image URL</td>
+            <td><input v-model="query"
+                       placeholder="Input an image URL"
+                       style="width: 80%"
+                       maxlength="1000"></td>
+        </tr>
+
+        <tr>
+            <td>Click an image to select</td>
+            <td>
+                <div class="gallery">
+                    <img @click="query='https://picsum.photos/id/'+image.id+'/50'" class="gallery-image"
+                         :src="'https://picsum.photos/id/'+image.id+'/80'" v-for="image in images">
+                </div>
+            </td>
+        </tr>
+
+        <tr>
+            <td>Upload image from local</td>
+            <td><input type="file" @change="encodeImageFileAsURL" accept=".jpg, .jpeg, .png"/></td>
+        </tr>
+
+    </table>
+
+    <p>
+        <button v-on:click="addPrompt">+ Add prompt</button>
+        <button v-on:click="rmPrompt">- Remove prompt</button>
+    </p>
+    <li v-for="item in prompts" :key="item.id">
+        <input v-model="item.text" placeholder="edit me" size="50">
+    </li>
+
+    <p>
+        <div v-if="query && embedding" class="embeddingChart">
+
+            <div>
+                <p>Done in {{elapsed}}ms
+                <span>
+                    <img class="thumbnail" v-if="isUrl" :src="query" :alt="query + 'is not a valid image'">
+                    <code v-else>{{query}}</code>
+                </span>
+                </p>
+            </div>
+
+        </div>
+    </p>
+    <p>
+    Showing reasoning results (score in softmax):
+    <table>
+        <tr v-for="item in matches">
+            <td style="width: 300px"
+                :style="{background: 'linear-gradient(90deg, #00bfa5 ' +(item.scores['clip_score'].value * 100).toFixed(2) + '%, #b5f6e9 '+ (item.scores['clip_score'].value * 100).toFixed(2) + '%)'}">
+                {{item.text}}
+            </td>
+            <td>{{(item.scores['clip_score'].value * 100).toFixed(2)}}</td>
+        </tr>
+    </table>
+    </p>
+</div>
+
+<style>
+    #demo-embed {
+        font-family: var(--font-stack) !important;
+    }
+
+    .scorebar {
+        background: #00bfa5;
+    }
+
+    .gallery-image:hover {
+        opacity: 100%;
+    }
+
+    .gallery-image {
+        opacity: 50%;
+        transition: opacity 0.3s;
+        -webkit-transition: opacity 0.3s;
+        cursor: pointer;
+    }
+
+    .preview-image {
+        width: 100px
+    }
+
+    .thumbnail {
+        max-width: 64px;
+        max-height: 64px;
+    }
+
+    .embeddingChart {
+        margin-top: 30px;
+        margin-bottom: 30px;
+    }
+
+    .embeddingBlock {
+        width: 8px;
+        height: 8px;
+        display: inline-flex;
+        background: green;
+        border-style: solid;
+        border-color: white;
+        border-width: 1px;
+        font-size: 1vmin;
+        color: white;
+        text-align: center;
+        vertical-align: middle;
+        justify-content: center;
+        align-items: center;
+        transition: opacity 0.3s;
+        -webkit-transition: opacity 0.3s;
+        cursor: pointer;
+    }
+
+    .embeddingBlock:hover {
+        border-color: green;
+    }
+
+
+</style>
+
+<script>
+    function randomIntFromInterval(min, max) { // min and max included
+        return Math.floor(Math.random() * (max - min + 1) + min)
+    }
+
+    var app = new Vue({
+        el: '#demo-embed',
+        data: {
+            serverAddress: `https://demo-cas.jina.ai:8443`,
+            query: 'https://picsum.photos/300',
+            embedding: [1, 1, 1],
+            max_embed_value: 0,
+            min_embed_value: 0,
+            elapsed: 0,
+            showValue: true,
+            images: [],
+            matches: [],
+            prompts: [
+                {"text": "This is a photo of natural scene"},
+                {"text": "This is a photo of man-made object"},
+                {"text": "This is a photo of an animal"},
+                {"text": "This is a photo with human faces"},
+                {"text": "This is a blurry photo"},
+                {"text": "This is a black and white photo"},
+                {"text": "This is a screenshot"},
+            ]
+        },
+        computed: {
+            isUrl: function () {
+                let url;
+
+                try {
+                    url = new URL(this.query);
+                } catch (_) {
+                    return false;
+                }
+
+                return url.protocol === "http:" || url.protocol === "https:" || url.protocol === "data:";
+            },
+            // get only
+            payload: function () {
+                return {
+                    data: [this.isUrl ? {
+                        uri: this.query,
+                        matches: this.prompts
+                    } : {
+                        text: this.query,
+                        matches: this.prompts
+                    }],
+                    exec_endpoint: '/rank',
+                }
+            }
+        },
+        mounted: function () {
+            this.$nextTick(function () {
+                app.callJina();
+
+                $.getJSON("https://picsum.photos/v2/list?page=" + randomIntFromInterval(1, 40) + "&limit=10", function (json) {
+                    app.images = json
+                });
+
+            })
+        },
+        watch: {
+            query: function (newQ, oldQ) {
+                this.callJina()
+            },
+            prompts: {
+                handler: function (newQ, oldQ) {
+                    this.callJina()
+                }, deep: true
+            },
+        },
+        methods: {
+            encodeImageFileAsURL(element) {
+                var file = element.target.files[0];
+                var reader = new FileReader();
+                reader.onloadend = function () {
+                    app.query = reader.result
+                }
+                reader.readAsDataURL(file);
+            },
+            addPrompt: function () {
+                this.prompts.push({"text": "write your prompt here"})
+            },
+            rmPrompt: function () {
+                this.prompts.pop()
+            },
+            normalize_value(val) {
+                r = (val - this.min_embed_value) / (this.max_embed_value - this.min_embed_value)
+                r = (r * 10).toFixed(0) / 10
+                return r
+            },
+            callJina: function () {
+
+                $.ajax({
+                    type: "POST",
+                    url: this.serverAddress + "/post",
+                    data: JSON.stringify(this.payload),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                }).success(function (data, textStatus, jqXHR) {
+                    // data.data[0].embedding
+                    app.matches = data.data[0].matches
+                    date1 = new Date(data.routes[0].startTime)
+                    date2 = new Date(data.routes[0].endTime)
+                    app.elapsed = date2 - date1
+
+                }).fail(function () {
+                    console.error("bad connection!")
+                });
+            }
+        }
+    })
+
+</script>
