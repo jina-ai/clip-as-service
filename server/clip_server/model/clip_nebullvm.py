@@ -1,35 +1,63 @@
 import os
-from pathlib import Path
 
 import numpy as np
 import torch.cuda
 
-from .clip import _download, available_models
-
-_S3_BUCKET = 'https://clip-as-service.s3.us-east-2.amazonaws.com/models/onnx/'
-_MODELS = {
-    'RN50': ('RN50/textual.onnx', 'RN50/visual.onnx'),
-    'RN101': ('RN101/textual.onnx', 'RN101/visual.onnx'),
-    'RN50x4': ('RN50x4/textual.onnx', 'RN50x4/visual.onnx'),
-    'RN50x16': ('RN50x16/textual.onnx', 'RN50x16/visual.onnx'),
-    'RN50x64': ('RN50x64/textual.onnx', 'RN50x64/visual.onnx'),
-    'ViT-B/32': ('ViT-B-32/textual.onnx', 'ViT-B-32/visual.onnx'),
-    'ViT-B/16': ('ViT-B-16/textual.onnx', 'ViT-B-16/visual.onnx'),
-    'ViT-L/14': ('ViT-L-14/textual.onnx', 'ViT-L-14/visual.onnx'),
-    'ViT-L/14@336px': ('ViT-L-14@336px/textual.onnx', 'ViT-L-14@336px/visual.onnx'),
-}
+from clip_server.model.pretrained_models import (
+    download_model,
+    _OPENCLIP_MODELS,
+    _MULTILINGUALCLIP_MODELS,
+)
+from clip_server.model.clip_model import BaseCLIPModel
+from clip_server.model.clip_onnx import _MODELS, _S3_BUCKET, _S3_BUCKET_V2
 
 
-class CLIPNebullvmModel:
-    def __init__(self, name: str = None, pixel_size: int = 224):
-        self.pixel_size = pixel_size
+class CLIPNebullvmModel(BaseCLIPModel):
+    def __init__(self, name: str, model_path: str = None):
+        super().__init__(name)
         if name in _MODELS:
-            cache_dir = os.path.expanduser(f'~/.cache/clip/{name.replace("/", "-")}')
-            self._textual_path = _download(_S3_BUCKET + _MODELS[name][0], cache_dir)
-            self._visual_path = _download(_S3_BUCKET + _MODELS[name][1], cache_dir)
+            if not model_path:
+                cache_dir = os.path.expanduser(
+                    f'~/.cache/clip/{name.replace("/", "-").replace("::", "-")}'
+                )
+                textual_model_name, textual_model_md5 = _MODELS[name][0]
+                self._textual_path = download_model(
+                    url=_S3_BUCKET_V2 + textual_model_name,
+                    target_folder=cache_dir,
+                    md5sum=textual_model_md5,
+                    with_resume=True,
+                )
+                visual_model_name, visual_model_md5 = _MODELS[name][1]
+                self._visual_path = download_model(
+                    url=_S3_BUCKET_V2 + visual_model_name,
+                    target_folder=cache_dir,
+                    md5sum=visual_model_md5,
+                    with_resume=True,
+                )
+            else:
+                if os.path.isdir(model_path):
+                    self._textual_path = os.path.join(model_path,
+                                                      'textual.onnx')
+                    self._visual_path = os.path.join(model_path, 'visual.onnx')
+                    if not os.path.isfile(
+                            self._textual_path) or not os.path.isfile(
+                            self._visual_path
+                    ):
+                        raise RuntimeError(
+                            f'The given model path {model_path} does not contain `textual.onnx` and `visual.onnx`'
+                        )
+                else:
+                    raise RuntimeError(
+                        f'The given model path {model_path} should be a folder containing both '
+                        f'`textual.onnx` and `visual.onnx`.'
+                    )
         else:
             raise RuntimeError(
-                f'Model {name} not found; available models = {available_models()}'
+                'CLIP model {} not found or not supports ONNX backend; below is a list of all available models:\n{}'.format(
+                    name,
+                    ''.join(
+                        ['\t- {}\n'.format(i) for i in list(_MODELS.keys())]),
+                )
             )
 
     def optimize_models(
@@ -79,6 +107,19 @@ class CLIPNebullvmModel:
             dynamic_info=dynamic_info,
             **general_kwargs,
         )
+
+    @staticmethod
+    def get_model_name(name: str):
+        if name in _OPENCLIP_MODELS:
+            from clip_server.model.openclip_model import OpenCLIPModel
+
+            return OpenCLIPModel.get_model_name(name)
+        elif name in _MULTILINGUALCLIP_MODELS:
+            from clip_server.model.mclip_model import MultilingualCLIPModel
+
+            return MultilingualCLIPModel.get_model_name(name)
+
+        return name
 
     def encode_image(self, onnx_image):
         (visual_output,) = self._visual_model(onnx_image)
