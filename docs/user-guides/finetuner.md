@@ -177,16 +177,50 @@ executors:
 ```
 
 
-```{warning}
-Note that `finetuner==0.6.3` doesn't support these new clip models trained on Laion2B: 
-- ViT-B-32::laion2b-s34b-b79k
-- ViT-L-14::laion2b-s32b-b82k
-- ViT-H-14::laion2b-s32b-b79k
-- ViT-g-14::laion2b-s12b-b42k
-```
-
 ```{tip}
-You can use finetuner.describe_models() to check the supported models.
+You can use finetuner.describe_models() to check the supported models in finetuner:
+                                                                     Finetuner backbones
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃                                             name ┃           task ┃ output_dim ┃ architecture ┃                                                description ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│                                  bert-base-cased │   text-to-text │        768 │  transformer │ BERT model pre-trained on BookCorpus and English Wikipedia │
+│                     openai/clip-vit-base-patch16 │  text-to-image │        512 │  transformer │                         CLIP base model with patch size 16 │
+│                     openai/clip-vit-base-patch32 │  text-to-image │        512 │  transformer │                                            CLIP base model │
+│                openai/clip-vit-large-patch14-336 │  text-to-image │        768 │  transformer │                        CLIP large model for 336x336 images │
+│                    openai/clip-vit-large-patch14 │  text-to-image │       1024 │  transformer │                        CLIP large model with patch size 14 │
+│                                  efficientnet_b0 │ image-to-image │       1280 │          cnn │                    EfficientNet B0 pre-trained on ImageNet │
+│                                  efficientnet_b4 │ image-to-image │       1792 │          cnn │                    EfficientNet B4 pre-trained on ImageNet │
+│                                     RN101#openai │  text-to-image │        512 │  transformer │                             Open CLIP "RN101#openai" model │
+│                           RN101-quickgelu#openai │  text-to-image │        512 │  transformer │                   Open CLIP "RN101-quickgelu#openai" model │
+│                          RN101-quickgelu#yfcc15m │  text-to-image │        512 │  transformer │                  Open CLIP "RN101-quickgelu#yfcc15m" model │
+│                                    RN101#yfcc15m │  text-to-image │        512 │  transformer │                            Open CLIP "RN101#yfcc15m" model │
+│                                       RN50#cc12m │  text-to-image │       1024 │  transformer │                               Open CLIP "RN50#cc12m" model │
+│                                      RN50#openai │  text-to-image │       1024 │  transformer │                              Open CLIP "RN50#openai" model │
+│                             RN50-quickgelu#cc12m │  text-to-image │       1024 │  transformer │                     Open CLIP "RN50-quickgelu#cc12m" model │
+│                            RN50-quickgelu#openai │  text-to-image │       1024 │  transformer │                    Open CLIP "RN50-quickgelu#openai" model │
+│                           RN50-quickgelu#yfcc15m │  text-to-image │       1024 │  transformer │                   Open CLIP "RN50-quickgelu#yfcc15m" model │
+│                                   RN50x16#openai │  text-to-image │        768 │  transformer │                           Open CLIP "RN50x16#openai" model │
+│                                    RN50x4#openai │  text-to-image │        640 │  transformer │                            Open CLIP "RN50x4#openai" model │
+│                                   RN50x64#openai │  text-to-image │       1024 │  transformer │                           Open CLIP "RN50x64#openai" model │
+│                                     RN50#yfcc15m │  text-to-image │       1024 │  transformer │                             Open CLIP "RN50#yfcc15m" model │
+│                           ViT-B-16#laion400m_e31 │  text-to-image │        512 │  transformer │                   Open CLIP "ViT-B-16#laion400m_e31" model │
+│                           ViT-B-16#laion400m_e32 │  text-to-image │        512 │  transformer │                   Open CLIP "ViT-B-16#laion400m_e32" model │
+│                                  ViT-B-16#openai │  text-to-image │        512 │  transformer │                          Open CLIP "ViT-B-16#openai" model │
+│                  ViT-B-16-plus-240#laion400m_e31 │  text-to-image │        640 │  transformer │          Open CLIP "ViT-B-16-plus-240#laion400m_e31" model │
+│                  ViT-B-16-plus-240#laion400m_e32 │  text-to-image │        640 │  transformer │          Open CLIP "ViT-B-16-plus-240#laion400m_e32" model │
+│                             ViT-B-32#laion2b_e16 │  text-to-image │        512 │  transformer │                     Open CLIP "ViT-B-32#laion2b_e16" model │
+│                           ViT-B-32#laion400m_e31 │  text-to-image │        512 │  transformer │                   Open CLIP "ViT-B-32#laion400m_e31" model │
+│                           ViT-B-32#laion400m_e32 │  text-to-image │        512 │  transformer │                   Open CLIP "ViT-B-32#laion400m_e32" model │
+│                                  ViT-B-32#openai │  text-to-image │        512 │  transformer │                          Open CLIP "ViT-B-32#openai" model │
+│                 ViT-B-32-quickgelu#laion400m_e31 │  text-to-image │        512 │  transformer │         Open CLIP "ViT-B-32-quickgelu#laion400m_e31" model │
+│                 ViT-B-32-quickgelu#laion400m_e32 │  text-to-image │        512 │  transformer │         Open CLIP "ViT-B-32-quickgelu#laion400m_e32" model │
+│                        ViT-B-32-quickgelu#openai │  text-to-image │        512 │  transformer │                Open CLIP "ViT-B-32-quickgelu#openai" model │
+│                              ViT-L-14-336#openai │  text-to-image │        768 │  transformer │                      Open CLIP "ViT-L-14-336#openai" model │
+│                                  ViT-L-14#openai │  text-to-image │        768 │  transformer │                          Open CLIP "ViT-L-14#openai" model │
+│                                        resnet152 │ image-to-image │       2048 │          cnn │                          ResNet152 pre-trained on ImageNet │
+│                                         resnet50 │ image-to-image │       2048 │          cnn │                           ResNet50 pre-trained on ImageNet │
+│ sentence-transformers/msmarco-distilbert-base-v3 │   text-to-text │        768 │  transformer │                    Pretrained BERT, fine-tuned on MS Marco │
+└──────────────────────────────────────────────────┴────────────────┴────────────┴──────────────┴────────────────────────────────────────────────────────────┘
 ```
 
 
