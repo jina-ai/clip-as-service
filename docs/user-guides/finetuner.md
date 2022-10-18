@@ -7,7 +7,7 @@ This guide will show you how to use [Finetuner](https://finetuner.jina.ai) to fi
 For installation and basic usage of Finetuner, please refer to [Finetuner documentation](https://finetuner.jina.ai).
 You can also [learn more details about fine-tuning CLIP](https://finetuner.jina.ai/tasks/text-to-image/).
 
-This tutorial requires `finetuner >=v0.6.2', `clip_server >=v0.6.0'.
+This tutorial requires `finetuner >=v0.6.3', `clip_server >=v0.6.0'.
 
 ## Prepare Training Data
 
@@ -178,11 +178,15 @@ executors:
 
 
 ```{warning}
-Note that `finetuner`==0.6.2 doesn't support these new clip models trained on Laion2B: 
+Note that `finetuner==0.6.3` doesn't support these new clip models trained on Laion2B: 
 - ViT-B-32::laion2b-s34b-b79k
 - ViT-L-14::laion2b-s32b-b82k
 - ViT-H-14::laion2b-s32b-b79k
 - ViT-g-14::laion2b-s12b-b42k
+```
+
+```{tip}
+You can use finetuner.describe_models() to check the supported models.
 ```
 
 
