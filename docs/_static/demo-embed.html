@@ -120,7 +120,7 @@
     var app = new Vue({
         el: '#demo-embed',
         data: {
-            serverAddress: `https://demo-cas.jina.ai:8443`,
+            serverAddress: `https://api.clip.jina.ai:8443`,
             query: 'First do it, then do it right, then do it better',
             embedding: [1, 1, 1],
             max_embed_value: 0,
@@ -185,6 +185,9 @@
             callJina: function () {
 
                 $.ajax({
+                    headers: {
+                        Authorization: "d28b93ccbd13367148d05fe3f7fbc680"
+                    },
                     type: "POST",
                     url: this.serverAddress + "/post",
                     data: JSON.stringify(this.payload),
