@@ -7,14 +7,26 @@
 
 ## Try it!
 
-An always-online demo server loaded with `ViT-L/14-336px` is there for you to play & test: 
+An always-online server `api.clip.jina.ai` loaded with `ViT-L/14-336px` is there for you to play & test.
+
+Before you start, make sure you have created access token from our [console website](https://console.clip.jina.ai/get_started), 
+or CLI as described in [this guide](https://github.com/jina-ai/jina-hubble-sdk#create-a-new-pat).
+
+```bash 
+jina auth token create <name of PAT> -e <expiration days>
+```
+
+Then, you need to set the created token in HTTP request header `Authorization` as `<your access token>`, 
+or configure it in the parameter `credential` of the client in python.
+
 
 ````{tab} via HTTPS 🔐
 
 ```bash
 curl \
--X POST https://demo-cas.jina.ai:8443/post \
+-X POST https://api.clip.jina.ai:8443/post \
 -H 'Content-Type: application/json' \
+-H 'Authorization: <your access token>' \
 -d '{"data":[{"text": "First do it"}, 
     {"text": "then do it right"}, 
     {"text": "then do it better"}, 
@@ -33,7 +45,9 @@ pip install clip-client
 ```python
 from clip_client import Client
 
-c = Client('grpcs://demo-cas.jina.ai:2096')
+c = Client(
+    'grpcs://api.clip.jina.ai:2096', credential={'Authorization': '<your access token>'}
+)
 
 r = c.encode(
     [
