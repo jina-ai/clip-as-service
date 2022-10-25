@@ -28,7 +28,7 @@ executors:
 `port` is unnecessary here as JCloud will assign a new hostname and port for any deployed service. 
 ```
 
-Executors must start with `jinahub+docker://` as it is required by JCloud. We currently provide containerized executors [`jinahub+docker://CLIPTorchEncoder`](https://hub.jina.ai/executor/gzpbl8jh) and [`jinahub+docker://CLIPOnnxEncoder`](https://hub.jina.ai/executor/2a7auwg2) on Jina Hub. They are automatically synced on the new release of `clip_server` module. 
+Executors must start with `jinahub+docker://` as it is required by JCloud. We currently provide containerized executors [`jinahub+docker://CLIPTorchEncoder`](https://cloud.jina.ai/executor/gzpbl8jh) and [`jinahub+docker://CLIPOnnxEncoder`](https://cloud.jina.ai/executor/2a7auwg2) on Jina Hub. They are automatically synced on the new release of `clip_server` module. 
 
 To enable GPU on JCloud, you need to configure it in the YAML file and use prebuilt docker GPU images. For example,
 
@@ -43,7 +43,7 @@ executors:
 
 Please refer [here](https://docs.jina.ai/fundamentals/jcloud/yaml-spec/#gpu) for more details on using GPU in JCloud.
 Notice that you must specify a docker image GPU tag for your executor to utilize the GPU. For example `latest-gpu`. 
-See the 'Tag' section in [CLIPTorchEncoder](https://hub.jina.ai/executor/gzpbl8jh) and [CLIPOnnxEncoder](https://hub.jina.ai/executor/2a7auwg2) for docker image GPU tags.
+See the 'Tag' section in [CLIPTorchEncoder](https://cloud.jina.ai/executor/gzpbl8jh) and [CLIPOnnxEncoder](https://cloud.jina.ai/executor/2a7auwg2) for docker image GPU tags.
 
 To deploy,
 
