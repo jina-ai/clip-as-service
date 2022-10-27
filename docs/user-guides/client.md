@@ -508,7 +508,7 @@ def encode():
     print(r)
 ```
 
-Then it can run with multiprocessing by specifying using
+Then it can run with multiprocessing using
 
 ```bash
 gunicorn myproject:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:4000
