@@ -23,11 +23,15 @@ Then, you need to configure the access token in the parameter `credential` of th
 pip install clip-client
 ```
 
-```python
+```{code-block} python
+---
+emphasize-lines: 5
+---
 from clip_client import Client
 
 c = Client(
-    'grpcs://api.clip.jina.ai:2096', credential={'Authorization': '<your access token>'}
+    'grpcs://api.clip.jina.ai:2096', 
+    credential={'Authorization': '<your access token>'}
 )
 
 r = c.encode(
@@ -45,7 +49,10 @@ print(r)
 
 ````{tab} via HTTPS 🔐
 
-```bash
+```{code-block} bash
+---
+emphasize-lines: 4
+---
 curl \
 -X POST https://api.clip.jina.ai:8443/post \
 -H 'Content-Type: application/json' \
