@@ -16,7 +16,7 @@ You will need to install `clip_client` first in Python 3.7+: `pip install clip-c
 ```
 
 (construct-client)=
-## Constructing a Client
+## Construct client
 
 To use `clip_client`, you need to first construct a Client object, e.g.:
 
@@ -474,7 +474,7 @@ for d in big_list:
 This is extremely slow as only one document is encoded at a time, it is a bad utilization of the network and not leveraging any duplex streaming.
 ````
 
-### Client parallelization
+### Client parallelism
 
 In case you instanciate a `clip_client` object using the `grpc` protocol, keep in mind that `grpc` clients cannot be used in a multi-threaded environment (check [this gRPC issue](https://github.com/grpc/grpc/issues/25364) for reference).
 What you should do, is to rely on asynchronous programming or multi-processing rather than multi-threading.
