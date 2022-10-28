@@ -8,22 +8,6 @@ open-source `CLIP Benchmark toolkit <https://github.com/LAION-AI/CLIP_benchmark>
 We hope that this benchmark can help you to better understand the performance of CLIP models and choose the best model for your application.
 
 
-Select the right model
------------------------
-
-In general, you can select the best model for your application from different perspectives: disk usage, peak RAM and VRAM usages, QPS, and most importantly, the performance.
-
-Based on our experiments, we recommend the ViT models over the RN models for most general applications.
-More specifically, the ``ViT-H-14::laion2b_s32b_b79k`` model and ``ViT-g-14::laion2b_s12b_b42k`` model should be first considered since they have the best or close to the best performance in most cases.
-However, if you are concerned about the encoding speed, you can consider other ViT models because they have higher QPS with decent performance.
-Anyway, you should choose the model that best fits your requirements.
-For example, if you are labeling images for diabetic retinopathy, you should probably select the ``ViT-B-32::laion2b_s34b_b79k`` model since it has the best top-1 accuracy of 0.734 on zero-shot classification of the Retinopathy dataset.
-Or if you are dealing with histopathologic images, you should probably select the RN50::openai model since it has the best top-1 accuracy of 0.636 on zero-shot classification of the Patch Camelyon dataset.
-
-
-The following sections show the performance of different models in details on different datasets and tasks.
-
-
 Size and efficiency
 -------------------------
 
@@ -237,6 +221,18 @@ From the table, we observe that the ViT models still outperform the RN models in
 Similar to retrieval results, the ``ViT-H-14::laion2b_s32b_b79k`` model and ``ViT-g-14::laion2b_s12b_b42k`` model still have the best or close to the best results on 12/21 zero-shot classification tasks.
 All models tend to perform well on ImageNetV2, VOC2007, VTAB natural and VTAB specialized (except for Retinopathy) datasets, whereas they perform poorly on VTAB structured datasets.
 We do not observe any significant difference between the ViT models of the same base model. 
+
+Select the right model
+-----------------------
+
+In general, you can select the best model for your application from different perspectives: disk usage, peak RAM and VRAM usages, QPS, and most importantly, the performance.
+
+Based on our experiments, we recommend the ViT models over the RN models for most general applications.
+More specifically, the ``ViT-H-14::laion2b_s32b_b79k`` model and ``ViT-g-14::laion2b_s12b_b42k`` model should be first considered since they have the best or close to the best performance in most cases.
+However, if you are concerned about the encoding speed, you can consider other ViT models because they have higher QPS with decent performance.
+Anyway, you should choose the model that best fits your requirements.
+For example, if you are labeling images for diabetic retinopathy, you should probably select the ``ViT-B-32::laion2b_s34b_b79k`` model since it has the best top-1 accuracy of 0.734 on zero-shot classification of the Retinopathy dataset.
+Or if you are dealing with histopathologic images, you should probably select the RN50::openai model since it has the best top-1 accuracy of 0.636 on zero-shot classification of the Patch Camelyon dataset.
 
 Appendix: Datasets description
 ------------------------------
