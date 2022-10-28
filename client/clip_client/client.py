@@ -118,6 +118,20 @@ class Client:
             'CLIP model': clip_time,
         }
 
+    def _update_pbar(self, response):
+        from rich import filesize
+
+        r = response.data.docs
+        if not self._pbar._tasks[self._r_task].started:
+            self._pbar.start_task(self._r_task)
+        self._pbar.update(
+            self._r_task,
+            advance=len(r),
+            total_size=str(
+                filesize.decimal(int(os.environ.get('JINA_GRPC_RECV_BYTES', '0')))
+            ),
+        )
+
     def _prepare_streaming(self, disable, total):
         if total is None:
             total = 500
@@ -146,21 +160,9 @@ class Client:
     def _gather_result(
         self, response, results: 'DocumentArray', attribute: Optional[str] = None
     ):
-        from rich import filesize
-
         r = response.data.docs
         if attribute:
             results[r[:, 'id']][:, attribute] = r[:, attribute]
-
-        if not self._pbar._tasks[self._r_task].started:
-            self._pbar.start_task(self._r_task)
-        self._pbar.update(
-            self._r_task,
-            advance=len(r),
-            total_size=str(
-                filesize.decimal(int(os.environ.get('JINA_GRPC_RECV_BYTES', '0')))
-            ),
-        )
 
     def _iter_doc(
         self, content, results: 'DocumentArray'
@@ -298,6 +300,7 @@ class Client:
                 on_done=partial(
                     self._gather_result, results=results, attribute='embedding'
                 ),
+                on_always=self._update_pbar,
                 parameters=parameters,
             )
 
@@ -327,8 +330,6 @@ class Client:
         ...
 
     async def aencode(self, content, **kwargs):
-        from rich import filesize
-
         if isinstance(content, str):
             raise TypeError(
                 f'Content must be an Iterable of [str, Document], try `.aencode(["{content}"])` instead'
@@ -349,24 +350,16 @@ class Client:
             )
             model_name = parameters.get('model_name', '') if parameters else ''
 
-            async for da in self._async_client.post(
+            async for _ in self._async_client.post(
                 on=f'/encode/{model_name}'.rstrip('/'),
                 **self._get_post_payload(content, results, kwargs),
+                on_done=partial(
+                    self._gather_result, results=results, attribute='embedding'
+                ),
+                on_always=self._update_pbar,
                 parameters=parameters,
             ):
-                results[da[:, 'id']].embeddings = da.embeddings
-
-                if not self._pbar._tasks[self._r_task].started:
-                    self._pbar.start_task(self._r_task)
-                self._pbar.update(
-                    self._r_task,
-                    advance=len(da),
-                    total_size=str(
-                        filesize.decimal(
-                            int(os.environ.get('JINA_GRPC_RECV_BYTES', '0'))
-                        )
-                    ),
-                )
+                continue
 
         unbox = hasattr(content, '__len__') and isinstance(content[0], str)
         return self._unboxed_result(results, unbox)
@@ -470,6 +463,7 @@ class Client:
                 on_done=partial(
                     self._gather_result, results=results, attribute='matches'
                 ),
+                on_always=self._update_pbar,
                 parameters=parameters,
             )
 
@@ -478,8 +472,6 @@ class Client:
     async def arank(
         self, docs: Union['DocumentArray', Iterable['Document']], **kwargs
     ) -> 'DocumentArray':
-        from rich import filesize
-
         if isinstance(docs, str):
             raise TypeError(f'Content must be an Iterable of [Document]')
         if hasattr(docs, '__len__') and len(docs) == 0:
@@ -498,24 +490,16 @@ class Client:
             )
             model_name = parameters.get('model_name', '') if parameters else ''
 
-            async for da in self._async_client.post(
+            async for _ in self._async_client.post(
                 on=f'/rank/{model_name}'.rstrip('/'),
                 **self._get_rank_payload(docs, results, kwargs),
+                on_done=partial(
+                    self._gather_result, results=results, attribute='matches'
+                ),
+                on_always=self._update_pbar,
                 parameters=parameters,
             ):
-                results[da[:, 'id']][:, 'matches'] = da[:, 'matches']
-
-                if not self._pbar._tasks[self._r_task].started:
-                    self._pbar.start_task(self._r_task)
-                self._pbar.update(
-                    self._r_task,
-                    advance=len(da),
-                    total_size=str(
-                        filesize.decimal(
-                            int(os.environ.get('JINA_GRPC_RECV_BYTES', '0'))
-                        )
-                    ),
-                )
+                continue
 
         return results
 
@@ -588,6 +572,7 @@ class Client:
                 on_done=partial(
                     self._gather_result, results=results, attribute='embedding'
                 ),
+                on_always=self._update_pbar,
                 parameters=parameters,
             )
 
@@ -616,8 +601,6 @@ class Client:
         ...
 
     async def aindex(self, content, **kwargs):
-        from rich import filesize
-
         if isinstance(content, str):
             raise TypeError(
                 f'content must be an Iterable of [str, Document], try `.aindex(["{content}"])` instead'
@@ -637,24 +620,16 @@ class Client:
                 'drop_image_content', True
             )
 
-            async for da in self._async_client.post(
+            async for _ in self._async_client.post(
                 on='/index',
                 **self._get_post_payload(content, results, kwargs),
+                on_done=partial(
+                    self._gather_result, results=results, attribute='embedding'
+                ),
+                on_always=self._update_pbar,
                 parameters=parameters,
             ):
-                results[da[:, 'id']].embeddings = da.embeddings
-
-                if not self._pbar._tasks[self._r_task].started:
-                    self._pbar.start_task(self._r_task)
-                self._pbar.update(
-                    self._r_task,
-                    advance=len(da),
-                    total_size=str(
-                        filesize.decimal(
-                            int(os.environ.get('JINA_GRPC_RECV_BYTES', '0'))
-                        )
-                    ),
-                )
+                continue
 
         return results
 
@@ -732,6 +707,7 @@ class Client:
                 on_done=partial(
                     self._gather_result, results=results, attribute='matches'
                 ),
+                on_always=self._update_pbar,
             )
 
         return results
@@ -761,8 +737,6 @@ class Client:
         ...
 
     async def asearch(self, content, limit: int = 10, **kwargs):
-        from rich import filesize
-
         if isinstance(content, str):
             raise TypeError(
                 f'content must be an Iterable of [str, Document], try `.asearch(["{content}"])` instead'
@@ -783,23 +757,15 @@ class Client:
                 'drop_image_content', True
             )
 
-            async for da in self._async_client.post(
+            async for _ in self._async_client.post(
                 on='/search',
                 **self._get_post_payload(content, results, kwargs),
+                on_done=partial(
+                    self._gather_result, results=results, attribute='matches'
+                ),
+                on_always=self._update_pbar,
                 parameters=parameters,
             ):
-                results[da[:, 'id']][:, 'matches'] = da[:, 'matches']
-
-                if not self._pbar._tasks[self._r_task].started:
-                    self._pbar.start_task(self._r_task)
-                self._pbar.update(
-                    self._r_task,
-                    advance=len(da),
-                    total_size=str(
-                        filesize.decimal(
-                            int(os.environ.get('JINA_GRPC_RECV_BYTES', '0'))
-                        )
-                    ),
-                )
+                continue
 
         return results
