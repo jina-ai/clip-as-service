@@ -200,8 +200,9 @@ user-guides/faq
 :caption: Hosting
 :hidden:
 
-hosting/colab
+hosting/by-jina
 hosting/on-jcloud
+hosting/colab
 ```
 
 ```{toctree}
