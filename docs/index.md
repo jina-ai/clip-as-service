@@ -206,6 +206,7 @@ user-guides/faq
 :caption: Hosting
 :hidden:
 
+hosting/by-jina
 hosting/on-jcloud
 hosting/colab
 ```
