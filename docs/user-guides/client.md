@@ -6,10 +6,9 @@ CLIP-as-service is designed in a client-server architecture. You can use `clip_c
 - Batching: large requests are segmented into small batches and send in a stream. 
 - Low memory footprint: only load data when needed.
 - Sync/async interface: provide `async` interface that can be easily integrated into other asynchronous system.
-- Auto-detect images and texts input.
+- Auto-detect images and text input.
 - Support gRPC, HTTP, Websocket protocols with their TLS counterparts. 
 
-This chapter introduces the usages of `clip_client`. 
 
 ```{tip}
 You will need to install `clip_client` first in Python 3.7+: `pip install clip-client`.
@@ -40,7 +39,7 @@ Jina AI provides a hosted service for CLIP models. Refer [here](hosting/by-jina#
 
 ## Encoding
 
-`clip_client` provides {func}`~clip_client.client.Client.encode` function that allows you to send sentences, images to the server in a streaming and sync/async manner. Encoding here means getting the fixed-length vector representation of a sentence or image.
+`clip_client` provides {func}`~clip_client.client.Client.encode` function that allows you to send sentences, images to the server in a streaming and sync/async manner. Encoding here means getting the fixed-length vector representation of a text or image.
 
 {func}`~clip_client.client.Client.encode` supports two basic input types:
 
@@ -190,12 +189,12 @@ Reading an image file into bytes and put into `.blob` is possible as shown above
 To encode `Document` in an asynchronous manner, one can use {func}`~clip_client.client.Client.aencode`.
 
 ```{tip}
-Despite the sexy word "async", many data scientists may have a misconception about asynchronous. And their motivation of using async function is often wrong. _Async is not a silver bullet._ In a simple language, you will only need `.aencode()` when there is another concurrent task that is also async. Then you want to "overlap" the time spending of these two tasks.
+Despite the sexy word "async", many data scientists have misconceptions about asynchronous behavior. And their motivation of using async function is often wrong. _Async is not a silver bullet._ In a simple language, you will only need `.aencode()` when there is another concurrent task that is also async. Then you want to "overlap" the time spending of these two tasks.
 
 If your system is sync by design, there is nothing wrong about it. Go with `encode()` until you see a clear advantage of using `aencode()`, or until your boss tell you to do so.   
 ```
 
-In the following example, there is another job `another_heavylifting_job` to represent job like writing to database, downloading large file.
+In the following example, there is another job `another_heavylifting_job` to represent a job like writing to database, downloading large file.
 
 ```python
 import asyncio
@@ -419,13 +418,13 @@ Single query latency is often very fluctuated. Running `.profile()` multiple tim
 
 ## Best practices
 
-In this section, we will show you some best practices to use this client. We will use encoding as an example. The same applies to all other methods.
+In this section, we will show you some best practices for using this client. We will use encoding as an example. The same applies to all other methods.
 
 ### Control batch size
 
-You can specify `.encode(..., batch_size=8)` to control how many `Document`s is sent in each request. You can play this number and find the perfect balance between network transmission and GPU utilization. 
+You can specify `.encode(..., batch_size=8)` to control how many `Document`s are sent in each request. You can play this number and find the perfect balance between network transmission and GPU utilization. 
 
-Intuitively, setting `batch_size=1024` should give a very high GPU utilization on each request. However, a large batch size like this also means sending each request would take longer. Given that `clip-client` is designed with request and response streaming, large batch size would not benefit from the time overlapping between request streaming and response streaming.
+Intuitively, setting `batch_size=1024` should result in very high GPU utilization on each request. However, a large batch size like this also means sending each request would take longer. Given that `clip-client` is designed with request and response streaming, large batch size would not benefit from the time overlapping between request streaming and response streaming.
 
 
 ### Show progressbar
@@ -442,7 +441,7 @@ Progress bar may not show up in the PyCharm debug terminal. This is an upstream 
 
 ### Processing large number of Documents
 
-Here are some suggestions when encoding large number of `Document`s:
+Here are some suggestions when encoding a large number of `Document`s:
 
 1. Use `Generator` as input to load data on-demand. You can put your data into a Generator and feed to `.encode`:
     ```python
