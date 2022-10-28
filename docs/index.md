@@ -7,15 +7,34 @@
 
 ## Try it!
 
-An always-online server `api.clip.jina.ai` loaded with `ViT-L-14-336::openai` is there for you to play & test.
-Before you start, make sure you have created an access token from our [console website](https://console.clip.jina.ai/get_started), 
-or via CLI as described in [this guide](https://github.com/jina-ai/jina-hubble-sdk#create-a-new-pat).
+An always-online server `api.clip.jina.ai` loaded with `ViT-L/14-336px` is there for you to play & test.
+
+Before you start, make sure you have created access token from our [console website](https://console.clip.jina.ai/get_started), 
+or CLI as described in [this guide](https://github.com/jina-ai/jina-hubble-sdk#create-a-new-pat).
 
 ```bash 
 jina auth token create <name of PAT> -e <expiration days>
 ```
 
-Then, you need to configure the access token in the parameter `credential` of the client in python or set it in the HTTP request header `Authorization` as `<your access token>`.
+Then, you need to set the created token in HTTP request header `Authorization` as `<your access token>`, 
+or configure it in the parameter `credential` of the client in python.
+
+
+````{tab} via HTTPS 🔐
+
+```bash
+curl \
+-X POST https://api.clip.jina.ai:8443/post \
+-H 'Content-Type: application/json' \
+-H 'Authorization: <your access token>' \
+-d '{"data":[{"text": "First do it"}, 
+    {"text": "then do it right"}, 
+    {"text": "then do it better"}, 
+    {"uri": "https://picsum.photos/200"}], 
+    "execEndpoint":"/"}'
+```
+
+````
 
 ````{tab} via gRPC ⚡⚡
 
@@ -23,15 +42,11 @@ Then, you need to configure the access token in the parameter `credential` of th
 pip install clip-client
 ```
 
-```{code-block} python
----
-emphasize-lines: 5
----
+```python
 from clip_client import Client
 
 c = Client(
-    'grpcs://api.clip.jina.ai:2096', 
-    credential={'Authorization': '<your access token>'}
+    'grpcs://api.clip.jina.ai:2096', credential={'Authorization': '<your access token>'}
 )
 
 r = c.encode(
@@ -47,30 +62,11 @@ print(r)
 
 ````
 
-````{tab} via HTTPS 🔐
-
-```{code-block} bash
----
-emphasize-lines: 4
----
-curl \
--X POST https://api.clip.jina.ai:8443/post \
--H 'Content-Type: application/json' \
--H 'Authorization: <your access token>' \
--d '{"data":[{"text": "First do it"}, 
-    {"text": "then do it right"}, 
-    {"text": "then do it better"}, 
-    {"uri": "https://picsum.photos/200"}], 
-    "execEndpoint":"/"}'
-```
-
-````
-
 ## Install
 
 ![PyPI](https://img.shields.io/pypi/v/clip_client?color=%23ffffff&label=%20) is the latest version.
 
-Make sure you are using Python 3.7+. You can install the client and server independently. It is **not required** to install both: e.g. you can install `clip_server` on a GPU machine and `clip_client` on a local laptop.
+Make sure you have Python 3.7+. You can install client and server independently. You **don't** have to install both: e.g. installing `clip_server` on a GPU machine and `clip_client` on a local laptop.
 
 ````{tab} Client
 
@@ -116,50 +112,49 @@ pip install "clip_server[tensorrt]"
 ````
 
 
+
 ## Quick check
 
-After installing, you can run the following commands for a quick connectivity check.
+After install, you can run the following commands for a quick connectivity check.
 
 ### Start the server
 
-````{tab} Start PyTorch Server 
+````{tab} Run PyTorch Server 
 ```bash
 python -m clip_server
 ```
 ````
 
-````{tab} Start ONNX Server 
+````{tab} Run ONNX Server 
 ```bash
 python -m clip_server onnx-flow.yml
 ```
 ````
 
-````{tab} Start TensorRT Server 
+````{tab} Run TensorRT Server 
 ```bash
 python -m clip_server tensorrt-flow.yml
 ```
 ````
 
-At the first time starting the server, it will download the default pretrained model, which may take a while depending on your network speed. Then you will get the address information similar to the following: 
+At the first time, it will download the default pretrained model, which may take a minute. Then you will get the following address information: 
 
 ```text
-╭────────────── 🔗 Endpoint ───────────────╮
-│  🔗     Protocol                   GRPC  │
-│  🏠        Local          0.0.0.0:51000  │
-│  🔒      Private    192.168.31.62:51000  │
-|  🌍       Public   87.105.159.191:51000  |
-╰──────────────────────────────────────────╯  
+ 🔗         Protocol                  GRPC   
+ 🏠     Local access         0.0.0.0:51000   
+ 🔒  Private network    192.168.3.62:51000   
+ 🌐   Public address  87.105.159.191:51000   
 ```
 
-This means the server is ready to serve. Note down the three addresses shown above, you will need them later.
+It means the server is ready to serve. Note down the three addresses showed above, you will need them later.
 
 ### Connect from client
 
 ```{tip}
 Depending on the location of the client and server. You may use different IP addresses:
-- Client and server are on the same machine: use local address, e.g. `0.0.0.0`
-- Client and server are connected to the same router: use private network address, e.g. `192.168.3.62`
-- Server is in public network: use public network address, e.g. `87.105.159.191`
+- Client and server are on the same machine: use local address e.g. `0.0.0.0`
+- Client and server are behind the same router: use private network address e.g. `192.168.3.62`
+- Server is in public network: use public network address e.g. `87.105.159.191`
 ```
 
 Run the following Python script:
@@ -174,12 +169,11 @@ c.profile()
 will give you:
 
 ```text
- Roundtrip  16ms  100%
-├──  Client-server network  8ms  49%
-└──  Server  8ms  51%
-    ├──  Gateway-CLIP network  2ms  25%
-    └──  CLIP model  6ms  75%
-{'Roundtrip': 15.684750003856607, 'Client-server network': 7.684750003856607, 'Server': 8, 'Gateway-CLIP network': 2, 'CLIP model': 6}
+ Roundtrip  16ms  100%                                                          
+├──  Client-server network  12ms  75%                                           
+└──  Server  4ms  25%                                                           
+    ├──  Gateway-CLIP network  0ms  0%                                          
+    └──  CLIP model  4ms  100%      
 ```
 
 It means the client and the server are now connected. Well done!
@@ -206,8 +200,8 @@ user-guides/faq
 :caption: Hosting
 :hidden:
 
-hosting/on-jcloud
 hosting/colab
+hosting/on-jcloud
 ```
 
 ```{toctree}
