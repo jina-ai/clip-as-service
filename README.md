@@ -38,7 +38,7 @@ CLIP-as-service is a low-latency high-scalability service for embedding images a
 
 An always-online server `api.clip.jina.ai` loaded with `ViT-L-14-336::openai` is there for you to play & test.
 Before you start, make sure you have created access token from our [console website](https://console.clip.jina.ai/get_started), 
-or via CLI as described in [this guide](https://github.com/jina-ai/jina-hubble-sdk#create-a-new-pat).
+or via CLI as described in [this guide](https://docs.jina.ai/jina-ai-cloud/login/#create-a-new-pat).
 
 ```bash 
 jina auth token create <name of PAT> -e <expiration days>
