@@ -19,17 +19,18 @@ from docarray import DocumentArray
 if TYPE_CHECKING:
     import numpy as np
     from docarray import Document
+    from jina.clients.base import CallbackFnType
 
 
 class Client:
     def __init__(self, server: str, credential: dict = {}, **kwargs):
         """Create a Clip client object that connects to the Clip server.
-        Server scheme is in the format of `scheme://netloc:port`, where
+        Server scheme is in the format of ``scheme://netloc:port``, where
             - scheme: one of grpc, websocket, http, grpcs, websockets, https
             - netloc: the server ip address or hostname
             - port: the public port of the server
         :param server: the server URI
-        :param credential: the credential for authentication {'Authentication': '<token>'}
+        :param credential: the credential for authentication ``{'Authentication': '<token>'}``
         """
         try:
             r = urlparse(server)
@@ -240,6 +241,7 @@ class Client:
         batch_size: Optional[int] = None,
         show_progress: bool = False,
         parameters: Optional[dict] = None,
+        on_done: Optional['CallbackFnType'] = None,
     ) -> 'np.ndarray':
         """Encode images and texts into embeddings where the input is an iterable of raw strings.
         Each image and text must be represented as a string. The following strings are acceptable:
@@ -251,6 +253,8 @@ class Client:
         :param batch_size: the number of elements in each request when sending ``content``
         :param show_progress: if set, show a progress bar
         :param parameters: the parameters for the encoding, you can specify the model to use when you have multiple models
+        :param on_done: the callback function executed while streaming, after successful completion of each request.
+            It takes the response ``DataRequest`` as the only argument.
         :return: the embedding in a numpy ndarray with shape ``[N, D]``. ``N`` is in the same length of ``content``
         """
         ...
@@ -263,12 +267,15 @@ class Client:
         batch_size: Optional[int] = None,
         show_progress: bool = False,
         parameters: Optional[dict] = None,
+        on_done: Optional['CallbackFnType'] = None,
     ) -> 'DocumentArray':
         """Encode images and texts into embeddings where the input is an iterable of :class:`docarray.Document`.
         :param content: an iterable of :class:`docarray.Document`, each Document must be filled with `.uri`, `.text` or `.blob`.
         :param batch_size: the number of elements in each request when sending ``content``
         :param show_progress: if set, show a progress bar
         :param parameters: the parameters for the encoding, you can specify the model to use when you have multiple models
+        :param on_done: the callback function executed while streaming, after successful completion of each request.
+            It takes the response ``DataRequest`` as the only argument.
         :return: the embedding in a numpy ndarray with shape ``[N, D]``. ``N`` is in the same length of ``content``
         """
         ...
@@ -293,13 +300,15 @@ class Client:
                 'drop_image_content', True
             )
             model_name = parameters.pop('model_name', '') if parameters else ''
+            on_done = kwargs.pop(
+                'on_done',
+                partial(self._gather_result, results=results, attribute='embedding'),
+            )
 
             self._client.post(
                 on=f'/encode/{model_name}'.rstrip('/'),
                 **self._get_post_payload(content, results, kwargs),
-                on_done=partial(
-                    self._gather_result, results=results, attribute='embedding'
-                ),
+                on_done=on_done,
                 on_always=self._update_pbar,
                 parameters=parameters,
             )
@@ -315,6 +324,7 @@ class Client:
         batch_size: Optional[int] = None,
         show_progress: bool = False,
         parameters: Optional[dict] = None,
+        on_done: Optional['CallbackFnType'] = None,
     ) -> 'np.ndarray':
         ...
 
@@ -326,6 +336,7 @@ class Client:
         batch_size: Optional[int] = None,
         show_progress: bool = False,
         parameters: Optional[dict] = None,
+        on_done: Optional['CallbackFnType'] = None,
     ) -> 'DocumentArray':
         ...
 
@@ -349,13 +360,15 @@ class Client:
                 'drop_image_content', True
             )
             model_name = parameters.get('model_name', '') if parameters else ''
+            on_done = kwargs.pop(
+                'on_done',
+                partial(self._gather_result, results=results, attribute='embedding'),
+            )
 
             async for _ in self._async_client.post(
                 on=f'/encode/{model_name}'.rstrip('/'),
                 **self._get_post_payload(content, results, kwargs),
-                on_done=partial(
-                    self._gather_result, results=results, attribute='embedding'
-                ),
+                on_done=on_done,
                 on_always=self._update_pbar,
                 parameters=parameters,
             ):
@@ -436,6 +449,7 @@ class Client:
         text/image; this method ranks the matches according to the CLIP model.
         Each match now has a new score inside ``clip_score`` and matches are sorted descendingly according to this score.
         More details can be found in: https://github.com/openai/CLIP#usage
+
         :param docs: the input Documents
         :return: the ranked Documents in a DocumentArray.
         """
@@ -456,13 +470,15 @@ class Client:
                 'drop_image_content', True
             )
             model_name = parameters.get('model_name', '') if parameters else ''
+            on_done = kwargs.pop(
+                'on_done',
+                partial(self._gather_result, results=results, attribute='matches'),
+            )
 
             self._client.post(
                 on=f'/rank/{model_name}'.rstrip('/'),
                 **self._get_rank_payload(docs, results, kwargs),
-                on_done=partial(
-                    self._gather_result, results=results, attribute='matches'
-                ),
+                on_done=on_done,
                 on_always=self._update_pbar,
                 parameters=parameters,
             )
@@ -489,13 +505,15 @@ class Client:
                 'drop_image_content', True
             )
             model_name = parameters.get('model_name', '') if parameters else ''
+            on_done = kwargs.pop(
+                'on_done',
+                partial(self._gather_result, results=results, attribute='matches'),
+            )
 
             async for _ in self._async_client.post(
                 on=f'/rank/{model_name}'.rstrip('/'),
                 **self._get_rank_payload(docs, results, kwargs),
-                on_done=partial(
-                    self._gather_result, results=results, attribute='matches'
-                ),
+                on_done=on_done,
                 on_always=self._update_pbar,
                 parameters=parameters,
             ):
@@ -511,6 +529,7 @@ class Client:
         batch_size: Optional[int] = None,
         show_progress: bool = False,
         parameters: Optional[Dict] = None,
+        on_done: Optional['CallbackFnType'] = None,
     ):
         """Index the images or texts where their embeddings are computed by the server CLIP model.
 
@@ -523,6 +542,8 @@ class Client:
         :param batch_size: the number of elements in each request when sending ``content``
         :param show_progress: if set, show a progress bar
         :param parameters: the parameters for the indexing, you can specify the model to use when you have multiple models
+        :param on_done: the callback function executed while streaming, after successful completion of each request.
+            It takes the response ``DataRequest`` as the only argument.
         :return: the embedding in a numpy ndarray with shape ``[N, D]``. ``N`` is in the same length of ``content``
         """
         ...
@@ -535,6 +556,7 @@ class Client:
         batch_size: Optional[int] = None,
         show_progress: bool = False,
         parameters: Optional[dict] = None,
+        on_done: Optional['CallbackFnType'] = None,
     ) -> 'DocumentArray':
         """Index the images or texts where their embeddings are computed by the server CLIP model.
 
@@ -542,6 +564,8 @@ class Client:
         :param batch_size: the number of elements in each request when sending ``content``
         :param show_progress: if set, show a progress bar
         :param parameters: the parameters for the indexing, you can specify the model to use when you have multiple models
+        :param on_done: the callback function executed while streaming, after successful completion of each request.
+            It takes the response ``DataRequest`` as the only argument.
         :return: the embedding in a numpy ndarray with shape ``[N, D]``. ``N`` is in the same length of ``content``
         """
         ...
@@ -565,13 +589,15 @@ class Client:
             parameters['drop_image_content'] = parameters.get(
                 'drop_image_content', True
             )
+            on_done = kwargs.pop(
+                'on_done',
+                partial(self._gather_result, results=results, attribute='embedding'),
+            )
 
             self._client.post(
                 on='/index',
                 **self._get_post_payload(content, results, kwargs),
-                on_done=partial(
-                    self._gather_result, results=results, attribute='embedding'
-                ),
+                on_done=on_done,
                 on_always=self._update_pbar,
                 parameters=parameters,
             )
@@ -586,6 +612,7 @@ class Client:
         batch_size: Optional[int] = None,
         show_progress: bool = False,
         parameters: Optional[Dict] = None,
+        on_done: Optional['CallbackFnType'] = None,
     ):
         ...
 
@@ -597,6 +624,7 @@ class Client:
         batch_size: Optional[int] = None,
         show_progress: bool = False,
         parameters: Optional[dict] = None,
+        on_done: Optional['CallbackFnType'] = None,
     ):
         ...
 
@@ -619,13 +647,15 @@ class Client:
             parameters['drop_image_content'] = parameters.get(
                 'drop_image_content', True
             )
+            on_done = kwargs.pop(
+                'on_done',
+                partial(self._gather_result, results=results, attribute='embedding'),
+            )
 
             async for _ in self._async_client.post(
                 on='/index',
                 **self._get_post_payload(content, results, kwargs),
-                on_done=partial(
-                    self._gather_result, results=results, attribute='embedding'
-                ),
+                on_done=on_done,
                 on_always=self._update_pbar,
                 parameters=parameters,
             ):
@@ -642,6 +672,7 @@ class Client:
         batch_size: Optional[int] = None,
         show_progress: bool = False,
         parameters: Optional[Dict] = None,
+        on_done: Optional['CallbackFnType'] = None,
     ) -> 'DocumentArray':
         """Search for top k results for given query string or ``Document``.
 
@@ -653,6 +684,8 @@ class Client:
         :param batch_size: the number of elements in each request when sending ``content``.
         :param show_progress: if set, show a progress bar.
         :param parameters: parameters passed to search function.
+        :param on_done: the callback function executed while streaming, after successful completion of each request.
+            It takes the response ``DataRequest`` as the only argument.
         """
         ...
 
@@ -665,6 +698,7 @@ class Client:
         batch_size: Optional[int] = None,
         show_progress: bool = False,
         parameters: Optional[dict] = None,
+        on_done: Optional['CallbackFnType'] = None,
     ) -> 'DocumentArray':
         """Search for top k results for given query string or ``Document``.
 
@@ -676,6 +710,8 @@ class Client:
         :param batch_size: the number of elements in each request when sending ``content``.
         :param show_progress: if set, show a progress bar.
         :param parameters: parameters passed to search function.
+        :param on_done: the callback function executed while streaming, after successful completion of each request.
+            It takes the response ``DataRequest`` as the only argument.
         """
         ...
 
@@ -699,14 +735,16 @@ class Client:
             parameters['drop_image_content'] = parameters.get(
                 'drop_image_content', True
             )
+            on_done = kwargs.pop(
+                'on_done',
+                partial(self._gather_result, results=results, attribute='matches'),
+            )
 
             self._client.post(
                 on='/search',
                 **self._get_post_payload(content, results, kwargs),
                 parameters=parameters,
-                on_done=partial(
-                    self._gather_result, results=results, attribute='matches'
-                ),
+                on_done=on_done,
                 on_always=self._update_pbar,
             )
 
@@ -721,6 +759,7 @@ class Client:
         batch_size: Optional[int] = None,
         show_progress: bool = False,
         parameters: Optional[Dict] = None,
+        on_done: Optional['CallbackFnType'] = None,
     ):
         ...
 
@@ -733,6 +772,7 @@ class Client:
         batch_size: Optional[int] = None,
         show_progress: bool = False,
         parameters: Optional[dict] = None,
+        on_done: Optional['CallbackFnType'] = None,
     ):
         ...
 
@@ -756,13 +796,15 @@ class Client:
             parameters['drop_image_content'] = parameters.get(
                 'drop_image_content', True
             )
+            on_done = kwargs.pop(
+                'on_done',
+                partial(self._gather_result, results=results, attribute='matches'),
+            )
 
             async for _ in self._async_client.post(
                 on='/search',
                 **self._get_post_payload(content, results, kwargs),
-                on_done=partial(
-                    self._gather_result, results=results, attribute='matches'
-                ),
+                on_done=on_done,
                 on_always=self._update_pbar,
                 parameters=parameters,
             ):
