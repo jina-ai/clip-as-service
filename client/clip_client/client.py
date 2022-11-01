@@ -119,7 +119,7 @@ class Client:
             'CLIP model': clip_time,
         }
 
-    def _update_pbar(self, response):
+    def _update_pbar(self, response, func: Optional['CallbackFnType'] = None):
         from rich import filesize
 
         r = response.data.docs
@@ -132,6 +132,8 @@ class Client:
                 filesize.decimal(int(os.environ.get('JINA_GRPC_RECV_BYTES', '0')))
             ),
         )
+        if func is not None:
+            func(response)
 
     def _prepare_streaming(self, disable, total):
         if total is None:
@@ -158,15 +160,16 @@ class Client:
             ':arrow_down: Recv', total=total, total_size=0, start=False
         )
 
+    @staticmethod
     def _gather_result(
-        self, response, results: 'DocumentArray', attribute: Optional[str] = None
+        response, results: 'DocumentArray', attribute: Optional[str] = None
     ):
         r = response.data.docs
         if attribute:
             results[r[:, 'id']][:, attribute] = r[:, attribute]
 
     def _iter_doc(
-        self, content, results: 'DocumentArray'
+        self, content, results: Optional['DocumentArray'] = None
     ) -> Generator['Document', None, None]:
         from rich import filesize
         from docarray import Document
@@ -207,7 +210,8 @@ class Client:
                     ),
                 )
 
-            results.append(d)
+            if results is not None:
+                results.append(d)
             yield d
 
     def _get_post_payload(self, content, results: 'DocumentArray', kwargs):
@@ -224,14 +228,9 @@ class Client:
         return payload
 
     @staticmethod
-    def _unboxed_result(results: 'DocumentArray', unbox: bool = False):
-        if results.embeddings is None:
-            raise ValueError(
-                'Empty embedding returned from the server. '
-                'This often due to a mis-config of the server, '
-                'restarting the server or changing the serving port number often solves the problem'
-            )
-        return results.embeddings if unbox else results
+    def _unboxed_result(results: Optional['DocumentArray'] = None, unbox: bool = False):
+        if results is not None:
+            return results.embeddings if unbox else results
 
     @overload
     def encode(
@@ -242,6 +241,8 @@ class Client:
         show_progress: bool = False,
         parameters: Optional[dict] = None,
         on_done: Optional['CallbackFnType'] = None,
+        on_error: Optional['CallbackFnType'] = None,
+        on_always: Optional['CallbackFnType'] = None,
     ) -> 'np.ndarray':
         """Encode images and texts into embeddings where the input is an iterable of raw strings.
         Each image and text must be represented as a string. The following strings are acceptable:
@@ -254,7 +255,11 @@ class Client:
         :param show_progress: if set, show a progress bar
         :param parameters: the parameters for the encoding, you can specify the model to use when you have multiple models
         :param on_done: the callback function executed while streaming, after successful completion of each request.
-            It takes the response ``DataRequest`` as the only argument.
+            It takes the response ``DataRequest`` as the only argument
+        :param on_error: the callback function executed while streaming, after failed completion of each request.
+            It takes the response ``DataRequest`` as the only argument
+        :param on_always: the callback function executed while streaming, after completion of each request.
+            It takes the response ``DataRequest`` as the only argument
         :return: the embedding in a numpy ndarray with shape ``[N, D]``. ``N`` is in the same length of ``content``
         """
         ...
@@ -268,6 +273,8 @@ class Client:
         show_progress: bool = False,
         parameters: Optional[dict] = None,
         on_done: Optional['CallbackFnType'] = None,
+        on_error: Optional['CallbackFnType'] = None,
+        on_always: Optional['CallbackFnType'] = None,
     ) -> 'DocumentArray':
         """Encode images and texts into embeddings where the input is an iterable of :class:`docarray.Document`.
         :param content: an iterable of :class:`docarray.Document`, each Document must be filled with `.uri`, `.text` or `.blob`.
@@ -275,7 +282,11 @@ class Client:
         :param show_progress: if set, show a progress bar
         :param parameters: the parameters for the encoding, you can specify the model to use when you have multiple models
         :param on_done: the callback function executed while streaming, after successful completion of each request.
-            It takes the response ``DataRequest`` as the only argument.
+            It takes the response ``DataRequest`` as the only argument
+        :param on_error: the callback function executed while streaming, after failed completion of each request.
+            It takes the response ``DataRequest`` as the only argument
+        :param on_always: the callback function executed while streaming, after completion of each request.
+            It takes the response ``DataRequest`` as the only argument
         :return: the embedding in a numpy ndarray with shape ``[N, D]``. ``N`` is in the same length of ``content``
         """
         ...
@@ -292,24 +303,28 @@ class Client:
             not kwargs.get('show_progress'),
             total=len(content) if hasattr(content, '__len__') else None,
         )
+        on_done = kwargs.pop('on_done', None)
+        on_error = kwargs.pop('on_error', None)
+        on_always = kwargs.pop('on_always', None)
+        results = DocumentArray() if not on_done else None
+        if not on_done:
+            on_done = partial(
+                self._gather_result, results=results, attribute='embedding'
+            )
 
-        results = DocumentArray()
         with self._pbar:
             parameters = kwargs.pop('parameters', {})
             parameters['drop_image_content'] = parameters.get(
                 'drop_image_content', True
             )
             model_name = parameters.pop('model_name', '') if parameters else ''
-            on_done = kwargs.pop(
-                'on_done',
-                partial(self._gather_result, results=results, attribute='embedding'),
-            )
 
             self._client.post(
                 on=f'/encode/{model_name}'.rstrip('/'),
                 **self._get_post_payload(content, results, kwargs),
                 on_done=on_done,
-                on_always=self._update_pbar,
+                on_error=on_error,
+                on_always=partial(self._update_pbar, func=on_always),
                 parameters=parameters,
             )
 
@@ -325,6 +340,8 @@ class Client:
         show_progress: bool = False,
         parameters: Optional[dict] = None,
         on_done: Optional['CallbackFnType'] = None,
+        on_error: Optional['CallbackFnType'] = None,
+        on_always: Optional['CallbackFnType'] = None,
     ) -> 'np.ndarray':
         ...
 
@@ -337,6 +354,8 @@ class Client:
         show_progress: bool = False,
         parameters: Optional[dict] = None,
         on_done: Optional['CallbackFnType'] = None,
+        on_error: Optional['CallbackFnType'] = None,
+        on_always: Optional['CallbackFnType'] = None,
     ) -> 'DocumentArray':
         ...
 
@@ -352,24 +371,28 @@ class Client:
             not kwargs.get('show_progress'),
             total=len(content) if hasattr(content, '__len__') else None,
         )
+        on_done = kwargs.pop('on_done', None)
+        on_error = kwargs.pop('on_error', None)
+        on_always = kwargs.pop('on_always', None)
+        results = DocumentArray() if not on_done else None
+        if not on_done:
+            on_done = partial(
+                self._gather_result, results=results, attribute='embedding'
+            )
 
-        results = DocumentArray()
         with self._pbar:
             parameters = kwargs.pop('parameters', {})
             parameters['drop_image_content'] = parameters.get(
                 'drop_image_content', True
             )
             model_name = parameters.get('model_name', '') if parameters else ''
-            on_done = kwargs.pop(
-                'on_done',
-                partial(self._gather_result, results=results, attribute='embedding'),
-            )
 
             async for _ in self._async_client.post(
                 on=f'/encode/{model_name}'.rstrip('/'),
                 **self._get_post_payload(content, results, kwargs),
                 on_done=on_done,
-                on_always=self._update_pbar,
+                on_error=on_error,
+                on_always=partial(self._update_pbar, func=on_always),
                 parameters=parameters,
             ):
                 continue
@@ -463,23 +486,26 @@ class Client:
             total=len(docs) if hasattr(docs, '__len__') else None,
         )
 
-        results = DocumentArray()
+        on_done = kwargs.pop('on_done', None)
+        on_error = kwargs.pop('on_error', None)
+        on_always = kwargs.pop('on_always', None)
+        results = DocumentArray() if not on_done else None
+        if not on_done:
+            on_done = partial(self._gather_result, results=results, attribute='matches')
+
         with self._pbar:
             parameters = kwargs.pop('parameters', {})
             parameters['drop_image_content'] = parameters.get(
                 'drop_image_content', True
             )
             model_name = parameters.get('model_name', '') if parameters else ''
-            on_done = kwargs.pop(
-                'on_done',
-                partial(self._gather_result, results=results, attribute='matches'),
-            )
 
             self._client.post(
                 on=f'/rank/{model_name}'.rstrip('/'),
                 **self._get_rank_payload(docs, results, kwargs),
                 on_done=on_done,
-                on_always=self._update_pbar,
+                on_error=on_error,
+                on_always=partial(self._update_pbar, func=on_always),
                 parameters=parameters,
             )
 
@@ -497,8 +523,13 @@ class Client:
             not kwargs.get('show_progress'),
             total=len(docs) if hasattr(docs, '__len__') else None,
         )
+        on_done = kwargs.pop('on_done', None)
+        on_error = kwargs.pop('on_error', None)
+        on_always = kwargs.pop('on_always', None)
+        results = DocumentArray() if not on_done else None
+        if not on_done:
+            on_done = partial(self._gather_result, results=results, attribute='matches')
 
-        results = DocumentArray()
         with self._pbar:
             parameters = kwargs.pop('parameters', {})
             parameters['drop_image_content'] = parameters.get(
@@ -514,7 +545,8 @@ class Client:
                 on=f'/rank/{model_name}'.rstrip('/'),
                 **self._get_rank_payload(docs, results, kwargs),
                 on_done=on_done,
-                on_always=self._update_pbar,
+                on_error=on_error,
+                on_always=partial(self._update_pbar, func=on_always),
                 parameters=parameters,
             ):
                 continue
@@ -530,6 +562,8 @@ class Client:
         show_progress: bool = False,
         parameters: Optional[Dict] = None,
         on_done: Optional['CallbackFnType'] = None,
+        on_error: Optional['CallbackFnType'] = None,
+        on_always: Optional['CallbackFnType'] = None,
     ):
         """Index the images or texts where their embeddings are computed by the server CLIP model.
 
@@ -543,7 +577,11 @@ class Client:
         :param show_progress: if set, show a progress bar
         :param parameters: the parameters for the indexing, you can specify the model to use when you have multiple models
         :param on_done: the callback function executed while streaming, after successful completion of each request.
-            It takes the response ``DataRequest`` as the only argument.
+            It takes the response ``DataRequest`` as the only argument
+        :param on_error: the callback function executed while streaming, after an error occurs in each request.
+            It takes the response ``DataRequest`` as the only argument
+        :param on_always: the callback function executed while streaming, after each request is completed.
+            It takes the response ``DataRequest`` as the only argument
         :return: the embedding in a numpy ndarray with shape ``[N, D]``. ``N`` is in the same length of ``content``
         """
         ...
@@ -557,6 +595,8 @@ class Client:
         show_progress: bool = False,
         parameters: Optional[dict] = None,
         on_done: Optional['CallbackFnType'] = None,
+        on_error: Optional['CallbackFnType'] = None,
+        on_always: Optional['CallbackFnType'] = None,
     ) -> 'DocumentArray':
         """Index the images or texts where their embeddings are computed by the server CLIP model.
 
@@ -565,7 +605,11 @@ class Client:
         :param show_progress: if set, show a progress bar
         :param parameters: the parameters for the indexing, you can specify the model to use when you have multiple models
         :param on_done: the callback function executed while streaming, after successful completion of each request.
-            It takes the response ``DataRequest`` as the only argument.
+            It takes the response ``DataRequest`` as the only argument
+        :param on_error: the callback function executed while streaming, after an error occurs in each request.
+            It takes the response ``DataRequest`` as the only argument
+        :param on_always: the callback function executed while streaming, after each request is completed.
+            It takes the response ``DataRequest`` as the only argument
         :return: the embedding in a numpy ndarray with shape ``[N, D]``. ``N`` is in the same length of ``content``
         """
         ...
@@ -582,23 +626,27 @@ class Client:
             not kwargs.get('show_progress'),
             total=len(content) if hasattr(content, '__len__') else None,
         )
+        on_done = kwargs.pop('on_done', None)
+        on_error = kwargs.pop('on_error', None)
+        on_always = kwargs.pop('on_always', None)
+        results = DocumentArray() if not on_done else None
+        if not on_done:
+            on_done = partial(
+                self._gather_result, results=results, attribute='embedding'
+            )
 
-        results = DocumentArray()
         with self._pbar:
             parameters = kwargs.pop('parameters', {})
             parameters['drop_image_content'] = parameters.get(
                 'drop_image_content', True
-            )
-            on_done = kwargs.pop(
-                'on_done',
-                partial(self._gather_result, results=results, attribute='embedding'),
             )
 
             self._client.post(
                 on='/index',
                 **self._get_post_payload(content, results, kwargs),
                 on_done=on_done,
-                on_always=self._update_pbar,
+                on_error=on_error,
+                on_always=partial(self._update_pbar, func=on_always),
                 parameters=parameters,
             )
 
@@ -613,6 +661,8 @@ class Client:
         show_progress: bool = False,
         parameters: Optional[Dict] = None,
         on_done: Optional['CallbackFnType'] = None,
+        on_error: Optional['CallbackFnType'] = None,
+        on_always: Optional['CallbackFnType'] = None,
     ):
         ...
 
@@ -625,6 +675,8 @@ class Client:
         show_progress: bool = False,
         parameters: Optional[dict] = None,
         on_done: Optional['CallbackFnType'] = None,
+        on_error: Optional['CallbackFnType'] = None,
+        on_always: Optional['CallbackFnType'] = None,
     ):
         ...
 
@@ -640,23 +692,27 @@ class Client:
             not kwargs.get('show_progress'),
             total=len(content) if hasattr(content, '__len__') else None,
         )
+        on_done = kwargs.pop('on_done', None)
+        on_error = kwargs.pop('on_error', None)
+        on_always = kwargs.pop('on_always', None)
+        results = DocumentArray() if not on_done else None
+        if not on_done:
+            on_done = partial(
+                self._gather_result, results=results, attribute='embedding'
+            )
 
-        results = DocumentArray()
         with self._pbar:
             parameters = kwargs.pop('parameters', {})
             parameters['drop_image_content'] = parameters.get(
                 'drop_image_content', True
-            )
-            on_done = kwargs.pop(
-                'on_done',
-                partial(self._gather_result, results=results, attribute='embedding'),
             )
 
             async for _ in self._async_client.post(
                 on='/index',
                 **self._get_post_payload(content, results, kwargs),
                 on_done=on_done,
-                on_always=self._update_pbar,
+                on_error=on_error,
+                on_always=partial(self._update_pbar, func=on_always),
                 parameters=parameters,
             ):
                 continue
@@ -673,6 +729,8 @@ class Client:
         show_progress: bool = False,
         parameters: Optional[Dict] = None,
         on_done: Optional['CallbackFnType'] = None,
+        on_error: Optional['CallbackFnType'] = None,
+        on_always: Optional['CallbackFnType'] = None,
     ) -> 'DocumentArray':
         """Search for top k results for given query string or ``Document``.
 
@@ -685,7 +743,11 @@ class Client:
         :param show_progress: if set, show a progress bar.
         :param parameters: parameters passed to search function.
         :param on_done: the callback function executed while streaming, after successful completion of each request.
-            It takes the response ``DataRequest`` as the only argument.
+            It takes the response ``DataRequest`` as the only argument
+        :param on_error: the callback function executed while streaming, after an error occurs in each request.
+            It takes the response ``DataRequest`` as the only argument
+        :param on_always: the callback function executed while streaming, after each request is completed.
+            It takes the response ``DataRequest`` as the only argument
         """
         ...
 
@@ -699,6 +761,8 @@ class Client:
         show_progress: bool = False,
         parameters: Optional[dict] = None,
         on_done: Optional['CallbackFnType'] = None,
+        on_error: Optional['CallbackFnType'] = None,
+        on_always: Optional['CallbackFnType'] = None,
     ) -> 'DocumentArray':
         """Search for top k results for given query string or ``Document``.
 
@@ -711,7 +775,11 @@ class Client:
         :param show_progress: if set, show a progress bar.
         :param parameters: parameters passed to search function.
         :param on_done: the callback function executed while streaming, after successful completion of each request.
-            It takes the response ``DataRequest`` as the only argument.
+            It takes the response ``DataRequest`` as the only argument
+        :param on_error: the callback function executed while streaming, after an error occurs in each request.
+            It takes the response ``DataRequest`` as the only argument
+        :param on_always: the callback function executed while streaming, after each request is completed.
+            It takes the response ``DataRequest`` as the only argument
         """
         ...
 
@@ -727,25 +795,27 @@ class Client:
             not kwargs.get('show_progress'),
             total=len(content) if hasattr(content, '__len__') else None,
         )
+        on_done = kwargs.pop('on_done', None)
+        on_error = kwargs.pop('on_error', None)
+        on_always = kwargs.pop('on_always', None)
+        results = DocumentArray() if not on_done else None
+        if not on_done:
+            on_done = partial(self._gather_result, results=results, attribute='matches')
 
-        results = DocumentArray()
         with self._pbar:
             parameters = kwargs.pop('parameters', {})
             parameters['limit'] = limit
             parameters['drop_image_content'] = parameters.get(
                 'drop_image_content', True
             )
-            on_done = kwargs.pop(
-                'on_done',
-                partial(self._gather_result, results=results, attribute='matches'),
-            )
 
             self._client.post(
                 on='/search',
                 **self._get_post_payload(content, results, kwargs),
-                parameters=parameters,
                 on_done=on_done,
-                on_always=self._update_pbar,
+                on_error=on_error,
+                on_always=partial(self._update_pbar, func=on_always),
+                parameters=parameters,
             )
 
         return results
@@ -760,6 +830,8 @@ class Client:
         show_progress: bool = False,
         parameters: Optional[Dict] = None,
         on_done: Optional['CallbackFnType'] = None,
+        on_error: Optional['CallbackFnType'] = None,
+        on_always: Optional['CallbackFnType'] = None,
     ):
         ...
 
@@ -773,6 +845,8 @@ class Client:
         show_progress: bool = False,
         parameters: Optional[dict] = None,
         on_done: Optional['CallbackFnType'] = None,
+        on_error: Optional['CallbackFnType'] = None,
+        on_always: Optional['CallbackFnType'] = None,
     ):
         ...
 
@@ -788,24 +862,26 @@ class Client:
             not kwargs.get('show_progress'),
             total=len(content) if hasattr(content, '__len__') else None,
         )
+        on_done = kwargs.pop('on_done', None)
+        on_error = kwargs.pop('on_error', None)
+        on_always = kwargs.pop('on_always', None)
+        results = DocumentArray() if not on_done else None
+        if not on_done:
+            on_done = partial(self._gather_result, results=results, attribute='matches')
 
-        results = DocumentArray()
         with self._pbar:
             parameters = kwargs.pop('parameters', {})
             parameters['limit'] = limit
             parameters['drop_image_content'] = parameters.get(
                 'drop_image_content', True
             )
-            on_done = kwargs.pop(
-                'on_done',
-                partial(self._gather_result, results=results, attribute='matches'),
-            )
 
             async for _ in self._async_client.post(
                 on='/search',
                 **self._get_post_payload(content, results, kwargs),
                 on_done=on_done,
-                on_always=self._update_pbar,
+                on_error=on_error,
+                on_always=partial(self._update_pbar, func=on_always),
                 parameters=parameters,
             ):
                 continue
