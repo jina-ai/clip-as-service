@@ -1,24 +1,23 @@
 # Client API
 
-CLIP-as-service is designed in a client-server architecture. A client sends images and texts to the server, and receives the embeddings from the server. Additionally, {class}`~clip_client.client.Client` has many nice designs for speeding up the encoding on large amount of data:
+CLIP-as-service is designed in a client-server architecture. You can use `clip_client` to send images and texts to the server and receive the responses from the server. Right now, `clip_client` provides encoding, ranking, indexing, and searching functionalities. Additionally, it has many nice designs for speeding up the processing of a large amount of data:
+
 - Streaming: request sending is *not* blocked by the response receiving. Sending and receiving are two separate streams that run in parallel. Both are independent and each have separate internal buffer.
 - Batching: large requests are segmented into small batches and send in a stream. 
 - Low memory footprint: only load data when needed.
 - Sync/async interface: provide `async` interface that can be easily integrated into other asynchronous system.
-- Auto-detect image and sentences.
+- Auto-detect images and text input.
 - Support gRPC, HTTP, Websocket protocols with their TLS counterparts. 
 
-This chapter introduces the API of the client. 
 
 ```{tip}
-You will need to install client first in Python 3.7+: `pip install clip-client`.
+You will need to install `clip_client` first in Python 3.7+: `pip install clip-client`.
 ```
-
 
 (construct-client)=
 ## Construct client
 
-To use a Client, you need to first construct a Client object, e.g.:
+To use `clip_client`, you need to first construct a Client object, e.g.:
 
 ```python
 from clip_client import Client
@@ -26,30 +25,31 @@ from clip_client import Client
 c = Client('grpc://0.0.0.0:23456')
 ```
 
-The URL-like scheme `grpc://0.0.0.0:23456` is what you get after {ref}`running the server<server-address>`. The scheme follows the format below:
+The URL-like scheme `grpc://0.0.0.0:23456` is what you get after {ref}`running the server<server-address>`. The scheme follows the format `scheme://netloc:port`:
 
-```text
-scheme://netloc:port
-```
 
 | Field    | Description                                                                                                                                                                                 | Example       |
-|----------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------|
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- |
 | `scheme` | The protocol of the server, must be one of `grpc`, `websocket`, `http`, `grpcs`, `websockets`, `https`. Protocols end with `s` are TLS encrypted. This must match with the server protocol. | `grpc`        |
 | `netloc` | The server's IP address or hostname                                                                                                                                                         | `192.168.0.3` |
 | `port`   | The public port of the server                                                                                                                                                               | `51234`       |
             
 
+Jina AI provides a hosted service for CLIP models. Refer [here](hosting/by-jina#by-jina-python) for more details on how to connect to the hosted service.
+
 ## Encoding
 
-Client provides {func}`~clip_client.client.Client.encode` function that allows you to send sentences, images to the server in a streaming and sync/async manner. Encoding here means getting the fixed-length vector representation of a sentence or image.
+`clip_client` provides {func}`~clip_client.client.Client.encode` function that allows you to send sentences, images to the server in a streaming and sync/async manner. Encoding here means getting the fixed-length vector representation of a text or image.
 
-`.encode()` supports two basic input types:
+{func}`~clip_client.client.Client.encode` supports two basic input types:
+
 - **An iterable of `str`**, e.g. `List[str]`, `Tuple[str]`, `Generator[str]` are all acceptable.
-- **An iterable of [`docarray.Document`](https://docarray.jina.ai/fundamentals/document/)**, e.g. `List[Document]`, [`DocumentArray`](https://docarray.jina.ai/fundamentals/documentarray/), `Generator[Document]` are all acceptable.
+- **An iterable of {class}`~docarray.document.Document`**, e.g. `List[Document]`, {class}`~docarray.array.document.DocumentArray`, `Generator[Document]` are all acceptable.
 
-Depending on the input, the output of `.encode()` is different:
+Depending on the input, the output of {func}`~clip_client.client.Client.encode` is different:
+
 - If the input is an iterable of `str`, then the output will be a `numpy.ndarray`.
-- If the input is an iterable of `Document`, then the output will be [`docarray.DocumentArray`](https://docarray.jina.ai/fundamentals/documentarray/).
+- If the input is an iterable of `Document`, then the output will be a `DocumentArray`.
 
 Now let's look at these two cases in details.
 
@@ -67,7 +67,7 @@ from clip_client import Client
 
 c = Client('grpc://0.0.0.0:23456')
 
-c.encode(
+r = c.encode(
     [
         'she smiled, with pain',
         'apple.png',
@@ -75,7 +75,10 @@ c.encode(
         'data:image/gif;base64,R0lGODlhEAAQAMQAAORHHOVSKudfOulrSOp3WOyDZu6QdvCchPGolfO0o/XBs/fNwfjZ0frl3/zy7////wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAkAABAALAAAAAAQABAAAAVVICSOZGlCQAosJ6mu7fiyZeKqNKToQGDsM8hBADgUXoGAiqhSvp5QAnQKGIgUhwFUYLCVDFCrKUE1lBavAViFIDlTImbKC5Gm2hB0SlBCBMQiB0UjIQA7',
     ]
 )
+print(r)
 ```
+
+gives you
 
 ```text
 [[-0.09136295  0.42720157 -0.05784469 ... -0.42873043  0.04472527
@@ -96,12 +99,20 @@ This feature uses [DocArray](https://docarray.jina.ai), which is installed toget
 
 If auto-detection on a list of raw string is too "sci-fi" to you, then you may use `docarray.Document` to make the input more explicit and organized. `Document` can be used as a container to easily represent a sentence or an image.
 
-- Input: each Document must be filled with `.text` or `.uri` or `.blob` or `.tensor` attribute. 
-  - Document filled with `.text` is considered as sentence;
-  - Document filled with `.uri` or `.blob` or `.tensor` is considered as image. If `.tensor` is filled, then its shape must be in `[H, W, C]` format.
-- Output: a `DocumentArray` of the same input length. Each Document in it is now filled with `.embedding` attribute.
+- Input: each `Document` must be filled with `.text` or `.uri` or `.blob` or `.tensor` attribute. 
+  - `Document` filled with `.text` is considered as sentence;
+  - `Document` filled with `.uri` or `.blob` or `.tensor` is considered as image. If `.tensor` is filled, then its shape must be in `[H, W, C]` format.
+- Output: a `DocumentArray` of the same input length. Each `Document` object in it is the same one from the input and is now filled with `.embedding` attribute. The order of the output is the same as the input.
 
-The explicit comes from now you have to put the string into the Document attributes. For example, we can rewrite the above example as below:
+```{note}
+If the input `Document` is filled with both `.text` and `.uri`, then `.text` will be used.
+```
+
+```{caution}
+The correctness of result and the order of output rely on the uniqueness of id of the input `Document`. The id will be implicitly generated if not provided. If you set the id manually, then you must make sure the id is unique, otherwise the results will not be complete.
+```
+
+The explicitness comes from now you have to put the content into the `Document` attributes. For example, we can rewrite the above example as below:
 
 ```python
 from clip_client import Client
@@ -123,13 +134,13 @@ da = [
 r = c.encode(da)
 ```
 
-Instead of sending a list of Document, you can also wrap it with a [DocumentArray](https://docarray.jina.ai/fundamentals/documentarray/#) and then send it:
+Instead of sending a list of `Document`, you can also wrap it with a `DocumentArray` and then send it:
 
 ```python
 r = c.encode(DocumentArray(da))
 ```
 
-Now that the return result is a DocumentArray, we can get a summary of it.
+Now that the return result is a `DocumentArray`, we can get a summary of it using `r.summary()`.
 
 ```text
 ╭──────────────────────────── Documents Summary ─────────────────────────────╮
@@ -173,86 +184,29 @@ To get the embedding of all Documents, simply call `r.embeddings`:
 Reading an image file into bytes and put into `.blob` is possible as shown above. However, it is often unnecessary. Especially if you have a lot of images, loading all of them into memory is not a good idea. Rule of thumb, always use `.uri` and trust `clip_client` to handle it well. 
 ```
 
-### Control batch size
+### Async encoding
 
-You can specify `.encode(..., batch_size=8)` to control how many Documents is sent in each request. You can play this number and find the perfect balance between network transmission and GPU utilization. 
-
-Intuitively, setting `batch_size=1024` should give a very high GPU utilization on each request. However, a large batch size like this also means sending each request would take longer. Given that `clip-client` is designed with request and response streaming, large batch size would not benefit from the time overlapping between request streaming and response streaming.
-
-
-### Show progressbar
-
-Use `.encode(..., show_progress=True)` to turn on the progress bar.
-
-```{figure} images/client-pgbar.gif
-:width: 80%
-```
-
-```{hint}
-Progress bar may not show up in the PyCharm debug terminal. This is an upstream issue of `rich` package.
-```
-
-
-### Performance tip on large number of Documents
-
-Here are some suggestions when encoding large number of Documents:
-
-1. Use `Generator` as input to load data on-demand. You can put your data into a Generator and feed to `.encode`:
-    ```python
-    def data_gen():
-        for _ in range(100_000):
-            yield Document(uri=...)
-
-
-    c = Client(...)
-    c.encode(data_gen())
-    ```
-    Yield raw strings is also acceptable, e.g. to encode all images under a directory, you can simply do:
-    ```python
-    from glob import iglob
-
-    c.encode(iglob('**/*.png'))
-    ```
-2. Adjust `batch_size`.
-3. Turn on the progressbar.
-
-````{danger}
-In any case, avoiding the following coding:
-
-```python
-for d in big_list:
-    c.encode([d])
-```
-
-This is extremely slow as only one document is encoded at a time, it is a bad utilization of the network and not leveraging any duplex streaming.
-````
-
-
-## Async encoding
-
-To encode Document in an asynchronous manner, one can use {func}`~clip_client.client.Client.aencode`.
+To encode `Document` in an asynchronous manner, one can use {func}`~clip_client.client.Client.aencode`.
 
 ```{tip}
-Despite the sexy word "async", I often found many data scientists have a misconception about asynchronous. And their motivation of using async function is often wrong. _Async is not a silver bullet._ In a simple language, you will only need `.aencode()` when there is another concurrent task that is also async. Then you want to "overlap" the time spending of these two tasks.
+Despite the sexy word "async", many data scientists have misconceptions about asynchronous behavior. And their motivation of using async function is often wrong. _Async is not a silver bullet._ In a simple language, you will only need `.aencode()` when there is another concurrent task that is also async. Then you want to "overlap" the time spending of these two tasks.
 
 If your system is sync by design, there is nothing wrong about it. Go with `encode()` until you see a clear advantage of using `aencode()`, or until your boss tell you to do so.   
 ```
 
-In the following example, I have another job `another_heavylifting_job` to represent job like writing to database, downloading large file.
+In the following example, there is another job `another_heavylifting_job` to represent a job like writing to database, downloading large file.
 
 ```python
 import asyncio
+from clip_client import Client
+
+c = Client('grpc://0.0.0.0:23456')
 
 
 async def another_heavylifting_job():
     # can be writing to database, downloading large file
     # big IO ops
     await asyncio.sleep(3)
-
-
-from clip_client import Client
-
-c = Client('grpc://0.0.0.0:23456')
 
 
 async def main():
@@ -270,10 +224,10 @@ The final time cost will be less than `3s + time(t2)`.
 ## Ranking
 
 ```{tip}
-This feature is only available with `clip_server>=0.3.0` and the server is running with PyTorch backend.
+This feature is only available with `clip_server>=0.3.0`.
 ```
 
-One can also rank cross-modal matches via {meth}`~clip_client.client.Client.rank` or {meth}`~clip_client.client.Client.arank`. First construct a cross-modal Document where the root contains an image and `.matches` contain sentences to rerank. One can also construct text-to-image rerank as below:
+One can also rank cross-modal matches via {meth}`~clip_client.client.Client.rank` or {meth}`~clip_client.client.Client.arank`. First construct a cross-modal `Document` where the root contains an image and `.matches` contain sentences to rerank. One can also construct text-to-image rerank as below:
 
 ````{tab} Given image, rank sentences
 
@@ -338,7 +292,7 @@ Finally, in the return you can observe the matches are re-ranked according to `.
 ## Indexing
 
 ```{tip}
-This feature is only available with clip_client>=0.7.0, and the server is running with 
+This feature is only available with `clip_client>=0.7.0`, and the server is running with 
 a FLOW consisting of encoder and indexer.
 ``` 
 
@@ -395,6 +349,11 @@ Now we can use the indexer to search for the indexed Documents.
 (searching)=
 ## Searching
 
+```{tip}
+This feature is only available with `clip_client>=0.7.0`, and the server is running with 
+a FLOW consisting of encoder and indexer.
+``` 
+
 You can use {func}`~clip_client.client.Client.search` or {func}`~clip_client.client.Client.asearch`
 to search for relevant Documents in the index for a given query.
 
@@ -404,7 +363,6 @@ from clip_client import Client
 c = Client('grpc://0.0.0.0:23456')
 
 result = c.search(['smile'], limit=2)
-
 
 print(result['@m', ['text', 'scores__cosine']])
 ```
@@ -458,7 +416,104 @@ c.profile('https://docarray.jina.ai/_static/favicon.png')
 Single query latency is often very fluctuated. Running `.profile()` multiple times may give you different results. Nonetheless, it helps you understand who to blame if CLIP-as-service is running slow for you: the network? the computation? But certainly not this software itself.
 
 
-## Plain HTTP request via `curl`
+## Best practices
+
+In this section, we will show you some best practices for using this client. We will use encoding as an example. The same applies to all other methods.
+
+### Control batch size
+
+You can specify `.encode(..., batch_size=8)` to control how many `Document`s are sent in each request. You can play this number and find the perfect balance between network transmission and GPU utilization. 
+
+Intuitively, setting `batch_size=1024` should result in very high GPU utilization on each request. However, a large batch size like this also means sending each request would take longer. Given that `clip-client` is designed with request and response streaming, large batch size would not benefit from the time overlapping between request streaming and response streaming.
+
+
+### Show progressbar
+
+You can use `.encode(..., show_progress=True)` to turn on the progress bar.
+
+```{figure} images/client-pgbar.gif
+:width: 80%
+```
+
+```{hint}
+Progress bar may not show up in the PyCharm debug terminal. This is an upstream issue of `rich` package.
+```
+
+### Processing large number of Documents
+
+Here are some suggestions when encoding a large number of `Document`s:
+
+1. Use `Generator` as input to load data on-demand. You can put your data into a Generator and feed to `.encode`:
+    ```python
+    def data_gen():
+        for _ in range(100_000):
+            yield Document(uri=...)
+
+
+    c = Client(...)
+    c.encode(data_gen())
+    ```
+    Yield raw strings is also acceptable, e.g. to encode all images under a directory, you can simply do:
+    ```python
+    from glob import iglob
+
+    c.encode(iglob('**/*.png'))
+    ```
+2. Adjust `batch_size`.
+3. Turn on the progressbar.
+
+````{danger}
+In any case, avoiding the following coding:
+
+```python
+for d in big_list:
+    c.encode([d])
+```
+
+This is extremely slow as only one document is encoded at a time, it is a bad utilization of the network and not leveraging any duplex streaming.
+````
+
+### Client parallelism
+
+In case you instanciate a `clip_client` object using the `grpc` protocol, keep in mind that `grpc` clients cannot be used in a multi-threaded environment (check [this gRPC issue](https://github.com/grpc/grpc/issues/25364) for reference).
+What you should do, is to rely on asynchronous programming or multi-processing rather than multi-threading.
+
+To use `clip_client` in a Flask application, you can introduce multi-processing based parallelism to your app using `gunicorn`: 
+
+```bash
+gunicorn -w 4 -b 127.0.0.1:4000 myproject:app
+```
+
+To use `clip_client` in a FastAPI application, you have to manually restrict the thread number to 1 at the starting state of the app:
+
+```python   
+import uvicorn
+from fastapi import FastAPI
+from clip_client import Client
+from anyio.lowlevel import RunVar
+from anyio import CapacityLimiter
+
+c = Client('grpc://0.0.0.0:51001')
+app = FastAPI()
+
+@app.on_event("startup")
+def startup():
+    print("start")
+    RunVar("_default_thread_limiter").set(CapacityLimiter(1))
+
+@app.post("/")
+def encode():
+    r =  c.encode(['Hello world', 'Hello Jina'])
+    print(r)
+```
+
+Then it can run with multiprocessing using
+
+```bash
+gunicorn myproject:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:4000
+```
+
+## Appendix: Plain HTTP request via `curl`
 
 ```{tip}
 Sending large embeddings over plain HTTP is often not the best idea. Websocket is often a better choice, allows one to call clip-server from Javascript with much better performance.   
@@ -521,3 +576,5 @@ curl -X POST https://demo-cas.jina.ai:8443/post \
 [-0.022064208984375,0.1044921875,...]
 [-0.0750732421875,-0.166015625,...]
 ```
+
+To connect to the CLIP server hosted by Jina AI, please refer to [this page](/hosting/by-jina#by-jina-curl).

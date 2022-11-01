@@ -11,6 +11,7 @@ This chapter introduces the API of the server.
 You will need to install server first in Python 3.7+: `pip install clip-server`.
 ```
 
+(server-address)=
 ## Start server
 
 
@@ -24,7 +25,6 @@ python -m clip_server
 
 Note that it is underscore `_` not the dash `-`.
 
-(server-address)=
 First time running will download the pretrained model (Pytorch `ViT-B/32` by default), load the model, and finally you will get the address information of the server. This information will {ref}`then be used in clients<construct-client>`.
 
 ```{figure} images/server-start.gif
@@ -68,7 +68,7 @@ Please also note that **different models give different sizes of output dimensio
 For more details about the models and how to select the best model for your application, please refer to the [CLIP benchmark page](benchmark.rst).
 
 | Model                                 | PyTorch | ONNX | TensorRT | Output Dimension |
-|---------------------------------------|---------|------|----------|------------------|
+| ------------------------------------- | ------- | ---- | -------- | ---------------- |
 | RN50::openai                          | ✅       | ✅    | ✅        | 1024             |
 | RN50::yfcc15m                         | ✅       | ✅    | ✅        | 1024             |
 | RN50::cc12m                           | ✅       | ✅    | ✅        | 1024             |
@@ -85,8 +85,8 @@ For more details about the models and how to select the best model for your appl
 | ViT-B-16::openai                      | ✅       | ✅    | ✅        | 512              |
 | ViT-B-16::laion400m_e31               | ✅       | ✅    | ✅        | 512              |
 | ViT-B-16::laion400m_e32               | ✅       | ✅    | ✅        | 512              |
-| ViT-B-16-plus-240::laion400m_e31      | ✅       | ✅    | 🚧       | 640              |
-| ViT-B-16-plus-240::laion400m_e32      | ✅       | ✅    | 🚧       | 640              |
+| ViT-B-16-plus-240::laion400m_e31      | ✅       | ✅    | 🚧        | 640              |
+| ViT-B-16-plus-240::laion400m_e32      | ✅       | ✅    | 🚧        | 640              |
 | ViT-L-14::openai                      | ✅       | ✅    | ❌        | 768              |
 | ViT-L-14::laion400m_e31               | ✅       | ✅    | ❌        | 768              |
 | ViT-L-14::laion400m_e32               | ✅       | ✅    | ❌        | 768              |
@@ -95,8 +95,8 @@ For more details about the models and how to select the best model for your appl
 | ViT-H-14::laion2b-s32b-b79k           | ✅       | ✅    | ❌        | 1024             |
 | ViT-g-14::laion2b-s12b-b42k           | ✅       | ✅    | ❌        | 1024             |
 | M-CLIP/LABSE-Vit-L-14                 | ✅       | ✅    | ❌        | 768              |
-| M-CLIP/XLM-Roberta-Large-Vit-B-32     | ✅       | ✅    | 🚧       | 512              |
-| M-CLIP/XLM-Roberta-Large-Vit-B-16Plus | ✅       | ✅    | 🚧       | 640              |
+| M-CLIP/XLM-Roberta-Large-Vit-B-32     | ✅       | ✅    | 🚧        | 512              |
+| M-CLIP/XLM-Roberta-Large-Vit-B-16Plus | ✅       | ✅    | 🚧        | 640              |
 | M-CLIP/XLM-Roberta-Large-Vit-L-14     | ✅       | ✅    | ❌        | 768              |
 
 ✅ = Supported — 🚧 = Working in progress — ❌ = Not supported
@@ -272,28 +272,28 @@ executors:
 For all backends, you can set the following parameters via `with`:
 
 | Parameter               | Description                                                                                                                  |
-|-------------------------|------------------------------------------------------------------------------------------------------------------------------|
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
 | `name`                  | The name of the model to be used. Default 'ViT-B-32::openai'. A list of available models can be found [here](#model-support) |
-| `num_worker_preprocess` | The number of CPU workers to preprocess images and texts. Default is 4.                                                      | 
+| `num_worker_preprocess` | The number of CPU workers to preprocess images and texts. Default is 4.                                                      |
 | `minibatch_size`        | The size of the minibatch for preprocessing and encoding. Default is 32. Reduce this number if you encounter OOM errors.     |
 
 There are also runtime-specific parameters listed below:
 
 ````{tab} PyTorch
 
-| Parameter | Description                                                                                                                    |
-|-----------|--------------------------------------------------------------------------------------------------------------------------------|
-| `device`  | 'cpu' or 'cuda'. Default is None, which auto-detects the device.                                                               |
-| `jit`     |  Whether to use JIT compilation. Default is False.                                                                             | 
+| Parameter | Description                                                      |
+| --------- | ---------------------------------------------------------------- |
+| `device`  | 'cpu' or 'cuda'. Default is None, which auto-detects the device. |
+| `jit`     | Whether to use JIT compilation. Default is False.                |
 
 ````
 
 ````{tab} ONNX
 
-| Parameter | Description                                                                                                                    |
-|-----------|--------------------------------------------------------------------------------------------------------------------------------|
-| `device`  | 'cpu' or 'cuda'. Default is None, which auto-detects the device.
-| `model_path`            | The path to the model to be used. If not specified, the model will be downloaded or loaded from the local cache. See [here](#use-custom-model-for-onnx) to learn how to finetune custom models.                                                                                 |
+| Parameter    | Description                                                                                                                                                                                     |
+| ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `device`     | 'cpu' or 'cuda'. Default is None, which auto-detects the device.                                                                                                                                |
+| `model_path` | The path to the model to be used. If not specified, the model will be downloaded or loaded from the local cache. See [here](#use-custom-model-for-onnx) to learn how to finetune custom models. |
 
 ````
 
@@ -376,11 +376,11 @@ executors:
 
 Flow configs are the ones under top-level `with:`. We can see the `port: 51000` is configured there. Besides `port`, there are some common parameters you might need.
 
-| Parameter | Description                                                                                                                                                                                                           |
-| --- |-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `protocol` | Communication protocol between server and client.  Can be `grpc`, `http`, `websocket`.                                                                                                                                | 
-| `cors`| Only effective when `protocol=http`. If set, a CORS middleware is added to FastAPI frontend to allow cross-origin access.                                                                                             |
-| `prefetch` | Control the maximum streamed request inside the Flow at any given time, default is `None`, means no limit. Setting `prefetch` to a small number helps solving the OOM problem, but may slow down the streaming a bit. | 
+| Parameter  | Description                                                                                                                                                                                                           |
+| ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `protocol` | Communication protocol between server and client.  Can be `grpc`, `http`, `websocket`.                                                                                                                                |
+| `cors`     | Only effective when `protocol=http`. If set, a CORS middleware is added to FastAPI frontend to allow cross-origin access.                                                                                             |
+| `prefetch` | Control the maximum streamed request inside the Flow at any given time, default is `None`, means no limit. Setting `prefetch` to a small number helps solving the OOM problem, but may slow down the streaming a bit. |
 
 
 As an example, to set `protocol` and `prefetch`, one can modify the YAML as follows:
@@ -437,7 +437,7 @@ CUDA_VISIBLE_DEVICES=RR python -m clip_server
 Will assign GPU devices to the following round-robin fashion:
 
 | GPU device | Replica ID |
-|------------|------------|
+| ---------- | ---------- |
 | 0          | 0          |
 | 1          | 1          |
 | 2          | 2          |
@@ -448,7 +448,7 @@ Will assign GPU devices to the following round-robin fashion:
 You can also restrict the visible devices in round-robin assigment by `CUDA_VISIBLE_DEVICES=RR0:2`, where `0:2` has the same meaning as Python slice. This will create the following assigment:
 
 | GPU device | Replica ID |
-|------------|------------|
+| ---------- | ---------- |
 | 0          | 0          |
 | 1          | 1          |
 | 0          | 2          |
@@ -634,10 +634,10 @@ jinaai/clip-server:{version}{extra}
 
 #### Image alias and updates
 
-| Event               | Updated images             | Aliases                                                                                                       |
-|---------------------|----------------------------|---------------------------------------------------------------------------------------------------------------|
-| On merge into `main` | `jinaai/clip-server:master{extra}` |                                                                                                               |
-| On `x.y.z` release  | `jinaai/clip-server:x.y.z{extra}` | `jinaai/clip-server:latest{python_version}{extra}`, `jinaai/clip-server:x.y{python_version}{extra}`, `jinaai/clip-server:x{python_version}{extra}` |
+| Event                | Updated images                     | Aliases                                                                                                                                            |
+| -------------------- | ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| On merge into `main` | `jinaai/clip-server:master{extra}` |                                                                                                                                                    |
+| On `x.y.z` release   | `jinaai/clip-server:x.y.z{extra}`  | `jinaai/clip-server:latest{python_version}{extra}`, `jinaai/clip-server:x.y{python_version}{extra}`, `jinaai/clip-server:x{python_version}{extra}` |
 
 3 images are built on the event listed above, i.e. taking the combination of:
   - `{extra} = ["", "-onnx", "-tensorrt"]`
@@ -649,11 +649,11 @@ jinaai/clip-server:{version}{extra}
 ```
 
 | Image Size                                                                                                                                |
-|-------------------------------------------------------------------------------------------------------------------------------------------|
-| ![](https://img.shields.io/docker/image-size/jinaai/clip-server/latest?label=jinaai%2Fclip-server%3Alatest&logo=docker)           |
-| ![](https://img.shields.io/docker/image-size/jinaai/clip-server/latest-onnx?label=jinaai%2Fclip-server%3Alatest-onnx&logo=docker) |
-| ![](https://img.shields.io/docker/image-size/jinaai/clip-server/latest-tensorrt?label=jinaai%2Fclip-server%3Alatest-tensorrt&logo=docker)               |
-| ![](https://img.shields.io/docker/image-size/jinaai/clip-server/master?label=jinaai%2Fclip-server%3Amaster&logo=docker)           |
-| ![](https://img.shields.io/docker/image-size/jinaai/clip-server/master-onnx?label=jinaai%2Fclip-server%3Amaster-onnx&logo=docker) |
-| ![](https://img.shields.io/docker/image-size/jinaai/clip-server/master-tensorrt?label=jinaai%2Fclip-server%3Amaster-tensorrt&logo=docker)               |
+| ----------------------------------------------------------------------------------------------------------------------------------------- |
+| ![](https://img.shields.io/docker/image-size/jinaai/clip-server/latest?label=jinaai%2Fclip-server%3Alatest&logo=docker)                   |
+| ![](https://img.shields.io/docker/image-size/jinaai/clip-server/latest-onnx?label=jinaai%2Fclip-server%3Alatest-onnx&logo=docker)         |
+| ![](https://img.shields.io/docker/image-size/jinaai/clip-server/latest-tensorrt?label=jinaai%2Fclip-server%3Alatest-tensorrt&logo=docker) |
+| ![](https://img.shields.io/docker/image-size/jinaai/clip-server/master?label=jinaai%2Fclip-server%3Amaster&logo=docker)                   |
+| ![](https://img.shields.io/docker/image-size/jinaai/clip-server/master-onnx?label=jinaai%2Fclip-server%3Amaster-onnx&logo=docker)         |
+| ![](https://img.shields.io/docker/image-size/jinaai/clip-server/master-tensorrt?label=jinaai%2Fclip-server%3Amaster-tensorrt&logo=docker) |
 

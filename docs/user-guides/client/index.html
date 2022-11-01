@@ -12,7 +12,7 @@
   
 <meta property="og:site_name" content="CLIP-as-service 0.8.1 Documentation" />
   
-<meta property="og:description" content="CLIP-as-service is designed in a client-server architecture. A client sends images and texts to the server, and receives the embeddings from the server. Additionally, Client has many nice designs for speeding up the encoding on large amount of data: Streaming: request sending is not blocked by th..." />
+<meta property="og:description" content="CLIP-as-service is designed in a client-server architecture. You can use clip_client to send images and texts to the server and receive the responses from the server. Right now, clip_client provides encoding, ranking, indexing, and searching functionalities. Additionally, it has many nice designs..." />
   
 <meta property="og:image" content="https://clip-as-service.jina.ai/_images/client-pgbar.gif" />
   
@@ -231,8 +231,9 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Hosting</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../hosting/colab/">Host on Google Colab</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../hosting/by-jina/">Hosted by Jina AI</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../hosting/on-jcloud/">Host on JCloud</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../hosting/colab/">Host on Google Colab</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Playground</span></p>
 <ul>
@@ -325,32 +326,28 @@
                 <article role="main">
                     <section class="tex2jax_ignore mathjax_ignore" id="client-api">
 <h1>Client API<a class="headerlink" href="#client-api" title="Permalink to this headline">#</a></h1>
-<p>CLIP-as-service is designed in a client-server architecture. A client sends images and texts to the server, and receives the embeddings from the server. Additionally, <a class="reference internal" href="../../api/clip_client.client/#clip_client.client.Client" title="clip_client.client.Client"><code class="xref py py-class docutils literal notranslate"><span class="pre">Client</span></code></a> has many nice designs for speeding up the encoding on large amount of data:</p>
+<p>CLIP-as-service is designed in a client-server architecture. You can use <code class="docutils literal notranslate"><span class="pre">clip_client</span></code> to send images and texts to the server and receive the responses from the server. Right now, <code class="docutils literal notranslate"><span class="pre">clip_client</span></code> provides encoding, ranking, indexing, and searching functionalities. Additionally, it has many nice designs for speeding up the processing of a large amount of data:</p>
 <ul class="simple">
 <li><p>Streaming: request sending is <em>not</em> blocked by the response receiving. Sending and receiving are two separate streams that run in parallel. Both are independent and each have separate internal buffer.</p></li>
 <li><p>Batching: large requests are segmented into small batches and send in a stream.</p></li>
 <li><p>Low memory footprint: only load data when needed.</p></li>
 <li><p>Sync/async interface: provide <code class="docutils literal notranslate"><span class="pre">async</span></code> interface that can be easily integrated into other asynchronous system.</p></li>
-<li><p>Auto-detect image and sentences.</p></li>
+<li><p>Auto-detect images and text input.</p></li>
 <li><p>Support gRPC, HTTP, Websocket protocols with their TLS counterparts.</p></li>
 </ul>
-<p>This chapter introduces the API of the client.</p>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-<p>You will need to install client first in Python 3.7+: <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">clip-client</span></code>.</p>
+<p>You will need to install <code class="docutils literal notranslate"><span class="pre">clip_client</span></code> first in Python 3.7+: <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">clip-client</span></code>.</p>
 </div>
 <section id="construct-client">
 <span id="id1"></span><h2>Construct client<a class="headerlink" href="#construct-client" title="Permalink to this headline">#</a></h2>
-<p>To use a Client, you need to first construct a Client object, e.g.:</p>
+<p>To use <code class="docutils literal notranslate"><span class="pre">clip_client</span></code>, you need to first construct a Client object, e.g.:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">clip_client</span> <span class="kn">import</span> <span class="n">Client</span>
 
 <span class="n">c</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span><span class="s1">&#39;grpc://0.0.0.0:23456&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>The URL-like scheme <code class="docutils literal notranslate"><span class="pre">grpc://0.0.0.0:23456</span></code> is what you get after <a class="reference internal" href="../server/#server-address"><span class="std std-ref">running the server</span></a>. The scheme follows the format below:</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>scheme://netloc:port
-</pre></div>
-</div>
+<p>The URL-like scheme <code class="docutils literal notranslate"><span class="pre">grpc://0.0.0.0:23456</span></code> is what you get after <a class="reference internal" href="../server/#server-address"><span class="std std-ref">running the server</span></a>. The scheme follows the format <code class="docutils literal notranslate"><span class="pre">scheme://netloc:port</span></code>:</p>
 <div class="table-wrapper colwidths-auto docutils container">
 <table class="colwidths-auto docutils align-default">
 <thead>
@@ -375,19 +372,20 @@
 </tbody>
 </table>
 </div>
+<p>Jina AI provides a hosted service for CLIP models. Refer <a class="reference external" href="hosting/by-jina#by-jina-python">here</a> for more details on how to connect to the hosted service.</p>
 </section>
 <section id="encoding">
 <h2>Encoding<a class="headerlink" href="#encoding" title="Permalink to this headline">#</a></h2>
-<p>Client provides <a class="reference internal" href="../../api/clip_client.client/#clip_client.client.Client.encode" title="clip_client.client.Client.encode"><code class="xref py py-func docutils literal notranslate"><span class="pre">encode()</span></code></a> function that allows you to send sentences, images to the server in a streaming and sync/async manner. Encoding here means getting the fixed-length vector representation of a sentence or image.</p>
-<p><code class="docutils literal notranslate"><span class="pre">.encode()</span></code> supports two basic input types:</p>
+<p><code class="docutils literal notranslate"><span class="pre">clip_client</span></code> provides <a class="reference internal" href="../../api/clip_client.client/#clip_client.client.Client.encode" title="clip_client.client.Client.encode"><code class="xref py py-func docutils literal notranslate"><span class="pre">encode()</span></code></a> function that allows you to send sentences, images to the server in a streaming and sync/async manner. Encoding here means getting the fixed-length vector representation of a text or image.</p>
+<p><a class="reference internal" href="../../api/clip_client.client/#clip_client.client.Client.encode" title="clip_client.client.Client.encode"><code class="xref py py-func docutils literal notranslate"><span class="pre">encode()</span></code></a> supports two basic input types:</p>
 <ul class="simple">
 <li><p><strong>An iterable of <code class="docutils literal notranslate"><span class="pre">str</span></code></strong>, e.g. <code class="docutils literal notranslate"><span class="pre">List[str]</span></code>, <code class="docutils literal notranslate"><span class="pre">Tuple[str]</span></code>, <code class="docutils literal notranslate"><span class="pre">Generator[str]</span></code> are all acceptable.</p></li>
-<li><p><strong>An iterable of <a class="reference external" href="https://docarray.jina.ai/fundamentals/document/"><code class="docutils literal notranslate"><span class="pre">docarray.Document</span></code></a></strong>, e.g. <code class="docutils literal notranslate"><span class="pre">List[Document]</span></code>, <a class="reference external" href="https://docarray.jina.ai/fundamentals/documentarray/"><code class="docutils literal notranslate"><span class="pre">DocumentArray</span></code></a>, <code class="docutils literal notranslate"><span class="pre">Generator[Document]</span></code> are all acceptable.</p></li>
+<li><p><strong>An iterable of <a class="reference external" href="https://docarray.jina.ai/api/docarray.document/#docarray.document.Document" title="(in DocArray v0.18.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Document</span></code></a></strong>, e.g. <code class="docutils literal notranslate"><span class="pre">List[Document]</span></code>, <a class="reference external" href="https://docarray.jina.ai/api/docarray.array.document/#docarray.array.document.DocumentArray" title="(in DocArray v0.18.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DocumentArray</span></code></a>, <code class="docutils literal notranslate"><span class="pre">Generator[Document]</span></code> are all acceptable.</p></li>
 </ul>
-<p>Depending on the input, the output of <code class="docutils literal notranslate"><span class="pre">.encode()</span></code> is different:</p>
+<p>Depending on the input, the output of <a class="reference internal" href="../../api/clip_client.client/#clip_client.client.Client.encode" title="clip_client.client.Client.encode"><code class="xref py py-func docutils literal notranslate"><span class="pre">encode()</span></code></a> is different:</p>
 <ul class="simple">
 <li><p>If the input is an iterable of <code class="docutils literal notranslate"><span class="pre">str</span></code>, then the output will be a <code class="docutils literal notranslate"><span class="pre">numpy.ndarray</span></code>.</p></li>
-<li><p>If the input is an iterable of <code class="docutils literal notranslate"><span class="pre">Document</span></code>, then the output will be <a class="reference external" href="https://docarray.jina.ai/fundamentals/documentarray/"><code class="docutils literal notranslate"><span class="pre">docarray.DocumentArray</span></code></a>.</p></li>
+<li><p>If the input is an iterable of <code class="docutils literal notranslate"><span class="pre">Document</span></code>, then the output will be a <code class="docutils literal notranslate"><span class="pre">DocumentArray</span></code>.</p></li>
 </ul>
 <p>Now let’s look at these two cases in details.</p>
 <section id="input-as-iterable-of-strings">
@@ -402,7 +400,7 @@
 
 <span class="n">c</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span><span class="s1">&#39;grpc://0.0.0.0:23456&#39;</span><span class="p">)</span>
 
-<span class="n">c</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span>
+<span class="n">r</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span>
     <span class="p">[</span>
         <span class="s1">&#39;she smiled, with pain&#39;</span><span class="p">,</span>
         <span class="s1">&#39;apple.png&#39;</span><span class="p">,</span>
@@ -410,8 +408,10 @@
         <span class="s1">&#39;data:image/gif;base64,R0lGODlhEAAQAMQAAORHHOVSKudfOulrSOp3WOyDZu6QdvCchPGolfO0o/XBs/fNwfjZ0frl3/zy7////wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAkAABAALAAAAAAQABAAAAVVICSOZGlCQAosJ6mu7fiyZeKqNKToQGDsM8hBADgUXoGAiqhSvp5QAnQKGIgUhwFUYLCVDFCrKUE1lBavAViFIDlTImbKC5Gm2hB0SlBCBMQiB0UjIQA7&#39;</span><span class="p">,</span>
     <span class="p">]</span>
 <span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
 </pre></div>
 </div>
+<p>gives you</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>[[-0.09136295  0.42720157 -0.05784469 ... -0.42873043  0.04472527
    0.4437953 ]
  [ 0.43152636  0.1563695  -0.09363698 ... -0.11514216  0.1865044
@@ -431,15 +431,23 @@
 </div>
 <p>If auto-detection on a list of raw string is too “sci-fi” to you, then you may use <code class="docutils literal notranslate"><span class="pre">docarray.Document</span></code> to make the input more explicit and organized. <code class="docutils literal notranslate"><span class="pre">Document</span></code> can be used as a container to easily represent a sentence or an image.</p>
 <ul class="simple">
-<li><p>Input: each Document must be filled with <code class="docutils literal notranslate"><span class="pre">.text</span></code> or <code class="docutils literal notranslate"><span class="pre">.uri</span></code> or <code class="docutils literal notranslate"><span class="pre">.blob</span></code> or <code class="docutils literal notranslate"><span class="pre">.tensor</span></code> attribute.</p>
+<li><p>Input: each <code class="docutils literal notranslate"><span class="pre">Document</span></code> must be filled with <code class="docutils literal notranslate"><span class="pre">.text</span></code> or <code class="docutils literal notranslate"><span class="pre">.uri</span></code> or <code class="docutils literal notranslate"><span class="pre">.blob</span></code> or <code class="docutils literal notranslate"><span class="pre">.tensor</span></code> attribute.</p>
 <ul>
-<li><p>Document filled with <code class="docutils literal notranslate"><span class="pre">.text</span></code> is considered as sentence;</p></li>
-<li><p>Document filled with <code class="docutils literal notranslate"><span class="pre">.uri</span></code> or <code class="docutils literal notranslate"><span class="pre">.blob</span></code> or <code class="docutils literal notranslate"><span class="pre">.tensor</span></code> is considered as image. If <code class="docutils literal notranslate"><span class="pre">.tensor</span></code> is filled, then its shape must be in <code class="docutils literal notranslate"><span class="pre">[H,</span> <span class="pre">W,</span> <span class="pre">C]</span></code> format.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Document</span></code> filled with <code class="docutils literal notranslate"><span class="pre">.text</span></code> is considered as sentence;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Document</span></code> filled with <code class="docutils literal notranslate"><span class="pre">.uri</span></code> or <code class="docutils literal notranslate"><span class="pre">.blob</span></code> or <code class="docutils literal notranslate"><span class="pre">.tensor</span></code> is considered as image. If <code class="docutils literal notranslate"><span class="pre">.tensor</span></code> is filled, then its shape must be in <code class="docutils literal notranslate"><span class="pre">[H,</span> <span class="pre">W,</span> <span class="pre">C]</span></code> format.</p></li>
 </ul>
 </li>
-<li><p>Output: a <code class="docutils literal notranslate"><span class="pre">DocumentArray</span></code> of the same input length. Each Document in it is now filled with <code class="docutils literal notranslate"><span class="pre">.embedding</span></code> attribute.</p></li>
+<li><p>Output: a <code class="docutils literal notranslate"><span class="pre">DocumentArray</span></code> of the same input length. Each <code class="docutils literal notranslate"><span class="pre">Document</span></code> object in it is the same one from the input and is now filled with <code class="docutils literal notranslate"><span class="pre">.embedding</span></code> attribute. The order of the output is the same as the input.</p></li>
 </ul>
-<p>The explicit comes from now you have to put the string into the Document attributes. For example, we can rewrite the above example as below:</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If the input <code class="docutils literal notranslate"><span class="pre">Document</span></code> is filled with both <code class="docutils literal notranslate"><span class="pre">.text</span></code> and <code class="docutils literal notranslate"><span class="pre">.uri</span></code>, then <code class="docutils literal notranslate"><span class="pre">.text</span></code> will be used.</p>
+</div>
+<div class="admonition caution">
+<p class="admonition-title">Caution</p>
+<p>The correctness of result and the order of output rely on the uniqueness of id of the input <code class="docutils literal notranslate"><span class="pre">Document</span></code>. The id will be implicitly generated if not provided. If you set the id manually, then you must make sure the id is unique, otherwise the results will not be complete.</p>
+</div>
+<p>The explicitness comes from now you have to put the content into the <code class="docutils literal notranslate"><span class="pre">Document</span></code> attributes. For example, we can rewrite the above example as below:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">clip_client</span> <span class="kn">import</span> <span class="n">Client</span>
 <span class="kn">from</span> <span class="nn">docarray</span> <span class="kn">import</span> <span class="n">Document</span>
 
@@ -459,11 +467,11 @@
 <span class="n">r</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">da</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Instead of sending a list of Document, you can also wrap it with a <a class="reference external" href="https://docarray.jina.ai/fundamentals/documentarray/">DocumentArray</a> and then send it:</p>
+<p>Instead of sending a list of <code class="docutils literal notranslate"><span class="pre">Document</span></code>, you can also wrap it with a <code class="docutils literal notranslate"><span class="pre">DocumentArray</span></code> and then send it:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">r</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">DocumentArray</span><span class="p">(</span><span class="n">da</span><span class="p">))</span>
 </pre></div>
 </div>
-<p>Now that the return result is a DocumentArray, we can get a summary of it.</p>
+<p>Now that the return result is a <code class="docutils literal notranslate"><span class="pre">DocumentArray</span></code>, we can get a summary of it using <code class="docutils literal notranslate"><span class="pre">r.summary()</span></code>.</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>╭──────────────────────────── Documents Summary ─────────────────────────────╮
 │                                                                            │
 │   Length                        6                                          │
@@ -504,78 +512,25 @@
 <p>Reading an image file into bytes and put into <code class="docutils literal notranslate"><span class="pre">.blob</span></code> is possible as shown above. However, it is often unnecessary. Especially if you have a lot of images, loading all of them into memory is not a good idea. Rule of thumb, always use <code class="docutils literal notranslate"><span class="pre">.uri</span></code> and trust <code class="docutils literal notranslate"><span class="pre">clip_client</span></code> to handle it well.</p>
 </div>
 </section>
-<section id="control-batch-size">
-<h3>Control batch size<a class="headerlink" href="#control-batch-size" title="Permalink to this headline">#</a></h3>
-<p>You can specify <code class="docutils literal notranslate"><span class="pre">.encode(...,</span> <span class="pre">batch_size=8)</span></code> to control how many Documents is sent in each request. You can play this number and find the perfect balance between network transmission and GPU utilization.</p>
-<p>Intuitively, setting <code class="docutils literal notranslate"><span class="pre">batch_size=1024</span></code> should give a very high GPU utilization on each request. However, a large batch size like this also means sending each request would take longer. Given that <code class="docutils literal notranslate"><span class="pre">clip-client</span></code> is designed with request and response streaming, large batch size would not benefit from the time overlapping between request streaming and response streaming.</p>
-</section>
-<section id="show-progressbar">
-<h3>Show progressbar<a class="headerlink" href="#show-progressbar" title="Permalink to this headline">#</a></h3>
-<p>Use <code class="docutils literal notranslate"><span class="pre">.encode(...,</span> <span class="pre">show_progress=True)</span></code> to turn on the progress bar.</p>
-<figure class="align-default">
-<a class="reference internal image-reference" href="../../_images/client-pgbar.gif"><img alt="../../_images/client-pgbar.gif" src="../../_images/client-pgbar.gif" style="width: 80%;" /></a>
-</figure>
-<div class="admonition hint">
-<p class="admonition-title">Hint</p>
-<p>Progress bar may not show up in the PyCharm debug terminal. This is an upstream issue of <code class="docutils literal notranslate"><span class="pre">rich</span></code> package.</p>
-</div>
-</section>
-<section id="performance-tip-on-large-number-of-documents">
-<h3>Performance tip on large number of Documents<a class="headerlink" href="#performance-tip-on-large-number-of-documents" title="Permalink to this headline">#</a></h3>
-<p>Here are some suggestions when encoding large number of Documents:</p>
-<ol>
-<li><p>Use <code class="docutils literal notranslate"><span class="pre">Generator</span></code> as input to load data on-demand. You can put your data into a Generator and feed to <code class="docutils literal notranslate"><span class="pre">.encode</span></code>:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">data_gen</span><span class="p">():</span>
-    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100_000</span><span class="p">):</span>
-        <span class="k">yield</span> <span class="n">Document</span><span class="p">(</span><span class="n">uri</span><span class="o">=...</span><span class="p">)</span>
-
-
-<span class="n">c</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
-<span class="n">c</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">data_gen</span><span class="p">())</span>
-</pre></div>
-</div>
-<p>Yield raw strings is also acceptable, e.g. to encode all images under a directory, you can simply do:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">glob</span> <span class="kn">import</span> <span class="n">iglob</span>
-
-<span class="n">c</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">iglob</span><span class="p">(</span><span class="s1">&#39;**/*.png&#39;</span><span class="p">))</span>
-</pre></div>
-</div>
-</li>
-<li><p>Adjust <code class="docutils literal notranslate"><span class="pre">batch_size</span></code>.</p></li>
-<li><p>Turn on the progressbar.</p></li>
-</ol>
-<div class="admonition danger">
-<p class="admonition-title">Danger</p>
-<p>In any case, avoiding the following coding:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">big_list</span><span class="p">:</span>
-    <span class="n">c</span><span class="o">.</span><span class="n">encode</span><span class="p">([</span><span class="n">d</span><span class="p">])</span>
-</pre></div>
-</div>
-<p>This is extremely slow as only one document is encoded at a time, it is a bad utilization of the network and not leveraging any duplex streaming.</p>
-</div>
-</section>
-</section>
 <section id="async-encoding">
-<h2>Async encoding<a class="headerlink" href="#async-encoding" title="Permalink to this headline">#</a></h2>
-<p>To encode Document in an asynchronous manner, one can use <a class="reference internal" href="../../api/clip_client.client/#clip_client.client.Client.aencode" title="clip_client.client.Client.aencode"><code class="xref py py-func docutils literal notranslate"><span class="pre">aencode()</span></code></a>.</p>
+<h3>Async encoding<a class="headerlink" href="#async-encoding" title="Permalink to this headline">#</a></h3>
+<p>To encode <code class="docutils literal notranslate"><span class="pre">Document</span></code> in an asynchronous manner, one can use <a class="reference internal" href="../../api/clip_client.client/#clip_client.client.Client.aencode" title="clip_client.client.Client.aencode"><code class="xref py py-func docutils literal notranslate"><span class="pre">aencode()</span></code></a>.</p>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-<p>Despite the sexy word “async”, I often found many data scientists have a misconception about asynchronous. And their motivation of using async function is often wrong. <em>Async is not a silver bullet.</em> In a simple language, you will only need <code class="docutils literal notranslate"><span class="pre">.aencode()</span></code> when there is another concurrent task that is also async. Then you want to “overlap” the time spending of these two tasks.</p>
+<p>Despite the sexy word “async”, many data scientists have misconceptions about asynchronous behavior. And their motivation of using async function is often wrong. <em>Async is not a silver bullet.</em> In a simple language, you will only need <code class="docutils literal notranslate"><span class="pre">.aencode()</span></code> when there is another concurrent task that is also async. Then you want to “overlap” the time spending of these two tasks.</p>
 <p>If your system is sync by design, there is nothing wrong about it. Go with <code class="docutils literal notranslate"><span class="pre">encode()</span></code> until you see a clear advantage of using <code class="docutils literal notranslate"><span class="pre">aencode()</span></code>, or until your boss tell you to do so.</p>
 </div>
-<p>In the following example, I have another job <code class="docutils literal notranslate"><span class="pre">another_heavylifting_job</span></code> to represent job like writing to database, downloading large file.</p>
+<p>In the following example, there is another job <code class="docutils literal notranslate"><span class="pre">another_heavylifting_job</span></code> to represent a job like writing to database, downloading large file.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">asyncio</span>
+<span class="kn">from</span> <span class="nn">clip_client</span> <span class="kn">import</span> <span class="n">Client</span>
+
+<span class="n">c</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span><span class="s1">&#39;grpc://0.0.0.0:23456&#39;</span><span class="p">)</span>
 
 
 <span class="k">async</span> <span class="k">def</span> <span class="nf">another_heavylifting_job</span><span class="p">():</span>
     <span class="c1"># can be writing to database, downloading large file</span>
     <span class="c1"># big IO ops</span>
     <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
-
-
-<span class="kn">from</span> <span class="nn">clip_client</span> <span class="kn">import</span> <span class="n">Client</span>
-
-<span class="n">c</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span><span class="s1">&#39;grpc://0.0.0.0:23456&#39;</span><span class="p">)</span>
 
 
 <span class="k">async</span> <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
@@ -589,13 +544,14 @@
 </div>
 <p>The final time cost will be less than <code class="docutils literal notranslate"><span class="pre">3s</span> <span class="pre">+</span> <span class="pre">time(t2)</span></code>.</p>
 </section>
+</section>
 <section id="ranking">
 <span id="rank-api"></span><h2>Ranking<a class="headerlink" href="#ranking" title="Permalink to this headline">#</a></h2>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-<p>This feature is only available with <code class="docutils literal notranslate"><span class="pre">clip_server&gt;=0.3.0</span></code> and the server is running with PyTorch backend.</p>
+<p>This feature is only available with <code class="docutils literal notranslate"><span class="pre">clip_server&gt;=0.3.0</span></code>.</p>
 </div>
-<p>One can also rank cross-modal matches via <a class="reference internal" href="../../api/clip_client.client/#clip_client.client.Client.rank" title="clip_client.client.Client.rank"><code class="xref py py-meth docutils literal notranslate"><span class="pre">rank()</span></code></a> or <a class="reference internal" href="../../api/clip_client.client/#clip_client.client.Client.arank" title="clip_client.client.Client.arank"><code class="xref py py-meth docutils literal notranslate"><span class="pre">arank()</span></code></a>. First construct a cross-modal Document where the root contains an image and <code class="docutils literal notranslate"><span class="pre">.matches</span></code> contain sentences to rerank. One can also construct text-to-image rerank as below:</p>
+<p>One can also rank cross-modal matches via <a class="reference internal" href="../../api/clip_client.client/#clip_client.client.Client.rank" title="clip_client.client.Client.rank"><code class="xref py py-meth docutils literal notranslate"><span class="pre">rank()</span></code></a> or <a class="reference internal" href="../../api/clip_client.client/#clip_client.client.Client.arank" title="clip_client.client.Client.arank"><code class="xref py py-meth docutils literal notranslate"><span class="pre">arank()</span></code></a>. First construct a cross-modal <code class="docutils literal notranslate"><span class="pre">Document</span></code> where the root contains an image and <code class="docutils literal notranslate"><span class="pre">.matches</span></code> contain sentences to rerank. One can also construct text-to-image rerank as below:</p>
 <div class="tab-set docutils">
 <input checked="True" class="tab-input" id="tab-set--0-input--1" name="tab-set--0" type="radio"><label class="tab-label" for="tab-set--0-input--1">Given image, rank sentences</label><div class="tab-content docutils">
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">docarray</span> <span class="kn">import</span> <span class="n">Document</span>
@@ -650,7 +606,7 @@
 <span id="id2"></span><h2>Indexing<a class="headerlink" href="#indexing" title="Permalink to this headline">#</a></h2>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-<p>This feature is only available with clip_client&gt;=0.7.0, and the server is running with
+<p>This feature is only available with <code class="docutils literal notranslate"><span class="pre">clip_client&gt;=0.7.0</span></code>, and the server is running with
 a FLOW consisting of encoder and indexer.</p>
 </div>
 <p>You can index Documents via <a class="reference internal" href="../../api/clip_client.client/#clip_client.client.Client.index" title="clip_client.client.Client.index"><code class="xref py py-func docutils literal notranslate"><span class="pre">index()</span></code></a> or <a class="reference internal" href="../../api/clip_client.client/#clip_client.client.Client.aindex" title="clip_client.client.Client.aindex"><code class="xref py py-func docutils literal notranslate"><span class="pre">aindex()</span></code></a>.</p>
@@ -701,6 +657,11 @@ Now we can use the indexer to search for the indexed Documents.</p>
 </section>
 <section id="searching">
 <span id="id3"></span><h2>Searching<a class="headerlink" href="#searching" title="Permalink to this headline">#</a></h2>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>This feature is only available with <code class="docutils literal notranslate"><span class="pre">clip_client&gt;=0.7.0</span></code>, and the server is running with
+a FLOW consisting of encoder and indexer.</p>
+</div>
 <p>You can use <a class="reference internal" href="../../api/clip_client.client/#clip_client.client.Client.search" title="clip_client.client.Client.search"><code class="xref py py-func docutils literal notranslate"><span class="pre">search()</span></code></a> or <a class="reference internal" href="../../api/clip_client.client/#clip_client.client.Client.asearch" title="clip_client.client.Client.asearch"><code class="xref py py-func docutils literal notranslate"><span class="pre">asearch()</span></code></a>
 to search for relevant Documents in the index for a given query.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">clip_client</span> <span class="kn">import</span> <span class="n">Client</span>
@@ -708,7 +669,6 @@ to search for relevant Documents in the index for a given query.</p>
 <span class="n">c</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span><span class="s1">&#39;grpc://0.0.0.0:23456&#39;</span><span class="p">)</span>
 
 <span class="n">result</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">search</span><span class="p">([</span><span class="s1">&#39;smile&#39;</span><span class="p">],</span> <span class="n">limit</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-
 
 <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;@m&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;text&#39;</span><span class="p">,</span> <span class="s1">&#39;scores__cosine&#39;</span><span class="p">]])</span>
 </pre></div>
@@ -751,8 +711,96 @@ to search for relevant Documents in the index for a given query.</p>
 </div>
 <p>Single query latency is often very fluctuated. Running <code class="docutils literal notranslate"><span class="pre">.profile()</span></code> multiple times may give you different results. Nonetheless, it helps you understand who to blame if CLIP-as-service is running slow for you: the network? the computation? But certainly not this software itself.</p>
 </section>
-<section id="plain-http-request-via-curl">
-<h2>Plain HTTP request via <code class="docutils literal notranslate"><span class="pre">curl</span></code><a class="headerlink" href="#plain-http-request-via-curl" title="Permalink to this headline">#</a></h2>
+<section id="best-practices">
+<h2>Best practices<a class="headerlink" href="#best-practices" title="Permalink to this headline">#</a></h2>
+<p>In this section, we will show you some best practices for using this client. We will use encoding as an example. The same applies to all other methods.</p>
+<section id="control-batch-size">
+<h3>Control batch size<a class="headerlink" href="#control-batch-size" title="Permalink to this headline">#</a></h3>
+<p>You can specify <code class="docutils literal notranslate"><span class="pre">.encode(...,</span> <span class="pre">batch_size=8)</span></code> to control how many <code class="docutils literal notranslate"><span class="pre">Document</span></code>s are sent in each request. You can play this number and find the perfect balance between network transmission and GPU utilization.</p>
+<p>Intuitively, setting <code class="docutils literal notranslate"><span class="pre">batch_size=1024</span></code> should result in very high GPU utilization on each request. However, a large batch size like this also means sending each request would take longer. Given that <code class="docutils literal notranslate"><span class="pre">clip-client</span></code> is designed with request and response streaming, large batch size would not benefit from the time overlapping between request streaming and response streaming.</p>
+</section>
+<section id="show-progressbar">
+<h3>Show progressbar<a class="headerlink" href="#show-progressbar" title="Permalink to this headline">#</a></h3>
+<p>You can use <code class="docutils literal notranslate"><span class="pre">.encode(...,</span> <span class="pre">show_progress=True)</span></code> to turn on the progress bar.</p>
+<figure class="align-default">
+<a class="reference internal image-reference" href="../../_images/client-pgbar.gif"><img alt="../../_images/client-pgbar.gif" src="../../_images/client-pgbar.gif" style="width: 80%;" /></a>
+</figure>
+<div class="admonition hint">
+<p class="admonition-title">Hint</p>
+<p>Progress bar may not show up in the PyCharm debug terminal. This is an upstream issue of <code class="docutils literal notranslate"><span class="pre">rich</span></code> package.</p>
+</div>
+</section>
+<section id="processing-large-number-of-documents">
+<h3>Processing large number of Documents<a class="headerlink" href="#processing-large-number-of-documents" title="Permalink to this headline">#</a></h3>
+<p>Here are some suggestions when encoding a large number of <code class="docutils literal notranslate"><span class="pre">Document</span></code>s:</p>
+<ol>
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">Generator</span></code> as input to load data on-demand. You can put your data into a Generator and feed to <code class="docutils literal notranslate"><span class="pre">.encode</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">data_gen</span><span class="p">():</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100_000</span><span class="p">):</span>
+        <span class="k">yield</span> <span class="n">Document</span><span class="p">(</span><span class="n">uri</span><span class="o">=...</span><span class="p">)</span>
+
+
+<span class="n">c</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="n">c</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">data_gen</span><span class="p">())</span>
+</pre></div>
+</div>
+<p>Yield raw strings is also acceptable, e.g. to encode all images under a directory, you can simply do:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">glob</span> <span class="kn">import</span> <span class="n">iglob</span>
+
+<span class="n">c</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">iglob</span><span class="p">(</span><span class="s1">&#39;**/*.png&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+</li>
+<li><p>Adjust <code class="docutils literal notranslate"><span class="pre">batch_size</span></code>.</p></li>
+<li><p>Turn on the progressbar.</p></li>
+</ol>
+<div class="admonition danger">
+<p class="admonition-title">Danger</p>
+<p>In any case, avoiding the following coding:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">big_list</span><span class="p">:</span>
+    <span class="n">c</span><span class="o">.</span><span class="n">encode</span><span class="p">([</span><span class="n">d</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>This is extremely slow as only one document is encoded at a time, it is a bad utilization of the network and not leveraging any duplex streaming.</p>
+</div>
+</section>
+<section id="client-parallelism">
+<h3>Client parallelism<a class="headerlink" href="#client-parallelism" title="Permalink to this headline">#</a></h3>
+<p>In case you instanciate a <code class="docutils literal notranslate"><span class="pre">clip_client</span></code> object using the <code class="docutils literal notranslate"><span class="pre">grpc</span></code> protocol, keep in mind that <code class="docutils literal notranslate"><span class="pre">grpc</span></code> clients cannot be used in a multi-threaded environment (check <a class="reference external" href="https://github.com/grpc/grpc/issues/25364">this gRPC issue</a> for reference).
+What you should do, is to rely on asynchronous programming or multi-processing rather than multi-threading.</p>
+<p>To use <code class="docutils literal notranslate"><span class="pre">clip_client</span></code> in a Flask application, you can introduce multi-processing based parallelism to your app using <code class="docutils literal notranslate"><span class="pre">gunicorn</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>gunicorn -w <span class="m">4</span> -b <span class="m">127</span>.0.0.1:4000 myproject:app
+</pre></div>
+</div>
+<p>To use <code class="docutils literal notranslate"><span class="pre">clip_client</span></code> in a FastAPI application, you have to manually restrict the thread number to 1 at the starting state of the app:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">uvicorn</span>
+<span class="kn">from</span> <span class="nn">fastapi</span> <span class="kn">import</span> <span class="n">FastAPI</span>
+<span class="kn">from</span> <span class="nn">clip_client</span> <span class="kn">import</span> <span class="n">Client</span>
+<span class="kn">from</span> <span class="nn">anyio.lowlevel</span> <span class="kn">import</span> <span class="n">RunVar</span>
+<span class="kn">from</span> <span class="nn">anyio</span> <span class="kn">import</span> <span class="n">CapacityLimiter</span>
+
+<span class="n">c</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span><span class="s1">&#39;grpc://0.0.0.0:51001&#39;</span><span class="p">)</span>
+<span class="n">app</span> <span class="o">=</span> <span class="n">FastAPI</span><span class="p">()</span>
+
+<span class="nd">@app</span><span class="o">.</span><span class="n">on_event</span><span class="p">(</span><span class="s2">&quot;startup&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">startup</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;start&quot;</span><span class="p">)</span>
+    <span class="n">RunVar</span><span class="p">(</span><span class="s2">&quot;_default_thread_limiter&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">CapacityLimiter</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+
+<span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">encode</span><span class="p">():</span>
+    <span class="n">r</span> <span class="o">=</span>  <span class="n">c</span><span class="o">.</span><span class="n">encode</span><span class="p">([</span><span class="s1">&#39;Hello world&#39;</span><span class="p">,</span> <span class="s1">&#39;Hello Jina&#39;</span><span class="p">])</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Then it can run with multiprocessing using</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>gunicorn myproject:app --workers <span class="m">4</span> --worker-class uvicorn.workers.UvicornWorker --bind <span class="m">0</span>.0.0.0:4000
+</pre></div>
+</div>
+</section>
+</section>
+<section id="appendix-plain-http-request-via-curl">
+<h2>Appendix: Plain HTTP request via <code class="docutils literal notranslate"><span class="pre">curl</span></code><a class="headerlink" href="#appendix-plain-http-request-via-curl" title="Permalink to this headline">#</a></h2>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
 <p>Sending large embeddings over plain HTTP is often not the best idea. Websocket is often a better choice, allows one to call clip-server from Javascript with much better performance.</p>
@@ -791,6 +839,7 @@ to search for relevant Documents in the index for a given query.</p>
 [-0.0750732421875,-0.166015625,...]
 </pre></div>
 </div>
+<p>To connect to the CLIP server hosted by Jina AI, please refer to <a class="reference external" href="/hosting/by-jina#by-jina-curl">this page</a>.</p>
 </section>
 </section>
 
@@ -829,7 +878,7 @@ to search for relevant Documents in the index for a given query.</p>
                         <div class="copyright">
                             Copyright &#169; Jina AI Limited. All rights reserved.
                         </div><div class="last-updated">
-                            Last updated on Oct 24, 2022</div>
+                            Last updated on Nov 01, 2022</div>
                     </div>
                     <div class="right-details">
                         <div class="social-btns">
@@ -866,17 +915,21 @@ to search for relevant Documents in the index for a given query.</p>
 <li><a class="reference internal" href="#encoding">Encoding</a><ul>
 <li><a class="reference internal" href="#input-as-iterable-of-strings">Input as iterable of strings</a></li>
 <li><a class="reference internal" href="#input-as-iterable-of-documents">Input as iterable of Documents</a></li>
-<li><a class="reference internal" href="#control-batch-size">Control batch size</a></li>
-<li><a class="reference internal" href="#show-progressbar">Show progressbar</a></li>
-<li><a class="reference internal" href="#performance-tip-on-large-number-of-documents">Performance tip on large number of Documents</a></li>
+<li><a class="reference internal" href="#async-encoding">Async encoding</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#async-encoding">Async encoding</a></li>
 <li><a class="reference internal" href="#ranking">Ranking</a></li>
 <li><a class="reference internal" href="#indexing">Indexing</a></li>
 <li><a class="reference internal" href="#searching">Searching</a></li>
 <li><a class="reference internal" href="#profiling">Profiling</a></li>
-<li><a class="reference internal" href="#plain-http-request-via-curl">Plain HTTP request via <code class="docutils literal notranslate"><span class="pre">curl</span></code></a></li>
+<li><a class="reference internal" href="#best-practices">Best practices</a><ul>
+<li><a class="reference internal" href="#control-batch-size">Control batch size</a></li>
+<li><a class="reference internal" href="#show-progressbar">Show progressbar</a></li>
+<li><a class="reference internal" href="#processing-large-number-of-documents">Processing large number of Documents</a></li>
+<li><a class="reference internal" href="#client-parallelism">Client parallelism</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#appendix-plain-http-request-via-curl">Appendix: Plain HTTP request via <code class="docutils literal notranslate"><span class="pre">curl</span></code></a></li>
 </ul>
 </li>
 </ul>

@@ -35,7 +35,7 @@
 </script>
 
 <script async defer src="https://buttons.github.io/buttons.js"></script>
-    <link rel="index" title="Index" href="../../genindex/" /><link rel="search" title="Search" href="../../search/" /><link rel="next" title="Text &amp; Image Embedding" href="../../playground/embedding/" /><link rel="prev" title="Host on Google Colab" href="../colab/" />
+    <link rel="index" title="Index" href="../../genindex/" /><link rel="search" title="Search" href="../../search/" /><link rel="next" title="Host on Google Colab" href="../colab/" /><link rel="prev" title="Hosted by Jina AI" href="../by-jina/" />
         <link rel="canonical" href="https://clip-as-service.jina.ai/hosting/on-jcloud.html" />
 
     <link rel="shortcut icon" href="../../_static/favicon.png"/><meta name="generator" content="sphinx-4.5.0, furo 2022.09.29"/>
@@ -231,8 +231,9 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Hosting</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../colab/">Host on Google Colab</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../by-jina/">Hosted by Jina AI</a></li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Host on JCloud</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../colab/">Host on Google Colab</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Playground</span></p>
 <ul>
@@ -347,7 +348,7 @@
 <p class="admonition-title">Tip</p>
 <p><code class="docutils literal notranslate"><span class="pre">port</span></code> is unnecessary here as JCloud will assign a new hostname and port for any deployed service.</p>
 </div>
-<p>Executors must start with <code class="docutils literal notranslate"><span class="pre">jinahub+docker://</span></code> as it is required by JCloud. We currently provide containerized executors <a class="reference external" href="https://hub.jina.ai/executor/gzpbl8jh"><code class="docutils literal notranslate"><span class="pre">jinahub+docker://CLIPTorchEncoder</span></code></a> and <a class="reference external" href="https://hub.jina.ai/executor/2a7auwg2"><code class="docutils literal notranslate"><span class="pre">jinahub+docker://CLIPOnnxEncoder</span></code></a> on Jina Hub. They are automatically synced on the new release of <code class="docutils literal notranslate"><span class="pre">clip_server</span></code> module.</p>
+<p>Executors must start with <code class="docutils literal notranslate"><span class="pre">jinahub+docker://</span></code> as it is required by JCloud. We currently provide containerized executors <a class="reference external" href="https://cloud.jina.ai/executor/gzpbl8jh"><code class="docutils literal notranslate"><span class="pre">jinahub+docker://CLIPTorchEncoder</span></code></a> and <a class="reference external" href="https://cloud.jina.ai/executor/2a7auwg2"><code class="docutils literal notranslate"><span class="pre">jinahub+docker://CLIPOnnxEncoder</span></code></a> on Jina Hub. They are automatically synced on the new release of <code class="docutils literal notranslate"><span class="pre">clip_server</span></code> module.</p>
 <p>To enable GPU on JCloud, you need to configure it in the YAML file and use prebuilt docker GPU images. For example,</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">jtype</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Flow</span><span class="w"></span>
 <span class="nt">executors</span><span class="p">:</span><span class="w"></span>
@@ -359,7 +360,7 @@
 </div>
 <p>Please refer <a class="reference external" href="https://docs.jina.ai/fundamentals/jcloud/yaml-spec/#gpu">here</a> for more details on using GPU in JCloud.
 Notice that you must specify a docker image GPU tag for your executor to utilize the GPU. For example <code class="docutils literal notranslate"><span class="pre">latest-gpu</span></code>.
-See the ‘Tag’ section in <a class="reference external" href="https://hub.jina.ai/executor/gzpbl8jh">CLIPTorchEncoder</a> and <a class="reference external" href="https://hub.jina.ai/executor/2a7auwg2">CLIPOnnxEncoder</a> for docker image GPU tags.</p>
+See the ‘Tag’ section in <a class="reference external" href="https://cloud.jina.ai/executor/gzpbl8jh">CLIPTorchEncoder</a> and <a class="reference external" href="https://cloud.jina.ai/executor/2a7auwg2">CLIPOnnxEncoder</a> for docker image GPU tags.</p>
 <p>To deploy,</p>
 <div class="tab-set docutils">
 <input checked="True" class="tab-input" id="tab-set--1-input--1" name="tab-set--1" type="radio"><label class="tab-label" for="tab-set--1-input--1">PyTorch-backed</label><div class="tab-content docutils">
@@ -393,18 +394,18 @@ See the ‘Tag’ section in <a class="reference external" href="https://hub.jin
             <footer>
                 
                 <div class="related-pages">
-                    <a class="next-page" href="../../playground/embedding/">
+                    <a class="next-page" href="../colab/">
                         <div class="page-info">
                             <div class="context">
                                 <span>Next</span>
                             </div>
-                            <div class="title">Text &amp; Image Embedding</div>
+                            <div class="title">Host on Google Colab</div>
                         </div>
                         <svg class="furo-related-icon">
                             <use href="#svg-arrow-right"></use>
                         </svg>
                     </a>
-                    <a class="prev-page" href="../colab/">
+                    <a class="prev-page" href="../by-jina/">
                         <svg class="furo-related-icon">
                             <use href="#svg-arrow-right"></use>
                         </svg>
@@ -413,7 +414,7 @@ See the ‘Tag’ section in <a class="reference external" href="https://hub.jin
                                 <span>Previous</span>
                             </div>
                             
-                            <div class="title">Host on Google Colab</div>
+                            <div class="title">Hosted by Jina AI</div>
                             
                         </div>
                     </a>
@@ -423,7 +424,7 @@ See the ‘Tag’ section in <a class="reference external" href="https://hub.jin
                         <div class="copyright">
                             Copyright &#169; Jina AI Limited. All rights reserved.
                         </div><div class="last-updated">
-                            Last updated on Oct 24, 2022</div>
+                            Last updated on Nov 01, 2022</div>
                     </div>
                     <div class="right-details">
                         <div class="social-btns">
