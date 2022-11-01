@@ -214,7 +214,9 @@ class Client:
                 results.append(d)
             yield d
 
-    def _get_post_payload(self, content, results: 'DocumentArray', kwargs):
+    def _get_post_payload(
+        self, content, results: Optional['DocumentArray'] = None, **kwargs
+    ):
         payload = dict(
             inputs=self._iter_doc(content, results),
             request_size=kwargs.get('batch_size', 8),
@@ -306,7 +308,7 @@ class Client:
         on_done = kwargs.pop('on_done', None)
         on_error = kwargs.pop('on_error', None)
         on_always = kwargs.pop('on_always', None)
-        results = DocumentArray() if not on_done else None
+        results = DocumentArray() if not on_done and not on_always else None
         if not on_done:
             on_done = partial(
                 self._gather_result, results=results, attribute='embedding'
@@ -321,15 +323,14 @@ class Client:
 
             self._client.post(
                 on=f'/encode/{model_name}'.rstrip('/'),
-                **self._get_post_payload(content, results, kwargs),
+                **self._get_post_payload(content, results, **kwargs),
                 on_done=on_done,
                 on_error=on_error,
                 on_always=partial(self._update_pbar, func=on_always),
                 parameters=parameters,
             )
 
-        unbox = hasattr(content, '__len__') and isinstance(content[0], str)
-        return self._unboxed_result(results, unbox)
+        return self._unboxed_result(results, isinstance(content, list))
 
     @overload
     async def aencode(
@@ -374,7 +375,7 @@ class Client:
         on_done = kwargs.pop('on_done', None)
         on_error = kwargs.pop('on_error', None)
         on_always = kwargs.pop('on_always', None)
-        results = DocumentArray() if not on_done else None
+        results = DocumentArray() if not on_done and not on_always else None
         if not on_done:
             on_done = partial(
                 self._gather_result, results=results, attribute='embedding'
@@ -389,7 +390,7 @@ class Client:
 
             async for _ in self._async_client.post(
                 on=f'/encode/{model_name}'.rstrip('/'),
-                **self._get_post_payload(content, results, kwargs),
+                **self._get_post_payload(content, results, **kwargs),
                 on_done=on_done,
                 on_error=on_error,
                 on_always=partial(self._update_pbar, func=on_always),
@@ -397,11 +398,10 @@ class Client:
             ):
                 continue
 
-        unbox = hasattr(content, '__len__') and isinstance(content[0], str)
-        return self._unboxed_result(results, unbox)
+        return self._unboxed_result(results, isinstance(content, list))
 
     def _iter_rank_docs(
-        self, content, results: 'DocumentArray', source='matches'
+        self, content, results: Optional['DocumentArray'] = None, source='matches'
     ) -> Generator['Document', None, None]:
         from rich import filesize
         from docarray import Document
@@ -426,10 +426,13 @@ class Client:
                     ),
                 )
 
-            results.append(d)
+            if results is not None:
+                results.append(d)
             yield d
 
-    def _get_rank_payload(self, content, results: 'DocumentArray', kwargs):
+    def _get_rank_payload(
+        self, content, results: Optional['DocumentArray'] = None, **kwargs
+    ):
         payload = dict(
             inputs=self._iter_rank_docs(
                 content, results, source=kwargs.get('source', 'matches')
@@ -478,8 +481,6 @@ class Client:
         """
         if isinstance(docs, str):
             raise TypeError(f'Content must be an Iterable of [Document]')
-        if hasattr(docs, '__len__') and len(docs) == 0:
-            return DocumentArray() if isinstance(docs, DocumentArray) else []
 
         self._prepare_streaming(
             not kwargs.get('show_progress'),
@@ -489,7 +490,7 @@ class Client:
         on_done = kwargs.pop('on_done', None)
         on_error = kwargs.pop('on_error', None)
         on_always = kwargs.pop('on_always', None)
-        results = DocumentArray() if not on_done else None
+        results = DocumentArray() if not on_done and not on_always else None
         if not on_done:
             on_done = partial(self._gather_result, results=results, attribute='matches')
 
@@ -502,7 +503,7 @@ class Client:
 
             self._client.post(
                 on=f'/rank/{model_name}'.rstrip('/'),
-                **self._get_rank_payload(docs, results, kwargs),
+                **self._get_rank_payload(docs, results, **kwargs),
                 on_done=on_done,
                 on_error=on_error,
                 on_always=partial(self._update_pbar, func=on_always),
@@ -516,8 +517,6 @@ class Client:
     ) -> 'DocumentArray':
         if isinstance(docs, str):
             raise TypeError(f'Content must be an Iterable of [Document]')
-        if hasattr(docs, '__len__') and len(docs) == 0:
-            return DocumentArray() if isinstance(docs, DocumentArray) else []
 
         self._prepare_streaming(
             not kwargs.get('show_progress'),
@@ -526,7 +525,7 @@ class Client:
         on_done = kwargs.pop('on_done', None)
         on_error = kwargs.pop('on_error', None)
         on_always = kwargs.pop('on_always', None)
-        results = DocumentArray() if not on_done else None
+        results = DocumentArray() if not on_done and not on_always else None
         if not on_done:
             on_done = partial(self._gather_result, results=results, attribute='matches')
 
@@ -536,14 +535,10 @@ class Client:
                 'drop_image_content', True
             )
             model_name = parameters.get('model_name', '') if parameters else ''
-            on_done = kwargs.pop(
-                'on_done',
-                partial(self._gather_result, results=results, attribute='matches'),
-            )
 
             async for _ in self._async_client.post(
                 on=f'/rank/{model_name}'.rstrip('/'),
-                **self._get_rank_payload(docs, results, kwargs),
+                **self._get_rank_payload(docs, results, **kwargs),
                 on_done=on_done,
                 on_error=on_error,
                 on_always=partial(self._update_pbar, func=on_always),
@@ -619,8 +614,6 @@ class Client:
             raise TypeError(
                 f'content must be an Iterable of [str, Document], try `.index(["{content}"])` instead'
             )
-        if hasattr(content, '__len__') and len(content) == 0:
-            return DocumentArray()
 
         self._prepare_streaming(
             not kwargs.get('show_progress'),
@@ -629,7 +622,7 @@ class Client:
         on_done = kwargs.pop('on_done', None)
         on_error = kwargs.pop('on_error', None)
         on_always = kwargs.pop('on_always', None)
-        results = DocumentArray() if not on_done else None
+        results = DocumentArray() if not on_done and not on_always else None
         if not on_done:
             on_done = partial(
                 self._gather_result, results=results, attribute='embedding'
@@ -643,7 +636,7 @@ class Client:
 
             self._client.post(
                 on='/index',
-                **self._get_post_payload(content, results, kwargs),
+                **self._get_post_payload(content, results, **kwargs),
                 on_done=on_done,
                 on_error=on_error,
                 on_always=partial(self._update_pbar, func=on_always),
@@ -685,8 +678,6 @@ class Client:
             raise TypeError(
                 f'content must be an Iterable of [str, Document], try `.aindex(["{content}"])` instead'
             )
-        if hasattr(content, '__len__') and len(content) == 0:
-            return DocumentArray()
 
         self._prepare_streaming(
             not kwargs.get('show_progress'),
@@ -695,7 +686,7 @@ class Client:
         on_done = kwargs.pop('on_done', None)
         on_error = kwargs.pop('on_error', None)
         on_always = kwargs.pop('on_always', None)
-        results = DocumentArray() if not on_done else None
+        results = DocumentArray() if not on_done and not on_always else None
         if not on_done:
             on_done = partial(
                 self._gather_result, results=results, attribute='embedding'
@@ -709,7 +700,7 @@ class Client:
 
             async for _ in self._async_client.post(
                 on='/index',
-                **self._get_post_payload(content, results, kwargs),
+                **self._get_post_payload(content, results, **kwargs),
                 on_done=on_done,
                 on_error=on_error,
                 on_always=partial(self._update_pbar, func=on_always),
@@ -788,8 +779,6 @@ class Client:
             raise TypeError(
                 f'content must be an Iterable of [str, Document], try `.search(["{content}"])` instead'
             )
-        if hasattr(content, '__len__') and len(content) == 0:
-            return DocumentArray()
 
         self._prepare_streaming(
             not kwargs.get('show_progress'),
@@ -798,7 +787,7 @@ class Client:
         on_done = kwargs.pop('on_done', None)
         on_error = kwargs.pop('on_error', None)
         on_always = kwargs.pop('on_always', None)
-        results = DocumentArray() if not on_done else None
+        results = DocumentArray() if not on_done and not on_always else None
         if not on_done:
             on_done = partial(self._gather_result, results=results, attribute='matches')
 
@@ -811,7 +800,7 @@ class Client:
 
             self._client.post(
                 on='/search',
-                **self._get_post_payload(content, results, kwargs),
+                **self._get_post_payload(content, results, **kwargs),
                 on_done=on_done,
                 on_error=on_error,
                 on_always=partial(self._update_pbar, func=on_always),
@@ -855,8 +844,6 @@ class Client:
             raise TypeError(
                 f'content must be an Iterable of [str, Document], try `.asearch(["{content}"])` instead'
             )
-        if hasattr(content, '__len__') and len(content) == 0:
-            return DocumentArray()
 
         self._prepare_streaming(
             not kwargs.get('show_progress'),
@@ -865,7 +852,7 @@ class Client:
         on_done = kwargs.pop('on_done', None)
         on_error = kwargs.pop('on_error', None)
         on_always = kwargs.pop('on_always', None)
-        results = DocumentArray() if not on_done else None
+        results = DocumentArray() if not on_done and not on_always else None
         if not on_done:
             on_done = partial(self._gather_result, results=results, attribute='matches')
 
@@ -878,7 +865,7 @@ class Client:
 
             async for _ in self._async_client.post(
                 on='/search',
-                **self._get_post_payload(content, results, kwargs),
+                **self._get_post_payload(content, results, **kwargs),
                 on_done=on_done,
                 on_error=on_error,
                 on_always=partial(self._update_pbar, func=on_always),

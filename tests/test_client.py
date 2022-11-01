@@ -27,6 +27,12 @@ class Exec2(Executor):
         return results
 
 
+class ErrorExec(Executor):
+    @requests
+    def foo(self, docs, **kwargs):
+        1 / 0
+
+
 def test_client_concurrent_requests(port_generator):
 
     f1 = Flow(port=port_generator()).add(uses=Exec1)
@@ -74,76 +80,173 @@ def test_client_large_input(make_torch_flow):
         DocumentArray([]),
     ],
 )
+@pytest.mark.parametrize('endpoint', ['encode', 'rank', 'index', 'search'])
 @pytest.mark.asyncio
-async def test_client_empty_input(make_torch_flow, inputs):
+def test_empty_input(make_torch_flow, inputs, endpoint):
     from clip_client.client import Client
 
     c = Client(server=f'grpc://0.0.0.0:{make_torch_flow.port}')
 
-    r = c.encode(inputs if not callable(inputs) else inputs())
-    if isinstance(inputs, DocumentArray):
-        assert isinstance(r, DocumentArray)
+    r = getattr(c, endpoint)(inputs if not callable(inputs) else inputs())
+    if endpoint == 'encode':
+        if isinstance(inputs, DocumentArray):
+            assert isinstance(r, DocumentArray)
+        else:
+            assert isinstance(r, list)
     else:
-        assert isinstance(r, list)
-    assert len(r) == 0
-
-    r = await c.aencode(inputs if not callable(inputs) else inputs())
-    if isinstance(inputs, DocumentArray):
         assert isinstance(r, DocumentArray)
-    else:
-        assert isinstance(r, list)
-    assert len(r) == 0
-
-    r = c.rank(inputs if not callable(inputs) else inputs())
-    if isinstance(inputs, DocumentArray):
-        assert isinstance(r, DocumentArray)
-    else:
-        assert isinstance(r, list)
-    assert len(r) == 0
-
-    r = await c.arank(inputs if not callable(inputs) else inputs())
-    if isinstance(inputs, DocumentArray):
-        assert isinstance(r, DocumentArray)
-    else:
-        assert isinstance(r, list)
-    assert len(r) == 0
-
-    r = c.index(inputs if not callable(inputs) else inputs())
-    assert isinstance(r, DocumentArray)
-    assert len(r) == 0
-
-    r = await c.aindex(inputs if not callable(inputs) else inputs())
-    assert isinstance(r, DocumentArray)
-    assert len(r) == 0
-
-    r = c.search(inputs if not callable(inputs) else inputs())
-    assert isinstance(r, DocumentArray)
-    assert len(r) == 0
-
-    r = await c.asearch(inputs if not callable(inputs) else inputs())
-    assert isinstance(r, DocumentArray)
     assert len(r) == 0
 
 
+@pytest.mark.parametrize(
+    'inputs',
+    [
+        [],
+        DocumentArray([]),
+    ],
+)
+@pytest.mark.parametrize('endpoint', ['aencode', 'arank', 'aindex', 'asearch'])
 @pytest.mark.asyncio
-async def test_wrong_input_type(make_torch_flow):
+async def test_async_empty_input(make_torch_flow, inputs, endpoint):
+    from clip_client.client import Client
+
+    c = Client(server=f'grpc://0.0.0.0:{make_torch_flow.port}')
+
+    r = await getattr(c, endpoint)(inputs if not callable(inputs) else inputs())
+    if endpoint == 'aencode':
+        if isinstance(inputs, DocumentArray):
+            assert isinstance(r, DocumentArray)
+        else:
+            assert isinstance(r, list)
+    else:
+        assert isinstance(r, DocumentArray)
+    assert len(r) == 0
+
+
+@pytest.mark.parametrize('endpoint', ['encode', 'rank', 'index', 'search'])
+def test_wrong_input_type(make_torch_flow, endpoint):
     from clip_client.client import Client
 
     c = Client(server=f'grpc://0.0.0.0:{make_torch_flow.port}')
 
     with pytest.raises(Exception):
-        c.encode('hello')
+        getattr(c, endpoint)('hello')
+
+
+@pytest.mark.parametrize('endpoint', ['aencode', 'arank', 'aindex', 'asearch'])
+@pytest.mark.asyncio
+async def test_wrong_input_type(make_torch_flow, endpoint):
+    from clip_client.client import Client
+
+    c = Client(server=f'grpc://0.0.0.0:{make_torch_flow.port}')
+
     with pytest.raises(Exception):
-        await c.aencode('hello')
-    with pytest.raises(Exception):
-        c.rank('hello')
-    with pytest.raises(Exception):
-        await c.arank('hello')
-    with pytest.raises(Exception):
-        c.index('hello')
-    with pytest.raises(Exception):
-        await c.aindex('hello')
-    with pytest.raises(Exception):
-        c.search('hello')
-    with pytest.raises(Exception):
-        await c.asearch('hello')
+        await getattr(c, endpoint)('hello')
+
+
+@pytest.mark.parametrize('endpoint', ['encode', 'rank', 'index', 'search'])
+@pytest.mark.slow
+def test_custom_on_done(make_torch_flow, mocker, endpoint):
+    from clip_client.client import Client
+
+    c = Client(server=f'grpc://0.0.0.0:{make_torch_flow.port}')
+
+    on_done_mock = mocker.Mock()
+    on_error_mock = mocker.Mock()
+    on_always_mock = mocker.Mock()
+
+    r = getattr(c, endpoint)(
+        DocumentArray(
+            [Document(text='hello', matches=DocumentArray([Document(text='jina')]))]
+        ),
+        on_done=on_done_mock,
+        on_error=on_error_mock,
+        on_always=on_always_mock,
+    )
+    assert r is None
+    on_done_mock.assert_called_once()
+    on_error_mock.assert_not_called()
+    on_always_mock.assert_called_once()
+
+
+@pytest.mark.parametrize('endpoint', ['aencode', 'arank', 'aindex', 'asearch'])
+@pytest.mark.slow
+@pytest.mark.asyncio
+async def test_async_custom_on_done(make_torch_flow, mocker, endpoint):
+    from clip_client.client import Client
+
+    c = Client(server=f'grpc://0.0.0.0:{make_torch_flow.port}')
+
+    on_done_mock = mocker.Mock()
+    on_error_mock = mocker.Mock()
+    on_always_mock = mocker.Mock()
+
+    r = await getattr(c, endpoint)(
+        DocumentArray(
+            [Document(text='hello', matches=DocumentArray([Document(text='jina')]))]
+        ),
+        on_done=on_done_mock,
+        on_error=on_error_mock,
+        on_always=on_always_mock,
+    )
+    assert r is None
+    on_done_mock.assert_called_once()
+    on_error_mock.assert_not_called()
+    on_always_mock.assert_called_once()
+
+
+@pytest.mark.parametrize('endpoint', ['encode', 'rank', 'index', 'search'])
+@pytest.mark.slow
+def test_custom_on_error(port_generator, mocker, endpoint):
+    from clip_client.client import Client
+
+    f = Flow(port=port_generator()).add(uses=ErrorExec)
+
+    with f:
+        c = Client(server=f'grpc://0.0.0.0:{f.port}')
+
+        on_done_mock = mocker.Mock()
+        on_error_mock = mocker.Mock()
+        on_always_mock = mocker.Mock()
+
+        r = getattr(c, endpoint)(
+            DocumentArray(
+                [Document(text='hello', matches=DocumentArray([Document(text='jina')]))]
+            ),
+            on_done=on_done_mock,
+            on_error=on_error_mock,
+            on_always=on_always_mock,
+        )
+        assert r is None
+        on_done_mock.assert_not_called()
+        on_error_mock.assert_called_once()
+        on_always_mock.assert_called_once()
+
+
+@pytest.mark.parametrize('endpoint', ['aencode', 'arank', 'aindex', 'asearch'])
+@pytest.mark.slow
+@pytest.mark.asyncio
+async def test_async_custom_on_error(port_generator, mocker, endpoint):
+    from clip_client.client import Client
+
+    f = Flow(port=port_generator()).add(uses=ErrorExec)
+
+    with f:
+        c = Client(server=f'grpc://0.0.0.0:{f.port}')
+
+        on_done_mock = mocker.Mock()
+        on_error_mock = mocker.Mock()
+        on_always_mock = mocker.Mock()
+
+        r = await getattr(c, endpoint)(
+            DocumentArray(
+                [Document(text='hello', matches=DocumentArray([Document(text='jina')]))]
+            ),
+            on_done=on_done_mock,
+            on_error=on_error_mock,
+            on_always=on_always_mock,
+        )
+        assert r is None
+        on_done_mock.assert_not_called()
+        on_error_mock.assert_called_once()
+        on_always_mock.assert_called_once()
