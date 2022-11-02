@@ -473,6 +473,19 @@ for d in big_list:
 This is extremely slow as only one document is encoded at a time, it is a bad utilization of the network and not leveraging any duplex streaming.
 ````
 
+### Custom callback
+
+`clip_client` by default collects all the results and returns them to users. However, if you want to process the results on-the-fly, you can also pass a callback function when sending the request. For example, you can use the callback to save the results to a database, or render the results to a webpage. Specifically, you can specify any of the three callback functions: `on_done`, `on_error`, and `on_always`.
+
+- `on_done` is executed while streaming, after successful completion of each request
+- `on_error` is executed while streaming, whenever an error occurs in each request
+- `on_always` is always performed while streaming, no matter the success or failure of each request
+
+Note that these callbacks only work for requests (and failures) inside the stream. For `on_error`, if the failure is due to an error happening outside of streaming, then it will not be triggered. For example, a `SIGKILL` from the client OS during the handling of the request, or a networking issue, will not trigger the callback. Learn more about [handling exceptions in `on_error`](https://docs.jina.ai/fundamentals/client/client/#handle-exceptions-in-callbacks).
+
+Callback functions in expect a `Response` of the type DataRequest, which contains resulting Documents, parameters, and other information. Learn more about [handling `DataRequest` in callbacks](https://docs.jina.ai/fundamentals/client/client/#handle-datarequest-in-callbacks).
+
+
 ### Client parallelism
 
 In case you instanciate a `clip_client` object using the `grpc` protocol, keep in mind that `grpc` clients cannot be used in a multi-threaded environment (check [this gRPC issue](https://github.com/grpc/grpc/issues/25364) for reference).
