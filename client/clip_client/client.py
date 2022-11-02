@@ -336,7 +336,8 @@ class Client:
                 parameters=parameters,
             )
 
-        return self._unboxed_result(results, isinstance(content, list))
+        unbox = hasattr(content, '__len__') and isinstance(content[0], str)
+        return self._unboxed_result(results, unbox)
 
     @overload
     async def aencode(
@@ -404,7 +405,8 @@ class Client:
             ):
                 continue
 
-        return self._unboxed_result(results, isinstance(content, list))
+        unbox = hasattr(content, '__len__') and isinstance(content[0], str)
+        return self._unboxed_result(results, unbox)
 
     def _iter_rank_docs(
         self, content, results: Optional['DocumentArray'] = None, source='matches'
