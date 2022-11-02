@@ -232,6 +232,12 @@ class Client:
     @staticmethod
     def _unboxed_result(results: Optional['DocumentArray'] = None, unbox: bool = False):
         if results is not None:
+            if results.embeddings is None:
+                raise ValueError(
+                    'Empty embedding returned from the server. '
+                    'This often due to a mis-config of the server, '
+                    'restarting the server or changing the serving port number often solves the problem'
+                )
             return results.embeddings if unbox else results
 
     @overload

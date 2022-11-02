@@ -30,7 +30,7 @@ class Exec2(Executor):
 class ErrorExec(Executor):
     @requests
     def foo(self, docs, **kwargs):
-        1 / 0
+        raise NotImplementedError
 
 
 def test_client_concurrent_requests(port_generator):
@@ -77,7 +77,7 @@ def test_client_large_input(make_torch_flow):
     'inputs',
     [
         [],
-        DocumentArray([]),
+        DocumentArray(),
     ],
 )
 @pytest.mark.parametrize('endpoint', ['encode', 'rank', 'index', 'search'])
@@ -102,7 +102,7 @@ def test_empty_input(make_torch_flow, inputs, endpoint):
     'inputs',
     [
         [],
-        DocumentArray([]),
+        DocumentArray(),
     ],
 )
 @pytest.mark.parametrize('endpoint', ['aencode', 'arank', 'aindex', 'asearch'])
