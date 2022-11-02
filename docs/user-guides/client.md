@@ -485,6 +485,37 @@ Note that these callbacks only work for requests (and failures) inside the strea
 
 Callback functions in expect a `Response` of the type DataRequest, which contains resulting Documents, parameters, and other information. Learn more about [handling `DataRequest` in callbacks](https://docs.jina.ai/fundamentals/client/client/#handle-datarequest-in-callbacks).
 
+In the following example, we will use `on_done` to save the results to a database. We use a simple `dict` to simulate the database. The error is saved to log file using `on_error`. `on_always` will print the number of documents processed in each request.
+
+```python
+from clip_client import Client
+
+db = {}
+
+
+def my_on_done(resp):
+    for doc in resp.docs:
+        db[doc.id] = doc
+
+
+def my_on_error(resp):
+    with open('error.log', 'a') as f:
+        f.write(resp)
+
+
+def my_on_always(resp):
+    print(f'{len(resp.docs)} docs processed')
+
+
+c = Client('grpc://0.0.0.0:12345')
+c.encode(
+    ['hello', 'world'], on_done=my_on_done, on_error=my_on_error, on_always=my_on_always
+)
+```
+
+```{note}
+If either `on_done` or `on_always` is specified, the default behavior of returning the results is disabled. You need to handle the results yourself.
+```
 
 ### Client parallelism
 
