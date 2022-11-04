@@ -473,6 +473,50 @@ for d in big_list:
 This is extremely slow as only one document is encoded at a time, it is a bad utilization of the network and not leveraging any duplex streaming.
 ````
 
+### Custom callback
+
+`clip_client` by default collects all the results and returns them to users. However, if you want to process the results on-the-fly, you can also pass a callback function when sending the request. For example, you can use the callback to save the results to a database, or render the results to a webpage. Specifically, you can specify any of the three callback functions: `on_done`, `on_error`, and `on_always`.
+
+- `on_done` is executed while streaming, after successful completion of each request
+- `on_error` is executed while streaming, whenever an error occurs in each request
+- `on_always` is always performed while streaming, no matter the success or failure of each request
+
+Note that these callbacks only work for requests (and failures) inside the stream. For `on_error`, if the failure is due to an error happening outside of streaming, then it will not be triggered. For example, a `SIGKILL` from the client OS during the handling of the request, or a networking issue, will not trigger the callback. Learn more about [handling exceptions in `on_error`](https://docs.jina.ai/fundamentals/client/client/#handle-exceptions-in-callbacks).
+
+Callback functions take a `Response` of the type DataRequest, which contains resulting Documents, parameters, and other information. Learn more about [handling `DataRequest` in callbacks](https://docs.jina.ai/fundamentals/client/client/#handle-datarequest-in-callbacks).
+
+In the following example, we will use `on_done` to save the results to a database. We use a simple `dict` to simulate the database. The error is saved to log file using `on_error`. `on_always` will print the number of documents processed in each request.
+
+```python
+from clip_client import Client
+
+db = {}
+
+
+def my_on_done(resp):
+    for doc in resp.docs:
+        db[doc.id] = doc
+
+
+def my_on_error(resp):
+    with open('error.log', 'a') as f:
+        f.write(resp)
+
+
+def my_on_always(resp):
+    print(f'{len(resp.docs)} docs processed')
+
+
+c = Client('grpc://0.0.0.0:12345')
+c.encode(
+    ['hello', 'world'], on_done=my_on_done, on_error=my_on_error, on_always=my_on_always
+)
+```
+
+```{note}
+If either `on_done` or `on_always` is specified, the default behavior of returning the results is disabled. You need to handle the results yourself.
+```
+
 ### Client parallelism
 
 In case you instanciate a `clip_client` object using the `grpc` protocol, keep in mind that `grpc` clients cannot be used in a multi-threaded environment (check [this gRPC issue](https://github.com/grpc/grpc/issues/25364) for reference).
