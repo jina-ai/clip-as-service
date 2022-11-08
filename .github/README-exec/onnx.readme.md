@@ -99,7 +99,7 @@ da = DocumentArray(
 )
 
 f = Flow().add(
-    uses='jinahub+docker://CLIPTorchEncoder',
+    uses='jinahub+docker://CLIPOnnxEncoder',
 )
 with f:
     f.post(on='/', inputs=da)
@@ -160,7 +160,7 @@ Then send the request via `/rank` endpoint:
 
 ```python
 f = Flow().add(
-    uses='jinahub+docker://CLIPTorchEncoder',
+    uses='jinahub+docker://CLIPOnnxEncoder',
 )
 with f:
     r = f.post(on='/rank', inputs=[d])
