@@ -21,8 +21,8 @@ COPY . /cas/
 
 WORKDIR /cas
 
-RUN if [ "${BACKEND_TAG}" != "torch" ]; then python3 -m pip install --no-cache-dir "./[${BACKEND_TAG}]" ; fi \
-    && python3 -m pip install --no-cache-dir .
+RUN if [ "${BACKEND_TAG}" != "torch" ]; then python3 -m pip install --no-cache-dir "./[${BACKEND_TAG}]" ;  \
+    else python3 -m pip install --no-cache-dir "./[transformers]" ; fi && python3 -m pip install --no-cache-dir .
 
 RUN echo "\
 jtype: CLIPEncoder\n\
