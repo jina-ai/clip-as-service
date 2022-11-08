@@ -464,7 +464,7 @@ class CLIP(nn.Module):
             vision_cfg = CLIPVisionCfg(**vision_cfg)
         if isinstance(text_cfg, dict):
             text_cfg = CLIPTextCfg(**text_cfg)
-
+        print(11)
         self.context_length = text_cfg.context_length
 
         # OpenAI models are pretrained w/ QuickGELU but native nn.GELU is both faster and more
@@ -473,6 +473,7 @@ class CLIP(nn.Module):
         act_layer = QuickGELU if quick_gelu else nn.GELU
 
         if vision_cfg.timm_model_name:
+            print(22)
             self.visual = TimmModel(
                 vision_cfg.timm_model_name,
                 pretrained=vision_cfg.timm_model_pretrained,
@@ -485,6 +486,7 @@ class CLIP(nn.Module):
                 nn.GELU
             )  # so that text transformer doesn't use QuickGELU w/ timm models
         elif isinstance(vision_cfg.layers, (tuple, list)):
+            print(33)
             vision_heads = vision_cfg.width * 32 // vision_cfg.head_width
             self.visual = ModifiedResNet(
                 layers=vision_cfg.layers,
@@ -494,6 +496,7 @@ class CLIP(nn.Module):
                 width=vision_cfg.width,
             )
         else:
+            print(44)
             vision_heads = vision_cfg.width // vision_cfg.head_width
             self.visual = VisualTransformer(
                 image_size=vision_cfg.image_size,
@@ -505,26 +508,27 @@ class CLIP(nn.Module):
                 output_dim=embed_dim,
                 act_layer=act_layer,
             )
-
+        print(55)
         self.transformer = Transformer(
             width=text_cfg.width,
             layers=text_cfg.layers,
             heads=text_cfg.heads,
             act_layer=act_layer,
         )
-
+        print(66)
         self.vocab_size = text_cfg.vocab_size
         self.token_embedding = nn.Embedding(text_cfg.vocab_size, text_cfg.width)
         self.positional_embedding = nn.Parameter(
             torch.empty(self.context_length, text_cfg.width)
         )
         self.ln_final = LayerNorm(text_cfg.width)
-
+        print(77)
         self.text_projection = nn.Parameter(torch.empty(text_cfg.width, embed_dim))
         self.logit_scale = nn.Parameter(torch.ones([]) * np.log(1 / 0.07))
         self.register_buffer('attn_mask', self.build_attention_mask(), persistent=False)
-
+        print(88)
         self.init_parameters()
+        print(99)
 
     def init_parameters(self):
         nn.init.normal_(self.token_embedding.weight, std=0.02)
@@ -645,8 +649,9 @@ def load_state_dict(checkpoint_path: str, map_location='cpu'):
 
 def build_model_from_openai_state_dict(state_dict: dict):
     vit = "visual.proj" in state_dict
-
+    print(1)
     if vit:
+        print(2)
         vision_width = state_dict["visual.conv1.weight"].shape[0]
         vision_layers = len(
             [
@@ -661,6 +666,7 @@ def build_model_from_openai_state_dict(state_dict: dict):
         )
         image_size = vision_patch_size * grid_size
     else:
+        print(3)
         counts: list = [
             len(
                 set(
@@ -682,7 +688,7 @@ def build_model_from_openai_state_dict(state_dict: dict):
             == state_dict["visual.attnpool.positional_embedding"].shape[0]
         )
         image_size = output_width * 32
-
+    print(4)
     embed_dim = state_dict["text_projection"].shape[1]
     context_length = state_dict["positional_embedding"].shape[0]
     vocab_size = state_dict["token_embedding.weight"].shape[0]
@@ -695,13 +701,14 @@ def build_model_from_openai_state_dict(state_dict: dict):
             if k.startswith(f"transformer.resblocks")
         )
     )
-
+    print(5)
     vision_cfg = CLIPVisionCfg(
         layers=vision_layers,
         width=vision_width,
         patch_size=vision_patch_size,
         image_size=image_size,
     )
+    print(56)
     text_cfg = CLIPTextCfg(
         context_length=context_length,
         vocab_size=vocab_size,
@@ -709,19 +716,20 @@ def build_model_from_openai_state_dict(state_dict: dict):
         heads=transformer_heads,
         layers=transformer_layers,
     )
+    print(57)
     model = CLIP(
         embed_dim,
         vision_cfg=vision_cfg,
         text_cfg=text_cfg,
         quick_gelu=True,  # OpenAI models were trained with QuickGELU
     )
-
+    print(6)
     for key in ["input_resolution", "context_length", "vocab_size"]:
         state_dict.pop(key, None)
-
+    print(7)
     convert_weights_to_fp16(model)
     model.load_state_dict(state_dict)
-
+    print(8)
     return model.eval()
 
 
@@ -746,6 +754,7 @@ def load_openai_model(
     preprocess : Callable[[PIL.Image], torch.Tensor]
         A torchvision transform that converts a PIL image into a tensor that the returned model can take as its input
     """
+    device = torch.device("mps")
     try:
         # loading JIT archive
         model = torch.jit.load(model_path, map_location=device if jit else "cpu").eval()
@@ -760,15 +769,20 @@ def load_openai_model(
         state_dict = torch.load(model_path, map_location="cpu")
 
     if not jit:
+        print(333)
         try:
+            # print(model.state_dict()["visual.conv1.weight"])
+            print(334)
+
             model = build_model_from_openai_state_dict(
                 state_dict or model.state_dict()
             ).to(device)
+            print(345)
         except KeyError:
             sd = {k[7:]: v for k, v in state_dict["state_dict"].items()}
             model = build_model_from_openai_state_dict(sd).to(device)
-
-        if str(device) == "cpu":
+        print(444)
+        if str(device) == "cpu" or str(device) == "mps":
             model.float()
         return model
 
@@ -803,7 +817,7 @@ def load_openai_model(
     patch_device(model.encode_text)
 
     # patch dtype to float32 on CPU
-    if str(device) == "cpu":
+    if str(device) == "cpu" or str(device) == "mps":
         float_holder = torch.jit.trace(
             lambda: torch.ones([]).float(), example_inputs=[]
         )

@@ -72,6 +72,8 @@ class CLIPEncoder(Executor):
             # For more details, please see https://pytorch.org/docs/stable/generated/torch.set_num_threads.html
             torch.set_num_threads(max(num_threads, 1))
             torch.set_num_interop_threads(1)
+
+        # self._device = torch.device("mps")
         self._pool = ThreadPool(processes=num_worker_preprocess)
 
         self._model = CLIPModel(name, device=self._device, jit=jit, **kwargs)
