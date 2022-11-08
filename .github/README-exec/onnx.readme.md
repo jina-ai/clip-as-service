@@ -163,7 +163,7 @@ f = Flow().add(
     uses='jinahub+docker://CLIPTorchEncoder',
 )
 with f:
-    r = f.post(on='/rank', inputs=da)
+    r = f.post(on='/rank', inputs=[d])
     print(r['@m', ['text', 'scores__clip_score__value']])
 ```
 
