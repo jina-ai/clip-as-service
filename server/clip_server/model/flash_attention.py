@@ -104,20 +104,11 @@ class MultiheadAttention(nn.MultiheadAttention):
         # set up shape vars
         seqlen, batch_size, embed_dim = query.shape
 
-        if isinstance(embed_dim, torch.Tensor):
-            # embed_dim can be a tensor when JIT tracing
-            head_dim = embed_dim.div(self.num_heads, rounding_mode='trunc')
-        else:
-            head_dim = embed_dim // self.num_heads
-        assert (
-            head_dim * self.num_heads == embed_dim
-        ), f"embed_dim {embed_dim} not divisible by num_heads {self.num_heads}"
-
         # in-projection
         q, k, v = linear(query, self.in_proj_weight, self.in_proj_bias).chunk(3, dim=-1)
-        q = q.contiguous().view((batch_size * seqlen, self.num_heads, head_dim))
-        k = k.contiguous().view((batch_size * seqlen, self.num_heads, head_dim))
-        v = v.contiguous().view((batch_size * seqlen, self.num_heads, head_dim))
+        q = q.contiguous().view((batch_size * seqlen, self.num_heads, self.head_dim))
+        k = k.contiguous().view((batch_size * seqlen, self.num_heads, self.head_dim))
+        v = v.contiguous().view((batch_size * seqlen, self.num_heads, self.head_dim))
 
         # flash attention
         attn_output = self.attention(q, k, v, batch_size, seqlen)

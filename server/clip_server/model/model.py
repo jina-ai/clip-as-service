@@ -25,7 +25,7 @@ from torch.utils.checkpoint import checkpoint
 from open_clip.timm_model import TimmModel
 from open_clip.utils import freeze_batch_norm_2d
 from open_clip.factory import _MODEL_CONFIGS
-from flash_attention import MultiheadAttention
+from clip_server.model.flash_attention import MultiheadAttention
 
 
 # From PyTorch internals
