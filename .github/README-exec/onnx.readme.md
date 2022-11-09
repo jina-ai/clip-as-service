@@ -13,7 +13,7 @@ The introduction of the CLIP model [can be found here](https://openai.com/blog/c
 
  `ViT-B-32::openai` is used as the default model. To use specific pretrained models provided by `open_clip`, please use `::` to separate model name and pretrained weight name, e.g. `ViT-B-32::laion2b_e16`. Please also note that **different models give different sizes of output dimensions**.
 
-| Model                                 | Onnx | Output dimension | 
+| Model                                 | ONNX | Output dimension | 
 |---------------------------------------|------|------------------|
 | RN50                                  | ✅    | 1024             | 
 | RN101                                 | ✅    | 512              | 
