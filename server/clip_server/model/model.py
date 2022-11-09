@@ -278,15 +278,15 @@ class ResidualAttentionBlock(nn.Module):
         scale_heads: bool = False,
         scale_attn: bool = False,
         scale_fc: bool = False,
-        use_flash: bool = True,
     ):
         super().__init__()
+        head_dim = d_model // n_head
+        self.flash_attention = head_dim % 8 == 0 and head_dim <= 128
 
         self.ln_1 = LayerNorm(d_model)
-        # TODO: `use_flash` needs to be verified
         self.attn = (
             MultiheadAttention(d_model, n_head)
-            if torch.cuda.is_available() and use_flash
+            if torch.cuda.is_available() and self.flash_attention
             else nn.MultiheadAttention(d_model, n_head)
         )
         self.ln_attn = LayerNorm(d_model) if scale_attn else nn.Identity()
