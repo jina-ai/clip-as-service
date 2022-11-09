@@ -49,6 +49,7 @@ setup(
         'jina>=3.8.0',
         'prometheus-client',
         'open_clip_torch>=1.3.0',
+        'flash-attn',
     ],
     extras_require={
         'onnx': [
