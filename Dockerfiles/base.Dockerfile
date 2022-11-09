@@ -1,5 +1,5 @@
 # !!! An ARG declared before a FROM is outside of a build stage, so it can’t be used in any instruction after a FROM
-ARG JINA_VERSION=3.7.0
+ARG JINA_VERSION=3.11.0
 
 FROM jinaai/jina:${JINA_VERSION}-py38-standard
 
@@ -14,7 +14,7 @@ LABEL org.opencontainers.image.vendor="Jina AI Limited" \
       org.opencontainers.image.url="clip-as-service" \
       org.opencontainers.image.documentation="https://clip-as-service.jina.ai/"
 
-RUN pip3 install --no-cache-dir torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cpu
+RUN pip3 install --no-cache-dir torch torchvision torchaudio transformers --extra-index-url https://download.pytorch.org/whl/cpu
 
 # copy will almost always invalid the cache
 COPY . /cas/

@@ -26,6 +26,8 @@ With advances of ONNX runtime, you can use `CLIPOnnxEncoder` (see [link](https:/
 | ViT-B-16-plus-240                     | ✅       | 640              |
 | ViT-L-14                              | ✅       | 768              |
 | ViT-L-14-336                          | ✅       | 768              |
+| ViT-H-14                              | ✅       | 1024             |
+| ViT-g-14                              | ✅       | 1024             |
 | M-CLIP/XLM_Roberta-Large-Vit-B-32     | ✅       | 512              |
 | M-CLIP/XLM-Roberta-Large-Vit-L-14     | ✅       | 768              |
 | M-CLIP/XLM-Roberta-Large-Vit-B-16Plus | ✅       | 640              |
@@ -165,7 +167,7 @@ f = Flow().add(
     uses='jinahub+docker://CLIPTorchEncoder',
 )
 with f:
-    r = f.post(on='/rank', inputs=da)
+    r = f.post(on='/rank', inputs=[d])
     print(r['@m', ['text', 'scores__clip_score__value']])
 ```
 
