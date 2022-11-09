@@ -286,7 +286,7 @@ class ResidualAttentionBlock(nn.Module):
         # TODO: `use_flash` needs to be verified
         self.attn = (
             MultiheadAttention(d_model, n_head)
-            if use_flash
+            if torch.cuda.is_available() and use_flash
             else nn.MultiheadAttention(d_model, n_head)
         )
         self.ln_attn = LayerNorm(d_model) if scale_attn else nn.Identity()
