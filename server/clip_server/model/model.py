@@ -25,6 +25,7 @@ from torch.utils.checkpoint import checkpoint
 from open_clip.timm_model import TimmModel
 from open_clip.utils import freeze_batch_norm_2d
 from open_clip.factory import _MODEL_CONFIGS
+from flash_attention import MultiheadAttention
 
 
 # From PyTorch internals
@@ -277,11 +278,17 @@ class ResidualAttentionBlock(nn.Module):
         scale_heads: bool = False,
         scale_attn: bool = False,
         scale_fc: bool = False,
+        use_flash: bool = True,
     ):
         super().__init__()
 
         self.ln_1 = LayerNorm(d_model)
-        self.attn = nn.MultiheadAttention(d_model, n_head)
+        # TODO: `use_flash` needs to be verified
+        self.attn = (
+            MultiheadAttention(d_model, n_head)
+            if use_flash
+            else nn.MultiheadAttention(d_model, n_head)
+        )
         self.ln_attn = LayerNorm(d_model) if scale_attn else nn.Identity()
 
         self.ln_2 = LayerNorm(d_model)
