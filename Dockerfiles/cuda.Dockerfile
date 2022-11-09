@@ -3,7 +3,7 @@ ARG CUDA_VERSION=11.4.2
 FROM nvcr.io/nvidia/cuda:${CUDA_VERSION}-cudnn8-runtime-ubuntu20.04
 ENV DEBIAN_FRONTEND=noninteractive
 
-ARG JINA_VERSION=3.7.0
+ARG JINA_VERSION=3.11.0
 ARG BACKEND_TAG=torch
 
 # constant, wont invalidate cache
@@ -19,7 +19,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-setuptools python3-wheel python3-pip \
     && apt-get clean && rm -rf /var/lib/apt/lists/*;
 
-RUN python3 -m pip install --default-timeout=1000 --no-cache-dir torch torchvision torchaudio nvidia-pyindex --extra-index-url https://download.pytorch.org/whl/cu113
+RUN python3 -m pip install --default-timeout=1000 --no-cache-dir torch torchvision torchaudio nvidia-pyindex transformers --extra-index-url https://download.pytorch.org/whl/cu113
 RUN python3 -m pip install --default-timeout=1000 --no-cache-dir "jina[standard]==${JINA_VERSION}"
 
 # copy will almost always invalid the cache
@@ -27,8 +27,8 @@ COPY . /cas/
 
 WORKDIR /cas
 
-RUN if [ "${BACKEND_TAG}" != "torch" ]; then python3 -m pip install --no-cache-dir "./[${BACKEND_TAG}]" ;  \
-    else python3 -m pip install --no-cache-dir "./[transformers]" ; fi && python3 -m pip install --no-cache-dir .
+RUN if [ "${BACKEND_TAG}" != "torch" ]; then python3 -m pip install --no-cache-dir "./[${BACKEND_TAG}]" ; fi \
+    && python3 -m pip install --no-cache-dir .
 
 RUN echo "\
 jtype: CLIPEncoder\n\
