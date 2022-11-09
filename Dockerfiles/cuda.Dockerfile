@@ -37,7 +37,7 @@ metas:\n\
     - clip_server.executors.clip_$BACKEND_TAG\n\
 " > /tmp/config.yml
 
-ENTRYPOINT ["jina", "executor", "--uses", "/tmp/config.yml"]
+ENTRYPOINT ["jina", "executor", "--uses", "/tmp/config.yml", "--timeout-ready", "3000000"]
 
 
 

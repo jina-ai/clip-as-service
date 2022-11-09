@@ -32,4 +32,4 @@ metas:\n\
 " > /tmp/config.yml
 
 
-ENTRYPOINT ["jina", "executor", "--uses", "/tmp/config.yml"]
+ENTRYPOINT ["jina", "executor", "--uses", "/tmp/config.yml", "--timeout-ready", "3000000"]
