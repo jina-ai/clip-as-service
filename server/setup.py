@@ -49,7 +49,6 @@ setup(
         'jina>=3.8.0',
         'prometheus-client',
         'open_clip_torch>=1.3.0',
-        'git+https://github.com/HazyResearch/flash-attention.git',
     ],
     extras_require={
         'onnx': [
