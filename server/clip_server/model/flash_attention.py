@@ -4,11 +4,7 @@ from torch import Tensor
 from typing import Optional, Tuple
 
 from torch.nn.functional import linear
-
-try:
-    from flash_attn.flash_attn_interface import flash_attn_unpadded_func
-except ImportError:
-    flash_attn_unpadded_func = None
+from flash_attn.flash_attn_interface import flash_attn_unpadded_func
 
 
 class MultiheadAttention(nn.MultiheadAttention):
@@ -26,7 +22,6 @@ class MultiheadAttention(nn.MultiheadAttention):
         device=None,
         dtype=None,
     ) -> None:
-        assert flash_attn_unpadded_func is not None, "FlashAttention is not installed."
         super().__init__(
             embed_dim,
             num_heads,

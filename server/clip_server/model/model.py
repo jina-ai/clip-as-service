@@ -25,7 +25,13 @@ from torch.utils.checkpoint import checkpoint
 from open_clip.timm_model import TimmModel
 from open_clip.utils import freeze_batch_norm_2d
 from open_clip.factory import _MODEL_CONFIGS
-from clip_server.model.flash_attention import MultiheadAttention
+
+# Use flash attention
+FLASH_ATTENTION_AVAILABLE = True
+try:
+    from clip_server.model.flash_attention import MultiheadAttention
+except:
+    FLASH_ATTENTION_AVAILABLE = False
 
 
 # From PyTorch internals
@@ -286,7 +292,9 @@ class ResidualAttentionBlock(nn.Module):
         self.ln_1 = LayerNorm(d_model)
         self.attn = (
             MultiheadAttention(d_model, n_head)
-            if torch.cuda.is_available() and self.flash_attention
+            if FLASH_ATTENTION_AVAILABLE
+            and torch.cuda.is_available()
+            and self.flash_attention
             else nn.MultiheadAttention(d_model, n_head)
         )
         self.ln_attn = LayerNorm(d_model) if scale_attn else nn.Identity()
