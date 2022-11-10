@@ -27,9 +27,10 @@ from open_clip.utils import freeze_batch_norm_2d
 from open_clip.factory import _MODEL_CONFIGS
 
 # Use flash attention
-FLASH_ATTENTION_AVAILABLE = True
 try:
     from clip_server.model.flash_attention import MultiheadAttention
+
+    FLASH_ATTENTION_AVAILABLE = True
 except:
     FLASH_ATTENTION_AVAILABLE = False
 
