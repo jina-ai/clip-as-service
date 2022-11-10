@@ -126,17 +126,13 @@ class MultiheadAttention(nn.MultiheadAttention):
         attn_output = self.attention(q, k, v, batch_size, seqlen)
 
         # out-projection
-        # `(b s) h d -> b s h d`
+        # `(b s) h d -> s b (h d)`
         attn_output = attn_output.contiguous().view(
             batch_size, seqlen, self.num_heads, self.head_dim
         )
-        # `b s h d -> s b h d -> (s b) (h d)`
         attn_output = (
-            attn_output.transpose(0, 1)
-            .contiguous()
-            .view(seqlen * batch_size, embed_dim)
+            attn_output.transpose(0, 1).contiguous().view(seqlen, batch_size, embed_dim)
         )
         attn_output = linear(attn_output, self.out_proj.weight, self.out_proj.bias)
-        attn_output = attn_output.view(seqlen, batch_size, embed_dim)
 
         return attn_output, None
