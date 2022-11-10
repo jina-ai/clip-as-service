@@ -48,7 +48,6 @@ class MultiheadAttention(nn.MultiheadAttention):
         v,
         batch_size=1,
         seqlen=77,
-        key_padding_mask=None,
         softmax_scale=None,
         attention_dropout=0.0,
         causal=False,
@@ -122,8 +121,9 @@ class MultiheadAttention(nn.MultiheadAttention):
             .view(batch_size * seqlen, self.num_heads, self.head_dim)
         )
 
-        # flash attention
-        attn_output = self.attention(q, k, v, batch_size, seqlen)
+        # flash attention (use causal mask)
+        causal = attn_mask is not None
+        attn_output = self.attention(q, k, v, batch_size, seqlen, causal=causal)
 
         # out-projection
         # `(b s) h d -> s b (h d)`
