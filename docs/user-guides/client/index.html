@@ -584,7 +584,7 @@
 <p>Then call <code class="docutils literal notranslate"><span class="pre">rank</span></code>, you can feed it with multiple Documents as a list:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">clip_client</span> <span class="kn">import</span> <span class="n">Client</span>
 
-<span class="n">c</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span><span class="n">server</span><span class="o">=</span><span class="s1">&#39;grpcs://demo-cas.jina.ai:2096&#39;</span><span class="p">)</span>
+<span class="n">c</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span><span class="n">server</span><span class="o">=</span><span class="s1">&#39;grpc://0.0.0.0:23456&#39;</span><span class="p">)</span>
 <span class="n">r</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">rank</span><span class="p">([</span><span class="n">d</span><span class="p">])</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s1">&#39;@m&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;text&#39;</span><span class="p">,</span> <span class="s1">&#39;scores__clip_score__value&#39;</span><span class="p">]])</span>
@@ -842,19 +842,19 @@ What you should do, is to rely on asynchronous programming or multi-processing r
 </div>
 <p>If your <a class="reference internal" href="../server/#flow-config"><span class="std std-ref">server is spawned</span></a> with <code class="docutils literal notranslate"><span class="pre">protocol:</span> <span class="pre">http</span></code> and <code class="docutils literal notranslate"><span class="pre">cors:</span> <span class="pre">True</span></code>, then you do not need to call the server via Python client. You can simply do it via <code class="docutils literal notranslate"><span class="pre">curl</span></code> or Javascript by sending a JSON to <code class="docutils literal notranslate"><span class="pre">http://address:port/post</span></code>. Notice, the <code class="docutils literal notranslate"><span class="pre">/post</span></code> endpoint at the end. For example,</p>
 <p>To encode sentences:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl -X POST http://demo-cas.jina.ai:51000/post <span class="se">\ </span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl -X POST http://0.0.0.0:51000/post <span class="se">\ </span>
      -H <span class="s1">&#39;Content-Type: application/json&#39;</span> <span class="se">\</span>
 <span class="hll">     -d <span class="s1">&#39;{&quot;data&quot;:[{&quot;text&quot;: &quot;First do it&quot;}, {&quot;text&quot;: &quot;then do it right&quot;}, {&quot;text&quot;: &quot;then do it better&quot;}], &quot;execEndpoint&quot;:&quot;/&quot;}&#39;</span>
 </span></pre></div>
 </div>
 <p>To encode a local image, you need to load it as base64 string and put into the <code class="docutils literal notranslate"><span class="pre">blob</span></code> field, and be careful with the quotes there:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl -X POST http://demo-cas.jina.ai:51000/post <span class="se">\ </span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl -X POST http://0.0.0.0:51000/post <span class="se">\ </span>
      -H <span class="s1">&#39;Content-Type: application/json&#39;</span> <span class="se">\</span>
 <span class="hll">     -d <span class="s1">&#39;{&quot;data&quot;:[{&quot;text&quot;: &quot;First do it&quot;}, {&quot;blob&quot;:&quot;&#39;</span><span class="s2">&quot;</span><span class="k">$(</span> base64 test-1.jpeg<span class="k">)</span><span class="s2">&quot;</span><span class="s1">&#39;&quot; }], &quot;execEndpoint&quot;:&quot;/&quot;}&#39;</span>
 </span></pre></div>
 </div>
 <p>To encode a remote image, you can simply put its address into <code class="docutils literal notranslate"><span class="pre">uri</span></code> field:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl -X POST http://demo-cas.jina.ai:51000/post <span class="se">\ </span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl -X POST http://0.0.0.0:51000/post <span class="se">\ </span>
      -H <span class="s1">&#39;Content-Type: application/json&#39;</span> <span class="se">\</span>
 <span class="hll">     -d <span class="s1">&#39;{&quot;data&quot;:[{&quot;text&quot;: &quot;First do it&quot;}, {&quot;uri&quot;: &quot;https://clip-as-service.jina.ai/_static/favicon.png&quot;}], &quot;execEndpoint&quot;:&quot;/&quot;}&#39;</span>
 </span></pre></div>
@@ -864,7 +864,7 @@ What you should do, is to rely on asynchronous programming or multi-processing r
 </pre></div>
 </div>
 <p>The embedding is inside <code class="docutils literal notranslate"><span class="pre">.data[].embedding</span></code>. If you have <a class="reference external" href="https://stedolan.github.io/jq/">jq</a> installed, you can easily filter the embeddings out via:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl -X POST https://demo-cas.jina.ai:8443/post <span class="se">\</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl -X POST http://0.0.0.0:51000/post <span class="se">\</span>
      -H <span class="s1">&#39;Content-Type: application/json&#39;</span> <span class="se">\</span>
      -d <span class="s1">&#39;{&quot;data&quot;:[{&quot;text&quot;: &quot;hello, world!&quot;}, {&quot;blob&quot;:&quot;&#39;</span><span class="s2">&quot;</span><span class="k">$(</span> base64 test-1.jpeg<span class="k">)</span><span class="s2">&quot;</span><span class="s1">&#39;&quot; }], &quot;execEndpoint&quot;:&quot;/&quot;}&#39;</span> <span class="p">|</span> <span class="se">\</span>
 <span class="hll">     jq -c <span class="s1">&#39;.data[] | .embedding&#39;</span>
@@ -913,7 +913,7 @@ What you should do, is to rely on asynchronous programming or multi-processing r
                         <div class="copyright">
                             Copyright &#169; Jina AI Limited. All rights reserved.
                         </div><div class="last-updated">
-                            Last updated on Nov 08, 2022</div>
+                            Last updated on Nov 11, 2022</div>
                     </div>
                     <div class="right-details">
                         <div class="social-btns">

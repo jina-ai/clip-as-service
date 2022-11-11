@@ -994,10 +994,10 @@ In the same way, when you do <code class="docutils literal notranslate"><span cl
 </span></pre></div>
 </div>
 <p>Here, <code class="docutils literal notranslate"><span class="pre">protocol</span></code> can be either <code class="docutils literal notranslate"><span class="pre">http</span></code> or <code class="docutils literal notranslate"><span class="pre">grpc</span></code>; <code class="docutils literal notranslate"><span class="pre">cert.pem</span></code> or <code class="docutils literal notranslate"><span class="pre">key.pem</span></code> represent both parts of a certificate, key being the private key to the certificate and crt being the signed certificate. You can run the following command in terminal:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>openssl req -newkey rsa:4096 -nodes -sha512 -x509 -days <span class="m">3650</span> -nodes -out cert.pem -keyout key.pem -subj <span class="s2">&quot;/CN=demo-cas.jina.ai&quot;</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>openssl req -newkey rsa:4096 -nodes -sha512 -x509 -days <span class="m">3650</span> -nodes -out cert.pem -keyout key.pem -subj <span class="s2">&quot;/CN=&lt;your.clip.address&gt;&quot;</span>
 </pre></div>
 </div>
-<p>Note that if you are using <code class="docutils literal notranslate"><span class="pre">protocol:</span> <span class="pre">grpc</span></code> then <code class="docutils literal notranslate"><span class="pre">/CN=demo-cas.jina.ai</span></code> must strictly follow the IP address or the domain name of your server. Mismatch IP or domain name would throw an exception.</p>
+<p>Note that if you are using <code class="docutils literal notranslate"><span class="pre">protocol:</span> <span class="pre">grpc</span></code> then <code class="docutils literal notranslate"><span class="pre">/CN=&lt;your.clip.address&gt;</span></code> must strictly follow the IP address or the domain name of your server. Mismatch IP or domain name would throw an exception.</p>
 <p>Certificate and keys can be also generated via <a class="reference external" href="https://letsencrypt.org/">letsencrypt.org</a>, which is a free SSL provider.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
@@ -1014,7 +1014,7 @@ In the same way, when you do <code class="docutils literal notranslate"><span cl
 <p>When the server is successfully running, you can connect to it via client by setting <code class="docutils literal notranslate"><span class="pre">server</span></code> to <code class="docutils literal notranslate"><span class="pre">https://</span></code> or <code class="docutils literal notranslate"><span class="pre">grpcs://</span></code> as follows:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">clip_client</span> <span class="kn">import</span> <span class="n">Client</span>
 
-<span class="n">c</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span><span class="s1">&#39;grpcs://demo-cas.jina.ai:2096&#39;</span><span class="p">)</span>
+<span class="n">c</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span><span class="s1">&#39;grpcs://&lt;your.clip.address&gt;:2096&#39;</span><span class="p">)</span>
 
 <span class="n">r</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span>
     <span class="p">[</span>
@@ -1178,7 +1178,7 @@ docker build . -f Dockerfiles/server.Dockerfile  --build-arg <span class="nv">GR
                         <div class="copyright">
                             Copyright &#169; Jina AI Limited. All rights reserved.
                         </div><div class="last-updated">
-                            Last updated on Nov 08, 2022</div>
+                            Last updated on Nov 11, 2022</div>
                     </div>
                     <div class="right-details">
                         <div class="social-btns">

@@ -537,10 +537,10 @@ with:
 Here, `protocol` can be either `http` or `grpc`; `cert.pem` or `key.pem` represent both parts of a certificate, key being the private key to the certificate and crt being the signed certificate. You can run the following command in terminal:
 
 ```bash
-openssl req -newkey rsa:4096 -nodes -sha512 -x509 -days 3650 -nodes -out cert.pem -keyout key.pem -subj "/CN=demo-cas.jina.ai"
+openssl req -newkey rsa:4096 -nodes -sha512 -x509 -days 3650 -nodes -out cert.pem -keyout key.pem -subj "/CN=<your.clip.address>"
 ```
 
-Note that if you are using `protocol: grpc` then `/CN=demo-cas.jina.ai` must strictly follow the IP address or the domain name of your server. Mismatch IP or domain name would throw an exception.
+Note that if you are using `protocol: grpc` then `/CN=<your.clip.address>` must strictly follow the IP address or the domain name of your server. Mismatch IP or domain name would throw an exception.
 
 Certificate and keys can be also generated via [letsencrypt.org](https://letsencrypt.org/), which is a free SSL provider.
 
@@ -559,7 +559,7 @@ When the server is successfully running, you can connect to it via client by set
 ```python
 from clip_client import Client
 
-c = Client('grpcs://demo-cas.jina.ai:2096')
+c = Client('grpcs://<your.clip.address>:2096')
 
 r = c.encode(
     [
