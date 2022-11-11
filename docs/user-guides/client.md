@@ -275,7 +275,7 @@ Then call `rank`, you can feed it with multiple Documents as a list:
 ```python
 from clip_client import Client
 
-c = Client(server='grpcs://demo-cas.jina.ai:2096')
+c = Client(server='grpc://0.0.0.0:23456')
 r = c.rank([d])
 
 print(r['@m', ['text', 'scores__clip_score__value']])
@@ -571,7 +571,7 @@ To encode sentences:
 ---
 emphasize-lines: 3
 ---
-curl -X POST http://demo-cas.jina.ai:51000/post \ 
+curl -X POST http://0.0.0.0:51000/post \ 
      -H 'Content-Type: application/json' \
      -d '{"data":[{"text": "First do it"}, {"text": "then do it right"}, {"text": "then do it better"}], "execEndpoint":"/"}'
 ```
@@ -582,7 +582,7 @@ To encode a local image, you need to load it as base64 string and put into the `
 ---
 emphasize-lines: 3
 ---
-curl -X POST http://demo-cas.jina.ai:51000/post \ 
+curl -X POST http://0.0.0.0:51000/post \ 
      -H 'Content-Type: application/json' \
      -d '{"data":[{"text": "First do it"}, {"blob":"'"$( base64 test-1.jpeg)"'" }], "execEndpoint":"/"}'
 ```
@@ -593,7 +593,7 @@ To encode a remote image, you can simply put its address into `uri` field:
 ---
 emphasize-lines: 3
 ---
-curl -X POST http://demo-cas.jina.ai:51000/post \ 
+curl -X POST http://0.0.0.0:51000/post \ 
      -H 'Content-Type: application/json' \
      -d '{"data":[{"text": "First do it"}, {"uri": "https://clip-as-service.jina.ai/_static/favicon.png"}], "execEndpoint":"/"}'
 ```
@@ -610,7 +610,7 @@ The embedding is inside `.data[].embedding`. If you have [jq](https://stedolan.g
 ---
 emphasize-lines: 4
 ---
-curl -X POST https://demo-cas.jina.ai:8443/post \
+curl -X POST http://0.0.0.0:51000/post \
      -H 'Content-Type: application/json' \
      -d '{"data":[{"text": "hello, world!"}, {"blob":"'"$( base64 test-1.jpeg)"'" }], "execEndpoint":"/"}' | \
      jq -c '.data[] | .embedding'
