@@ -84,7 +84,7 @@ jobs:
 
   prep-testbed:
     runs-on: ubuntu-latest
-    needs: [commit-lint, lint-flake-8, check-black]
+    needs: [lint-flake-8, check-black]
     steps:
       - uses: actions/checkout@v2
       - id: set-matrix
@@ -187,7 +187,7 @@ jobs:
 
   # just for blocking the merge until all parallel core-test are successful
   success-all-test:
-    needs: [core-test, gpu-test]
+    needs: [commit-lint, core-test, gpu-test]
     if: always()
     runs-on: ubuntu-latest
     steps:
