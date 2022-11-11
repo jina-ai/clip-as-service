@@ -189,7 +189,7 @@ jobs:
 
   # just for blocking the merge until all parallel core-test are successful
   success-all-test:
-    needs: [core-test, gpu-test]
+    needs: [gpu-test]
     if: always()
     runs-on: ubuntu-latest
     steps:
