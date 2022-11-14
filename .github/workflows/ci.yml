@@ -154,12 +154,19 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
+      - name: Install CUDA
+        run: |
+          bash .github/workflows/cuda/cu113-Linux.sh
+          source .github/workflows/cuda/cu113-Linux-env.sh
+          nvcc --version
+        shell:
+          bash
       - name: Prepare enviroment
         run: |
           python -m pip install --upgrade pip
           python -m pip install wheel pytest pytest-cov nvidia-pyindex
           {
-            python -m pip install torch==1.10.0+cu111 -f https://download.pytorch.org/whl/torch_stable.html
+            pip install torch==1.12.0+cu113 --extra-index-url https://download.pytorch.org/whl/cu113
             python -m pip install git+https://github.com/HazyResearch/flash-attention.git
           } || {
             echo "flash attention was not installed."
