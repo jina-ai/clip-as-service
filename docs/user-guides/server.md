@@ -42,6 +42,15 @@ pip install "clip_server[onnx]"
 python -m clip_server onnx-flow.yml
 ```
 
+### Start a Nebullvm-backed server
+
+ecently we added the support for another AI-accelerator backend: nebullvm.
+It can be used in a similar way to `onnxruntime`, running:
+```bash
+pip install "clip_server[nebullvm]"
+
+python -m clip_server nebullvm-flow.yml
+```
 
 ### Start a TensorRT-backed server
 
@@ -137,7 +146,7 @@ cat my.yml | python -m clip_server -i
 This can be very useful when using `clip_server` in a Docker container.
 
 And to answer your doubt, `clip_server` has three built-in YAML configs as a part of the package resources. When you do `python -m clip_server` it loads the Pytorch config, and when you do `python -m clip_server onnx-flow.yml` it loads the ONNX config.
-In the same way, when you do `python -m clip_server tensorrt-flow.yml` it loads the TensorRT config.
+In the same way, when you do `python -m clip_server tensorrt-flow.yml` and `python -m clip_server nebullvm-flow.yml` it loads the TensorRT and Nebullvm config respectively.
 
 Let's look at these three built-in YAML configs:
 
@@ -175,6 +184,22 @@ executors:
 ```
 ````
 
+````{tab} nebullvm-flow.yml
+
+```yaml
+jtype: Flow
+version: '1'
+with:
+  port: 51000
+executors:
+  - name: clip_n
+    uses:
+      jtype: CLIPEncoder
+      metas:
+        py_modules:
+          - executors/clip_nebullvm.py
+```
+````
 
 ````{tab} tensorrt-flow.yml
 
@@ -296,6 +321,14 @@ There are also runtime-specific parameters listed below:
 | `model_path` | The path to the model to be used. If not specified, the model will be downloaded or loaded from the local cache. See [here](#use-custom-model-for-onnx) to learn how to finetune custom models. |
 
 ````
+
+For nebullvm backend, you just need to set name and mini_batch size
+
+| Parameter | Description                                                                                                                    |
+|-----------|--------------------------------------------------------------------------------------------------------------------------------|
+| `name`    | Model weights, default is `ViT-B/32`. Support all OpenAI released pretrained models.                                           | | 
+| `minibatch_size` | The size of a minibatch for CPU preprocessing and GPU encoding, default 64. Reduce the size of it if you encounter OOM on GPU. |
+
 
 For example, to turn on JIT and force PyTorch running on CPU, one can do:
 

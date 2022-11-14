@@ -20,7 +20,7 @@
 
 CLIP-as-service is a low-latency high-scalability service for embedding images and text. It can be easily integrated as a microservice into neural search solutions.
 
-⚡ **Fast**: Serve CLIP models with TensorRT, ONNX runtime and PyTorch w/o JIT with 800QPS<sup>[*]</sup>. Non-blocking duplex streaming on requests and responses, designed for large data and long-running tasks. 
+⚡ **Fast**: Serve CLIP models with Nebullvm, TensorRT, ONNX runtime and PyTorch w/o JIT with 800QPS<sup>[*]</sup>. Non-blocking duplex streaming on requests and responses, designed for large data and long-running tasks. 
 
 🫐 **Elastic**: Horizontally scale up and down multiple CLIP models on single GPU, with automatic load balancing.
 
@@ -224,6 +224,7 @@ gives:
 
 CLIP-as-service consists of two Python packages `clip-server` and `clip-client` that can be installed _independently_. Both require Python 3.7+. 
 
+
 ### Install server
 
 <table>
@@ -231,6 +232,7 @@ CLIP-as-service consists of two Python packages `clip-server` and `clip-client` 
 <td> Pytorch Runtime ⚡ </td>
 <td> ONNX Runtime ⚡⚡</td>
 <td> TensorRT Runtime ⚡⚡⚡ </td>
+<td> Nebullvm ⚡⚡⚡⚡</td>
 </tr>
 <tr>
 <td>
@@ -253,6 +255,13 @@ pip install "clip-server[onnx]"
 pip install nvidia-pyindex 
 pip install "clip-server[tensorrt]"
 ```
+</td>
+<td>
+
+```bash
+pip install "clip-server[nebullvm]"
+```
+
 </td>
 </tr>
 </table>
