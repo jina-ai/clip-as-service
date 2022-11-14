@@ -26,11 +26,11 @@ jobs:
               repo: context.repo.repo,
               comment_id: ${{ steps.fc.outputs.comment-id }},
             })
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v2.5.0
         with:
           fetch-depth: 0
       - run: 'echo "module.exports = {extends: [''@commitlint/config-conventional'']}" > commitlint.config.js'
-      - uses: wagoid/commitlint-github-action@v1
+      - uses: wagoid/commitlint-github-action@v4
         env:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
       - name: if lint failed
@@ -40,12 +40,9 @@ jobs:
           issue-number: ${{ github.event.pull_request.number }}
           body: |
             Thanks for your contribution :heart:
-            :broken_heart: Unfortunately, this PR has one ore more **bad commit messages**, it can not be merged. To fix this problem, please refer to:
+            :broken_heart: Unfortunately, this PR has one or more **bad commit messages**, it can not be merged. To fix this problem, please refer to:
             - [Commit Message Guideline for the First Time Contributor](https://github.com/jina-ai/jina/issues/553)
             - [Contributing Guideline](https://github.com/jina-ai/jina/blob/master/CONTRIBUTING.md)
-
-            Note, other CI tests will *not* *start* until the commit messages get fixed.
-
             This message will be deleted automatically when the commit messages get fixed.
           reaction-type: "eyes"
 
@@ -84,7 +81,7 @@ jobs:
 
   prep-testbed:
     runs-on: ubuntu-latest
-    needs: [commit-lint, lint-flake-8, check-black]
+    needs: [lint-flake-8, check-black]
     steps:
       - uses: actions/checkout@v2
       - id: set-matrix
@@ -187,7 +184,7 @@ jobs:
 
   # just for blocking the merge until all parallel core-test are successful
   success-all-test:
-    needs: [core-test, gpu-test]
+    needs: [commit-lint, core-test, gpu-test]
     if: always()
     runs-on: ubuntu-latest
     steps:
