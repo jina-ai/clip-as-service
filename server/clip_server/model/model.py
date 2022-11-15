@@ -26,6 +26,14 @@ from open_clip.timm_model import TimmModel
 from open_clip.utils import freeze_batch_norm_2d
 from open_clip.factory import _MODEL_CONFIGS
 
+# Use flash attention
+try:
+    from clip_server.model.flash_attention import MultiheadAttention
+
+    FLASH_ATTENTION_AVAILABLE = True
+except:
+    FLASH_ATTENTION_AVAILABLE = False
+
 
 # From PyTorch internals
 def _ntuple(n):
@@ -279,9 +287,17 @@ class ResidualAttentionBlock(nn.Module):
         scale_fc: bool = False,
     ):
         super().__init__()
+        head_dim = d_model // n_head
+        self.flash_attention = head_dim % 8 == 0 and head_dim <= 128
 
         self.ln_1 = LayerNorm(d_model)
-        self.attn = nn.MultiheadAttention(d_model, n_head)
+        self.attn = (
+            MultiheadAttention(d_model, n_head)
+            if FLASH_ATTENTION_AVAILABLE
+            and torch.cuda.is_available()
+            and self.flash_attention
+            else nn.MultiheadAttention(d_model, n_head)
+        )
         self.ln_attn = LayerNorm(d_model) if scale_attn else nn.Identity()
 
         self.ln_2 = LayerNorm(d_model)
