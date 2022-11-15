@@ -9,6 +9,14 @@ from torch.utils.checkpoint import checkpoint
 
 from .utils import to_2tuple
 
+# Use flash attention
+try:
+    from clip_server.model.flash_attention import MultiheadAttention
+
+    FLASH_ATTENTION_AVAILABLE = True
+except:
+    FLASH_ATTENTION_AVAILABLE = False
+
 
 class LayerNormFp32(nn.LayerNorm):
     """Subclass torch's LayerNorm to handle fp16 (by casting to float32 and back)."""
@@ -146,7 +154,13 @@ class ResidualAttentionBlock(nn.Module):
         super().__init__()
 
         self.ln_1 = norm_layer(d_model)
-        self.attn = nn.MultiheadAttention(d_model, n_head)
+        self.attn = (
+            MultiheadAttention(d_model, n_head)
+            if FLASH_ATTENTION_AVAILABLE
+            and torch.cuda.is_available()
+            and self.flash_attention
+            else nn.MultiheadAttention(d_model, n_head)
+        )
         self.ln_attn = LayerNorm(d_model) if scale_attn else nn.Identity()
 
         self.ln_2 = norm_layer(d_model)
