@@ -152,6 +152,8 @@ class ResidualAttentionBlock(nn.Module):
         scale_fc: bool = False,
     ):
         super().__init__()
+        head_dim = d_model // n_head
+        self.flash_attention = head_dim % 8 == 0 and head_dim <= 128
 
         self.ln_1 = norm_layer(d_model)
         self.attn = (
@@ -249,7 +251,8 @@ class TextTransformer(nn.Module):
             width=width,
             layers=layers,
             heads=heads,
-            ls_init_value=ls_init_value,
+            # TODO: adapt this
+            # ls_init_value=ls_init_value,
             act_layer=act_layer,
             norm_layer=norm_layer,
         )
@@ -349,7 +352,8 @@ class VisionTransformer(nn.Module):
             layers,
             heads,
             mlp_ratio,
-            ls_init_value=ls_init_value,
+            # TODO: adapt this
+            # ls_init_value=ls_init_value,
             act_layer=act_layer,
             norm_layer=norm_layer,
         )

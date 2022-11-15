@@ -129,7 +129,8 @@ def _build_vision_tower(
             layers=vision_cfg.layers,
             heads=vision_heads,
             mlp_ratio=vision_cfg.mlp_ratio,
-            ls_init_value=vision_cfg.ls_init_value,
+            # TODO: adapt this
+            # ls_init_value=vision_cfg.ls_init_value,
             output_dim=embed_dim,
             act_layer=act_layer,
             norm_layer=norm_layer,
@@ -180,13 +181,13 @@ class CLIP(nn.Module):
 
         text = _build_text_tower(embed_dim, text_cfg, quick_gelu, cast_dtype)
         self.transformer = text.transformer
-        self.vocab_size = text_cfg.vocab_size
-        self.token_embedding = nn.Embedding(text_cfg.vocab_size, text_cfg.width)
+        self.vocab_size = text.vocab_size
+        self.token_embedding = text.token_embedding
         self.positional_embedding = text.positional_embedding
         self.ln_final = text.ln_final
-        self.text_projection = nn.Parameter(torch.empty(text_cfg.width, embed_dim))
+        self.text_projection = text.text_projection
         self.logit_scale = nn.Parameter(torch.ones([]) * np.log(1 / 0.07))
-        self.register_buffer('attn_mask', self.build_attention_mask(), persistent=False)
+        self.register_buffer('attn_mask', text.attn_mask, persistent=False)
 
     def lock_image_tower(self, unlocked_groups=0, freeze_bn_stats=False):
         # lock image tower as per LiT - https://arxiv.org/abs/2111.07991
