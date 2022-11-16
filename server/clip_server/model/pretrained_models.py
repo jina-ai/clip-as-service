@@ -96,7 +96,7 @@ _MULTILINGUALCLIP_MODELS = {
     'M-CLIP/XLM-Roberta-Large-Vit-B-16Plus': (),
     'M-CLIP/LABSE-Vit-L-14': (),
     'roberta-base': (),
-    'xml-roberta-base': (),
+    'xlm-roberta-base': (),
 }
 
 _VISUAL_MODEL_IMAGE_SIZE = {

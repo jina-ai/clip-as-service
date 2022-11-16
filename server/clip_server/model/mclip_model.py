@@ -13,7 +13,7 @@ _CLIP_MODEL_MAPS = {
     'M-CLIP/XLM-Roberta-Large-Vit-B-16Plus': 'ViT-B-16-plus-240::laion400m_e31',
     'M-CLIP/LABSE-Vit-L-14': 'ViT-L-14::openai',
     'roberta-base': 'ViT-B-32::openai',
-    'xml-roberta-base': 'ViT-B-32::openai',
+    'xlm-roberta-base': 'ViT-B-32::openai',
 }
 
 
@@ -56,7 +56,7 @@ class MultilingualCLIP(transformers.PreTrainedModel):
 class MultilingualCLIPModel(CLIPModel):
     def __init__(self, name: str, device: str = 'cpu', jit: bool = False, **kwargs):
         super().__init__(name, **kwargs)
-        if name in ('roberta-base', 'xml-roberta-base'):
+        if name in ('roberta-base', 'xlm-roberta-base'):
             self._mclip_model = RobertaModel.from_pretrained(name)
         else:
             self._mclip_model = MultilingualCLIP.from_pretrained(name)
