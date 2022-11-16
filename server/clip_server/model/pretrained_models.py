@@ -70,11 +70,11 @@ _OPENCLIP_MODELS = {
         'ViT-g-14-laion2b-s12b-b42k.bin',
         '3bf99353f6f1829faac0bb155be4382a',
     ),
-    'roberta-ViT-B-32': (
+    'roberta-ViT-B-32::laion2b-s12b-b32k': (
         'ViT-B-32-laion2b-s12b-b32k.bin',
         '76d4c9d13774cc15fa0e2b1b94a8402c',
     ),
-    'xlm-roberta-base-ViT-B-32': (
+    'xlm-roberta-base-ViT-B-32::laion5b-s13b-b90k': (
         'ViT-B-32::laion5b-s13b-b90k.bin',
         'f68abc07ef349720f1f880180803142d',
     ),

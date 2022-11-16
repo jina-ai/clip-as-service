@@ -27,7 +27,6 @@ class OpenCLIPModel(CLIPModel):
         # model_url, md5sum = get_model_url_md5(name)
         # model_path = download_model(model_url, md5sum=md5sum)
         model_path = '/home/zonlin/.cache/clip/test.bin'
-        pretrained = None
 
         if pretrained == 'openai':
             self._model = load_openai_model(model_path, device=device, jit=jit)
