@@ -70,12 +70,12 @@ _OPENCLIP_MODELS = {
         'ViT-g-14-laion2b-s12b-b42k.bin',
         '3bf99353f6f1829faac0bb155be4382a',
     ),
-    'xlm-roberta-base-ViT-B-32': (
+    'roberta-ViT-B-32': (
         'ViT-B-32-laion2b-s12b-b32k.bin',
         '76d4c9d13774cc15fa0e2b1b94a8402c',
     ),
-    'ViT-B-32::laion5b-s13b-b90k': (
-        'ViT-B-32::laion5b-s13b-b90k',
+    'xlm-roberta-base-ViT-B-32': (
+        'ViT-B-32::laion5b-s13b-b90k.bin',
         'f68abc07ef349720f1f880180803142d',
     ),
     # older version name format
@@ -95,8 +95,6 @@ _MULTILINGUALCLIP_MODELS = {
     'M-CLIP/XLM-Roberta-Large-Vit-L-14': (),
     'M-CLIP/XLM-Roberta-Large-Vit-B-16Plus': (),
     'M-CLIP/LABSE-Vit-L-14': (),
-    'roberta-base': (),
-    'xlm-roberta-base': (),
 }
 
 _VISUAL_MODEL_IMAGE_SIZE = {
