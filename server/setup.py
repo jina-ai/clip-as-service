@@ -48,7 +48,7 @@ setup(
         'torchvision',
         'jina>=3.8.0',
         'prometheus-client',
-        'open_clip_torch>=1.3.0',
+        'open_clip_torch>=2.5.0',
     ],
     extras_require={
         'onnx': [
