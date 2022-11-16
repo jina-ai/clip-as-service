@@ -232,7 +232,6 @@ class TextTransformer(nn.Module):
         width: int = 512,
         heads: int = 8,
         layers: int = 12,
-        ls_init_value: float = None,
         output_dim: int = 512,
         act_layer: Callable = nn.GELU,
         norm_layer: Callable = LayerNorm,
@@ -251,8 +250,6 @@ class TextTransformer(nn.Module):
             width=width,
             layers=layers,
             heads=heads,
-            # TODO: adapt this
-            # ls_init_value=ls_init_value,
             act_layer=act_layer,
             norm_layer=norm_layer,
         )
@@ -320,7 +317,6 @@ class VisionTransformer(nn.Module):
         layers: int,
         heads: int,
         mlp_ratio: float,
-        ls_init_value: float = None,
         output_dim: int = 512,
         act_layer: Callable = nn.GELU,
         norm_layer: Callable = LayerNorm,
@@ -352,8 +348,6 @@ class VisionTransformer(nn.Module):
             layers,
             heads,
             mlp_ratio,
-            # TODO: adapt this
-            # ls_init_value=ls_init_value,
             act_layer=act_layer,
             norm_layer=norm_layer,
         )

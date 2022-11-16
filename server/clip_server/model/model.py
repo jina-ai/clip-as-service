@@ -170,7 +170,6 @@ def _build_text_tower(
             width=text_cfg.width,
             heads=text_cfg.heads,
             layers=text_cfg.layers,
-            ls_init_value=text_cfg.ls_init_value,
             output_dim=embed_dim,
             act_layer=act_layer,
             norm_layer=norm_layer,
