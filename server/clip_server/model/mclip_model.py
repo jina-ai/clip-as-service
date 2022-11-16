@@ -12,8 +12,8 @@ _CLIP_MODEL_MAPS = {
     'M-CLIP/XLM-Roberta-Large-Vit-L-14': 'ViT-L-14::openai',
     'M-CLIP/XLM-Roberta-Large-Vit-B-16Plus': 'ViT-B-16-plus-240::laion400m_e31',
     'M-CLIP/LABSE-Vit-L-14': 'ViT-L-14::openai',
-    'roberta-base': 'ViT-B-32::openai',
-    'xlm-roberta-base': 'ViT-B-32::openai',
+    'roberta-base': '',
+    'xlm-roberta-base': '',
 }
 
 

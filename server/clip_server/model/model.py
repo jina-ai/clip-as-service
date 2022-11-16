@@ -32,6 +32,7 @@ from .transformer import (
     Attention,
 )
 from .utils import to_2tuple
+from .pretrained_text_encode import PreTrainedTextEncoder
 
 
 @dataclass
@@ -66,6 +67,8 @@ class CLIPTextCfg:
     heads: int = 8
     layers: int = 12
     ls_init_value: Optional[float] = None  # layer scale initial value
+    hf_model_name: str = None
+    hf_tokenizer_name: str = None
     proj: str = 'mlp'
     pooler_type: str = 'mean_pooler'
 
@@ -148,22 +151,32 @@ def _build_text_tower(
     if isinstance(text_cfg, dict):
         text_cfg = CLIPTextCfg(**text_cfg)
 
-    act_layer = QuickGELU if quick_gelu else nn.GELU
-    norm_layer = (
-        LayerNormFp32 if cast_dtype in (torch.float16, torch.bfloat16) else LayerNorm
-    )
+    if text_cfg.hf_model_name:
+        text = PreTrainedTextEncoder(
+            text_cfg.hf_model_name,
+            output_dim=embed_dim,
+            proj=text_cfg.proj,
+            pooler_type=text_cfg.pooler_type,
+        )
+    else:
+        act_layer = QuickGELU if quick_gelu else nn.GELU
+        norm_layer = (
+            LayerNormFp32
+            if cast_dtype in (torch.float16, torch.bfloat16)
+            else LayerNorm
+        )
 
-    text = TextTransformer(
-        context_length=text_cfg.context_length,
-        vocab_size=text_cfg.vocab_size,
-        width=text_cfg.width,
-        heads=text_cfg.heads,
-        layers=text_cfg.layers,
-        ls_init_value=text_cfg.ls_init_value,
-        output_dim=embed_dim,
-        act_layer=act_layer,
-        norm_layer=norm_layer,
-    )
+        text = TextTransformer(
+            context_length=text_cfg.context_length,
+            vocab_size=text_cfg.vocab_size,
+            width=text_cfg.width,
+            heads=text_cfg.heads,
+            layers=text_cfg.layers,
+            ls_init_value=text_cfg.ls_init_value,
+            output_dim=embed_dim,
+            act_layer=act_layer,
+            norm_layer=norm_layer,
+        )
     return text
 
 
@@ -217,6 +230,48 @@ class CLIP(nn.Module):
         # take features from the eot embedding (eot_token is the highest number in each sequence)
         x = x[torch.arange(x.shape[0]), text.argmax(dim=-1)] @ self.text_projection
         return F.normalize(x, dim=-1) if normalize else x
+
+    def forward(self, image, text):
+        image_features = self.encode_image(image, normalize=True)
+        text_features = self.encode_text(text, normalize=True)
+        return image_features, text_features, self.logit_scale.exp()
+
+
+class CustomTextCLIP(nn.Module):
+    def __init__(
+        self,
+        embed_dim: int,
+        vision_cfg: CLIPVisionCfg,
+        text_cfg: CLIPTextCfg,
+        quick_gelu: bool = False,
+        cast_dtype: Optional[torch.dtype] = None,
+    ):
+        super().__init__()
+        self.visual = _build_vision_tower(embed_dim, vision_cfg, quick_gelu, cast_dtype)
+        self.text = _build_text_tower(embed_dim, text_cfg, quick_gelu, cast_dtype)
+        self.logit_scale = nn.Parameter(torch.ones([]) * np.log(1 / 0.07))
+
+    def lock_image_tower(self, unlocked_groups=0, freeze_bn_stats=False):
+        # lock image tower as per LiT - https://arxiv.org/abs/2111.07991
+        self.visual.lock(
+            unlocked_groups=unlocked_groups, freeze_bn_stats=freeze_bn_stats
+        )
+
+    def lock_text_tower(self, unlocked_layers: int = 0, freeze_layer_norm: bool = True):
+        self.text.lock(unlocked_layers, freeze_layer_norm)
+
+    @torch.jit.ignore
+    def set_grad_checkpointing(self, enable=True):
+        self.visual.set_grad_checkpointing(enable)
+        self.text.set_grad_checkpointing(enable)
+
+    def encode_image(self, image, normalize: bool = False):
+        features = self.visual(image)
+        return F.normalize(features, dim=-1) if normalize else features
+
+    def encode_text(self, text, normalize: bool = False):
+        features = self.text(text)
+        return F.normalize(features, dim=-1) if normalize else features
 
     def forward(self, image, text):
         image_features = self.encode_image(image, normalize=True)
@@ -486,9 +541,11 @@ def load_openai_model(
 def load_openclip_model(
     model_name: str,
     model_path: str,
+    precision: str = 'fp32',
     device: torch.device = torch.device('cpu'),
     jit: bool = False,
     force_quick_gelu: bool = False,
+    force_custom_text: bool = False,
     pretrained_image: bool = False,
 ):
     model_name = model_name.replace(
@@ -513,15 +570,27 @@ def load_openclip_model(
                 False
             ), 'pretrained image towers currently only supported for timm models'
 
-    model = CLIP(**model_cfg)
+    cast_dtype = get_cast_dtype(precision)
+    custom_text = (
+        model_cfg.pop('custom_text', False)
+        or force_custom_text
+        or ('hf_model_name' in model_cfg['text_cfg'])
+    )
+
+    if custom_text:
+        model = CustomTextCLIP(**model_cfg, cast_dtype=cast_dtype)
+    else:
+        model = CLIP(**model_cfg, cast_dtype=cast_dtype)
+    print(model_cfg)
+
     model.eval()
-
     model.load_state_dict(load_state_dict(model_path))
-
-    if str(device).startswith('cuda'):
-        convert_weights_to_fp16(model)
-
     model.to(device=device)
+
+    if precision in ("fp16", "bf16"):
+        convert_weights_to_lp(
+            model, dtype=torch.bfloat16 if precision == 'bf16' else torch.float16
+        )
 
     if jit:
         model = torch.jit.script(model)
