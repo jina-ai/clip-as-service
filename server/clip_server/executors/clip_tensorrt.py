@@ -14,6 +14,7 @@ from clip_server.model import clip
 from clip_server.model.tokenization import Tokenizer
 from clip_server.model.clip_trt import CLIPTensorRTModel
 from jina import Executor, requests, DocumentArray
+from opentelemetry.trace import NoOpTracer, Span
 
 
 class CLIPEncoder(Executor):
@@ -38,6 +39,7 @@ class CLIPEncoder(Executor):
         """
         super().__init__(**kwargs)
 
+        self._num_worker_preprocess = num_worker_preprocess
         self._pool = ThreadPool(processes=num_worker_preprocess)
 
         self._minibatch_size = minibatch_size
@@ -68,27 +70,35 @@ class CLIPEncoder(Executor):
         self._tokenizer = Tokenizer(name)
         self._image_transform = clip._transform_ndarray(self._model.image_size)
 
+        if not self.tracer:
+            self.tracer = NoOpTracer()
+
     def _preproc_images(self, docs: 'DocumentArray', drop_image_content: bool):
         with self.monitor(
             name='preprocess_images_seconds',
             documentation='images preprocess time in seconds',
         ):
-            return preproc_image(
-                docs,
-                preprocess_fn=self._image_transform,
-                device=self._device,
-                return_np=False,
-                drop_image_content=drop_image_content,
-            )
+            with self.tracer.start_as_current_span('preprocess_images'):
+                return preproc_image(
+                    docs,
+                    preprocess_fn=self._image_transform,
+                    device=self._device,
+                    return_np=False,
+                    drop_image_content=drop_image_content,
+                )
 
     def _preproc_texts(self, docs: 'DocumentArray'):
         with self.monitor(
             name='preprocess_texts_seconds',
             documentation='texts preprocess time in seconds',
         ):
-            return preproc_text(
-                docs, tokenizer=self._tokenizer, device=self._device, return_np=False
-            )
+            with self.tracer.start_as_current_span('preprocess_images'):
+                return preproc_text(
+                    docs,
+                    tokenizer=self._tokenizer,
+                    device=self._device,
+                    return_np=False,
+                )
 
     @requests(on='/rank')
     async def rank(self, docs: 'DocumentArray', parameters: Dict, **kwargs):
@@ -98,56 +108,73 @@ class CLIPEncoder(Executor):
         set_rank(docs)
 
     @requests
-    async def encode(self, docs: 'DocumentArray', parameters: Dict = {}, **kwargs):
-        access_paths = parameters.get('access_paths', self._access_paths)
-        if 'traversal_paths' in parameters:
-            warnings.warn(
-                f'`traversal_paths` is deprecated. Use `access_paths` instead.'
-            )
-            access_paths = parameters['traversal_paths']
-        _drop_image_content = parameters.get('drop_image_content', False)
+    async def encode(
+        self, docs: 'DocumentArray', tracing_context, parameters: Dict = {}, **kwargs
+    ):
+        with self.tracer.start_as_current_span(
+            'encode', context=tracing_context
+        ) as span:
+            span.set_attribute('device', self._device)
+            span.set_attribute('runtime', 'tensorrt')
+            access_paths = parameters.get('access_paths', self._access_paths)
+            if 'traversal_paths' in parameters:
+                warnings.warn(
+                    f'`traversal_paths` is deprecated. Use `access_paths` instead.'
+                )
+                access_paths = parameters['traversal_paths']
+            _drop_image_content = parameters.get('drop_image_content', False)
 
-        _img_da = DocumentArray()
-        _txt_da = DocumentArray()
-        for d in docs[access_paths]:
-            split_img_txt_da(d, _img_da, _txt_da)
+            _img_da = DocumentArray()
+            _txt_da = DocumentArray()
+            for d in docs[access_paths]:
+                split_img_txt_da(d, _img_da, _txt_da)
 
-        # for image
-        if _img_da:
-            for minibatch, batch_data in _img_da.map_batch(
-                partial(self._preproc_images, drop_image_content=_drop_image_content),
-                batch_size=self._minibatch_size,
-                pool=self._pool,
-            ):
-                with self.monitor(
-                    name='encode_images_seconds',
-                    documentation='images encode time in seconds',
-                ):
-                    minibatch.embeddings = (
-                        self._model.encode_image(batch_data)
-                        .detach()
-                        .cpu()
-                        .numpy()
-                        .astype(np.float32)
-                    )
+            with self.tracer.start_as_current_span('inference') as inference_span:
+                # for image
+                if _img_da:
+                    with self.tracer.start_as_current_span(
+                        'img_minibatch_encoding'
+                    ) as img_encode_span:
+                        for minibatch, batch_data in _img_da.map_batch(
+                            partial(
+                                self._preproc_images,
+                                drop_image_content=_drop_image_content,
+                            ),
+                            batch_size=self._minibatch_size,
+                            pool=self._pool,
+                        ):
+                            with self.monitor(
+                                name='encode_images_seconds',
+                                documentation='images encode time in seconds',
+                            ):
+                                minibatch.embeddings = (
+                                    self._model.encode_image(batch_data)
+                                    .detach()
+                                    .cpu()
+                                    .numpy()
+                                    .astype(np.float32)
+                                )
 
-        # for text
-        if _txt_da:
-            for minibatch, batch_data in _txt_da.map_batch(
-                self._preproc_texts,
-                batch_size=self._minibatch_size,
-                pool=self._pool,
-            ):
-                with self.monitor(
-                    name='encode_texts_seconds',
-                    documentation='texts encode time in seconds',
-                ):
-                    minibatch.embeddings = (
-                        self._model.encode_text(batch_data)
-                        .detach()
-                        .cpu()
-                        .numpy()
-                        .astype(np.float32)
-                    )
+                # for text
+                if _txt_da:
+                    with self.tracer.start_as_current_span(
+                        'txt_minibatch_encoding'
+                    ) as txt_encode_span:
+                        for minibatch, batch_data in _txt_da.map_batch(
+                            self._preproc_texts,
+                            batch_size=self._minibatch_size,
+                            pool=self._pool,
+                        ):
+                            with self.monitor(
+                                name='encode_texts_seconds',
+                                documentation='texts encode time in seconds',
+                            ):
+                                minibatch.embeddings = (
+                                    self._model.encode_text(batch_data)
+                                    .detach()
+                                    .cpu()
+                                    .numpy()
+                                    .astype(np.float32)
+                                )
 
         return docs

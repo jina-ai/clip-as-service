@@ -41,7 +41,7 @@ setup(
     long_description_content_type='text/markdown',
     zip_safe=False,
     setup_requires=['setuptools>=18.0', 'wheel'],
-    install_requires=['jina>=3.8.0', 'docarray[common]>=0.16.1', 'packaging'],
+    install_requires=['jina>=3.11.0', 'docarray[common]>=0.19.0', 'packaging'],
     extras_require={
         'test': [
             'pytest',
