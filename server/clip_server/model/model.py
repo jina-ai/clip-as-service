@@ -132,8 +132,6 @@ def _build_vision_tower(
             layers=vision_cfg.layers,
             heads=vision_heads,
             mlp_ratio=vision_cfg.mlp_ratio,
-            # TODO: adapt this
-            # ls_init_value=vision_cfg.ls_init_value,
             output_dim=embed_dim,
             act_layer=act_layer,
             norm_layer=norm_layer,
