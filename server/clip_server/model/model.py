@@ -581,7 +581,6 @@ def load_openclip_model(
         model = CustomTextCLIP(**model_cfg, cast_dtype=cast_dtype)
     else:
         model = CLIP(**model_cfg, cast_dtype=cast_dtype)
-    print(model_cfg)
 
     model.eval()
     model.load_state_dict(load_state_dict(model_path))

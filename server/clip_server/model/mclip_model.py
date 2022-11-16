@@ -2,7 +2,6 @@
 
 import transformers
 import torch
-from transformers.models.roberta.modeling_roberta import RobertaModel
 
 from clip_server.model.clip_model import CLIPModel
 from clip_server.model.openclip_model import OpenCLIPModel
@@ -12,8 +11,6 @@ _CLIP_MODEL_MAPS = {
     'M-CLIP/XLM-Roberta-Large-Vit-L-14': 'ViT-L-14::openai',
     'M-CLIP/XLM-Roberta-Large-Vit-B-16Plus': 'ViT-B-16-plus-240::laion400m_e31',
     'M-CLIP/LABSE-Vit-L-14': 'ViT-L-14::openai',
-    'roberta-base': '',
-    'xlm-roberta-base': '',
 }
 
 
@@ -56,10 +53,7 @@ class MultilingualCLIP(transformers.PreTrainedModel):
 class MultilingualCLIPModel(CLIPModel):
     def __init__(self, name: str, device: str = 'cpu', jit: bool = False, **kwargs):
         super().__init__(name, **kwargs)
-        if name in ('roberta-base', 'xlm-roberta-base'):
-            self._mclip_model = RobertaModel.from_pretrained(name)
-        else:
-            self._mclip_model = MultilingualCLIP.from_pretrained(name)
+        self._mclip_model = MultilingualCLIP.from_pretrained(name)
         self._mclip_model.to(device=device)
         self._mclip_model.eval()
         self._model = OpenCLIPModel(_CLIP_MODEL_MAPS[name], device=device, jit=jit)
