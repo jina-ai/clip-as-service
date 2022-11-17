@@ -79,6 +79,8 @@ def get_cast_dtype(precision: str):
         cast_dtype = torch.bfloat16
     elif precision == 'fp16':
         cast_dtype = torch.float16
+    elif precision == 'fp32':
+        cast_dtype = torch.float32
     return cast_dtype
 
 
@@ -135,6 +137,7 @@ def _build_vision_tower(
             output_dim=embed_dim,
             act_layer=act_layer,
             norm_layer=norm_layer,
+            cast_dtype=cast_dtype,
         )
 
     return visual
@@ -173,6 +176,7 @@ def _build_text_tower(
             output_dim=embed_dim,
             act_layer=act_layer,
             norm_layer=norm_layer,
+            cast_dtype=cast_dtype,
         )
     return text
 
@@ -408,8 +412,7 @@ def build_model_from_openai_state_dict(
 
 def load_openai_model(
     model_path: str,
-    precision: Optional[str] = None,
-    device: Union[str, torch.device] = "cuda" if torch.cuda.is_available() else "cpu",
+    device: Union[str, torch.device] = 'cuda' if torch.cuda.is_available() else 'cpu',
     jit=True,
 ):
     """Load a CLIP model
@@ -433,8 +436,7 @@ def load_openai_model(
     preprocess : Callable[[PIL.Image], torch.Tensor]
         A torchvision transform that converts a PIL image into a tensor that the returned model can take as its input
     """
-    if precision is None:
-        precision = 'fp32' if device == 'cpu' else 'fp16'
+    precision = 'fp32' if device in ('cpu', torch.device('cpu')) else 'fp16'
     try:
         # loading JIT archive
         model = torch.jit.load(model_path, map_location=device if jit else "cpu").eval()
@@ -538,13 +540,13 @@ def load_openai_model(
 def load_openclip_model(
     model_name: str,
     model_path: str,
-    precision: str = 'fp32',
-    device: torch.device = torch.device('cpu'),
+    device: Union[str, torch.device] = 'cpu',
     jit: bool = False,
     force_quick_gelu: bool = False,
     force_custom_text: bool = False,
     pretrained_image: bool = False,
 ):
+    precision = 'fp32' if device in ('cpu', torch.device('cpu')) else 'fp16'
     model_name = model_name.replace(
         '/', '-'
     )  # for callers using old naming with / in ViT names
