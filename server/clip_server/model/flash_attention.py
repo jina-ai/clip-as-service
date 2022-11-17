@@ -57,9 +57,12 @@ class MultiheadAttention(nn.MultiheadAttention):
             key_padding_mask: a bool tensor of shape (B, S)
 
         """
-        assert not need_weights
-        assert q.dtype in [torch.float16, torch.bfloat16]
-        assert q.is_cuda
+        assert not need_weights, "not allowed to return weights."
+        assert q.dtype in [
+            torch.float16,
+            torch.bfloat16,
+        ], f"flash attention only support torch.float16 or torch.bfloat16 but got {q.dtype}."
+        assert q.is_cuda, "flash attention only support cuda."
 
         if cu_seqlens is None:
             max_s = seqlen

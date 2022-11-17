@@ -150,6 +150,7 @@ class ResidualAttentionBlock(nn.Module):
         norm_layer: Callable = LayerNorm,
         scale_attn: bool = False,
         scale_fc: bool = False,
+        cast_dtype=torch.float32,
     ):
         super().__init__()
         head_dim = d_model // n_head
@@ -160,6 +161,7 @@ class ResidualAttentionBlock(nn.Module):
             MultiheadAttention(d_model, n_head)
             if FLASH_ATTENTION_AVAILABLE
             and torch.cuda.is_available()
+            and cast_dtype in (torch.float16, torch.bfloat16)
             and self.flash_attention
             else nn.MultiheadAttention(d_model, n_head)
         )
@@ -197,6 +199,7 @@ class Transformer(nn.Module):
         mlp_ratio: float = 4.0,
         act_layer: Callable = nn.GELU,
         norm_layer: Callable = LayerNorm,
+        cast_dtype=torch.float32,
     ):
         super().__init__()
         self.width = width
@@ -206,7 +209,12 @@ class Transformer(nn.Module):
         self.resblocks = nn.ModuleList(
             [
                 ResidualAttentionBlock(
-                    width, heads, mlp_ratio, act_layer=act_layer, norm_layer=norm_layer
+                    width,
+                    heads,
+                    mlp_ratio,
+                    act_layer=act_layer,
+                    norm_layer=norm_layer,
+                    cast_dtype=cast_dtype,
                 )
                 for _ in range(layers)
             ]
@@ -235,6 +243,7 @@ class TextTransformer(nn.Module):
         output_dim: int = 512,
         act_layer: Callable = nn.GELU,
         norm_layer: Callable = LayerNorm,
+        cast_dtype=torch.float16,
     ):
         super().__init__()
         self.context_length = context_length
@@ -252,6 +261,7 @@ class TextTransformer(nn.Module):
             heads=heads,
             act_layer=act_layer,
             norm_layer=norm_layer,
+            cast_dtype=cast_dtype,
         )
         self.ln_final = norm_layer(width)
         self.text_projection = nn.Parameter(torch.empty(width, output_dim))
@@ -320,6 +330,7 @@ class VisionTransformer(nn.Module):
         output_dim: int = 512,
         act_layer: Callable = nn.GELU,
         norm_layer: Callable = LayerNorm,
+        cast_dtype=torch.float32,
     ):
         super().__init__()
         self.image_size = to_2tuple(image_size)
@@ -350,6 +361,7 @@ class VisionTransformer(nn.Module):
             mlp_ratio,
             act_layer=act_layer,
             norm_layer=norm_layer,
+            cast_dtype=cast_dtype,
         )
 
         self.ln_post = norm_layer(width)
