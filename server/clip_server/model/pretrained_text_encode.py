@@ -1,1 +1,0 @@
-from open_clip.hf_model import PreTrainedTextEncoder

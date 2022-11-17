@@ -11,28 +11,35 @@ Ludwig Schmidt
 import logging
 import math
 import warnings
+import numpy as np
 from dataclasses import dataclass
 from typing import Tuple, Union, Optional
 from copy import deepcopy
 
-import numpy as np
 import torch
-import torch.nn.functional as F
 from torch import nn
+import torch.nn.functional as F
 
+from clip_server.model.transformer import TextTransformer, VisionTransformer
+from open_clip.transformer import QuickGELU, LayerNorm, LayerNormFp32, Attention
 from open_clip.timm_model import TimmModel
 from open_clip.factory import _MODEL_CONFIGS
-from .modified_resnet import CasModifiedResNet as ModifiedResNet
-from .transformer import (
-    LayerNormFp32,
-    LayerNorm,
-    QuickGELU,
-    TextTransformer,
-    VisionTransformer,
-    Attention,
-)
-from .utils import to_2tuple
-from .pretrained_text_encode import PreTrainedTextEncoder
+from open_clip.hf_model import PreTrainedTextEncoder
+from open_clip.modified_resnet import ModifiedResNet
+from open_clip.utils import to_2tuple
+
+
+class CasModifiedResNet(ModifiedResNet):
+    def forward(self, x):
+        # To handle fp16 inference
+        x = x.type(self.conv1.weight.dtype)
+        x = self.stem(x)
+        x = self.layer1(x)
+        x = self.layer2(x)
+        x = self.layer3(x)
+        x = self.layer4(x)
+        x = self.attnpool(x)
+        return x
 
 
 @dataclass
@@ -113,7 +120,7 @@ def _build_vision_tower(
         )  # so that text transformer doesn't use QuickGELU w/ timm models
     elif isinstance(vision_cfg.layers, (tuple, list)):
         vision_heads = vision_cfg.width * 32 // vision_cfg.head_width
-        visual = ModifiedResNet(
+        visual = CasModifiedResNet(
             layers=vision_cfg.layers,
             output_dim=embed_dim,
             heads=vision_heads,

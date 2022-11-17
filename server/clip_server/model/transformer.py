@@ -1,5 +1,4 @@
 from collections import OrderedDict
-import math
 from typing import Callable, Optional
 
 import torch
@@ -7,7 +6,8 @@ from torch import nn
 from torch.nn import functional as F
 from torch.utils.checkpoint import checkpoint
 
-from .utils import to_2tuple
+from open_clip.utils import to_2tuple
+from open_clip.transformer import LayerNorm
 
 # Use flash attention
 try:
@@ -16,128 +16,6 @@ try:
     FLASH_ATTENTION_AVAILABLE = True
 except:
     FLASH_ATTENTION_AVAILABLE = False
-
-
-class LayerNormFp32(nn.LayerNorm):
-    """Subclass torch's LayerNorm to handle fp16 (by casting to float32 and back)."""
-
-    def forward(self, x: torch.Tensor):
-        orig_type = x.dtype
-        x = F.layer_norm(
-            x.to(torch.float32), self.normalized_shape, self.weight, self.bias, self.eps
-        )
-        return x.to(orig_type)
-
-
-class LayerNorm(nn.LayerNorm):
-    """Subclass torch's LayerNorm to handle fp16."""
-
-    def forward(self, x: torch.Tensor):
-        orig_type = x.dtype
-        x = F.layer_norm(
-            x.type(torch.float32),
-            self.normalized_shape,
-            self.weight,
-            self.bias,
-            self.eps,
-        )
-        return x.to(orig_type)
-
-
-class QuickGELU(nn.Module):
-    # NOTE This is slower than nn.GELU or nn.SiLU and uses more GPU memory
-    def forward(self, x: torch.Tensor):
-        return x * torch.sigmoid(1.702 * x)
-
-
-class LayerScale(nn.Module):
-    def __init__(self, dim, init_values=1e-5, inplace=False):
-        super().__init__()
-        self.inplace = inplace
-        self.gamma = nn.Parameter(init_values * torch.ones(dim))
-
-    def forward(self, x):
-        return x.mul_(self.gamma) if self.inplace else x * self.gamma
-
-
-class Attention(nn.Module):
-    def __init__(
-        self,
-        dim,
-        num_heads=8,
-        qkv_bias=True,
-        scaled_cosine=False,
-        scale_heads=False,
-        logit_scale_max=math.log(1.0 / 0.01),
-        attn_drop=0.0,
-        proj_drop=0.0,
-    ):
-        super().__init__()
-        self.scaled_cosine = scaled_cosine
-        self.scale_heads = scale_heads
-        assert dim % num_heads == 0, 'dim should be divisible by num_heads'
-        self.num_heads = num_heads
-        self.head_dim = dim // num_heads
-        self.scale = self.head_dim**-0.5
-        self.logit_scale_max = logit_scale_max
-
-        # keeping in_proj in this form (instead of nn.Linear) to match weight scheme of original
-        self.in_proj_weight = nn.Parameter(torch.randn((dim * 3, dim)) * self.scale)
-        if qkv_bias:
-            self.in_proj_bias = nn.Parameter(torch.zeros(dim * 3))
-        else:
-            self.in_proj_bias = None
-
-        if self.scaled_cosine:
-            self.logit_scale = nn.Parameter(
-                torch.log(10 * torch.ones((num_heads, 1, 1)))
-            )
-        else:
-            self.logit_scale = None
-        self.attn_drop = nn.Dropout(attn_drop)
-        if self.scale_heads:
-            self.head_scale = nn.Parameter(torch.ones((num_heads, 1, 1)))
-        else:
-            self.head_scale = None
-        self.out_proj = nn.Linear(dim, dim)
-        self.out_drop = nn.Dropout(proj_drop)
-
-    def forward(self, x, attn_mask: Optional[torch.Tensor] = None):
-        L, N, C = x.shape
-        q, k, v = F.linear(x, self.in_proj_weight, self.in_proj_bias).chunk(3, dim=-1)
-        q = q.contiguous().view(L, N * self.num_heads, -1).transpose(0, 1)
-        k = k.contiguous().view(L, N * self.num_heads, -1).transpose(0, 1)
-        v = v.contiguous().view(L, N * self.num_heads, -1).transpose(0, 1)
-
-        if self.logit_scale is not None:
-            attn = torch.bmm(
-                F.normalize(q, dim=-1), F.normalize(k, dim=-1).transpose(-1, -2)
-            )
-            logit_scale = torch.clamp(self.logit_scale, max=self.logit_scale_max).exp()
-            attn = attn.view(N, self.num_heads, L, L) * logit_scale
-            attn = attn.view(-1, L, L)
-        else:
-            q = q * self.scale
-            attn = torch.bmm(q, k.transpose(-1, -2))
-
-        if attn_mask is not None:
-            if attn_mask.dtype == torch.bool:
-                new_attn_mask = torch.zeros_like(attn_mask, dtype=q.dtype)
-                new_attn_mask.masked_fill_(attn_mask, float("-inf"))
-                attn_mask = new_attn_mask
-            attn += attn_mask
-
-        attn = attn.softmax(dim=-1)
-        attn = self.attn_drop(attn)
-
-        x = torch.bmm(attn, v)
-        if self.head_scale is not None:
-            x = x.view(N, self.num_heads, L, C) * self.head_scale
-            x = x.view(-1, L, C)
-        x = x.transpose(0, 1).reshape(L, N, C)
-        x = self.out_proj(x)
-        x = self.out_drop(x)
-        return x
 
 
 class ResidualAttentionBlock(nn.Module):
