@@ -22,7 +22,7 @@ from torch import nn
 
 from open_clip.timm_model import TimmModel
 from open_clip.factory import _MODEL_CONFIGS
-from .modified_resnet import ModifiedResNet
+from .modified_resnet import CasModifiedResNet as ModifiedResNet
 from .transformer import (
     LayerNormFp32,
     LayerNorm,
