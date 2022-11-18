@@ -18,7 +18,7 @@ class OpenCLIPModel(CLIPModel):
         name: str,
         device: str = 'cpu',
         jit: bool = False,
-        precision: str = None,
+        dtype: str = None,
         **kwargs
     ):
         super().__init__(name, **kwargs)
@@ -36,7 +36,7 @@ class OpenCLIPModel(CLIPModel):
 
         if pretrained == 'openai':
             self._model = load_openai_model(
-                model_path, device=device, jit=jit, precision=precision
+                model_path, device=device, jit=jit, dtype=dtype
             )
         else:
             self._model = load_openclip_model(
@@ -44,7 +44,7 @@ class OpenCLIPModel(CLIPModel):
                 model_path=model_path,
                 device=device,
                 jit=jit,
-                precision=precision,
+                dtype=dtype,
             )
 
     @staticmethod
