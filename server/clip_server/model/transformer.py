@@ -1,3 +1,11 @@
+# Originally from https://github.com/mlfoundations/open_clip.
+#
+# Copyright (c) 2012-2021 Gabriel Ilharco, Mitchell Wortsman,
+# Nicholas Carlini, Rohan Taori, Achal Dave, Vaishaal Shankar,
+# John Miller, Hongseok Namkoong, Hannaneh Hajishirzi, Ali Farhadi,
+# Ludwig Schmidt
+
+
 from collections import OrderedDict
 from typing import Callable, Optional
 

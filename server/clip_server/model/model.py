@@ -8,8 +8,6 @@ John Miller, Hongseok Namkoong, Hannaneh Hajishirzi, Ali Farhadi,
 Ludwig Schmidt
 """
 
-import logging
-import math
 import warnings
 import numpy as np
 from dataclasses import dataclass
@@ -26,7 +24,6 @@ from open_clip.timm_model import TimmModel
 from open_clip.factory import _MODEL_CONFIGS
 from open_clip.hf_model import PreTrainedTextEncoder
 from open_clip.modified_resnet import ModifiedResNet
-from open_clip.utils import to_2tuple
 
 
 class CasModifiedResNet(ModifiedResNet):
@@ -420,6 +417,7 @@ def build_model_from_openai_state_dict(
 def load_openai_model(
     model_path: str,
     device: Union[str, torch.device] = 'cuda' if torch.cuda.is_available() else 'cpu',
+    precision: str = None,
     jit=True,
 ):
     """Load a CLIP model
@@ -434,8 +432,6 @@ def load_openai_model(
         The device to put the loaded model
     jit : bool
         Whether to load the optimized JIT model (default) or more hackable non-JIT model.
-    cache_dir : Optional[str]
-        The directory to cache the downloaded model weights
     Returns
     -------
     model : torch.nn.Module
@@ -443,7 +439,8 @@ def load_openai_model(
     preprocess : Callable[[PIL.Image], torch.Tensor]
         A torchvision transform that converts a PIL image into a tensor that the returned model can take as its input
     """
-    precision = 'fp32' if device in ('cpu', torch.device('cpu')) else 'fp16'
+    if precision is None:
+        precision = 'fp32' if device in ('cpu', torch.device('cpu')) else 'fp16'
     try:
         # loading JIT archive
         model = torch.jit.load(model_path, map_location=device if jit else "cpu").eval()
@@ -549,11 +546,13 @@ def load_openclip_model(
     model_path: str,
     device: Union[str, torch.device] = 'cpu',
     jit: bool = False,
+    precision: str = None,
     force_quick_gelu: bool = False,
     force_custom_text: bool = False,
     pretrained_image: bool = False,
 ):
-    precision = 'fp32' if device in ('cpu', torch.device('cpu')) else 'fp16'
+    if precision is None:
+        precision = 'fp32' if device in ('cpu', torch.device('cpu')) else 'fp16'
     model_name = model_name.replace(
         '/', '-'
     )  # for callers using old naming with / in ViT names
