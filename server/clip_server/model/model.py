@@ -538,7 +538,7 @@ def load_openai_model(
 def load_openclip_model(
     model_name: str,
     model_path: str,
-    device: Optional(Union[str, torch.device]) = 'cpu',
+    device: Union[str, torch.device] = 'cpu',
     jit: bool = False,
     dtype: str = None,
     force_quick_gelu: bool = False,
