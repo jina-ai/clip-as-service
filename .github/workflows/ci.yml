@@ -113,6 +113,7 @@ jobs:
           pip install --no-cache-dir "server/[onnx]"
           pip install --no-cache-dir "server/[transformers]"
           pip install --no-cache-dir "server/[search]"
+          pip install --no-cache-dir "server/[transformers]"
       - name: Test
         id: test
         run: |
@@ -163,7 +164,6 @@ jobs:
           }
           pip install -e "client/[test]"
           pip install -e "server/[tensorrt]"
-          pip install -e "server/[transformers]"
       - name: Test
         id: test
         run: |
