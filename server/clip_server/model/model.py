@@ -27,6 +27,7 @@ from open_clip.modified_resnet import ModifiedResNet as _ModifiedResNet
 from open_clip.model import CustomTextCLIP as _CustomTextCLIP
 from open_clip.model import CLIP as _CLIP
 
+
 class ModifiedResNet(_ModifiedResNet):
     def forward(self, x):
         # To handle fp16 inference
@@ -111,9 +112,7 @@ def _build_vision_tower(
     else:
         vision_heads = vision_cfg.width // vision_cfg.head_width
         norm_layer = (
-            LayerNormFp32
-            if dtype in (torch.float16, torch.bfloat16)
-            else LayerNorm
+            LayerNormFp32 if dtype in (torch.float16, torch.bfloat16) else LayerNorm
         )
         visual = VisionTransformer(
             image_size=vision_cfg.image_size,
@@ -150,9 +149,7 @@ def _build_text_tower(
     else:
         act_layer = QuickGELU if quick_gelu else nn.GELU
         norm_layer = (
-            LayerNormFp32
-            if dtype in (torch.float16, torch.bfloat16)
-            else LayerNorm
+            LayerNormFp32 if dtype in (torch.float16, torch.bfloat16) else LayerNorm
         )
 
         text = TextTransformer(
@@ -171,12 +168,12 @@ def _build_text_tower(
 
 class CustomTextCLIP(_CustomTextCLIP):
     def __init__(
-            self,
-            embed_dim: int,
-            vision_cfg: CLIPVisionCfg,
-            text_cfg: CLIPTextCfg,
-            quick_gelu: bool = False,
-            dtype: Optional[torch.dtype] = torch.float32,
+        self,
+        embed_dim: int,
+        vision_cfg: CLIPVisionCfg,
+        text_cfg: CLIPTextCfg,
+        quick_gelu: bool = False,
+        dtype: Optional[torch.dtype] = torch.float32,
     ):
         super().__init__(embed_dim, vision_cfg, text_cfg, quick_gelu, dtype)
         self.visual = _build_vision_tower(embed_dim, vision_cfg, quick_gelu, dtype)
@@ -185,12 +182,12 @@ class CustomTextCLIP(_CustomTextCLIP):
 
 class CLIP(_CLIP):
     def __init__(
-            self,
-            embed_dim: int,
-            vision_cfg: CLIPVisionCfg,
-            text_cfg: CLIPTextCfg,
-            quick_gelu: bool = False,
-            dtype: Optional[torch.dtype] = torch.float32,
+        self,
+        embed_dim: int,
+        vision_cfg: CLIPVisionCfg,
+        text_cfg: CLIPTextCfg,
+        quick_gelu: bool = False,
+        dtype: Optional[torch.dtype] = torch.float32,
     ):
         super().__init__(embed_dim, vision_cfg, text_cfg, quick_gelu, dtype)
         self.visual = _build_vision_tower(embed_dim, vision_cfg, quick_gelu, dtype)
@@ -206,6 +203,7 @@ class CLIP(_CLIP):
 
 def convert_weights_to_lp(model: nn.Module, dtype=torch.float16):
     """Convert applicable model parameters to low-precision (bf16 or fp16)"""
+
     def _convert_weights(l):
         if isinstance(l, (nn.Conv1d, nn.Conv2d, nn.Linear)):
             l.weight.data = l.weight.data.to(dtype)
@@ -359,7 +357,9 @@ def load_openai_model(
         A torchvision transform that converts a PIL image into a tensor that the returned model can take as its input
     """
     if dtype is None:
-        dtype = torch.float32 if device in ('cpu', torch.device('cpu')) else torch.float16
+        dtype = (
+            torch.float32 if device in ('cpu', torch.device('cpu')) else torch.float16
+        )
     try:
         # loading JIT archive
         model = torch.jit.load(model_path, map_location=device if jit else "cpu").eval()
@@ -470,7 +470,9 @@ def load_openclip_model(
     pretrained_image: bool = False,
 ):
     if dtype is None:
-        dtype = torch.float32 if device in ('cpu', torch.device('cpu')) else torch.float16
+        dtype = (
+            torch.float32 if device in ('cpu', torch.device('cpu')) else torch.float16
+        )
 
     model_name = model_name.replace(
         '/', '-'
@@ -510,9 +512,7 @@ def load_openclip_model(
     model.to(device=device)
 
     if dtype in (torch.float16, torch.bfloat16):
-        convert_weights_to_lp(
-            model, dtype=dtype
-        )
+        convert_weights_to_lp(model, dtype=dtype)
 
     if jit:
         model = torch.jit.script(model)
