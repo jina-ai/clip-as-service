@@ -23,20 +23,14 @@ from open_clip.transformer import QuickGELU, LayerNorm, LayerNormFp32, Attention
 from open_clip.timm_model import TimmModel
 from open_clip.factory import _MODEL_CONFIGS
 from open_clip.hf_model import PreTrainedTextEncoder
-from open_clip.modified_resnet import ModifiedResNet
+from open_clip.modified_resnet import ModifiedResNet as _ModifiedResNet
 
 
-class CasModifiedResNet(ModifiedResNet):
+class ModifiedResNet(_ModifiedResNet):
     def forward(self, x):
         # To handle fp16 inference
         x = x.type(self.conv1.weight.dtype)
-        x = self.stem(x)
-        x = self.layer1(x)
-        x = self.layer2(x)
-        x = self.layer3(x)
-        x = self.layer4(x)
-        x = self.attnpool(x)
-        return x
+        return super().forward(x)
 
 
 @dataclass
@@ -77,13 +71,13 @@ class CLIPTextCfg:
     pooler_type: str = 'mean_pooler'
 
 
-def get_cast_dtype(precision: str):
+def get_cast_dtype(dtype: str):
     cast_dtype = None
-    if precision == 'bf16':
+    if dtype == 'bf16':
         cast_dtype = torch.bfloat16
-    elif precision == 'fp16':
+    elif dtype == 'fp16':
         cast_dtype = torch.float16
-    elif precision == 'fp32':
+    elif dtype == 'fp32':
         cast_dtype = torch.float32
     return cast_dtype
 
@@ -117,7 +111,7 @@ def _build_vision_tower(
         )  # so that text transformer doesn't use QuickGELU w/ timm models
     elif isinstance(vision_cfg.layers, (tuple, list)):
         vision_heads = vision_cfg.width * 32 // vision_cfg.head_width
-        visual = CasModifiedResNet(
+        visual = ModifiedResNet(
             layers=vision_cfg.layers,
             output_dim=embed_dim,
             heads=vision_heads,
@@ -417,7 +411,7 @@ def build_model_from_openai_state_dict(
 def load_openai_model(
     model_path: str,
     device: Union[str, torch.device] = 'cuda' if torch.cuda.is_available() else 'cpu',
-    precision: str = None,
+    dtype: str = None,
     jit=True,
 ):
     """Load a CLIP model
@@ -426,7 +420,7 @@ def load_openai_model(
     ----------
     model_path : str
         The path to a model checkpoint containing the state_dict
-    precision: str
+    dtype: str
         Model precision, if None defaults to 'fp32' if device == 'cpu' else 'fp16'.
     device : Union[str, torch.device]
         The device to put the loaded model
@@ -439,8 +433,8 @@ def load_openai_model(
     preprocess : Callable[[PIL.Image], torch.Tensor]
         A torchvision transform that converts a PIL image into a tensor that the returned model can take as its input
     """
-    if precision is None:
-        precision = 'fp32' if device in ('cpu', torch.device('cpu')) else 'fp16'
+    if dtype is None:
+        dtype = 'fp32' if device in ('cpu', torch.device('cpu')) else 'fp16'
     try:
         # loading JIT archive
         model = torch.jit.load(model_path, map_location=device if jit else "cpu").eval()
@@ -456,7 +450,7 @@ def load_openai_model(
 
     if not jit:
         # Build a non-jit model from the OpenAI jitted model state dict
-        cast_dtype = get_cast_dtype(precision)
+        cast_dtype = get_cast_dtype(dtype)
         try:
             model = build_model_from_openai_state_dict(
                 state_dict or model.state_dict(), cast_dtype=cast_dtype
@@ -467,9 +461,9 @@ def load_openai_model(
 
         # model from OpenAI state dict is in manually cast fp16 mode, must be converted for AMP/fp32/bf16 use
         model = model.to(device)
-        if precision.startswith('amp') or precision == 'fp32':
+        if dtype.startswith('amp') or dtype == 'fp32':
             model.float()
-        elif precision == 'bf16':
+        elif dtype == 'bf16':
             convert_weights_to_lp(model, dtype=torch.bfloat16)
 
         return model
@@ -505,7 +499,7 @@ def load_openai_model(
     patch_device(model.encode_text)
 
     # patch dtype to float32 (typically for CPU)
-    if precision == 'fp32':
+    if dtype == 'fp32':
         float_holder = torch.jit.trace(
             lambda: torch.ones([]).float(), example_inputs=[]
         )
@@ -544,15 +538,15 @@ def load_openai_model(
 def load_openclip_model(
     model_name: str,
     model_path: str,
-    device: Union[str, torch.device] = 'cpu',
+    device: Optional(Union[str, torch.device]) = 'cpu',
     jit: bool = False,
-    precision: str = None,
+    dtype: str = None,
     force_quick_gelu: bool = False,
     force_custom_text: bool = False,
     pretrained_image: bool = False,
 ):
-    if precision is None:
-        precision = 'fp32' if device in ('cpu', torch.device('cpu')) else 'fp16'
+    if dtype is None:
+        dtype = 'fp32' if device in ('cpu', torch.device('cpu')) else 'fp16'
     model_name = model_name.replace(
         '/', '-'
     )  # for callers using old naming with / in ViT names
@@ -575,7 +569,7 @@ def load_openclip_model(
                 False
             ), 'pretrained image towers currently only supported for timm models'
 
-    cast_dtype = get_cast_dtype(precision)
+    cast_dtype = get_cast_dtype(dtype)
     custom_text = (
         model_cfg.pop('custom_text', False)
         or force_custom_text
@@ -591,9 +585,9 @@ def load_openclip_model(
     model.load_state_dict(load_state_dict(model_path))
     model.to(device=device)
 
-    if precision in ("fp16", "bf16"):
+    if dtype in ("fp16", "bf16"):
         convert_weights_to_lp(
-            model, dtype=torch.bfloat16 if precision == 'bf16' else torch.float16
+            model, dtype=torch.bfloat16 if dtype == 'bf16' else torch.float16
         )
 
     if jit:
