@@ -247,7 +247,7 @@ def load_state_dict(checkpoint_path: str, map_location='cpu'):
 def build_model_from_openai_state_dict(
     state_dict: dict,
     quick_gelu=True,
-    dtype=torch.float32,
+    dtype=torch.float16,
 ):
     vit = "visual.proj" in state_dict
 
@@ -423,7 +423,7 @@ def load_openai_model(
     patch_device(model.encode_text)
 
     # patch dtype to float32 (typically for CPU)
-    if dtype == 'fp32':
+    if dtype == torch.float32:
         float_holder = torch.jit.trace(
             lambda: torch.ones([]).float(), example_inputs=[]
         )
