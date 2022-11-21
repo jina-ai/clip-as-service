@@ -9,17 +9,12 @@ Ludwig Schmidt
 """
 
 import warnings
+import torch
+from torch import nn
 from typing import Callable
 from dataclasses import dataclass
 from typing import Tuple, Union, Optional
 from copy import deepcopy
-
-import torch
-from torch import nn
-
-# import torch.nn.functional as F
-
-# from clip_server.model.transformer import TextTransformer, VisionTransformer
 from open_clip.transformer import QuickGELU, LayerNorm, LayerNormFp32, Attention
 from open_clip.timm_model import TimmModel
 from open_clip.factory import _MODEL_CONFIGS
@@ -57,8 +52,6 @@ class ResidualAttentionBlock(_ResidualAttentionBlock):
         ls_init_value: float = None,
         act_layer: Callable = nn.GELU,
         norm_layer: Callable = LayerNorm,
-        # scale_attn: bool = False,
-        # scale_fc: bool = False,
         dtype=torch.float32,
     ):
         super().__init__(
