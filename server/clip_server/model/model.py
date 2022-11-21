@@ -69,8 +69,15 @@ class Transformer(_Transformer):
 
 
 class VisionTransformer(_VisionTransformer):
-    def __init__(self, dtype: torch.dtype = torch.float32, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(
+        self,
+        image_size: int,
+        patch_size: int,
+        output_dim: int,
+        dtype: torch.dtype = torch.float32,
+        **kwargs,
+    ):
+        super().__init__(image_size, patch_size, output_dim=output_dim, **kwargs)
         self.transformer = Transformer(dtype=dtype, **kwargs)
 
 
