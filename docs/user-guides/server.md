@@ -67,37 +67,40 @@ Please also note that **different models give different sizes of output dimensio
 
 For more details about the models and how to select the best model for your application, please refer to the [CLIP benchmark page](benchmark.rst).
 
-| Model                                 | PyTorch | ONNX | TensorRT | Output Dimension |
-| ------------------------------------- | ------- | ---- | -------- | ---------------- |
-| RN50::openai                          | ✅       | ✅    | ✅        | 1024             |
-| RN50::yfcc15m                         | ✅       | ✅    | ✅        | 1024             |
-| RN50::cc12m                           | ✅       | ✅    | ✅        | 1024             |
-| RN101::openai                         | ✅       | ✅    | ✅        | 512              |
-| RN101::yfcc15m                        | ✅       | ✅    | ✅        | 512              |
-| RN50x4::openai                        | ✅       | ✅    | ✅        | 640              |
-| RN50x16::openai                       | ✅       | ✅    | ❌        | 768              |
-| RN50x64::openai                       | ✅       | ✅    | ❌        | 1024             |
-| ViT-B-32::openai                      | ✅       | ✅    | ✅        | 512              |
-| ViT-B-32::laion2b_e16                 | ✅       | ✅    | ✅        | 512              |
-| ViT-B-32::laion400m_e31               | ✅       | ✅    | ✅        | 512              |
-| ViT-B-32::laion400m_e32               | ✅       | ✅    | ✅        | 512              |
-| ViT-B-32::laion2b-s34b-b79k           | ✅       | ✅    | ❌        | 512              |
-| ViT-B-16::openai                      | ✅       | ✅    | ✅        | 512              |
-| ViT-B-16::laion400m_e31               | ✅       | ✅    | ✅        | 512              |
-| ViT-B-16::laion400m_e32               | ✅       | ✅    | ✅        | 512              |
-| ViT-B-16-plus-240::laion400m_e31      | ✅       | ✅    | 🚧        | 640              |
-| ViT-B-16-plus-240::laion400m_e32      | ✅       | ✅    | 🚧        | 640              |
-| ViT-L-14::openai                      | ✅       | ✅    | ❌        | 768              |
-| ViT-L-14::laion400m_e31               | ✅       | ✅    | ❌        | 768              |
-| ViT-L-14::laion400m_e32               | ✅       | ✅    | ❌        | 768              |
-| ViT-L-14::laion2b-s32b-b82k           | ✅       | ✅    | ❌        | 768              |
-| ViT-L-14-336::openai                  | ✅       | ✅    | ❌        | 768              |
-| ViT-H-14::laion2b-s32b-b79k           | ✅       | ✅    | ❌        | 1024             |
-| ViT-g-14::laion2b-s12b-b42k           | ✅       | ✅    | ❌        | 1024             |
-| M-CLIP/LABSE-Vit-L-14                 | ✅       | ✅    | ❌        | 768              |
-| M-CLIP/XLM-Roberta-Large-Vit-B-32     | ✅       | ✅    | 🚧        | 512              |
-| M-CLIP/XLM-Roberta-Large-Vit-B-16Plus | ✅       | ✅    | 🚧        | 640              |
-| M-CLIP/XLM-Roberta-Large-Vit-L-14     | ✅       | ✅    | ❌        | 768              |
+| Model                                                | PyTorch | ONNX | TensorRT | Output Dimension |
+|------------------------------------------------------|---------|------|----------|------------------|
+| RN50::openai                                         | ✅       | ✅    | ✅        | 1024             |
+| RN50::yfcc15m                                        | ✅       | ✅    | ✅        | 1024             |
+| RN50::cc12m                                          | ✅       | ✅    | ✅        | 1024             |
+| RN101::openai                                        | ✅       | ✅    | ✅        | 512              |
+| RN101::yfcc15m                                       | ✅       | ✅    | ✅        | 512              |
+| RN50x4::openai                                       | ✅       | ✅    | ✅        | 640              |
+| RN50x16::openai                                      | ✅       | ✅    | ❌        | 768              |
+| RN50x64::openai                                      | ✅       | ✅    | ❌        | 1024             |
+| ViT-B-32::openai                                     | ✅       | ✅    | ✅        | 512              |
+| ViT-B-32::laion2b_e16                                | ✅       | ✅    | ✅        | 512              |
+| ViT-B-32::laion400m_e31                              | ✅       | ✅    | ✅        | 512              |
+| ViT-B-32::laion400m_e32                              | ✅       | ✅    | ✅        | 512              |
+| ViT-B-32::laion2b-s34b-b79k                          | ✅       | ✅    | ❌        | 512              |
+| ViT-B-16::openai                                     | ✅       | ✅    | ✅        | 512              |
+| ViT-B-16::laion400m_e31                              | ✅       | ✅    | ✅        | 512              |
+| ViT-B-16::laion400m_e32                              | ✅       | ✅    | ✅        | 512              |
+| ViT-B-16-plus-240::laion400m_e31                     | ✅       | ✅    | 🚧       | 640              |
+| ViT-B-16-plus-240::laion400m_e32                     | ✅       | ✅    | 🚧       | 640              |
+| ViT-L-14::openai                                     | ✅       | ✅    | ❌        | 768              |
+| ViT-L-14::laion400m_e31                              | ✅       | ✅    | ❌        | 768              |
+| ViT-L-14::laion400m_e32                              | ✅       | ✅    | ❌        | 768              |
+| ViT-L-14::laion2b-s32b-b82k                          | ✅       | ✅    | ❌        | 768              |
+| ViT-L-14-336::openai                                 | ✅       | ✅    | ❌        | 768              |
+| ViT-H-14::laion2b-s32b-b79k                          | ✅       | ✅    | ❌        | 1024             |
+| ViT-g-14::laion2b-s12b-b42k                          | ✅       | ✅    | ❌        | 1024             |
+| roberta-ViT-B-32::laion2b-s12b-b32k                  | ✅       | 🚧   | ❌        |                  |
+| xlm-roberta-base-ViT-B-32::laion5b-s13b-b90k         | ✅       | 🚧   | ❌        |                  |
+| xlm-roberta-large-ViT-H-14::frozen_laion5b_s13b_b90k | ✅       | 🚧   | ❌        |                  |
+| M-CLIP/LABSE-Vit-L-14                                | ✅       | ✅    | ❌        | 768              |
+| M-CLIP/XLM-Roberta-Large-Vit-B-32                    | ✅       | ✅    | 🚧       | 512              |
+| M-CLIP/XLM-Roberta-Large-Vit-B-16Plus                | ✅       | ✅    | 🚧       | 640              |
+| M-CLIP/XLM-Roberta-Large-Vit-L-14                    | ✅       | ✅    | ❌        | 768              |
 
 ✅ = Supported — 🚧 = Working in progress — ❌ = Not supported
 
