@@ -44,19 +44,19 @@ class ModifiedResNet(_ModifiedResNet):
 
 class ResidualAttentionBlock(_ResidualAttentionBlock):
     def __init__(
-        self, d_model: int, n_head: int, dtype: torch.dtype = torch.float32, **kwargs
+        self, width: int, heads: int, dtype: torch.dtype = torch.float32, **kwargs
     ):
-        super().__init__(d_model, n_head, **kwargs)
-        head_dim = d_model // n_head
+        super().__init__(width, heads, **kwargs)
+        head_dim = width // heads
         flash_attention = head_dim % 8 == 0 and head_dim <= 128
 
         self.attn = (
-            MultiheadAttention(d_model, n_head)
+            MultiheadAttention(width, heads)
             if FLASH_ATTENTION_AVAILABLE
             and torch.cuda.is_available()
             and dtype in (torch.float16, torch.bfloat16)
             and flash_attention
-            else nn.MultiheadAttention(d_model, n_head)
+            else nn.MultiheadAttention(width, heads)
         )
 
 
