@@ -260,8 +260,16 @@ class CLIP(_CLIP):
         dtype: Optional[torch.dtype] = torch.float32,
     ):
         nn.Module.__init__(self)
-        self.visual = _build_vision_tower(embed_dim=embed_dim, vision_cfg=vision_cfg, quick_gelu=quick_gelu, dtype=dtype)
-        text = _build_text_tower(embed_dim=embed_dim, text_cfg=text_cfg, quick_gelu=quick_gelu, dtype=dtype)
+
+        self.visual = _build_vision_tower(
+            embed_dim=embed_dim,
+            vision_cfg=vision_cfg,
+            quick_gelu=quick_gelu,
+            dtype=dtype,
+        )
+        text = _build_text_tower(
+            embed_dim=embed_dim, text_cfg=text_cfg, quick_gelu=quick_gelu, dtype=dtype
+        )
         self.transformer = text.transformer
         self.vocab_size = text.vocab_size
         self.token_embedding = text.token_embedding
