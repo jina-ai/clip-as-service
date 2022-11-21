@@ -71,12 +71,16 @@ _OPENCLIP_MODELS = {
         '3bf99353f6f1829faac0bb155be4382a',
     ),
     'roberta-ViT-B-32::laion2b-s12b-b32k': (
-        'ViT-B-32-laion2b-s12b-b32k.bin',
+        'roberta-ViT-B-32-laion2b-s12b-b32k.bin',
         '76d4c9d13774cc15fa0e2b1b94a8402c',
     ),
     'xlm-roberta-base-ViT-B-32::laion5b-s13b-b90k': (
-        'ViT-B-32::laion5b-s13b-b90k.bin',
+        'xlm-roberta-base-ViT-B-32-laion5b-s13b-b90k.bin',
         'f68abc07ef349720f1f880180803142d',
+    ),
+    'xlm-roberta-large-ViT-H-14::frozen_laion5b_s13b_b90k': (
+        'xlm-roberta-large-ViT-H-14-frozen_laion5b_s13b_b90k.bin',
+        'b49991239a419d704fdba59c42d5536d',
     ),
     # older version name format
     'RN50': ('RN50.pt', '9140964eaaf9f68c95aa8df6ca13777c'),
@@ -104,12 +108,15 @@ _VISUAL_MODEL_IMAGE_SIZE = {
     'RN50x16': 384,
     'RN50x64': 448,
     'ViT-B-32': 224,
+    'roberta-ViT-B-32': 224,
+    'xlm-roberta-base-ViT-B-32': 224,
     'ViT-B-16': 224,
     'Vit-B-16Plus': 240,
     'ViT-B-16-plus-240': 240,
     'ViT-L-14': 224,
     'ViT-L-14-336': 336,
     'ViT-H-14': 224,
+    'xlm-roberta-large-ViT-H-14': 224,
     'ViT-g-14': 224,
 }
 

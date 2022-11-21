@@ -11,7 +11,6 @@ Ludwig Schmidt
 import warnings
 import torch
 from torch import nn
-from typing import Callable
 from dataclasses import dataclass
 from typing import Tuple, Union, Optional
 from copy import deepcopy
@@ -45,18 +44,9 @@ class ModifiedResNet(_ModifiedResNet):
 
 class ResidualAttentionBlock(_ResidualAttentionBlock):
     def __init__(
-        self,
-        d_model: int,
-        n_head: int,
-        mlp_ratio: float = 4.0,
-        ls_init_value: float = None,
-        act_layer: Callable = nn.GELU,
-        norm_layer: Callable = LayerNorm,
-        dtype: torch.dtype = torch.float32,
+        self, d_model: int, n_head: int, dtype: torch.dtype = torch.float32, **kwargs
     ):
-        super().__init__(
-            d_model, n_head, mlp_ratio, ls_init_value, act_layer, norm_layer
-        )
+        super().__init__(d_model, n_head, **kwargs)
         head_dim = d_model // n_head
         flash_attention = head_dim % 8 == 0 and head_dim <= 128
 
@@ -71,111 +61,23 @@ class ResidualAttentionBlock(_ResidualAttentionBlock):
 
 
 class Transformer(_Transformer):
-    def __init__(
-        self,
-        width: int,
-        layers: int,
-        heads: int,
-        mlp_ratio: float = 4.0,
-        ls_init_value: float = None,
-        act_layer: Callable = nn.GELU,
-        norm_layer: Callable = LayerNorm,
-        dtype: torch.dtype = torch.float32,
-    ):
-        super().__init__(
-            width, layers, heads, mlp_ratio, ls_init_value, act_layer, norm_layer
-        )
-
+    def __init__(self, layers: int, dtype: torch.dtype = torch.float32, **kwargs):
+        super().__init__(layers=layers, **kwargs)
         self.resblocks = nn.ModuleList(
-            [
-                ResidualAttentionBlock(
-                    width,
-                    heads,
-                    mlp_ratio,
-                    ls_init_value=ls_init_value,
-                    act_layer=act_layer,
-                    norm_layer=norm_layer,
-                    dtype=dtype,
-                )
-                for _ in range(layers)
-            ]
+            [ResidualAttentionBlock(dtype=dtype, **kwargs) for _ in range(layers)]
         )
 
 
 class VisionTransformer(_VisionTransformer):
-    def __init__(
-        self,
-        image_size: int,
-        patch_size: int,
-        width: int,
-        layers: int,
-        heads: int,
-        mlp_ratio: float,
-        ls_init_value: float = None,
-        output_dim: int = 512,
-        act_layer: Callable = nn.GELU,
-        norm_layer: Callable = LayerNorm,
-        dtype: torch.dtype = torch.float32,
-    ):
-        super().__init__(
-            image_size,
-            patch_size,
-            width,
-            layers,
-            heads,
-            mlp_ratio,
-            ls_init_value,
-            output_dim,
-            act_layer,
-            norm_layer,
-        )
-        self.transformer = Transformer(
-            width,
-            layers,
-            heads,
-            mlp_ratio,
-            ls_init_value=ls_init_value,
-            act_layer=act_layer,
-            norm_layer=norm_layer,
-            dtype=dtype,
-        )
+    def __init__(self, dtype: torch.dtype = torch.float32, **kwargs):
+        super().__init__(**kwargs)
+        self.transformer = Transformer(dtype=dtype, **kwargs)
 
 
 class TextTransformer(_TextTransformer):
-    def __init__(
-        self,
-        context_length: int = 77,
-        vocab_size: int = 49408,
-        width: int = 512,
-        heads: int = 8,
-        layers: int = 12,
-        ls_init_value: float = None,
-        output_dim: int = 512,
-        act_layer: Callable = nn.GELU,
-        norm_layer: Callable = LayerNorm,
-        dtype: torch.dtype = torch.float32,
-    ):
-        super().__init__(
-            context_length,
-            vocab_size,
-            width,
-            heads,
-            layers,
-            ls_init_value,
-            output_dim,
-            act_layer,
-            norm_layer,
-        )
-
-        self.transformer = Transformer(
-            width=width,
-            layers=layers,
-            heads=heads,
-            ls_init_value=ls_init_value,
-            act_layer=act_layer,
-            norm_layer=norm_layer,
-            dtype=dtype,
-        )
+    def __init__(self, dtype: torch.dtype = torch.float32, **kwargs):
+        super().__init__(**kwargs)
+        self.transformer = Transformer(dtype=dtype, **kwargs)
         self.init_parameters()
 
 
@@ -233,7 +135,7 @@ def _build_vision_tower(
 
     if vision_cfg.timm_model_name:
         visual = TimmModel(
-            vision_cfg.timm_model_name,
+            model_name=vision_cfg.timm_model_name,
             pretrained=vision_cfg.timm_model_pretrained,
             pool=vision_cfg.timm_pool,
             proj=vision_cfg.timm_proj,
@@ -320,8 +222,15 @@ class CustomTextCLIP(_CustomTextCLIP):
         dtype: Optional[torch.dtype] = torch.float32,
     ):
         super().__init__(embed_dim, vision_cfg, text_cfg, quick_gelu, dtype)
-        self.visual = _build_vision_tower(embed_dim, vision_cfg, quick_gelu, dtype)
-        self.text = _build_text_tower(embed_dim, text_cfg, quick_gelu, dtype)
+        self.visual = _build_vision_tower(
+            embed_dim=embed_dim,
+            vision_cfg=vision_cfg,
+            quick_gelu=quick_gelu,
+            dtype=dtype,
+        )
+        self.text = _build_text_tower(
+            embed_dim=embed_dim, text_cfg=text_cfg, quick_gelu=quick_gelu, dtype=dtype
+        )
 
 
 class CLIP(_CLIP):
@@ -333,9 +242,15 @@ class CLIP(_CLIP):
         quick_gelu: bool = False,
         dtype: Optional[torch.dtype] = torch.float32,
     ):
-        super().__init__(embed_dim, vision_cfg, text_cfg, quick_gelu, dtype)
-        self.visual = _build_vision_tower(embed_dim, vision_cfg, quick_gelu, dtype)
-        text = _build_text_tower(embed_dim, text_cfg, quick_gelu, dtype)
+        self.visual = _build_vision_tower(
+            embed_dim=embed_dim,
+            vision_cfg=vision_cfg,
+            quick_gelu=quick_gelu,
+            dtype=dtype,
+        )
+        text = _build_text_tower(
+            embed_dim=embed_dim, text_cfg=text_cfg, quick_gelu=quick_gelu, dtype=dtype
+        )
         self.transformer = text.transformer
         self.vocab_size = text.vocab_size
         self.token_embedding = text.token_embedding
@@ -390,7 +305,7 @@ def load_state_dict(checkpoint_path: str, map_location='cpu'):
 
 def build_model_from_openai_state_dict(
     state_dict: dict,
-    quick_gelu=True,
+    quick_gelu: bool = False,
     dtype: torch.dtype = torch.float16,
 ):
     vit = "visual.proj" in state_dict
@@ -459,7 +374,7 @@ def build_model_from_openai_state_dict(
         layers=transformer_layers,
     )
     model = CLIP(
-        embed_dim,
+        embed_dim=embed_dim,
         vision_cfg=vision_cfg,
         text_cfg=text_cfg,
         quick_gelu=quick_gelu,  # OpenAI models were trained with QuickGELU
@@ -479,7 +394,7 @@ def load_openai_model(
     model_path: str,
     device: Union[str, torch.device] = 'cuda' if torch.cuda.is_available() else 'cpu',
     dtype: Optional[Union[str, torch.dtype]] = None,
-    jit=True,
+    jit: bool = True,
 ):
     """Load a CLIP model
 
@@ -608,10 +523,10 @@ def load_openclip_model(
     model_path: str,
     device: Union[str, torch.device] = 'cpu',
     jit: bool = False,
-    dtype: Optional[Union[str, torch.dtype]] = None,
     force_quick_gelu: bool = False,
     force_custom_text: bool = False,
     pretrained_image: bool = False,
+    dtype: Optional[Union[str, torch.dtype]] = None,
 ):
     if dtype is None:
         dtype = (

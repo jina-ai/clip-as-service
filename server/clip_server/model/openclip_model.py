@@ -36,11 +36,11 @@ class OpenCLIPModel(CLIPModel):
 
         if pretrained == 'openai':
             self._model = load_openai_model(
-                model_path, device=device, jit=jit, dtype=dtype
+                model_path=model_path, device=device, jit=jit, dtype=dtype
             )
         else:
             self._model = load_openclip_model(
-                self._model_name,
+                model_name=self._model_name,
                 model_path=model_path,
                 device=device,
                 jit=jit,

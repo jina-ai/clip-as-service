@@ -10,7 +10,7 @@ from clip_server.model.mclip_model import MultilingualCLIPModel
     [
         ('ViT-L/14@336px', OpenCLIPModel),
         ('RN50::openai', OpenCLIPModel),
-        # ('roberta-ViT-B-32::laion2b-s12b-b32k', OpenCLIPModel),
+        ('xlm-roberta-large-ViT-H-14::frozen_laion5b_s13b_b90k', OpenCLIPModel),
         ('M-CLIP/LABSE-Vit-L-14', MultilingualCLIPModel),
     ],
 )
