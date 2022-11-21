@@ -9,23 +9,36 @@ Ludwig Schmidt
 """
 
 import warnings
-import numpy as np
+from typing import Callable
 from dataclasses import dataclass
 from typing import Tuple, Union, Optional
 from copy import deepcopy
 
 import torch
 from torch import nn
-import torch.nn.functional as F
 
-from clip_server.model.transformer import TextTransformer, VisionTransformer
+# import torch.nn.functional as F
+
+# from clip_server.model.transformer import TextTransformer, VisionTransformer
 from open_clip.transformer import QuickGELU, LayerNorm, LayerNormFp32, Attention
 from open_clip.timm_model import TimmModel
 from open_clip.factory import _MODEL_CONFIGS
 from open_clip.hf_model import PreTrainedTextEncoder
+from open_clip.transformer import ResidualAttentionBlock as _ResidualAttentionBlock
+from open_clip.transformer import Transformer as _Transformer
+from open_clip.transformer import VisionTransformer as _VisionTransformer
+from open_clip.transformer import TextTransformer as _TextTransformer
 from open_clip.modified_resnet import ModifiedResNet as _ModifiedResNet
 from open_clip.model import CustomTextCLIP as _CustomTextCLIP
 from open_clip.model import CLIP as _CLIP
+
+# Use flash attention
+try:
+    from clip_server.model.flash_attention import MultiheadAttention
+
+    FLASH_ATTENTION_AVAILABLE = True
+except:
+    FLASH_ATTENTION_AVAILABLE = False
 
 
 class ModifiedResNet(_ModifiedResNet):
@@ -33,6 +46,144 @@ class ModifiedResNet(_ModifiedResNet):
         # To handle fp16 inference
         x = x.type(self.conv1.weight.dtype)
         return super().forward(x)
+
+
+class ResidualAttentionBlock(_ResidualAttentionBlock):
+    def __init__(
+        self,
+        d_model: int,
+        n_head: int,
+        mlp_ratio: float = 4.0,
+        ls_init_value: float = None,
+        act_layer: Callable = nn.GELU,
+        norm_layer: Callable = LayerNorm,
+        # scale_attn: bool = False,
+        # scale_fc: bool = False,
+        dtype=torch.float32,
+    ):
+        super().__init__(
+            d_model, n_head, mlp_ratio, ls_init_value, act_layer, norm_layer
+        )
+        head_dim = d_model // n_head
+        flash_attention = head_dim % 8 == 0 and head_dim <= 128
+
+        self.attn = (
+            MultiheadAttention(d_model, n_head)
+            if FLASH_ATTENTION_AVAILABLE
+            and torch.cuda.is_available()
+            and dtype in (torch.float16, torch.bfloat16)
+            and flash_attention
+            else nn.MultiheadAttention(d_model, n_head)
+        )
+
+
+class Transformer(_Transformer):
+    def __init__(
+        self,
+        width: int,
+        layers: int,
+        heads: int,
+        mlp_ratio: float = 4.0,
+        ls_init_value: float = None,
+        act_layer: Callable = nn.GELU,
+        norm_layer: Callable = LayerNorm,
+        dtype=torch.float32,
+    ):
+        super().__init__(
+            width, layers, heads, mlp_ratio, ls_init_value, act_layer, norm_layer
+        )
+
+        self.resblocks = nn.ModuleList(
+            [
+                ResidualAttentionBlock(
+                    width,
+                    heads,
+                    mlp_ratio,
+                    ls_init_value=ls_init_value,
+                    act_layer=act_layer,
+                    norm_layer=norm_layer,
+                    dtype=dtype,
+                )
+                for _ in range(layers)
+            ]
+        )
+
+
+class VisionTransformer(_VisionTransformer):
+    def __init__(
+        self,
+        image_size: int,
+        patch_size: int,
+        width: int,
+        layers: int,
+        heads: int,
+        mlp_ratio: float,
+        ls_init_value: float = None,
+        output_dim: int = 512,
+        act_layer: Callable = nn.GELU,
+        norm_layer: Callable = LayerNorm,
+        dtype=torch.float32,
+    ):
+        super().__init__(
+            image_size,
+            patch_size,
+            width,
+            layers,
+            heads,
+            mlp_ratio,
+            ls_init_value,
+            output_dim,
+            act_layer,
+            norm_layer,
+        )
+        self.transformer = Transformer(
+            width,
+            layers,
+            heads,
+            mlp_ratio,
+            ls_init_value=ls_init_value,
+            act_layer=act_layer,
+            norm_layer=norm_layer,
+            dtype=dtype,
+        )
+
+
+class TextTransformer(_TextTransformer):
+    def __init__(
+        self,
+        context_length: int = 77,
+        vocab_size: int = 49408,
+        width: int = 512,
+        heads: int = 8,
+        layers: int = 12,
+        ls_init_value: float = None,
+        output_dim: int = 512,
+        act_layer: Callable = nn.GELU,
+        norm_layer: Callable = LayerNorm,
+        dtype=torch.float32,
+    ):
+        super().__init__(
+            context_length,
+            vocab_size,
+            width,
+            heads,
+            layers,
+            ls_init_value,
+            output_dim,
+            act_layer,
+            norm_layer,
+        )
+
+        self.transformer = Transformer(
+            width=width,
+            layers=layers,
+            heads=heads,
+            ls_init_value=ls_init_value,
+            act_layer=act_layer,
+            norm_layer=norm_layer,
+            dtype=dtype,
+        )
+        self.init_parameters()
 
 
 @dataclass
