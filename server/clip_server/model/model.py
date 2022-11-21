@@ -10,6 +10,7 @@ Ludwig Schmidt
 
 import warnings
 import torch
+import numpy as np
 from torch import nn
 from dataclasses import dataclass
 from typing import Tuple, Union, Optional
@@ -181,6 +182,7 @@ def _build_vision_tower(
             layers=vision_cfg.layers,
             heads=vision_heads,
             mlp_ratio=vision_cfg.mlp_ratio,
+            ls_init_value=vision_cfg.ls_init_value,
             output_dim=embed_dim,
             act_layer=act_layer,
             norm_layer=norm_layer,
@@ -218,6 +220,7 @@ def _build_text_tower(
             width=text_cfg.width,
             heads=text_cfg.heads,
             layers=text_cfg.layers,
+            ls_init_value=text_cfg.ls_init_value,
             output_dim=embed_dim,
             act_layer=act_layer,
             norm_layer=norm_layer,
@@ -256,7 +259,17 @@ class CLIP(_CLIP):
         quick_gelu: bool = False,
         dtype: Optional[torch.dtype] = torch.float32,
     ):
-        super().__init__(embed_dim, vision_cfg, text_cfg, quick_gelu, dtype)
+        nn.Module.__init__(self)
+        self.visual = _build_vision_tower(embed_dim=embed_dim, vision_cfg=vision_cfg, quick_gelu=quick_gelu, dtype=dtype)
+        text = _build_text_tower(embed_dim=embed_dim, text_cfg=text_cfg, quick_gelu=quick_gelu, dtype=dtype)
+        self.transformer = text.transformer
+        self.vocab_size = text.vocab_size
+        self.token_embedding = text.token_embedding
+        self.positional_embedding = text.positional_embedding
+        self.ln_final = text.ln_final
+        self.text_projection = text.text_projection
+        self.register_buffer('attn_mask', text.attn_mask, persistent=False)
+        self.logit_scale = nn.Parameter(torch.ones([]) * np.log(1 / 0.07))
 
 
 def convert_weights_to_lp(model: nn.Module, dtype=torch.float16):
