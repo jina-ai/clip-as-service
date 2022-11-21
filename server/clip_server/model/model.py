@@ -52,7 +52,7 @@ class ResidualAttentionBlock(_ResidualAttentionBlock):
         ls_init_value: float = None,
         act_layer: Callable = nn.GELU,
         norm_layer: Callable = LayerNorm,
-        dtype=torch.float32,
+        dtype: torch.dtype = torch.float32,
     ):
         super().__init__(
             d_model, n_head, mlp_ratio, ls_init_value, act_layer, norm_layer
@@ -80,7 +80,7 @@ class Transformer(_Transformer):
         ls_init_value: float = None,
         act_layer: Callable = nn.GELU,
         norm_layer: Callable = LayerNorm,
-        dtype=torch.float32,
+        dtype: torch.dtype = torch.float32,
     ):
         super().__init__(
             width, layers, heads, mlp_ratio, ls_init_value, act_layer, norm_layer
@@ -115,7 +115,7 @@ class VisionTransformer(_VisionTransformer):
         output_dim: int = 512,
         act_layer: Callable = nn.GELU,
         norm_layer: Callable = LayerNorm,
-        dtype=torch.float32,
+        dtype: torch.dtype = torch.float32,
     ):
         super().__init__(
             image_size,
@@ -153,7 +153,7 @@ class TextTransformer(_TextTransformer):
         output_dim: int = 512,
         act_layer: Callable = nn.GELU,
         norm_layer: Callable = LayerNorm,
-        dtype=torch.float32,
+        dtype: torch.dtype = torch.float32,
     ):
         super().__init__(
             context_length,
@@ -391,7 +391,7 @@ def load_state_dict(checkpoint_path: str, map_location='cpu'):
 def build_model_from_openai_state_dict(
     state_dict: dict,
     quick_gelu=True,
-    dtype=torch.float16,
+    dtype: torch.dtype = torch.float16,
 ):
     vit = "visual.proj" in state_dict
 
