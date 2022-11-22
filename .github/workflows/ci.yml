@@ -160,7 +160,7 @@ jobs:
           {
             pip install -e "server/[flash-attn]"
           } || {
-            echo "flash attention was not been installed."
+            echo "flash attention was not installed."
           }
       - name: Test
         id: test
