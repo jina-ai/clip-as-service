@@ -157,6 +157,7 @@ jobs:
           python -m pip install wheel pytest pytest-cov nvidia-pyindex
           pip install -e "client/[test]"
           pip install -e "server/[tensorrt]"
+          pip isntall -e "server/[flash-attn]"
       - name: Test
         id: test
         run: |
