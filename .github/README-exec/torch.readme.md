@@ -41,9 +41,9 @@ With advances of ONNX runtime, you can use `CLIPOnnxEncoder` (see [link](https:/
 | ViT-L-14-336::openai                                 | 768              |
 | ViT-H-14::laion2b-s32b-b79k                          | 1024             |
 | ViT-g-14::laion2b-s12b-b42k                          | 1024             |
-| roberta-ViT-B-32::laion2b-s12b-b32k                  |                  |
-| xlm-roberta-base-ViT-B-32::laion5b-s13b-b90k         |                  |
-| xlm-roberta-large-ViT-H-14::frozen_laion5b_s13b_b90k |                  |
+| roberta-ViT-B-32::laion2b-s12b-b32k                  | 512              |
+| xlm-roberta-base-ViT-B-32::laion5b-s13b-b90k         | 512              |
+| xlm-roberta-large-ViT-H-14::frozen_laion5b_s13b_b90k | 1024             |
 | M-CLIP/LABSE-Vit-L-14                                | 768              |
 | M-CLIP/XLM-Roberta-Large-Vit-B-32                    | 512              |
 | M-CLIP/XLM-Roberta-Large-Vit-B-16Plus                | 640              |
