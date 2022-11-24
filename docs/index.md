@@ -227,7 +227,6 @@ playground/searching
 :maxdepth: 1
 
 api/clip_client
-changelog/index
 ```
 
 
