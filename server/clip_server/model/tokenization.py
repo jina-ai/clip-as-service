@@ -11,9 +11,14 @@ class Tokenizer:
 
             self._tokenizer = transformers.AutoTokenizer.from_pretrained(name)
         else:
-            from clip_server.model.simple_tokenizer import SimpleTokenizer
+            try:
+                from clip_server.model.fast_tokenizer import FastTokenizer
 
-            self._tokenizer = SimpleTokenizer()
+                self._tokenizer = FastTokenizer()
+            except ImportError:
+                from clip_server.model.simple_tokenizer import SimpleTokenizer
+
+                self._tokenizer = SimpleTokenizer()
 
     def __call__(
         self,
