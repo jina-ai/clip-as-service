@@ -21,7 +21,6 @@ def default_vocab():
             vocab.append(''.join(merge))
         vocab.extend(['<[startoftext>', '<endoftext>'])
         vocab = dict(zip(vocab, range(len(vocab))))
-        print(vocab)
         with open(vocab_path, 'w') as f:
             f.write(json.dumps(vocab))
     return vocab_path
