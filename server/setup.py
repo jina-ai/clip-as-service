@@ -45,7 +45,7 @@ setup(
         'ftfy',
         'torch',
         'regex',
-        'torchvision<=0.13.0' if sys.version_info == (3, 7, 2) else 'torchvision',
+        'torchvision<=0.13.0' if sys.version_info <= (3, 7, 2) else 'torchvision',
         'jina>=3.8.0',
         'prometheus-client',
         'open_clip_torch>=1.3.0',
