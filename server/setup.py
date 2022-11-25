@@ -45,7 +45,7 @@ setup(
         'ftfy',
         'torch',
         'regex',
-        'torchvision',
+        'torchvision==0.13.0',
         'jina>=3.8.0',
         'prometheus-client',
         'open_clip_torch>=1.3.0',
