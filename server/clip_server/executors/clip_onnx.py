@@ -1,20 +1,20 @@
 import os
 import warnings
-from multiprocessing.pool import ThreadPool
-from typing import Optional, Dict
 from functools import partial
+from multiprocessing.pool import ThreadPool
+from typing import Dict, Optional
 
 import onnxruntime as ort
 from clip_server.executors.helper import (
-    split_img_txt_da,
     preproc_image,
     preproc_text,
     set_rank,
+    split_img_txt_da,
 )
 from clip_server.model import clip
 from clip_server.model.clip_onnx import CLIPOnnxModel
 from clip_server.model.tokenization import Tokenizer
-from jina import Executor, requests, DocumentArray
+from jina import DocumentArray, Executor, requests
 from opentelemetry.trace import NoOpTracer, Span
 
 
@@ -135,7 +135,11 @@ class CLIPEncoder(Executor):
 
     @requests
     async def encode(
-        self, docs: 'DocumentArray', tracing_context, parameters: Dict = {}, **kwargs
+        self,
+        docs: 'DocumentArray',
+        tracing_context=None,
+        parameters: Dict = {},
+        **kwargs,
     ):
         with self.tracer.start_as_current_span(
             'encode', context=tracing_context
