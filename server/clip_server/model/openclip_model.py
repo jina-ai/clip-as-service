@@ -13,7 +13,14 @@ import torch
 
 
 class OpenCLIPModel(CLIPModel):
-    def __init__(self, name: str, device: str = 'cpu', jit: bool = False, **kwargs):
+    def __init__(
+        self,
+        name: str,
+        device: str = 'cpu',
+        jit: bool = False,
+        dtype: str = None,
+        **kwargs
+    ):
         super().__init__(name, **kwargs)
 
         if '::' in name:
@@ -28,10 +35,16 @@ class OpenCLIPModel(CLIPModel):
         model_path = download_model(model_url, md5sum=md5sum)
 
         if pretrained == 'openai':
-            self._model = load_openai_model(model_path, device=device, jit=jit)
+            self._model = load_openai_model(
+                model_path=model_path, device=device, jit=jit, dtype=dtype
+            )
         else:
             self._model = load_openclip_model(
-                self._model_name, model_path=model_path, device=device, jit=jit
+                model_name=self._model_name,
+                model_path=model_path,
+                device=device,
+                jit=jit,
+                dtype=dtype,
             )
 
     @staticmethod
