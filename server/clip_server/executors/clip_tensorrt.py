@@ -134,6 +134,10 @@ class CLIPEncoder(Executor):
                 split_img_txt_da(d, _img_da, _txt_da)
 
             with self.tracer.start_as_current_span('inference') as inference_span:
+                inference_span.set_attribute('drop_image_content', _drop_image_content)
+                inference_span.set_attribute('minibatch_size', self._minibatch_size)
+                inference_span.set_attribute('has_img_da', True if _img_da else False)
+                inference_span.set_attribute('has_txt_da', True if _txt_da else False)
                 # for image
                 if _img_da:
                     with self.tracer.start_as_current_span(
