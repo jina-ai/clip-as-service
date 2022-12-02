@@ -16,6 +16,8 @@ from clip_server.model import clip
 from clip_server.model.clip_model import CLIPModel
 from clip_server.model.tokenization import Tokenizer
 from jina import DocumentArray, Executor, requests
+from jina.serve.executors.decorators import dynamic_batching
+
 from opentelemetry.trace import NoOpTracer, Span
 
 
@@ -119,6 +121,7 @@ class CLIPEncoder(Executor):
         set_rank(docs)
 
     @requests
+    @dynamic_batching(preferred_batch_size=32, max_batch_size=128, timeout=5_000)
     async def encode(
         self,
         docs: 'DocumentArray',
@@ -126,6 +129,7 @@ class CLIPEncoder(Executor):
         parameters: Dict = {},
         **kwargs,
     ):
+        print(f'====> input data: {len(docs)}')
         with self.tracer.start_as_current_span(
             'encode', context=tracing_context
         ) as span:
