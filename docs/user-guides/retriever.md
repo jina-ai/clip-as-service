@@ -47,7 +47,6 @@ executors:
   - name: encoder
     uses:
       jtype: CLIPEncoder
-      with:
       metas:
         py_modules:
           - clip_server.executors.clip_torch
