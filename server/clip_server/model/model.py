@@ -176,7 +176,7 @@ def _build_vision_tower(
     else:
         vision_heads = vision_cfg.width // vision_cfg.head_width
         norm_layer = (
-            LayerNormFp32 if dtype in (torch.float16, torch.bfloat16) else LayerNorm
+            LayerNorm if dtype in (torch.float16, torch.bfloat16) else LayerNormFp32
         )
         visual = VisionTransformer(
             image_size=vision_cfg.image_size,
@@ -214,7 +214,7 @@ def _build_text_tower(
     else:
         act_layer = QuickGELU if quick_gelu else nn.GELU
         norm_layer = (
-            LayerNormFp32 if dtype in (torch.float16, torch.bfloat16) else LayerNorm
+            LayerNorm if dtype in (torch.float16, torch.bfloat16) else LayerNormFp32
         )
 
         text = TextTransformer(
@@ -559,6 +559,7 @@ def load_openclip_model(
         dtype = (
             torch.float32 if device in ('cpu', torch.device('cpu')) else torch.float16
         )
+    print(f"load_openclip_model_dtype:{dtype}")
 
     model_name = model_name.replace(
         '/', '-'
