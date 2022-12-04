@@ -36,6 +36,9 @@ except:
     FLASH_ATTENTION_AVAILABLE = False
 
 
+cast_dtype = {'fp16': torch.float16, 'fp32': torch.float32, 'bf16': torch.bfloat16}
+
+
 class ModifiedResNet(_ModifiedResNet):
     def forward(self, x):
         # To handle fp16 inference
@@ -435,7 +438,9 @@ def load_openai_model(
     preprocess : Callable[[PIL.Image], torch.Tensor]
         A torchvision transform that converts a PIL image into a tensor that the returned model can take as its input
     """
-    if dtype is None:
+    if isinstance(dtype, str):
+        dtype = cast_dtype.get(dtype)
+    elif dtype is None:
         dtype = (
             torch.float32 if device in ('cpu', torch.device('cpu')) else torch.float16
         )
@@ -548,7 +553,9 @@ def load_openclip_model(
     pretrained_image: bool = False,
     dtype: Optional[Union[str, torch.dtype]] = None,
 ):
-    if dtype is None:
+    if isinstance(dtype, str):
+        dtype = cast_dtype.get(dtype)
+    elif dtype is None:
         dtype = (
             torch.float32 if device in ('cpu', torch.device('cpu')) else torch.float16
         )
