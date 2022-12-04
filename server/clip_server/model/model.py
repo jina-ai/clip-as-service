@@ -559,7 +559,6 @@ def load_openclip_model(
         dtype = (
             torch.float32 if device in ('cpu', torch.device('cpu')) else torch.float16
         )
-    print(f"load_openclip_model_dtype:{dtype}")
 
     model_name = model_name.replace(
         '/', '-'

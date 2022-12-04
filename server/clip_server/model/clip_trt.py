@@ -1,5 +1,5 @@
 import os
-from typing import Dict
+from typing import Dict, Optional
 
 try:
     import tensorrt as trt
@@ -51,6 +51,7 @@ class CLIPTensorRTModel(BaseCLIPModel):
     def __init__(
         self,
         name: str,
+        dtype: Optional[str] = 'fp32',
     ):
         super().__init__(name)
 
@@ -72,6 +73,8 @@ class CLIPTensorRTModel(BaseCLIPModel):
                 self._visual_path
             ):
                 from clip_server.model.clip_onnx import CLIPOnnxModel
+
+                fp16 = dtype == 'fp16'
 
                 trt_logger: Logger = trt.Logger(trt.Logger.ERROR)
                 runtime: Runtime = trt.Runtime(trt_logger)
@@ -95,7 +98,7 @@ class CLIPTensorRTModel(BaseCLIPModel):
                         onnx_model.image_size,
                     ),
                     workspace_size=10000 * 1024 * 1024,
-                    fp16=False,
+                    fp16=fp16,
                     int8=False,
                 )
                 save_engine(visual_engine, self._visual_path)
@@ -108,7 +111,7 @@ class CLIPTensorRTModel(BaseCLIPModel):
                     optimal_shape=(768, 77),
                     max_shape=(1024, 77),
                     workspace_size=10000 * 1024 * 1024,
-                    fp16=False,
+                    fp16=fp16,
                     int8=False,
                 )
                 save_engine(text_engine, self._textual_path)

@@ -25,6 +25,7 @@ class CLIPEncoder(Executor):
         num_worker_preprocess: int = 4,
         minibatch_size: int = 32,
         access_paths: str = '@r',
+        dtype: Optional[str] = 'fp32',
         **kwargs,
     ):
         """
@@ -36,6 +37,7 @@ class CLIPEncoder(Executor):
             number if you encounter OOM errors.
         :param access_paths: The access paths to traverse on the input documents to get the images and texts to be
             processed. Visit https://docarray.jina.ai/fundamentals/documentarray/access-elements for more details.
+        :param dtype: inference data type, if None defaults to 'fp32'.
         """
         super().__init__(**kwargs)
 
@@ -63,7 +65,7 @@ class CLIPEncoder(Executor):
             torch.cuda.is_available()
         ), "CUDA/GPU is not available on Pytorch. Please check your CUDA installation"
 
-        self._model = CLIPTensorRTModel(name)
+        self._model = CLIPTensorRTModel(name=name, dtype=dtype)
 
         self._model.start_engines()
 
