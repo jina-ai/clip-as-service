@@ -27,6 +27,7 @@ class CLIPEncoder(Executor):
         minibatch_size: int = 32,
         access_paths: str = '@r',
         model_path: Optional[str] = None,
+        dtype: Optional[str] = None,
         **kwargs,
     ):
         """
@@ -41,6 +42,7 @@ class CLIPEncoder(Executor):
         :param model_path: The path to the model to be used. If not specified, the model will be downloaded or loaded
             from the local cache. Visit https://clip-as-service.jina.ai/user-guides/server/#use-custom-model-for-onnx
             to learn how to finetune custom models.
+        :param dtype: inference data type, if None defaults to None.
         """
         super().__init__(**kwargs)
 
@@ -66,6 +68,9 @@ class CLIPEncoder(Executor):
             self._device = 'cuda' if torch.cuda.is_available() else 'cpu'
         else:
             self._device = device
+        if dtype is None:
+            dtype = 'fp32' if self._device in ('cpu', torch.device('cpu')) else 'fp16'
+        self.dtype = dtype
 
         # define the priority order for the execution providers
         providers = ['CPUExecutionProvider']
