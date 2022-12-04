@@ -28,6 +28,7 @@ class CLIPEncoder(Executor):
         num_worker_preprocess: int = 4,
         minibatch_size: int = 32,
         access_paths: str = '@r',
+        dtype: Optional[str] = None,
         **kwargs,
     ):
         """
@@ -40,6 +41,7 @@ class CLIPEncoder(Executor):
             number if you encounter OOM errors.
         :param access_paths: The access paths to traverse on the input documents to get the images and texts to be
             processed. Visit https://docarray.jina.ai/fundamentals/documentarray/access-elements for more details.
+        :param dtype: inference data type, if None defaults to 'fp32' if device == 'cpu' else 'fp16'.
         """
         super().__init__(**kwargs)
 
@@ -55,6 +57,9 @@ class CLIPEncoder(Executor):
             self._device = 'cuda' if torch.cuda.is_available() else 'cpu'
         else:
             self._device = device
+        if dtype is None:
+            dtype = 'fp32' if device in ('cpu', torch.device('cpu')) else 'fp16'
+        self.dtype = dtype
 
         if not self._device.startswith('cuda') and (
             'OMP_NUM_THREADS' not in os.environ
@@ -77,7 +82,9 @@ class CLIPEncoder(Executor):
         self._num_worker_preprocess = num_worker_preprocess
         self._pool = ThreadPool(processes=num_worker_preprocess)
 
-        self._model = CLIPModel(name, device=self._device, jit=jit, **kwargs)
+        self._model = CLIPModel(
+            name, device=self._device, jit=jit, dtype=dtype, **kwargs
+        )
         self._tokenizer = Tokenizer(name)
         self._image_transform = clip._transform_ndarray(self._model.image_size)
 
