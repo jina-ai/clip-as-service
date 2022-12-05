@@ -168,6 +168,8 @@ jobs:
         run: |
           pytest --suppress-no-test-exit-code --cov=clip_client --cov=clip_server --cov-report=xml \
             -v -s -m "gpu" ./tests/test_tensorrt.py
+          pytest --suppress-no-test-exit-code --cov=clip_client --cov=clip_server --cov-report=xml \
+            -v -s -m "gpu" ./tests/test_simple.py
           echo "::set-output name=codecov_flag::cas"
         timeout-minutes: 30
         env:

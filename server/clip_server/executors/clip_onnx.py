@@ -42,7 +42,7 @@ class CLIPEncoder(Executor):
         :param model_path: The path to the model to be used. If not specified, the model will be downloaded or loaded
             from the local cache. Visit https://clip-as-service.jina.ai/user-guides/server/#use-custom-model-for-onnx
             to learn how to finetune custom models.
-        :param dtype: inference data type, if None defaults to None.
+        :param dtype: inference data type, if None defaults to 'fp32' if device == 'cpu' else 'fp16'.
         """
         super().__init__(**kwargs)
 
