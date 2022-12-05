@@ -70,7 +70,6 @@ class CLIPEncoder(Executor):
             self._device = device
         if dtype is None:
             dtype = 'fp32' if self._device in ('cpu', torch.device('cpu')) else 'fp16'
-        self.dtype = dtype
 
         # define the priority order for the execution providers
         providers = ['CPUExecutionProvider']
