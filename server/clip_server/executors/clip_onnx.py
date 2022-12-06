@@ -48,11 +48,10 @@ class CLIPEncoder(Executor):
         import torch
 
         if not device:
-            self._device = 'cuda' if torch.cuda.is_available() else 'cpu'
-        else:
-            self._device = device
-        if dtype is None:
+            device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        if not dtype:
             dtype = 'fp32' if self._device in ('cpu', torch.device('cpu')) else 'fp16'
+        self._device = device
         self._dtype = dtype
 
         self._minibatch_size = minibatch_size

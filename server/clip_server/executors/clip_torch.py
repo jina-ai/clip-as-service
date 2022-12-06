@@ -55,17 +55,17 @@ class CLIPEncoder(Executor):
             self._access_paths = kwargs['traversal_paths']
 
         if not device:
-            self._device = 'cuda' if torch.cuda.is_available() else 'cpu'
-        else:
-            self._device = device
+            device = 'cuda' if torch.cuda.is_available() else 'cpu'
         if isinstance(dtype, str):
             dtype = __cast_dtype__.get(dtype)
-        elif dtype is None:
+        elif not dtype:
             dtype = (
                 torch.float32
                 if self._device in ('cpu', torch.device('cpu'))
                 else torch.float16
             )
+        self._device = device
+        self._dtype = dtype
 
         if not self._device.startswith('cuda') and (
             'OMP_NUM_THREADS' not in os.environ
@@ -109,6 +109,7 @@ class CLIPEncoder(Executor):
                     device=self._device,
                     return_np=False,
                     drop_image_content=drop_image_content,
+                    dtype=self._dtype,
                 )
 
     def _preproc_texts(self, docs: 'DocumentArray'):
