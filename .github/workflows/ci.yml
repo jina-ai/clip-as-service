@@ -113,7 +113,6 @@ jobs:
           pip install --no-cache-dir "server/[onnx]"
           pip install --no-cache-dir "server/[transformers]"
           pip install --no-cache-dir "server/[search]"
-          pip install --no-cache-dir "server/[transformers]"
       - name: Test
         id: test
         run: |
