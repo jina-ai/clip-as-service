@@ -1,8 +1,9 @@
-from typing import Tuple, List, Callable, Any, Dict
+from typing import Tuple, List, Callable, Any, Dict, Union
 import torch
 import numpy as np
 from docarray import Document, DocumentArray
 from docarray.math.distance.numpy import cosine
+from clip_server.helper import __cast_dtype__
 
 
 from clip_server.model.tokenization import Tokenizer
@@ -22,8 +23,11 @@ def preproc_image(
     device: str = 'cpu',
     return_np: bool = False,
     drop_image_content: bool = False,
-    dtype: torch.dtype = torch.float32,
+    dtype: Union[str, torch.dtype] = torch.float32,
 ) -> Tuple['DocumentArray', Dict]:
+
+    if isinstance(dtype, str):
+        dtype = __cast_dtype__(dtype)
 
     tensors_batch = []
 
