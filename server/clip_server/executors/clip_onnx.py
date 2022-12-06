@@ -45,6 +45,14 @@ class CLIPEncoder(Executor):
         :param dtype: inference data type, if None defaults to 'fp32' if device == 'cpu' else 'fp16'.
         """
         super().__init__(**kwargs)
+        import torch
+
+        if not device:
+            self._device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        else:
+            self._device = device
+        if dtype is None:
+            dtype = 'fp32' if self._device in ('cpu', torch.device('cpu')) else 'fp16'
 
         self._minibatch_size = minibatch_size
         self._access_paths = access_paths
@@ -61,15 +69,6 @@ class CLIPEncoder(Executor):
         self._tokenizer = Tokenizer(name)
 
         self._image_transform = clip._transform_ndarray(self._model.image_size)
-
-        import torch
-
-        if not device:
-            self._device = 'cuda' if torch.cuda.is_available() else 'cpu'
-        else:
-            self._device = device
-        if dtype is None:
-            dtype = 'fp32' if self._device in ('cpu', torch.device('cpu')) else 'fp16'
 
         # define the priority order for the execution providers
         providers = ['CPUExecutionProvider']
