@@ -54,6 +54,7 @@ class CLIPEncoder(Executor):
             self._access_paths = kwargs['traversal_paths']
 
         self._device = device
+        self._dtype = dtype
 
         import torch
 
@@ -88,6 +89,7 @@ class CLIPEncoder(Executor):
                     device=self._device,
                     return_np=False,
                     drop_image_content=drop_image_content,
+                    dtype=self._dtype,
                 )
 
     def _preproc_texts(self, docs: 'DocumentArray'):

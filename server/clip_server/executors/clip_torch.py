@@ -63,7 +63,7 @@ class CLIPEncoder(Executor):
         elif dtype is None:
             dtype = (
                 torch.float32
-                if device in ('cpu', torch.device('cpu'))
+                if self._device in ('cpu', torch.device('cpu'))
                 else torch.float16
             )
 

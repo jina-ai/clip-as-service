@@ -69,8 +69,10 @@ class CLIPTensorRTModel(BaseCLIPModel):
                 f'visual.{ONNX_MODELS[name][1][1]}.trt',
             )
 
-            if not os.path.exists(self._textual_path) or not os.path.exists(
-                self._visual_path
+            if (
+                not os.path.exists(self._textual_path)
+                or not os.path.exists(self._visual_path)
+                or dtype == 'fp16'
             ):
                 from clip_server.model.clip_onnx import CLIPOnnxModel
 
