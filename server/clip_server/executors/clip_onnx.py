@@ -53,6 +53,7 @@ class CLIPEncoder(Executor):
             self._device = device
         if dtype is None:
             dtype = 'fp32' if self._device in ('cpu', torch.device('cpu')) else 'fp16'
+        self._dtype = dtype
 
         self._minibatch_size = minibatch_size
         self._access_paths = access_paths
@@ -119,6 +120,7 @@ class CLIPEncoder(Executor):
                     preprocess_fn=self._image_transform,
                     return_np=True,
                     drop_image_content=drop_image_content,
+                    dtype=self._dtype,
                 )
 
     def _preproc_texts(self, docs: 'DocumentArray'):

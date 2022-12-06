@@ -22,6 +22,7 @@ def preproc_image(
     device: str = 'cpu',
     return_np: bool = False,
     drop_image_content: bool = False,
+    dtype: torch.dtype = torch.float32,
 ) -> Tuple['DocumentArray', Dict]:
 
     tensors_batch = []
@@ -42,7 +43,7 @@ def preproc_image(
         if drop_image_content:
             d.pop('blob', 'tensor')
 
-    tensors_batch = torch.stack(tensors_batch).type(torch.float32)
+    tensors_batch = torch.stack(tensors_batch).type(dtype)
 
     if return_np:
         tensors_batch = tensors_batch.cpu().numpy()
