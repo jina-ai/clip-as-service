@@ -176,7 +176,7 @@ def _build_vision_tower(
     else:
         vision_heads = vision_cfg.width // vision_cfg.head_width
         norm_layer = (
-            LayerNorm if dtype in (torch.float16, torch.bfloat16) else LayerNormFp32
+            LayerNormFp32 if dtype in (torch.float16, torch.bfloat16) else LayerNorm
         )
         visual = VisionTransformer(
             image_size=vision_cfg.image_size,
@@ -214,7 +214,7 @@ def _build_text_tower(
     else:
         act_layer = QuickGELU if quick_gelu else nn.GELU
         norm_layer = (
-            LayerNorm if dtype in (torch.float16, torch.bfloat16) else LayerNormFp32
+            LayerNormFp32 if dtype in (torch.float16, torch.bfloat16) else LayerNorm
         )
 
         text = TextTransformer(
