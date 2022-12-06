@@ -84,6 +84,11 @@ class VisionTransformer(_VisionTransformer):
         super().__init__(image_size, patch_size, output_dim=output_dim, **kwargs)
         self.transformer = Transformer(dtype=dtype, **kwargs)
 
+    def forward(self, x: torch.Tensor):
+        dtype = self.transformer.get_cast_dtype()
+        x = x.to(dtype)
+        return super().forward(x)
+
 
 class TextTransformer(_TextTransformer):
     def __init__(
