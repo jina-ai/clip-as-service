@@ -163,11 +163,19 @@ jobs:
           } || {
             echo "flash attention was not installed."
           }
-      - name: Test
-        id: test
+      - name: Test trt
+        id: test_trt
         run: |
           pytest --suppress-no-test-exit-code --cov=clip_client --cov=clip_server --cov-report=xml \
             -v -s -m "gpu" ./tests/test_tensorrt.py
+          echo "::set-output name=codecov_flag::cas"
+        timeout-minutes: 30
+        env:
+          # fix re-initialized torch runtime error on cuda device
+          JINA_MP_START_METHOD: spawn
+      - name: Test onnx/torch
+        id: test_onnx_torch
+        run: |
           pytest --suppress-no-test-exit-code --cov=clip_client --cov=clip_server --cov-report=xml \
             -v -s -m "gpu" ./tests/test_simple.py
           echo "::set-output name=codecov_flag::cas"
