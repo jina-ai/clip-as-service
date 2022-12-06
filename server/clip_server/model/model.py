@@ -439,7 +439,7 @@ def load_openai_model(
         A torchvision transform that converts a PIL image into a tensor that the returned model can take as its input
     """
     if isinstance(dtype, str):
-        dtype = cast_dtype.get(dtype)
+        dtype = cast_dtype.get(dtype, 'amp')
     elif dtype is None:
         dtype = (
             torch.float32 if device in ('cpu', torch.device('cpu')) else torch.float16
@@ -469,7 +469,7 @@ def load_openai_model(
 
         # model from OpenAI state dict is in manually cast fp16 mode, must be converted for AMP/fp32/bf16 use
         model = model.to(device)
-        if dtype == torch.float32 or dtype.startswith('amp'):
+        if dtype == torch.float32 or (isinstance(dtype, str) and dtype == 'amp'):
             model.float()
         elif dtype == torch.bfloat16:
             convert_weights_to_lp(model, dtype=torch.bfloat16)
