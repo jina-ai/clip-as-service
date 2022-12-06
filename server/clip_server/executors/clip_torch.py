@@ -56,6 +56,7 @@ class CLIPEncoder(Executor):
 
         if not device:
             device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        self._device = device
         if isinstance(dtype, str):
             dtype = __cast_dtype__.get(dtype)
         elif not dtype:
@@ -64,7 +65,6 @@ class CLIPEncoder(Executor):
                 if self._device in ('cpu', torch.device('cpu'))
                 else torch.float16
             )
-        self._device = device
         self._dtype = dtype
 
         if not self._device.startswith('cuda') and (
