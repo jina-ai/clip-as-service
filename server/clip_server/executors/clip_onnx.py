@@ -57,7 +57,7 @@ class CLIPEncoder(Executor):
         self._num_worker_preprocess = num_worker_preprocess
         self._pool = ThreadPool(processes=num_worker_preprocess)
 
-        self._model = CLIPOnnxModel(name, model_path)
+        self._model = CLIPOnnxModel(name, model_path, dtype)
         self._tokenizer = Tokenizer(name)
 
         self._image_transform = clip._transform_ndarray(self._model.image_size)
