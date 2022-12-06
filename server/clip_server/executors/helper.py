@@ -27,7 +27,7 @@ def preproc_image(
 ) -> Tuple['DocumentArray', Dict]:
 
     if isinstance(dtype, str):
-        dtype = __cast_dtype__(dtype)
+        dtype = __cast_dtype__.get(dtype)
 
     tensors_batch = []
 
