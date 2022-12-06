@@ -207,7 +207,7 @@ class CLIPOnnxModel(BaseCLIPModel):
         super().__init__(name)
         self._dtype = dtype
         if name in _MODELS:
-            if not model_path:
+            if not model_path or dtype == 'fp16':
                 cache_dir = os.path.expanduser(
                     f'~/.cache/clip/{name.replace("/", "-").replace("::", "-")}'
                 )
@@ -225,6 +225,22 @@ class CLIPOnnxModel(BaseCLIPModel):
                     md5sum=visual_model_md5,
                     with_resume=True,
                 )
+                if dtype == 'fp16':
+                    import onnx
+                    from onnxmltools.utils import float16_converter
+
+                    _textual_model_fp16 = (
+                        float16_converter.convert_float_to_float16_model_path(
+                            self._textual_path
+                        )
+                    )
+                    _visual_model_fp16 = (
+                        float16_converter.convert_float_to_float16_model_path(
+                            self._visual_path
+                        )
+                    )
+                    onnx.save_model(_textual_model_fp16, self._textual_path)
+                    onnx.save_model(_visual_model_fp16, self._visual_path)
             else:
                 if os.path.isdir(model_path):
                     self._textual_path = os.path.join(model_path, 'textual.onnx')
@@ -266,7 +282,6 @@ class CLIPOnnxModel(BaseCLIPModel):
         **kwargs,
     ):
         import onnxruntime as ort
-        from onnxmltools.utils import float16_converter
 
         def _load_session_from_zip(model_path: str, model_type: str):
             """Load a model from a zip file."""
@@ -283,10 +298,6 @@ class CLIPOnnxModel(BaseCLIPModel):
             self._visual_session = _load_session_from_zip(self._visual_path, 'visual')
         else:
             self._visual_session = ort.InferenceSession(self._visual_path, **kwargs)
-        if self._dtype == 'fp16':
-            self._visual_session = float16_converter.convert_float_to_float16(
-                self._visual_session, keep_io_types=True
-            )
         self._visual_session.disable_fallback()
 
         if self._textual_path.endswith('.zip'):
@@ -295,10 +306,6 @@ class CLIPOnnxModel(BaseCLIPModel):
             )
         else:
             self._textual_session = ort.InferenceSession(self._textual_path, **kwargs)
-        if self._dtype == 'fp16':
-            self._visual_session = float16_converter.convert_float_to_float16(
-                self._visual_session, keep_io_types=True
-            )
         self._textual_session.disable_fallback()
 
     def encode_image(self, image_input: Dict):

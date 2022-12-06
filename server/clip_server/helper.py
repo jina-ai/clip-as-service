@@ -2,6 +2,7 @@ import json
 import os
 import sys
 import threading
+import torch
 from packaging.version import Version
 from urllib.request import Request, urlopen
 
@@ -17,6 +18,9 @@ __resources_path__ = os.path.join(
     ),
     'resources',
 )
+
+
+__cast_dtype__ = {'fp16': torch.float16, 'fp32': torch.float32, 'bf16': torch.bfloat16}
 
 
 def _version_check(package: str = None, github_repo: str = None):

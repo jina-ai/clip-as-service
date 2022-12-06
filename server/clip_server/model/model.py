@@ -15,6 +15,7 @@ from torch import nn
 from dataclasses import dataclass
 from typing import Tuple, Union, Optional
 from copy import deepcopy
+from clip_server.helper import __cast_dtype__
 from open_clip.transformer import QuickGELU, LayerNorm, LayerNormFp32, Attention
 from open_clip.timm_model import TimmModel
 from open_clip.factory import _MODEL_CONFIGS
@@ -34,9 +35,6 @@ try:
     FLASH_ATTENTION_AVAILABLE = True
 except:
     FLASH_ATTENTION_AVAILABLE = False
-
-
-cast_dtype = {'fp16': torch.float16, 'fp32': torch.float32, 'bf16': torch.bfloat16}
 
 
 class ModifiedResNet(_ModifiedResNet):
@@ -444,7 +442,7 @@ def load_openai_model(
         A torchvision transform that converts a PIL image into a tensor that the returned model can take as its input
     """
     if isinstance(dtype, str):
-        dtype = cast_dtype.get(dtype, 'amp')
+        dtype = __cast_dtype__.get(dtype, 'amp')
     elif dtype is None:
         dtype = (
             torch.float32 if device in ('cpu', torch.device('cpu')) else torch.float16
@@ -559,7 +557,7 @@ def load_openclip_model(
     dtype: Optional[Union[str, torch.dtype]] = None,
 ):
     if isinstance(dtype, str):
-        dtype = cast_dtype.get(dtype)
+        dtype = __cast_dtype__.get(dtype)
     elif dtype is None:
         dtype = (
             torch.float32 if device in ('cpu', torch.device('cpu')) else torch.float16

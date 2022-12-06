@@ -10,6 +10,7 @@ from clip_server.executors.helper import (
     set_rank,
     split_img_txt_da,
 )
+from clip_server.helper import __cast_dtype__
 from clip_server.model import clip
 from clip_server.model.clip_trt import CLIPTensorRTModel
 from clip_server.model.tokenization import Tokenizer
@@ -37,7 +38,7 @@ class CLIPEncoder(Executor):
             number if you encounter OOM errors.
         :param access_paths: The access paths to traverse on the input documents to get the images and texts to be
             processed. Visit https://docarray.jina.ai/fundamentals/documentarray/access-elements for more details.
-        :param dtype: inference data type, if None defaults to 'fp32'.
+        :param dtype: inference data type, defaults to 'fp32'.
         """
         super().__init__(**kwargs)
 
