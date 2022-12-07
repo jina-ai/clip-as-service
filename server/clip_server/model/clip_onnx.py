@@ -235,28 +235,27 @@ class CLIPOnnxModel(BaseCLIPModel):
                         raise RuntimeError(
                             f'The given model path {model_path} does not contain `textual.onnx` and `visual.onnx`'
                         )
-                    elif dtype == 'fp16':
-                        import onnx
-                        from onnxmltools.utils import float16_converter
-
-                        _textual_model_fp16 = (
-                            float16_converter.convert_float_to_float16_model_path(
-                                self._textual_path
-                            )
-                        )
-                        _visual_model_fp16 = (
-                            float16_converter.convert_float_to_float16_model_path(
-                                self._visual_path
-                            )
-                        )
-                        onnx.save_model(_textual_model_fp16, self._textual_path)
-                        onnx.save_model(_visual_model_fp16, self._visual_path)
-
                 else:
                     raise RuntimeError(
                         f'The given model path {model_path} should be a folder containing both '
                         f'`textual.onnx` and `visual.onnx`.'
                     )
+            if dtype == 'fp16':
+                import onnx
+                from onnxmltools.utils import float16_converter
+
+                _textual_model_fp16 = (
+                    float16_converter.convert_float_to_float16_model_path(
+                        self._textual_path
+                    )
+                )
+                _visual_model_fp16 = (
+                    float16_converter.convert_float_to_float16_model_path(
+                        self._visual_path
+                    )
+                )
+                onnx.save_model(_textual_model_fp16, self._textual_path)
+                onnx.save_model(_visual_model_fp16, self._visual_path)
         else:
             raise RuntimeError(
                 'CLIP model {} not found or not supports ONNX backend; below is a list of all available models:\n{}'.format(
