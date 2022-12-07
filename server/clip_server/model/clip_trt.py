@@ -60,19 +60,27 @@ class CLIPTensorRTModel(BaseCLIPModel):
                 f'~/.cache/clip/{name.replace("/", "-").replace("::", "-")}'
             )
 
-            self._textual_path = os.path.join(
-                cache_dir,
-                f'textual.{ONNX_MODELS[name][0][1]}.trt',
-            )
-            self._visual_path = os.path.join(
-                cache_dir,
-                f'visual.{ONNX_MODELS[name][1][1]}.trt',
-            )
+            if dtype == 'fp16':
+                self._textual_path = os.path.join(
+                    cache_dir,
+                    f'textual.{ONNX_MODELS[name][0][1]}.fp16.trt',
+                )
+                self._visual_path = os.path.join(
+                    cache_dir,
+                    f'visual.{ONNX_MODELS[name][1][1]}.fp16.trt',
+                )
+            else:
+                self._textual_path = os.path.join(
+                    cache_dir,
+                    f'textual.{ONNX_MODELS[name][0][1]}.trt',
+                )
+                self._visual_path = os.path.join(
+                    cache_dir,
+                    f'visual.{ONNX_MODELS[name][1][1]}.trt',
+                )
 
-            if (
-                not os.path.exists(self._textual_path)
-                or not os.path.exists(self._visual_path)
-                # or dtype == 'fp16'
+            if not os.path.exists(self._textual_path) or not os.path.exists(
+                self._visual_path
             ):
                 from clip_server.model.clip_onnx import CLIPOnnxModel
 
@@ -100,7 +108,7 @@ class CLIPTensorRTModel(BaseCLIPModel):
                         onnx_model.image_size,
                     ),
                     workspace_size=10000 * 1024 * 1024,
-                    fp16=True,
+                    fp16=fp16,
                     int8=False,
                 )
                 save_engine(visual_engine, self._visual_path)
@@ -113,7 +121,7 @@ class CLIPTensorRTModel(BaseCLIPModel):
                     optimal_shape=(768, 77),
                     max_shape=(1024, 77),
                     workspace_size=10000 * 1024 * 1024,
-                    fp16=True,
+                    fp16=fp16,
                     int8=False,
                 )
                 save_engine(text_engine, self._textual_path)
