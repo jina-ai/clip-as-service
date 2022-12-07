@@ -207,7 +207,7 @@ class CLIPOnnxModel(BaseCLIPModel):
         super().__init__(name)
         self._dtype = dtype
         if name in _MODELS:
-            if not model_path or dtype == 'fp16':
+            if not model_path:
                 cache_dir = os.path.expanduser(
                     f'~/.cache/clip/{name.replace("/", "-").replace("::", "-")}'
                 )
@@ -225,22 +225,6 @@ class CLIPOnnxModel(BaseCLIPModel):
                     md5sum=visual_model_md5,
                     with_resume=True,
                 )
-                if dtype == 'fp16':
-                    import onnx
-                    from onnxmltools.utils import float16_converter
-
-                    _textual_model_fp16 = (
-                        float16_converter.convert_float_to_float16_model_path(
-                            self._textual_path
-                        )
-                    )
-                    _visual_model_fp16 = (
-                        float16_converter.convert_float_to_float16_model_path(
-                            self._visual_path
-                        )
-                    )
-                    onnx.save_model(_textual_model_fp16, self._textual_path)
-                    onnx.save_model(_visual_model_fp16, self._visual_path)
             else:
                 if os.path.isdir(model_path):
                     self._textual_path = os.path.join(model_path, 'textual.onnx')
@@ -251,6 +235,23 @@ class CLIPOnnxModel(BaseCLIPModel):
                         raise RuntimeError(
                             f'The given model path {model_path} does not contain `textual.onnx` and `visual.onnx`'
                         )
+                    elif dtype == 'fp16':
+                        import onnx
+                        from onnxmltools.utils import float16_converter
+
+                        _textual_model_fp16 = (
+                            float16_converter.convert_float_to_float16_model_path(
+                                self._textual_path
+                            )
+                        )
+                        _visual_model_fp16 = (
+                            float16_converter.convert_float_to_float16_model_path(
+                                self._visual_path
+                            )
+                        )
+                        onnx.save_model(_textual_model_fp16, self._textual_path)
+                        onnx.save_model(_visual_model_fp16, self._visual_path)
+
                 else:
                     raise RuntimeError(
                         f'The given model path {model_path} should be a folder containing both '
