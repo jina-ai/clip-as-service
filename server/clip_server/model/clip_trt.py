@@ -88,7 +88,7 @@ class CLIPTensorRTModel(BaseCLIPModel):
 
                 trt_logger: Logger = trt.Logger(trt.Logger.ERROR)
                 runtime: Runtime = trt.Runtime(trt_logger)
-                onnx_model = CLIPOnnxModel(name)
+                onnx_model = CLIPOnnxModel(name=name, dtype=dtype)
 
                 visual_engine = build_engine(
                     runtime=runtime,
