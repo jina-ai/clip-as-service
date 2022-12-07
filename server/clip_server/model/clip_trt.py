@@ -72,7 +72,7 @@ class CLIPTensorRTModel(BaseCLIPModel):
             if (
                 not os.path.exists(self._textual_path)
                 or not os.path.exists(self._visual_path)
-                or dtype == 'fp16'
+                # or dtype == 'fp16'
             ):
                 from clip_server.model.clip_onnx import CLIPOnnxModel
 
@@ -100,7 +100,7 @@ class CLIPTensorRTModel(BaseCLIPModel):
                         onnx_model.image_size,
                     ),
                     workspace_size=10000 * 1024 * 1024,
-                    fp16=fp16,
+                    fp16=True,
                     int8=False,
                 )
                 save_engine(visual_engine, self._visual_path)
@@ -113,7 +113,7 @@ class CLIPTensorRTModel(BaseCLIPModel):
                     optimal_shape=(768, 77),
                     max_shape=(1024, 77),
                     workspace_size=10000 * 1024 * 1024,
-                    fp16=fp16,
+                    fp16=True,
                     int8=False,
                 )
                 save_engine(text_engine, self._textual_path)
