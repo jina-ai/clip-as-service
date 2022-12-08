@@ -20,9 +20,6 @@ __resources_path__ = os.path.join(
 )
 
 
-__cast_dtype__ = {'fp16': torch.float16, 'fp32': torch.float32, 'bf16': torch.bfloat16}
-
-
 def _version_check(package: str = None, github_repo: str = None):
     try:
 

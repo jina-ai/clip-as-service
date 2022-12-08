@@ -12,12 +12,14 @@ from clip_server.executors.helper import (
     set_rank,
     split_img_txt_da,
 )
-from clip_server.helper import __cast_dtype__
 from clip_server.model import clip
 from clip_server.model.clip_model import CLIPModel
 from clip_server.model.tokenization import Tokenizer
 from jina import DocumentArray, Executor, requests
 from opentelemetry.trace import NoOpTracer, Span
+
+
+__cast_dtype__ = {'fp16': torch.float16, 'fp32': torch.float32, 'bf16': torch.bfloat16}
 
 
 class CLIPEncoder(Executor):
