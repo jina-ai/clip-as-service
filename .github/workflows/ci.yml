@@ -117,7 +117,7 @@ jobs:
         id: test
         run: |
           pytest --suppress-no-test-exit-code --cov=clip_client --cov=clip_server --cov-report=xml \
-            -v -s -m "not gpu" ${{ matrix.test-path }}
+            -v -s ${{ matrix.test-path }}
           echo "::set-output name=codecov_flag::cas"
         timeout-minutes: 30
       - name: Check codecov file
