@@ -1,8 +1,7 @@
 import sys
 from os import path
 
-from setuptools import find_packages
-from setuptools import setup
+from setuptools import find_packages, setup
 
 if sys.version_info < (3, 7, 0):
     raise OSError(f'CLIP-as-service requires Python >=3.7, but yours is {sys.version}')
@@ -46,9 +45,9 @@ setup(
         'torch',
         'regex',
         'torchvision<=0.13.0' if sys.version_info <= (3, 7, 2) else 'torchvision',
-        'jina>=3.8.0',
+        'jina>=3.12.0',
         'prometheus-client',
-        'open_clip_torch>=1.3.0',
+        'open_clip_torch>=2.7.0',
     ],
     extras_require={
         'onnx': [

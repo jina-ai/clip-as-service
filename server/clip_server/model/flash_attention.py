@@ -57,9 +57,6 @@ class MultiheadAttention(nn.MultiheadAttention):
             key_padding_mask: a bool tensor of shape (B, S)
 
         """
-        assert not need_weights
-        assert q.dtype in [torch.float16, torch.bfloat16]
-        assert q.is_cuda
 
         if cu_seqlens is None:
             max_s = seqlen
