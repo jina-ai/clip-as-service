@@ -58,17 +58,6 @@ def make_trt_flow(port_generator, request):
         yield f
 
 
-@pytest.fixture(scope='session', params=['tensorrt'])
-def make_trt_flow_fp16(port_generator, request):
-    from clip_server.executors.clip_tensorrt import CLIPEncoder
-
-    f = Flow(port=port_generator()).add(
-        name=request.param, uses=CLIPEncoder, uses_with={'dtype': 'fp16'}
-    )
-    with f:
-        yield f
-
-
 @pytest.fixture(params=['torch'])
 def make_search_flow(tmpdir, port_generator, request):
     from clip_server.executors.clip_torch import CLIPEncoder

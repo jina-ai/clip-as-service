@@ -10,7 +10,6 @@ from clip_server.executors.helper import (
     set_rank,
     split_img_txt_da,
 )
-from clip_server.helper import __cast_dtype__
 from clip_server.model import clip
 from clip_server.model.clip_trt import CLIPTensorRTModel
 from clip_server.model.tokenization import Tokenizer
@@ -26,7 +25,6 @@ class CLIPEncoder(Executor):
         num_worker_preprocess: int = 4,
         minibatch_size: int = 32,
         access_paths: str = '@r',
-        dtype: Optional[str] = 'fp32',
         **kwargs,
     ):
         """
@@ -38,7 +36,6 @@ class CLIPEncoder(Executor):
             number if you encounter OOM errors.
         :param access_paths: The access paths to traverse on the input documents to get the images and texts to be
             processed. Visit https://docarray.jina.ai/fundamentals/documentarray/access-elements for more details.
-        :param dtype: inference data type, defaults to 'fp32'.
         """
         super().__init__(**kwargs)
 
@@ -54,7 +51,6 @@ class CLIPEncoder(Executor):
             self._access_paths = kwargs['traversal_paths']
 
         self._device = device
-        self._dtype = dtype
 
         import torch
 
@@ -67,7 +63,7 @@ class CLIPEncoder(Executor):
             torch.cuda.is_available()
         ), "CUDA/GPU is not available on Pytorch. Please check your CUDA installation"
 
-        self._model = CLIPTensorRTModel(name=name, dtype=dtype)
+        self._model = CLIPTensorRTModel(name)
 
         self._model.start_engines()
 
@@ -89,7 +85,6 @@ class CLIPEncoder(Executor):
                     device=self._device,
                     return_np=False,
                     drop_image_content=drop_image_content,
-                    dtype=self._dtype,
                 )
 
     def _preproc_texts(self, docs: 'DocumentArray'):
