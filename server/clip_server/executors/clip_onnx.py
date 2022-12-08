@@ -103,7 +103,9 @@ class CLIPEncoder(Executor):
             sess_options.inter_op_num_threads = 1
             sess_options.intra_op_num_threads = max(num_threads, 1)
 
-        self._model.start_sessions(sess_options=sess_options, providers=providers)
+        self._model.start_sessions(
+            sess_options=sess_options, providers=providers, dtype=dtype
+        )
 
         if not self.tracer:
             self.tracer = NoOpTracer()

@@ -240,22 +240,6 @@ class CLIPOnnxModel(BaseCLIPModel):
                         f'The given model path {model_path} should be a folder containing both '
                         f'`textual.onnx` and `visual.onnx`.'
                     )
-            if dtype == 'fp16':
-                import onnx
-                from onnxmltools.utils import float16_converter
-
-                _textual_model_fp16 = (
-                    float16_converter.convert_float_to_float16_model_path(
-                        self._textual_path
-                    )
-                )
-                _visual_model_fp16 = (
-                    float16_converter.convert_float_to_float16_model_path(
-                        self._visual_path
-                    )
-                )
-                onnx.save_model(_textual_model_fp16, self._textual_path)
-                onnx.save_model(_visual_model_fp16, self._visual_path)
         else:
             raise RuntimeError(
                 'CLIP model {} not found or not supports ONNX backend; below is a list of all available models:\n{}'.format(
@@ -279,33 +263,41 @@ class CLIPOnnxModel(BaseCLIPModel):
 
     def start_sessions(
         self,
+        dtype,
         **kwargs,
     ):
+        import tempfile
         import onnxruntime as ort
 
-        def _load_session_from_zip(model_path: str, model_type: str):
-            """Load a model from a zip file."""
-            import zipfile
-            import tempfile
+        def _load_session_as_fp16(model_path: str, model_type: str):
+            with tempfile.TemporaryDirectory() as tmp_dir:
+                import onnx
+                from onnxmltools.utils import float16_converter
 
-            with zipfile.ZipFile(
-                model_path, 'r'
-            ) as zip_ref, tempfile.TemporaryDirectory() as tmp_dir:
-                zip_ref.extractall(tmp_dir)
-                return ort.InferenceSession(tmp_dir + f'/{model_type}.onnx', **kwargs)
+                _model_fp16 = float16_converter.convert_float_to_float16_model_path(
+                    model_path
+                )
+                tmp_model = tmp_dir + f'/{model_type}.onnx'
+                onnx.save_model(_model_fp16, tmp_model)
+                return ort.InferenceSession(tmp_model, **kwargs)
 
-        if self._visual_path.endswith('.zip'):
-            self._visual_session = _load_session_from_zip(self._visual_path, 'visual')
-        else:
-            self._visual_session = ort.InferenceSession(self._visual_path, **kwargs)
+        def _load_session(model_path: str, model_type: str, dtype: str):
+            if model_path.endswith('.zip') or dtype == 'fp16':
+                with tempfile.TemporaryDirectory() as tmp_dir:
+                    if model_path.endswith('.zip'):
+                        import zipfile
+
+                        with zipfile.ZipFile(model_path, 'r') as zip_ref:
+                            zip_ref.extractall(tmp_dir)
+                            tmp_model = tmp_dir + f'/{model_type}.onnx'
+                    if dtype == 'fp16':
+                        return _load_session_as_fp16(tmp_model, model_type)
+                    return ort.InferenceSession(tmp_model, **kwargs)
+            return ort.InferenceSession(model_path, **kwargs)
+
+        self._visual_session = _load_session(self._visual_path, 'visual', dtype)
+        self._textual_session = _load_session(self._textual_path, 'textual', dtype)
         self._visual_session.disable_fallback()
-
-        if self._textual_path.endswith('.zip'):
-            self._textual_session = _load_session_from_zip(
-                self._textual_path, 'textual'
-            )
-        else:
-            self._textual_session = ort.InferenceSession(self._textual_path, **kwargs)
         self._textual_session.disable_fallback()
 
     def encode_image(self, image_input: Dict):
