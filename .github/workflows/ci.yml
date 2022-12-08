@@ -113,12 +113,11 @@ jobs:
           pip install --no-cache-dir "server/[onnx]"
           pip install --no-cache-dir "server/[transformers]"
           pip install --no-cache-dir "server/[search]"
-          pip install --no-cache-dir "server/[transformers]"
       - name: Test
         id: test
         run: |
           pytest --suppress-no-test-exit-code --cov=clip_client --cov=clip_server --cov-report=xml \
-            -v -s -m "not gpu" ${{ matrix.test-path }}
+            -v -s ${{ matrix.test-path }}
           echo "::set-output name=codecov_flag::cas"
         timeout-minutes: 30
       - name: Check codecov file
@@ -158,6 +157,7 @@ jobs:
           python -m pip install wheel pytest pytest-cov nvidia-pyindex
           pip install -e "client/[test]"
           pip install -e "server/[tensorrt]"
+          pip install -e "server/[onnx]"
           {
             pip install -e "server/[flash-attn]"
           } || {
@@ -168,6 +168,8 @@ jobs:
         run: |
           pytest --suppress-no-test-exit-code --cov=clip_client --cov=clip_server --cov-report=xml \
             -v -s -m "gpu" ./tests/test_tensorrt.py
+          pytest --suppress-no-test-exit-code --cov=clip_client --cov=clip_server --cov-report=xml \
+            -v -s -m "gpu" ./tests/test_simple.py
           echo "::set-output name=codecov_flag::cas"
         timeout-minutes: 30
         env:

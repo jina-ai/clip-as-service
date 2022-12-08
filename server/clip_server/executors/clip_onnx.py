@@ -27,6 +27,7 @@ class CLIPEncoder(Executor):
         minibatch_size: int = 32,
         access_paths: str = '@r',
         model_path: Optional[str] = None,
+        dtype: Optional[str] = None,
         **kwargs,
     ):
         """
@@ -41,8 +42,17 @@ class CLIPEncoder(Executor):
         :param model_path: The path to the model to be used. If not specified, the model will be downloaded or loaded
             from the local cache. Visit https://clip-as-service.jina.ai/user-guides/server/#use-custom-model-for-onnx
             to learn how to finetune custom models.
+        :param dtype: inference data type, if None defaults to 'fp32' if device == 'cpu' else 'fp16'.
         """
         super().__init__(**kwargs)
+        import torch
+
+        if not device:
+            device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        self._device = device
+        if not dtype:
+            dtype = 'fp32' if self._device in ('cpu', torch.device('cpu')) else 'fp16'
+        self._dtype = dtype
 
         self._minibatch_size = minibatch_size
         self._access_paths = access_paths
@@ -55,17 +65,10 @@ class CLIPEncoder(Executor):
         self._num_worker_preprocess = num_worker_preprocess
         self._pool = ThreadPool(processes=num_worker_preprocess)
 
-        self._model = CLIPOnnxModel(name, model_path)
+        self._model = CLIPOnnxModel(name, model_path, dtype)
         self._tokenizer = Tokenizer(name)
 
         self._image_transform = clip._transform_ndarray(self._model.image_size)
-
-        import torch
-
-        if not device:
-            self._device = 'cuda' if torch.cuda.is_available() else 'cpu'
-        else:
-            self._device = device
 
         # define the priority order for the execution providers
         providers = ['CPUExecutionProvider']
@@ -116,6 +119,7 @@ class CLIPEncoder(Executor):
                     preprocess_fn=self._image_transform,
                     return_np=True,
                     drop_image_content=drop_image_content,
+                    dtype=self._dtype,
                 )
 
     def _preproc_texts(self, docs: 'DocumentArray'):

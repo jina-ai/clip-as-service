@@ -15,6 +15,7 @@ from torch import nn
 from dataclasses import dataclass
 from typing import Tuple, Union, Optional
 from copy import deepcopy
+from clip_server.helper import __cast_dtype__
 from open_clip.transformer import QuickGELU, LayerNorm, LayerNormFp32, Attention
 from open_clip.timm_model import TimmModel
 from open_clip.factory import _MODEL_CONFIGS
@@ -80,6 +81,11 @@ class VisionTransformer(_VisionTransformer):
     ):
         super().__init__(image_size, patch_size, output_dim=output_dim, **kwargs)
         self.transformer = Transformer(dtype=dtype, **kwargs)
+
+    def forward(self, x: torch.Tensor):
+        dtype = self.transformer.get_cast_dtype()
+        x = x.to(dtype)
+        return super().forward(x)
 
 
 class TextTransformer(_TextTransformer):
@@ -435,7 +441,9 @@ def load_openai_model(
     preprocess : Callable[[PIL.Image], torch.Tensor]
         A torchvision transform that converts a PIL image into a tensor that the returned model can take as its input
     """
-    if dtype is None:
+    if isinstance(dtype, str):
+        dtype = __cast_dtype__.get(dtype, 'amp')
+    elif dtype is None:
         dtype = (
             torch.float32 if device in ('cpu', torch.device('cpu')) else torch.float16
         )
@@ -550,7 +558,9 @@ def load_openclip_model(
     pretrained_image: bool = False,
     dtype: Optional[Union[str, torch.dtype]] = None,
 ):
-    if dtype is None:
+    if isinstance(dtype, str):
+        dtype = __cast_dtype__.get(dtype)
+    elif dtype is None:
         dtype = (
             torch.float32 if device in ('cpu', torch.device('cpu')) else torch.float16
         )

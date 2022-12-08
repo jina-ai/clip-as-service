@@ -1,5 +1,5 @@
 import os
-from typing import Dict
+from typing import Dict, Optional
 
 from clip_server.model.pretrained_models import (
     download_model,
@@ -201,8 +201,11 @@ _MODELS = {
 
 
 class CLIPOnnxModel(BaseCLIPModel):
-    def __init__(self, name: str, model_path: str = None):
+    def __init__(
+        self, name: str, model_path: str = None, dtype: Optional[str] = 'fp32'
+    ):
         super().__init__(name)
+        self._dtype = dtype
         if name in _MODELS:
             if not model_path:
                 cache_dir = os.path.expanduser(
@@ -237,6 +240,22 @@ class CLIPOnnxModel(BaseCLIPModel):
                         f'The given model path {model_path} should be a folder containing both '
                         f'`textual.onnx` and `visual.onnx`.'
                     )
+            if dtype == 'fp16':
+                import onnx
+                from onnxmltools.utils import float16_converter
+
+                _textual_model_fp16 = (
+                    float16_converter.convert_float_to_float16_model_path(
+                        self._textual_path
+                    )
+                )
+                _visual_model_fp16 = (
+                    float16_converter.convert_float_to_float16_model_path(
+                        self._visual_path
+                    )
+                )
+                onnx.save_model(_textual_model_fp16, self._textual_path)
+                onnx.save_model(_visual_model_fp16, self._visual_path)
         else:
             raise RuntimeError(
                 'CLIP model {} not found or not supports ONNX backend; below is a list of all available models:\n{}'.format(

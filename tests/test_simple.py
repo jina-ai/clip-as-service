@@ -27,6 +27,7 @@ def test_protocols(port_generator, protocol, jit, pytestconfig):
         c.profile(content=f'{pytestconfig.rootdir}/tests/img/00000.jpg')
 
 
+@pytest.mark.gpu
 @pytest.mark.parametrize(
     'inputs',
     [
@@ -48,6 +49,7 @@ def test_plain_inputs(make_flow, inputs):
     )
 
 
+@pytest.mark.gpu
 @pytest.mark.parametrize(
     'inputs',
     [

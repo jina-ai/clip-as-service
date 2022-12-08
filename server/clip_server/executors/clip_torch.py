@@ -2,7 +2,7 @@ import os
 import warnings
 from functools import partial
 from multiprocessing.pool import ThreadPool
-from typing import Dict, Optional
+from typing import Dict, Union, Optional
 
 import numpy as np
 import torch
@@ -12,6 +12,7 @@ from clip_server.executors.helper import (
     set_rank,
     split_img_txt_da,
 )
+from clip_server.helper import __cast_dtype__
 from clip_server.model import clip
 from clip_server.model.clip_model import CLIPModel
 from clip_server.model.tokenization import Tokenizer
@@ -28,6 +29,7 @@ class CLIPEncoder(Executor):
         num_worker_preprocess: int = 4,
         minibatch_size: int = 32,
         access_paths: str = '@r',
+        dtype: Optional[Union[str, torch.dtype]] = None,
         **kwargs,
     ):
         """
@@ -40,6 +42,7 @@ class CLIPEncoder(Executor):
             number if you encounter OOM errors.
         :param access_paths: The access paths to traverse on the input documents to get the images and texts to be
             processed. Visit https://docarray.jina.ai/fundamentals/documentarray/access-elements for more details.
+        :param dtype: inference data type, if None defaults to torch.float32 if device == 'cpu' else torch.float16.
         """
         super().__init__(**kwargs)
 
@@ -52,9 +55,17 @@ class CLIPEncoder(Executor):
             self._access_paths = kwargs['traversal_paths']
 
         if not device:
-            self._device = 'cuda' if torch.cuda.is_available() else 'cpu'
-        else:
-            self._device = device
+            device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        self._device = device
+        if isinstance(dtype, str):
+            dtype = __cast_dtype__.get(dtype)
+        elif not dtype:
+            dtype = (
+                torch.float32
+                if self._device in ('cpu', torch.device('cpu'))
+                else torch.float16
+            )
+        self._dtype = dtype
 
         if not self._device.startswith('cuda') and (
             'OMP_NUM_THREADS' not in os.environ
@@ -77,7 +88,9 @@ class CLIPEncoder(Executor):
         self._num_worker_preprocess = num_worker_preprocess
         self._pool = ThreadPool(processes=num_worker_preprocess)
 
-        self._model = CLIPModel(name, device=self._device, jit=jit, **kwargs)
+        self._model = CLIPModel(
+            name, device=self._device, jit=jit, dtype=dtype, **kwargs
+        )
         self._tokenizer = Tokenizer(name)
         self._image_transform = clip._transform_ndarray(self._model.image_size)
 
@@ -96,6 +109,7 @@ class CLIPEncoder(Executor):
                     device=self._device,
                     return_np=False,
                     drop_image_content=drop_image_content,
+                    dtype=self._dtype,
                 )
 
     def _preproc_texts(self, docs: 'DocumentArray'):
