@@ -40,41 +40,6 @@ def make_flow(port_generator, request):
         yield f
 
 
-@pytest.fixture(
-    scope='session',
-    params=[
-        ['onnx', 'ViT-B-32::openai'],
-        ['onnx', 'ViT-H-14::laion2b-s32b-b79k'],
-        ['torch', 'ViT-B-32::openai'],
-        ['onnx_custom', 'ViT-B-32::openai'],
-    ],
-)
-def make_flow_gpu(port_generator, request):
-    if request.param != 'onnx_custom':
-        if request.param[0] == 'onnx':
-            from clip_server.executors.clip_onnx import CLIPEncoder
-        else:
-            from clip_server.executors.clip_torch import CLIPEncoder
-
-        f = Flow(port=port_generator()).add(
-            name=request.param[0],
-            uses=CLIPEncoder,
-            uses_with={'name': request.param[1]},
-        )
-    else:
-        import os
-        from clip_server.executors.clip_onnx import CLIPEncoder
-
-        model_name = request.param[1].replace('::', '-')
-        f = Flow(port=port_generator()).add(
-            name=request.param[0],
-            uses=CLIPEncoder,
-            uses_with={'model_path': os.path.expanduser(f'~/.cache/clip/{model_name}')},
-        )
-    with f:
-        yield f
-
-
 @pytest.fixture(scope='session', params=['torch'])
 def make_torch_flow(port_generator, request):
     from clip_server.executors.clip_torch import CLIPEncoder
