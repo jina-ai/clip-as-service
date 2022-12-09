@@ -37,4 +37,6 @@ def test_onnx_model(name):
     ['ViT-H-14::laion2b-s32b-b79k'],
 )
 def test_large_onnx_model_fp16(name):
-    CLIPOnnxModel(name, dtype='fp16')
+    from clip_server.executors.clip_onnx import CLIPEncoder
+
+    CLIPEncoder(name, dtype='fp16')
