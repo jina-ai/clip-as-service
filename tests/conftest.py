@@ -49,7 +49,7 @@ def make_flow(port_generator, request):
         ['onnx_custom', 'ViT-B-32::openai'],
     ],
 )
-def make_flow_with_large(port_generator, request):
+def make_flow_gpu(port_generator, request):
     if request.param != 'onnx_custom':
         if request.param[0] == 'onnx':
             from clip_server.executors.clip_onnx import CLIPEncoder

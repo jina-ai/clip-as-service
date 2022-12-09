@@ -29,3 +29,11 @@ def test_torch_model(name, model_cls):
 )
 def test_onnx_model(name):
     CLIPOnnxModel(name)
+
+
+@pytest.mark.parametrize(
+    'name',
+    ['ViT-H-14::laion2b-s32b-b79k'],
+)
+def test_large_onnx_model_fp16(name):
+    CLIPOnnxModel(name, dtype='fp16')
