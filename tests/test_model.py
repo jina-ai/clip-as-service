@@ -2,7 +2,11 @@ import pytest
 from clip_server.model.clip_model import CLIPModel
 from clip_server.model.clip_onnx import CLIPOnnxModel
 from clip_server.model.openclip_model import OpenCLIPModel
-from clip_server.model.mclip_model import MultilingualCLIPModel
+
+try:
+    from clip_server.model.mclip_model import MultilingualCLIPModel
+except:
+    pass
 
 
 @pytest.mark.parametrize(
