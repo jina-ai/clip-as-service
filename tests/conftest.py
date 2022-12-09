@@ -57,7 +57,7 @@ def make_flow_with_large(port_generator, request):
             from clip_server.executors.clip_torch import CLIPEncoder
 
         f = Flow(port=port_generator()).add(
-            name=request.param[1],
+            name=request.param[0],
             uses=CLIPEncoder,
             uses_with={'name': request.param[1]},
         )
@@ -67,7 +67,7 @@ def make_flow_with_large(port_generator, request):
 
         model_name = request.param[1].replace('::', '-')
         f = Flow(port=port_generator()).add(
-            name=request.param[1],
+            name=request.param[0],
             uses=CLIPEncoder,
             uses_with={'model_path': os.path.expanduser(f'~/.cache/clip/{model_name}')},
         )
