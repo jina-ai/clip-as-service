@@ -290,7 +290,7 @@ class CLIPOnnxModel(BaseCLIPModel):
                             )
                         )
                         onnx.save_model(model_fp16, tmp_model_path)
-                    return ort.InferenceSession(tmp_model_path, **kwargs)
+                        model_path = tmp_model_path
             return ort.InferenceSession(model_path, **kwargs)
 
         self._visual_session = _load_session(self._visual_path, 'visual', dtype)
