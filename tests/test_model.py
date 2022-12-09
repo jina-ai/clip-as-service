@@ -31,6 +31,7 @@ def test_onnx_model(name):
     CLIPOnnxModel(name)
 
 
+@pytest.mark.gpu
 @pytest.mark.parametrize(
     'name',
     ['ViT-H-14::laion2b-s32b-b79k'],
