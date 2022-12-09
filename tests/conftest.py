@@ -67,7 +67,7 @@ def make_flow_with_large(port_generator, request):
 
         model_name = request.param[1].replace('::', '-')
         f = Flow(port=port_generator()).add(
-            name=request.param,
+            name=request.param[1],
             uses=CLIPEncoder,
             uses_with={'model_path': os.path.expanduser(f'~/.cache/clip/{model_name}')},
         )
