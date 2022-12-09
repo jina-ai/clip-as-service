@@ -266,33 +266,31 @@ class CLIPOnnxModel(BaseCLIPModel):
         dtype,
         **kwargs,
     ):
-        import tempfile
         import onnxruntime as ort
-
-        def _load_session_as_fp16(src_model: str, tmp_model: str, model_type: str):
-            import onnx
-            from onnxmltools.utils import float16_converter
-
-            _model_fp16 = float16_converter.convert_float_to_float16_model_path(
-                src_model
-            )
-            onnx.save_model(_model_fp16, tmp_model)
-            return ort.InferenceSession(tmp_model, **kwargs)
 
         def _load_session(model_path: str, model_type: str, dtype: str):
             if model_path.endswith('.zip') or dtype == 'fp16':
+                import tempfile
+
                 with tempfile.TemporaryDirectory() as tmp_dir:
-                    src_model = model_path
-                    tmp_model = tmp_dir + f'/{model_type}.onnx'
+                    tmp_model_path = tmp_dir + f'/{model_type}.onnx'
                     if model_path.endswith('.zip'):
                         import zipfile
 
                         with zipfile.ZipFile(model_path, 'r') as zip_ref:
                             zip_ref.extractall(tmp_dir)
-                            src_model = tmp_model
+                            model_path = tmp_model_path
                     if dtype == 'fp16':
-                        return _load_session_as_fp16(src_model, tmp_model, model_type)
-                    return ort.InferenceSession(tmp_model, **kwargs)
+                        import onnx
+                        from onnxmltools.utils import float16_converter
+
+                        model_fp16 = (
+                            float16_converter.convert_float_to_float16_model_path(
+                                model_path
+                            )
+                        )
+                        onnx.save_model(model_fp16, tmp_model_path)
+                    return ort.InferenceSession(tmp_model_path, **kwargs)
             return ort.InferenceSession(model_path, **kwargs)
 
         self._visual_session = _load_session(self._visual_path, 'visual', dtype)
