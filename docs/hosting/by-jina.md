@@ -4,6 +4,10 @@ Just like any other machine learning models, CLIP models have better performance
 
 An always-online server `api.clip.jina.ai` loaded with `ViT-L-14-336::openai` is there for you to play or develop your CLIP applications. The server is available for **encoding** and **ranking** tasks.
 
+`ViT-L-14-336::openai` was released in April 2022 and this is the best model within all models offered by [OpenAI](https://github.com/openai/CLIP/blob/main/clip/clip.py#L30) and also the best model when we developed this free service.
+
+However, the "best model" is not always the best choice for your application. You may want to use a smaller model for faster response time, or a larger model for better accuracy. We provide the Inference API for you to customize your models, and this feature is currently in beta.
+
 Before you start, make sure you have obtained an access token from our [console website](https://console.clip.jina.ai/get_started), or via CLI as described in [this guide](https://docs.jina.ai/jina-ai-cloud/login/#create-a-new-pat)
 
 ```bash
