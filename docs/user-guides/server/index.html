@@ -32,10 +32,10 @@
 <link rel="index" title="Index" href="../../genindex/" /><link rel="search" title="Search" href="../../search/" /><link rel="next" title="Benchmark" href="../benchmark/" /><link rel="prev" title="Client API" href="../client/" />
         <link rel="canonical" href="https://clip-as-service.jina.ai/user-guides/server.html" />
 
-    <link rel="shortcut icon" href="../../_static/favicon.png"/><meta name="generator" content="sphinx-4.5.0, furo 2022.09.29"/>
+    <link rel="shortcut icon" href="../../_static/favicon.png"/><!-- Generated with Sphinx 5.3.0 and Furo 2022.12.07 -->
         <title>Server API - CLIP-as-service 0.8.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=91d0f0d1c444bdcb17a68e833c7a53903343c195" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" />
@@ -210,7 +210,7 @@
   <a class="github-button" href="https://github.com/jina-ai/clip-as-service" data-icon="octicon-star" data-show-count="true" aria-label="Star jina-ai/jina on GitHub" style="opacity: 0;">Star</a>
   
 </div><form class="sidebar-search-container" method="get" action="../../search/" role="search">
-  <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
   <input type="hidden" name="area" value="default">
 </form>
@@ -318,7 +318,7 @@
                 </div>
                 <article role="main">
                     <section class="tex2jax_ignore mathjax_ignore" id="server-api">
-<h1>Server API<a class="headerlink" href="#server-api" title="Permalink to this headline">#</a></h1>
+<h1>Server API<a class="headerlink" href="#server-api" title="Permalink to this heading">#</a></h1>
 <p>CLIP-as-service is designed in a client-server architecture. A server is a long-running program that receives raw sentences and images from clients, and returns CLIP embeddings to the client. Additionally, <code class="docutils literal notranslate"><span class="pre">clip_server</span></code> is optimized for speed, low memory footprint and scalability.</p>
 <ul class="simple">
 <li><p>Horizontal scaling: adding more replicas easily with one argument.</p></li>
@@ -331,9 +331,9 @@
 <p>You will need to install server first in Python 3.7+: <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">clip-server</span></code>.</p>
 </div>
 <section id="start-server">
-<span id="server-address"></span><h2>Start server<a class="headerlink" href="#start-server" title="Permalink to this headline">#</a></h2>
+<span id="server-address"></span><h2>Start server<a class="headerlink" href="#start-server" title="Permalink to this heading">#</a></h2>
 <section id="start-a-pytorch-backed-server">
-<h3>Start a PyTorch-backed server<a class="headerlink" href="#start-a-pytorch-backed-server" title="Permalink to this headline">#</a></h3>
+<h3>Start a PyTorch-backed server<a class="headerlink" href="#start-a-pytorch-backed-server" title="Permalink to this heading">#</a></h3>
 <p>Unlike the client, server only has a CLI entrypoint. To start a server, run the following in the terminal:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python -m clip_server
 </pre></div>
@@ -345,7 +345,7 @@
 </figure>
 </section>
 <section id="start-a-onnx-backed-server">
-<h3>Start a ONNX-backed server<a class="headerlink" href="#start-a-onnx-backed-server" title="Permalink to this headline">#</a></h3>
+<h3>Start a ONNX-backed server<a class="headerlink" href="#start-a-onnx-backed-server" title="Permalink to this heading">#</a></h3>
 <p>To use ONNX runtime for CLIP, you can run:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install <span class="s2">&quot;clip_server[onnx]&quot;</span>
 
@@ -354,7 +354,7 @@ python -m clip_server onnx-flow.yml
 </div>
 </section>
 <section id="start-a-tensorrt-backed-server">
-<h3>Start a TensorRT-backed server<a class="headerlink" href="#start-a-tensorrt-backed-server" title="Permalink to this headline">#</a></h3>
+<h3>Start a TensorRT-backed server<a class="headerlink" href="#start-a-tensorrt-backed-server" title="Permalink to this heading">#</a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">nvidia-pyindex</span></code> package needs to be installed first. It allows your <code class="docutils literal notranslate"><span class="pre">pip</span></code> to fetch additional Python modules from the NVIDIA NGC™ PyPI repo:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install nvidia-pyindex
 pip install <span class="s2">&quot;clip_server[tensorrt]&quot;</span>
@@ -367,7 +367,7 @@ python -m clip_server tensorrt-flow.yml
 </section>
 </section>
 <section id="model-support">
-<h2>Model support<a class="headerlink" href="#model-support" title="Permalink to this headline">#</a></h2>
+<h2>Model support<a class="headerlink" href="#model-support" title="Permalink to this heading">#</a></h2>
 <p>The various <code class="docutils literal notranslate"><span class="pre">CLIP</span></code> models implemented in the <a class="reference external" href="https://github.com/openai/CLIP">OpenAI</a>, <a class="reference external" href="https://github.com/mlfoundations/open_clip">OpenCLIP</a>, and <a class="reference external" href="https://github.com/FreddeFrallan/Multilingual-CLIP">MultilingualCLIP</a> are supported.
 <code class="docutils literal notranslate"><span class="pre">ViT-B-32::openai</span></code> is used as the default model in all runtimes.
 Due to the limitation of some runtimes, not every runtime supports all models.
@@ -563,7 +563,7 @@ Please also note that <strong>different models give different sizes of output di
 </div>
 <p>✅ = Supported — 🚧 = Working in progress — ❌ = Not supported</p>
 <section id="use-custom-model-for-onnx">
-<h3>Use custom model for onnx<a class="headerlink" href="#use-custom-model-for-onnx" title="Permalink to this headline">#</a></h3>
+<h3>Use custom model for onnx<a class="headerlink" href="#use-custom-model-for-onnx" title="Permalink to this heading">#</a></h3>
 <p>You can also use your own model in ONNX runtime by specifying the model name and the path to ONNX model directory in YAML file.
 The model directory should have the same structure as below:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>.
@@ -580,7 +580,7 @@ Moving the process into the cloud, <a class="reference external" href="https://f
 </section>
 </section>
 <section id="yaml-config">
-<h2>YAML config<a class="headerlink" href="#yaml-config" title="Permalink to this headline">#</a></h2>
+<h2>YAML config<a class="headerlink" href="#yaml-config" title="Permalink to this heading">#</a></h2>
 <p>You may notice that there is a YAML file in our last ONNX example. All configurations are stored in this file. In fact, <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">clip_server</span></code> does <strong>not support</strong> any other argument besides a YAML file. So it is the only source of the truth of your configs.</p>
 <p>To load a YAML config from <code class="docutils literal notranslate"><span class="pre">my.yml</span></code>, simply do</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python -m clip_server my.yml
@@ -694,7 +694,7 @@ In the same way, when you do <code class="docutils literal notranslate"><span cl
 </div>
 </div>
 <section id="clip-model-config">
-<h3>CLIP model config<a class="headerlink" href="#clip-model-config" title="Permalink to this headline">#</a></h3>
+<h3>CLIP model config<a class="headerlink" href="#clip-model-config" title="Permalink to this heading">#</a></h3>
 <p>For all backends, you can set the following parameters via <code class="docutils literal notranslate"><span class="pre">with</span></code>:</p>
 <div class="table-wrapper colwidths-auto docutils container">
 <table class="colwidths-auto docutils align-default">
@@ -797,7 +797,7 @@ In the same way, when you do <code class="docutils literal notranslate"><span cl
 </div>
 </section>
 <section id="executor-config">
-<h3>Executor config<a class="headerlink" href="#executor-config" title="Permalink to this headline">#</a></h3>
+<h3>Executor config<a class="headerlink" href="#executor-config" title="Permalink to this heading">#</a></h3>
 <p>The full list of configs for Executor can be found via <code class="docutils literal notranslate"><span class="pre">jina</span> <span class="pre">executor</span> <span class="pre">--help</span></code>. The most important one is probably <code class="docutils literal notranslate"><span class="pre">replicas</span></code>, which <strong>allows you to run multiple CLIP models in parallel</strong> to achieve horizontal scaling.</p>
 <p>To scale to 4 CLIP replicas, simply adding <code class="docutils literal notranslate"><span class="pre">replicas:</span> <span class="pre">4</span></code> under <code class="docutils literal notranslate"><span class="pre">uses:</span></code>:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">jtype</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Flow</span><span class="w"></span>
@@ -816,7 +816,7 @@ In the same way, when you do <code class="docutils literal notranslate"><span cl
 </div>
 </section>
 <section id="flow-config">
-<span id="id1"></span><h3>Flow config<a class="headerlink" href="#flow-config" title="Permalink to this headline">#</a></h3>
+<span id="id1"></span><h3>Flow config<a class="headerlink" href="#flow-config" title="Permalink to this heading">#</a></h3>
 <p>Flow configs are the ones under top-level <code class="docutils literal notranslate"><span class="pre">with:</span></code>. We can see the <code class="docutils literal notranslate"><span class="pre">port:</span> <span class="pre">51000</span></code> is configured there. Besides <code class="docutils literal notranslate"><span class="pre">port</span></code>, there are some common parameters you might need.</p>
 <div class="table-wrapper colwidths-auto docutils container">
 <table class="colwidths-auto docutils align-default">
@@ -858,7 +858,7 @@ In the same way, when you do <code class="docutils literal notranslate"><span cl
 </section>
 </section>
 <section id="environment-variables">
-<h2>Environment variables<a class="headerlink" href="#environment-variables" title="Permalink to this headline">#</a></h2>
+<h2>Environment variables<a class="headerlink" href="#environment-variables" title="Permalink to this heading">#</a></h2>
 <p>To start a server with more verbose logging,</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">JINA_LOG_LEVEL</span><span class="o">=</span>DEBUG python -m clip_server
 </pre></div>
@@ -871,7 +871,7 @@ In the same way, when you do <code class="docutils literal notranslate"><span cl
 </pre></div>
 </div>
 <section id="serve-on-multiple-gpus">
-<h3>Serve on Multiple GPUs<a class="headerlink" href="#serve-on-multiple-gpus" title="Permalink to this headline">#</a></h3>
+<h3>Serve on Multiple GPUs<a class="headerlink" href="#serve-on-multiple-gpus" title="Permalink to this heading">#</a></h3>
 <p>If you have multiple GPU devices, you can leverage them via <code class="docutils literal notranslate"><span class="pre">CUDA_VISIBLE_DEVICES=RR</span></code>. For example, if you have 3 GPUs and your Flow YAML says <code class="docutils literal notranslate"><span class="pre">replicas:</span> <span class="pre">5</span></code>, then</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span>RR python -m clip_server
 </pre></div>
@@ -942,7 +942,7 @@ In the same way, when you do <code class="docutils literal notranslate"><span cl
 </section>
 </section>
 <section id="monitor-with-prometheus-and-grafana">
-<h2>Monitor with Prometheus and Grafana<a class="headerlink" href="#monitor-with-prometheus-and-grafana" title="Permalink to this headline">#</a></h2>
+<h2>Monitor with Prometheus and Grafana<a class="headerlink" href="#monitor-with-prometheus-and-grafana" title="Permalink to this heading">#</a></h2>
 <p>To monitor the performance of the service, you can enable the Prometheus metrics in the Flow YAML:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">jtype</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Flow</span><span class="w"></span>
 <span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;1&#39;</span><span class="w"></span>
@@ -978,7 +978,7 @@ In the same way, when you do <code class="docutils literal notranslate"><span cl
 <p>For more information on monitoring a Flow, <a class="reference external" href="https://docs.jina.ai/fundamentals/flow/monitoring-flow/">please read here</a>.</p>
 </section>
 <section id="serve-with-tls">
-<h2>Serve with TLS<a class="headerlink" href="#serve-with-tls" title="Permalink to this headline">#</a></h2>
+<h2>Serve with TLS<a class="headerlink" href="#serve-with-tls" title="Permalink to this heading">#</a></h2>
 <p>You can turn on TLS for HTTP and gRPC protocols. Your Flow YAML should be changed to the following:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">jtype</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Flow</span><span class="w"></span>
 <span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;1&#39;</span><span class="w"></span>
@@ -1027,10 +1027,10 @@ In the same way, when you do <code class="docutils literal notranslate"><span cl
 </div>
 </section>
 <section id="serve-in-docker-container">
-<h2>Serve in Docker Container<a class="headerlink" href="#serve-in-docker-container" title="Permalink to this headline">#</a></h2>
+<h2>Serve in Docker Container<a class="headerlink" href="#serve-in-docker-container" title="Permalink to this heading">#</a></h2>
 <p>You can run the server inside a Docker container. We provide a Dockerfile in the repository, which is CUDA-enabled with optimized package installation.</p>
 <section id="build">
-<h3>Build<a class="headerlink" href="#build" title="Permalink to this headline">#</a></h3>
+<h3>Build<a class="headerlink" href="#build" title="Permalink to this heading">#</a></h3>
 <p>We have a list of <a class="reference internal" href="#prebuild-images"><span class="std std-ref">pre-built images available on Docker Hub</span></a>. If they are too big for you to download, you may consider built it yourself as follows:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git clone https://github.com/jina-ai/clip-as-service.git
 docker build . -f Dockerfiles/server.Dockerfile  --build-arg <span class="nv">GROUP_ID</span><span class="o">=</span><span class="k">$(</span>id -g <span class="si">${</span><span class="nv">USER</span><span class="si">}</span><span class="k">)</span> --build-arg <span class="nv">USER_ID</span><span class="o">=</span><span class="k">$(</span>id -u <span class="si">${</span><span class="nv">USER</span><span class="si">}</span><span class="k">)</span> -t jinaai/clip-server
@@ -1042,7 +1042,7 @@ docker build . -f Dockerfiles/server.Dockerfile  --build-arg <span class="nv">GR
 </div>
 </section>
 <section id="run">
-<h3>Run<a class="headerlink" href="#run" title="Permalink to this headline">#</a></h3>
+<h3>Run<a class="headerlink" href="#run" title="Permalink to this heading">#</a></h3>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker run -p <span class="m">51009</span>:51000 -v <span class="nv">$HOME</span>/.cache:/home/cas/.cache --gpus all jinaai/clip-server
 </pre></div>
 </div>
@@ -1059,7 +1059,7 @@ docker build . -f Dockerfiles/server.Dockerfile  --build-arg <span class="nv">GR
 </div>
 </section>
 <section id="pre-built-images">
-<span id="prebuild-images"></span><h3>Pre-built images<a class="headerlink" href="#pre-built-images" title="Permalink to this headline">#</a></h3>
+<span id="prebuild-images"></span><h3>Pre-built images<a class="headerlink" href="#pre-built-images" title="Permalink to this heading">#</a></h3>
 <p>We have prebuilt images with CUDA support.</p>
 <p>The Docker image name always starts with <code class="docutils literal notranslate"><span class="pre">jinaai/clip-server</span></code> followed by a tag composed of three parts:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>jinaai/clip-server:{version}{extra}
@@ -1083,7 +1083,7 @@ docker build . -f Dockerfiles/server.Dockerfile  --build-arg <span class="nv">GR
 </li>
 </ul>
 <section id="image-alias-and-updates">
-<h4>Image alias and updates<a class="headerlink" href="#image-alias-and-updates" title="Permalink to this headline">#</a></h4>
+<h4>Image alias and updates<a class="headerlink" href="#image-alias-and-updates" title="Permalink to this heading">#</a></h4>
 <div class="table-wrapper colwidths-auto docutils container">
 <table class="colwidths-auto docutils align-default">
 <thead>
@@ -1110,7 +1110,7 @@ docker build . -f Dockerfiles/server.Dockerfile  --build-arg <span class="nv">GR
 </ul>
 </section>
 <section id="image-size-on-different-tags">
-<h4>Image size on different tags<a class="headerlink" href="#image-size-on-different-tags" title="Permalink to this headline">#</a></h4>
+<h4>Image size on different tags<a class="headerlink" href="#image-size-on-different-tags" title="Permalink to this heading">#</a></h4>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p><a class="reference external" href="https://github.com/badges/shields/issues/7583">Due to a known bug in shields.io/Docker Hub API</a>, the following badge may show “invalid” status randomly.</p>
@@ -1177,7 +1177,7 @@ docker build . -f Dockerfiles/server.Dockerfile  --build-arg <span class="nv">GR
                         <div class="copyright">
                             Copyright &#169; Jina AI Limited. All rights reserved.
                         </div><div class="last-updated">
-                            Last updated on Dec 02, 2022</div>
+                            Last updated on Dec 12, 2022</div>
                     </div>
                     <div class="right-details">
                         <div class="social-btns">
@@ -1271,7 +1271,9 @@ docker build . -f Dockerfiles/server.Dockerfile  --build-arg <span class="nv">GR
      src="https://static.scarf.sh/a.png?x-pxid=2823e771-0e1e-4320-8fde-48bc48e53262"/><script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
     <script src="../../_static/jquery.js"></script>
     <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
     <script src="../../_static/scripts/furo.js"></script>
     <script src="../../_static/clipboard.min.js"></script>
     <script src="../../_static/copybutton.js"></script>

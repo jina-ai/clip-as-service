@@ -32,10 +32,10 @@
 <link rel="index" title="Index" href="../../genindex/" /><link rel="search" title="Search" href="../../search/" /><link rel="next" title="Server API" href="../server/" /><link rel="prev" title="Welcome to CLIP-as-service!" href="../../" />
         <link rel="canonical" href="https://clip-as-service.jina.ai/user-guides/client.html" />
 
-    <link rel="shortcut icon" href="../../_static/favicon.png"/><meta name="generator" content="sphinx-4.5.0, furo 2022.09.29"/>
+    <link rel="shortcut icon" href="../../_static/favicon.png"/><!-- Generated with Sphinx 5.3.0 and Furo 2022.12.07 -->
         <title>Client API - CLIP-as-service 0.8.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=91d0f0d1c444bdcb17a68e833c7a53903343c195" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" />
@@ -210,7 +210,7 @@
   <a class="github-button" href="https://github.com/jina-ai/clip-as-service" data-icon="octicon-star" data-show-count="true" aria-label="Star jina-ai/jina on GitHub" style="opacity: 0;">Star</a>
   
 </div><form class="sidebar-search-container" method="get" action="../../search/" role="search">
-  <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
   <input type="hidden" name="area" value="default">
 </form>
@@ -318,7 +318,7 @@
                 </div>
                 <article role="main">
                     <section class="tex2jax_ignore mathjax_ignore" id="client-api">
-<h1>Client API<a class="headerlink" href="#client-api" title="Permalink to this headline">#</a></h1>
+<h1>Client API<a class="headerlink" href="#client-api" title="Permalink to this heading">#</a></h1>
 <p>CLIP-as-service is designed in a client-server architecture. You can use <code class="docutils literal notranslate"><span class="pre">clip_client</span></code> to send images and texts to the server and receive the responses from the server. Right now, <code class="docutils literal notranslate"><span class="pre">clip_client</span></code> provides encoding, ranking, indexing, and searching functionalities. Additionally, it has many nice designs for speeding up the processing of a large amount of data:</p>
 <ul class="simple">
 <li><p>Streaming: request sending is <em>not</em> blocked by the response receiving. Sending and receiving are two separate streams that run in parallel. Both are independent and each have separate internal buffer.</p></li>
@@ -333,7 +333,7 @@
 <p>You will need to install <code class="docutils literal notranslate"><span class="pre">clip_client</span></code> first in Python 3.7+: <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">clip-client</span></code>.</p>
 </div>
 <section id="construct-client">
-<span id="id1"></span><h2>Construct client<a class="headerlink" href="#construct-client" title="Permalink to this headline">#</a></h2>
+<span id="id1"></span><h2>Construct client<a class="headerlink" href="#construct-client" title="Permalink to this heading">#</a></h2>
 <p>To use <code class="docutils literal notranslate"><span class="pre">clip_client</span></code>, you need to first construct a Client object, e.g.:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">clip_client</span> <span class="kn">import</span> <span class="n">Client</span>
 
@@ -368,12 +368,12 @@
 <p>Jina AI provides a hosted service for CLIP models. Refer <a class="reference external" href="hosting/by-jina#by-jina-python">here</a> for more details on how to connect to the hosted service.</p>
 </section>
 <section id="encoding">
-<h2>Encoding<a class="headerlink" href="#encoding" title="Permalink to this headline">#</a></h2>
+<h2>Encoding<a class="headerlink" href="#encoding" title="Permalink to this heading">#</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">clip_client</span></code> provides <a class="reference internal" href="../../api/clip_client.client/#clip_client.client.Client.encode" title="clip_client.client.Client.encode"><code class="xref py py-func docutils literal notranslate"><span class="pre">encode()</span></code></a> function that allows you to send sentences, images to the server in a streaming and sync/async manner. Encoding here means getting the fixed-length vector representation of a text or image.</p>
 <p><a class="reference internal" href="../../api/clip_client.client/#clip_client.client.Client.encode" title="clip_client.client.Client.encode"><code class="xref py py-func docutils literal notranslate"><span class="pre">encode()</span></code></a> supports two basic input types:</p>
 <ul class="simple">
 <li><p><strong>An iterable of <code class="docutils literal notranslate"><span class="pre">str</span></code></strong>, e.g. <code class="docutils literal notranslate"><span class="pre">List[str]</span></code>, <code class="docutils literal notranslate"><span class="pre">Tuple[str]</span></code>, <code class="docutils literal notranslate"><span class="pre">Generator[str]</span></code> are all acceptable.</p></li>
-<li><p><strong>An iterable of <a class="reference external" href="https://docarray.jina.ai/api/docarray.document/#docarray.document.Document" title="(in DocArray v0.19.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Document</span></code></a></strong>, e.g. <code class="docutils literal notranslate"><span class="pre">List[Document]</span></code>, <a class="reference external" href="https://docarray.jina.ai/api/docarray.array.document/#docarray.array.document.DocumentArray" title="(in DocArray v0.19.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DocumentArray</span></code></a>, <code class="docutils literal notranslate"><span class="pre">Generator[Document]</span></code> are all acceptable.</p></li>
+<li><p><strong>An iterable of <a class="reference external" href="https://docarray.jina.ai/api/docarray.document/#docarray.document.Document" title="(in DocArray v0.20.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Document</span></code></a></strong>, e.g. <code class="docutils literal notranslate"><span class="pre">List[Document]</span></code>, <a class="reference external" href="https://docarray.jina.ai/api/docarray.array.document/#docarray.array.document.DocumentArray" title="(in DocArray v0.20.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DocumentArray</span></code></a>, <code class="docutils literal notranslate"><span class="pre">Generator[Document]</span></code> are all acceptable.</p></li>
 </ul>
 <p>Depending on the input, the output of <a class="reference internal" href="../../api/clip_client.client/#clip_client.client.Client.encode" title="clip_client.client.Client.encode"><code class="xref py py-func docutils literal notranslate"><span class="pre">encode()</span></code></a> is different:</p>
 <ul class="simple">
@@ -382,7 +382,7 @@
 </ul>
 <p>Now let’s look at these two cases in details.</p>
 <section id="input-as-iterable-of-strings">
-<h3>Input as iterable of strings<a class="headerlink" href="#input-as-iterable-of-strings" title="Permalink to this headline">#</a></h3>
+<h3>Input as iterable of strings<a class="headerlink" href="#input-as-iterable-of-strings" title="Permalink to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Input: each string element is auto-detected as a sentence or an image.</p></li>
 <li><p>Output: a <code class="docutils literal notranslate"><span class="pre">[N,</span> <span class="pre">D]</span></code> shape <code class="docutils literal notranslate"><span class="pre">numpy.ndarray</span></code>, where <code class="docutils literal notranslate"><span class="pre">N</span></code> is the length of the input and <code class="docutils literal notranslate"><span class="pre">D</span></code> is the CLIP embedding size. Each row corresponds to the embedding of the input object.</p></li>
@@ -417,7 +417,7 @@
 </div>
 </section>
 <section id="input-as-iterable-of-documents">
-<h3>Input as iterable of Documents<a class="headerlink" href="#input-as-iterable-of-documents" title="Permalink to this headline">#</a></h3>
+<h3>Input as iterable of Documents<a class="headerlink" href="#input-as-iterable-of-documents" title="Permalink to this heading">#</a></h3>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
 <p>This feature uses <a class="reference external" href="https://docarray.jina.ai">DocArray</a>, which is installed together with <code class="docutils literal notranslate"><span class="pre">clip_client</span></code> as an upstream dependency. You do not need to install DocArray separately.</p>
@@ -506,7 +506,7 @@
 </div>
 </section>
 <section id="async-encoding">
-<h3>Async encoding<a class="headerlink" href="#async-encoding" title="Permalink to this headline">#</a></h3>
+<h3>Async encoding<a class="headerlink" href="#async-encoding" title="Permalink to this heading">#</a></h3>
 <p>To encode <code class="docutils literal notranslate"><span class="pre">Document</span></code> in an asynchronous manner, one can use <a class="reference internal" href="../../api/clip_client.client/#clip_client.client.Client.aencode" title="clip_client.client.Client.aencode"><code class="xref py py-func docutils literal notranslate"><span class="pre">aencode()</span></code></a>.</p>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
@@ -539,7 +539,7 @@
 </section>
 </section>
 <section id="ranking">
-<span id="rank-api"></span><h2>Ranking<a class="headerlink" href="#ranking" title="Permalink to this headline">#</a></h2>
+<span id="rank-api"></span><h2>Ranking<a class="headerlink" href="#ranking" title="Permalink to this heading">#</a></h2>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
 <p>This feature is only available with <code class="docutils literal notranslate"><span class="pre">clip_server&gt;=0.3.0</span></code>.</p>
@@ -596,7 +596,7 @@
 </div>
 </section>
 <section id="indexing">
-<span id="id2"></span><h2>Indexing<a class="headerlink" href="#indexing" title="Permalink to this headline">#</a></h2>
+<span id="id2"></span><h2>Indexing<a class="headerlink" href="#indexing" title="Permalink to this heading">#</a></h2>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
 <p>This feature is only available with <code class="docutils literal notranslate"><span class="pre">clip_client&gt;=0.7.0</span></code>, and the server is running with
@@ -649,7 +649,7 @@ a FLOW consisting of encoder and indexer.</p>
 Now we can use the indexer to search for the indexed Documents.</p>
 </section>
 <section id="searching">
-<span id="id3"></span><h2>Searching<a class="headerlink" href="#searching" title="Permalink to this headline">#</a></h2>
+<span id="id3"></span><h2>Searching<a class="headerlink" href="#searching" title="Permalink to this heading">#</a></h2>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
 <p>This feature is only available with <code class="docutils literal notranslate"><span class="pre">clip_client&gt;=0.7.0</span></code>, and the server is running with
@@ -673,7 +673,7 @@ to search for relevant Documents in the index for a given query.</p>
 <p>You can set the <code class="docutils literal notranslate"><span class="pre">limit</span></code> parameter (default is <code class="docutils literal notranslate"><span class="pre">10</span></code>) to control the number of the most similar documents to be retrieved.</p>
 </section>
 <section id="profiling">
-<span id="id4"></span><h2>Profiling<a class="headerlink" href="#profiling" title="Permalink to this headline">#</a></h2>
+<span id="id4"></span><h2>Profiling<a class="headerlink" href="#profiling" title="Permalink to this heading">#</a></h2>
 <p>You can use <a class="reference internal" href="../../api/clip_client.client/#clip_client.client.Client.profile" title="clip_client.client.Client.profile"><code class="xref py py-func docutils literal notranslate"><span class="pre">profile()</span></code></a> to give a quick test on the server to make sure everything is good.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">clip_client</span> <span class="kn">import</span> <span class="n">Client</span>
 
@@ -705,15 +705,15 @@ to search for relevant Documents in the index for a given query.</p>
 <p>Single query latency is often very fluctuated. Running <code class="docutils literal notranslate"><span class="pre">.profile()</span></code> multiple times may give you different results. Nonetheless, it helps you understand who to blame if CLIP-as-service is running slow for you: the network? the computation? But certainly not this software itself.</p>
 </section>
 <section id="best-practices">
-<h2>Best practices<a class="headerlink" href="#best-practices" title="Permalink to this headline">#</a></h2>
+<h2>Best practices<a class="headerlink" href="#best-practices" title="Permalink to this heading">#</a></h2>
 <p>In this section, we will show you some best practices for using this client. We will use encoding as an example. The same applies to all other methods.</p>
 <section id="control-batch-size">
-<h3>Control batch size<a class="headerlink" href="#control-batch-size" title="Permalink to this headline">#</a></h3>
+<h3>Control batch size<a class="headerlink" href="#control-batch-size" title="Permalink to this heading">#</a></h3>
 <p>You can specify <code class="docutils literal notranslate"><span class="pre">.encode(...,</span> <span class="pre">batch_size=8)</span></code> to control how many <code class="docutils literal notranslate"><span class="pre">Document</span></code>s are sent in each request. You can play this number and find the perfect balance between network transmission and GPU utilization.</p>
 <p>Intuitively, setting <code class="docutils literal notranslate"><span class="pre">batch_size=1024</span></code> should result in very high GPU utilization on each request. However, a large batch size like this also means sending each request would take longer. Given that <code class="docutils literal notranslate"><span class="pre">clip-client</span></code> is designed with request and response streaming, large batch size would not benefit from the time overlapping between request streaming and response streaming.</p>
 </section>
 <section id="show-progressbar">
-<h3>Show progressbar<a class="headerlink" href="#show-progressbar" title="Permalink to this headline">#</a></h3>
+<h3>Show progressbar<a class="headerlink" href="#show-progressbar" title="Permalink to this heading">#</a></h3>
 <p>You can use <code class="docutils literal notranslate"><span class="pre">.encode(...,</span> <span class="pre">show_progress=True)</span></code> to turn on the progress bar.</p>
 <figure class="align-default">
 <a class="reference internal image-reference" href="../../_images/client-pgbar.gif"><img alt="../../_images/client-pgbar.gif" src="../../_images/client-pgbar.gif" style="width: 80%;" /></a>
@@ -724,7 +724,7 @@ to search for relevant Documents in the index for a given query.</p>
 </div>
 </section>
 <section id="processing-large-number-of-documents">
-<h3>Processing large number of Documents<a class="headerlink" href="#processing-large-number-of-documents" title="Permalink to this headline">#</a></h3>
+<h3>Processing large number of Documents<a class="headerlink" href="#processing-large-number-of-documents" title="Permalink to this heading">#</a></h3>
 <p>Here are some suggestions when encoding a large number of <code class="docutils literal notranslate"><span class="pre">Document</span></code>s:</p>
 <ol>
 <li><p>Use <code class="docutils literal notranslate"><span class="pre">Generator</span></code> as input to load data on-demand. You can put your data into a Generator and feed to <code class="docutils literal notranslate"><span class="pre">.encode</span></code>:</p>
@@ -758,7 +758,7 @@ to search for relevant Documents in the index for a given query.</p>
 </div>
 </section>
 <section id="custom-callback">
-<h3>Custom callback<a class="headerlink" href="#custom-callback" title="Permalink to this headline">#</a></h3>
+<h3>Custom callback<a class="headerlink" href="#custom-callback" title="Permalink to this heading">#</a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">clip_client</span></code> by default collects all the results and returns them to users. However, if you want to process the results on-the-fly, you can also pass a callback function when sending the request. For example, you can use the callback to save the results to a database, or render the results to a webpage. Specifically, you can specify any of the three callback functions: <code class="docutils literal notranslate"><span class="pre">on_done</span></code>, <code class="docutils literal notranslate"><span class="pre">on_error</span></code>, and <code class="docutils literal notranslate"><span class="pre">on_always</span></code>.</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">on_done</span></code> is executed while streaming, after successful completion of each request</p></li>
@@ -799,7 +799,7 @@ to search for relevant Documents in the index for a given query.</p>
 </div>
 </section>
 <section id="client-parallelism">
-<h3>Client parallelism<a class="headerlink" href="#client-parallelism" title="Permalink to this headline">#</a></h3>
+<h3>Client parallelism<a class="headerlink" href="#client-parallelism" title="Permalink to this heading">#</a></h3>
 <p>In case you instanciate a <code class="docutils literal notranslate"><span class="pre">clip_client</span></code> object using the <code class="docutils literal notranslate"><span class="pre">grpc</span></code> protocol, keep in mind that <code class="docutils literal notranslate"><span class="pre">grpc</span></code> clients cannot be used in a multi-threaded environment (check <a class="reference external" href="https://github.com/grpc/grpc/issues/25364">this gRPC issue</a> for reference).
 What you should do, is to rely on asynchronous programming or multi-processing rather than multi-threading.</p>
 <p>To use <code class="docutils literal notranslate"><span class="pre">clip_client</span></code> in a Flask application, you can introduce multi-processing based parallelism to your app using <code class="docutils literal notranslate"><span class="pre">gunicorn</span></code>:</p>
@@ -834,7 +834,7 @@ What you should do, is to rely on asynchronous programming or multi-processing r
 </section>
 </section>
 <section id="appendix-plain-http-request-via-curl">
-<h2>Appendix: Plain HTTP request via <code class="docutils literal notranslate"><span class="pre">curl</span></code><a class="headerlink" href="#appendix-plain-http-request-via-curl" title="Permalink to this headline">#</a></h2>
+<h2>Appendix: Plain HTTP request via <code class="docutils literal notranslate"><span class="pre">curl</span></code><a class="headerlink" href="#appendix-plain-http-request-via-curl" title="Permalink to this heading">#</a></h2>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
 <p>Sending large embeddings over plain HTTP is often not the best idea. Websocket is often a better choice, allows one to call clip-server from Javascript with much better performance.</p>
@@ -912,7 +912,7 @@ What you should do, is to rely on asynchronous programming or multi-processing r
                         <div class="copyright">
                             Copyright &#169; Jina AI Limited. All rights reserved.
                         </div><div class="last-updated">
-                            Last updated on Dec 02, 2022</div>
+                            Last updated on Dec 12, 2022</div>
                     </div>
                     <div class="right-details">
                         <div class="social-btns">
@@ -994,7 +994,9 @@ What you should do, is to rely on asynchronous programming or multi-processing r
      src="https://static.scarf.sh/a.png?x-pxid=2823e771-0e1e-4320-8fde-48bc48e53262"/><script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
     <script src="../../_static/jquery.js"></script>
     <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
     <script src="../../_static/scripts/furo.js"></script>
     <script src="../../_static/clipboard.min.js"></script>
     <script src="../../_static/copybutton.js"></script>

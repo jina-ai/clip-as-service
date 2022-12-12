@@ -32,10 +32,10 @@
 <link rel="index" title="Index" href="genindex/" /><link rel="search" title="Search" href="search/" /><link rel="next" title="Client API" href="user-guides/client/" />
         <link rel="canonical" href="https://clip-as-service.jina.ai/index.html" />
 
-    <link rel="shortcut icon" href="_static/favicon.png"/><meta name="generator" content="sphinx-4.5.0, furo 2022.09.29"/>
+    <link rel="shortcut icon" href="_static/favicon.png"/><!-- Generated with Sphinx 5.3.0 and Furo 2022.12.07 -->
         <title>CLIP-as-service 0.8.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=d81277517bee4d6b0349d71bb2661d4890b5617c" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=91d0f0d1c444bdcb17a68e833c7a53903343c195" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
     <link rel="stylesheet" type="text/css" href="_static/tabs.css" />
     <link rel="stylesheet" type="text/css" href="_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" />
@@ -210,7 +210,7 @@
   <a class="github-button" href="https://github.com/jina-ai/clip-as-service" data-icon="octicon-star" data-show-count="true" aria-label="Star jina-ai/jina on GitHub" style="opacity: 0;">Star</a>
   
 </div><form class="sidebar-search-container" method="get" action="search/" role="search">
-  <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
   <input type="hidden" name="area" value="default">
 </form>
@@ -318,7 +318,7 @@
                 </div>
                 <article role="main">
                     <section class="tex2jax_ignore mathjax_ignore" id="welcome-to-clip-as-service">
-<h1>Welcome to CLIP-as-service!<a class="headerlink" href="#welcome-to-clip-as-service" title="Permalink to this headline">#</a></h1>
+<h1>Welcome to CLIP-as-service!<a class="headerlink" href="#welcome-to-clip-as-service" title="Permalink to this heading">#</a></h1>
 <p>CLIP-as-service is a low-latency high-scalability service for embedding images and text. It can be easily integrated as a microservice into neural search solutions.</p>
 <p>⚡ <strong>Fast</strong>: Serve CLIP models with TensorRT, ONNX runtime and PyTorch w/o JIT with 800QPS<sup>[*]</sup>. Non-blocking duplex streaming on requests and responses, designed for large data and long-running tasks.</p>
 <p>🫐 <strong>Elastic</strong>: Horizontally scale up and down multiple CLIP models on single GPU, with automatic load balancing.</p>
@@ -327,7 +327,7 @@
 <p>🍱 <strong>Integration</strong>: Smooth integration with neural search ecosystem including <a class="reference external" href="https://github.com/jina-ai/jina">Jina</a> and <a class="reference external" href="https://github.com/jina-ai/docarray">DocArray</a>. Build cross-modal and multi-modal solutions in no time.</p>
 <p><sup>[*] with default config (single replica, PyTorch no JIT) on GeForce RTX 3090. </sup></p>
 <section id="try-it">
-<h2>Try it!<a class="headerlink" href="#try-it" title="Permalink to this headline">#</a></h2>
+<h2>Try it!<a class="headerlink" href="#try-it" title="Permalink to this heading">#</a></h2>
 <p>An always-online server <code class="docutils literal notranslate"><span class="pre">api.clip.jina.ai</span></code> loaded with <code class="docutils literal notranslate"><span class="pre">ViT-L-14-336::openai</span></code> is there for you to play &amp; test.
 Before you start, make sure you have created an access token from our <a class="reference external" href="https://console.clip.jina.ai/get_started">console website</a>,
 or via CLI as described in <a class="reference external" href="https://github.com/jina-ai/jina-hubble-sdk#create-a-new-pat">this guide</a>.</p>
@@ -375,7 +375,7 @@ or via CLI as described in <a class="reference external" href="https://github.co
 </div>
 </section>
 <section id="install">
-<h2>Install<a class="headerlink" href="#install" title="Permalink to this headline">#</a></h2>
+<h2>Install<a class="headerlink" href="#install" title="Permalink to this heading">#</a></h2>
 <p><img alt="PyPI" src="https://img.shields.io/pypi/v/clip_client?color=%23ffffff&amp;label=%20" /> is the latest version.</p>
 <p>Make sure you are using Python 3.7+. You can install the client and server independently. It is <strong>not required</strong> to install both: e.g. you can install <code class="docutils literal notranslate"><span class="pre">clip_server</span></code> on a GPU machine and <code class="docutils literal notranslate"><span class="pre">clip_client</span></code> on a local laptop.</p>
 <div class="tab-set docutils">
@@ -406,10 +406,10 @@ pip install <span class="s2">&quot;clip_server[tensorrt]&quot;</span>
 </div>
 </section>
 <section id="quick-check">
-<h2>Quick check<a class="headerlink" href="#quick-check" title="Permalink to this headline">#</a></h2>
+<h2>Quick check<a class="headerlink" href="#quick-check" title="Permalink to this heading">#</a></h2>
 <p>After installing, you can run the following commands for a quick connectivity check.</p>
 <section id="start-the-server">
-<h3>Start the server<a class="headerlink" href="#start-the-server" title="Permalink to this headline">#</a></h3>
+<h3>Start the server<a class="headerlink" href="#start-the-server" title="Permalink to this heading">#</a></h3>
 <div class="tab-set docutils">
 <input checked="True" class="tab-input" id="tab-set--2-input--1" name="tab-set--2" type="radio"><label class="tab-label" for="tab-set--2-input--1">Start PyTorch Server </label><div class="tab-content docutils">
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python -m clip_server
@@ -439,7 +439,7 @@ pip install <span class="s2">&quot;clip_server[tensorrt]&quot;</span>
 <p>This means the server is ready to serve. Note down the three addresses shown above, you will need them later.</p>
 </section>
 <section id="connect-from-client">
-<h3>Connect from client<a class="headerlink" href="#connect-from-client" title="Permalink to this headline">#</a></h3>
+<h3>Connect from client<a class="headerlink" href="#connect-from-client" title="Permalink to this heading">#</a></h3>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
 <p>Depending on the location of the client and server. You may use different IP addresses:</p>
@@ -469,7 +469,7 @@ pip install <span class="s2">&quot;clip_server[tensorrt]&quot;</span>
 </section>
 </section>
 <section id="support">
-<h2>Support<a class="headerlink" href="#support" title="Permalink to this headline">#</a></h2>
+<h2>Support<a class="headerlink" href="#support" title="Permalink to this heading">#</a></h2>
 <ul class="simple">
 <li><p>Join our <a class="reference external" href="https://slack.jina.ai">Slack community</a> and chat with other community members about ideas.</p></li>
 <li><p>Join our <a class="reference external" href="https://youtube.com/playlist?list=PL3UBBWOUVhFYRUa_gpYYKBqEAkO4sxmne">Engineering All Hands</a> meet-up to discuss your use case and learn Jina’s new features.</p>
@@ -484,7 +484,7 @@ and <a class="reference external" href="https://youtube.com/c/jina-ai">live stre
 </ul>
 </section>
 <section id="join-us">
-<h2>Join Us<a class="headerlink" href="#join-us" title="Permalink to this headline">#</a></h2>
+<h2>Join Us<a class="headerlink" href="#join-us" title="Permalink to this heading">#</a></h2>
 <p>CLIP-as-service is backed by <a class="reference external" href="https://jina.ai">Jina AI</a> and licensed under <span class="xref myst">Apache-2.0</span>. <a class="reference external" href="https://jobs.jina.ai">We are actively hiring</a> AI engineers, solution engineers to build the next neural search ecosystem in open-source.</p>
 <div class="toctree-wrapper compound">
 </div>
@@ -522,7 +522,7 @@ and <a class="reference external" href="https://youtube.com/c/jina-ai">live stre
                         <div class="copyright">
                             Copyright &#169; Jina AI Limited. All rights reserved.
                         </div><div class="last-updated">
-                            Last updated on Dec 02, 2022</div>
+                            Last updated on Dec 12, 2022</div>
                     </div>
                     <div class="right-details">
                         <div class="social-btns">
@@ -595,7 +595,9 @@ and <a class="reference external" href="https://youtube.com/c/jina-ai">live stre
      src="https://static.scarf.sh/a.png?x-pxid=2823e771-0e1e-4320-8fde-48bc48e53262"/><script data-url_root="#" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/scripts/furo.js"></script>
     <script src="_static/clipboard.min.js"></script>
     <script src="_static/copybutton.js"></script>
