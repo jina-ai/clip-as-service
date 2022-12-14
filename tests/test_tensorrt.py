@@ -56,7 +56,7 @@ def test_docarray_inputs(make_trt_flow, inputs):
                 ),
                 Document(text='hello, world'),
                 Document(
-                    uri=f'{os.path.dirname(os.path.abspath(__file__))}/img/00000.jpg'
+                    uri=f'{os.path.dirname(os.path.abspath(__file__))}/img/00001.jpg'
                 ).load_uri_to_image_tensor(),
             ]
         ),
