@@ -158,6 +158,7 @@ jobs:
           pip install -e "client/[test]"
           pip install -e "server/[tensorrt]"
           pip install -e "server/[onnx]"
+          pip install nvidia-tensorrt==8.4.1.5
           {
             pip install -e "server/[flash-attn]"
           } || {
