@@ -39,7 +39,6 @@ class Client:
         except:
             raise ValueError(f'{server} is not a valid scheme')
 
-        print("client1")
         _tls = False
         if self._scheme in ('grpcs', 'https', 'wss'):
             self._scheme = self._scheme[:-1]
@@ -62,7 +61,6 @@ class Client:
         else:
             raise ValueError(f'{server} is not a valid scheme')
 
-        print("client2")
 
         self._authorization = credential.get(
             'Authorization', os.environ.get('CLIP_AUTH_TOKEN')

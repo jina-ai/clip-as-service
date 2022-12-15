@@ -66,15 +66,10 @@ def test_docarray_inputs(make_trt_flow, inputs):
     ],
 )
 def test_docarray_inputs_fp16(make_trt_flow_fp16, inputs):
-    print('start')
     c = Client(server=f'grpc://0.0.0.0:{make_trt_flow_fp16.port}')
-    print('client started')
     r = c.encode(inputs if not callable(inputs) else inputs())
-    print('encode finished')
     assert isinstance(r, DocumentArray)
-    print('test case 1')
     assert r.embeddings.shape
-    print('test case 2')
     if hasattr(inputs, '__len__'):
         assert inputs[0] is r[0]
 
