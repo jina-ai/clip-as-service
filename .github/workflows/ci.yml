@@ -113,6 +113,7 @@ jobs:
           pip install --no-cache-dir "server/[onnx]"
           pip install --no-cache-dir "server/[transformers]"
           pip install --no-cache-dir "server/[search]"
+          pip install open-clip-torch==2.7.0
       - name: Test
         id: test
         run: |
@@ -160,12 +161,12 @@ jobs:
           pip install -e "server/[onnx]"
           pip install -e "server/[transformers]"
           pip install nvidia-tensorrt==8.4.1.5
-
           {
             pip install -e "server/[flash-attn]"
           } || {
             echo "flash attention was not installed."
           }
+          pip install open-clip-torch==2.7.0
       - name: Test
         id: test
         run: |
