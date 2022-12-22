@@ -165,7 +165,7 @@ class Client:
         response, results: 'DocumentArray', attribute: Optional[str] = None
     ):
         r = response.data.docs
-        if attribute:
+        if attribute and len(r) > 0:
             results[r[:, 'id']][:, attribute] = r[:, attribute]
 
     def _iter_doc(
