@@ -77,7 +77,6 @@ class VisionTransformer(_VisionTransformer):
         patch_size: int,
         global_average_pool: bool,
         output_dim: int,
-        patch_dropout: float,
         dtype: torch.dtype = torch.float32,
         **kwargs,
     ):
@@ -86,7 +85,6 @@ class VisionTransformer(_VisionTransformer):
             patch_size,
             global_average_pool=global_average_pool,
             output_dim=output_dim,
-            patch_dropout=patch_dropout,
             **kwargs,
         )
         self.transformer = Transformer(dtype=dtype, **kwargs)
@@ -120,7 +118,6 @@ class CLIPVisionCfg:
     patch_size: int = 16
     image_size: Union[Tuple[int, int], int] = 224
     ls_init_value: Optional[float] = None  # layer scale initial value
-    patch_dropout: float = 0.0  # what fraction of patches to dropout during training (0 would mean disabled and no patches dropped) - 0.5 to 0.75 recommended in the paper for optimal results
     global_average_pool: bool = False  # whether to global average pool the last embedding layer, instead of using CLS token (https://arxiv.org/abs/2205.01580)
     timm_model_name: str = (
         None  # a valid model name overrides layers, width, patch_size
@@ -201,7 +198,6 @@ def _build_vision_tower(
             heads=vision_heads,
             mlp_ratio=vision_cfg.mlp_ratio,
             ls_init_value=vision_cfg.ls_init_value,
-            patch_dropout=vision_cfg.patch_dropout,
             global_average_pool=vision_cfg.global_average_pool,
             output_dim=embed_dim,
             act_layer=act_layer,
@@ -570,7 +566,6 @@ def load_openclip_model(
     jit: bool = False,
     force_quick_gelu: bool = False,
     force_custom_text: bool = False,
-    force_patch_dropout: Optional[float] = None,
     pretrained_image: bool = False,
     dtype: Optional[Union[str, torch.dtype]] = None,
 ):
@@ -593,10 +588,6 @@ def load_openclip_model(
     if force_quick_gelu:
         # override for use of QuickGELU on non-OpenAI transformer models
         model_cfg["quick_gelu"] = True
-
-    if force_patch_dropout is not None:
-        # override the default patch dropout value
-        model_cfg["vision_cfg"]["patch_dropout"] = force_patch_dropout
 
     if pretrained_image:
         if 'timm_model_name' in model_cfg.get('vision_cfg', {}):
