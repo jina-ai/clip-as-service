@@ -12,7 +12,7 @@ def test_server_download(tmpdir):
     download_model(
         url='https://docarray.jina.ai/_static/favicon.png',
         target_folder=tmpdir,
-        md5sum='a084999188f4290e2654aec43207ff2e',
+        md5sum='66ea4817d73514888dcf6c7d2b00016d',
         with_resume=False,
     )
     target_path = os.path.join(tmpdir, 'favicon.png')
@@ -29,14 +29,14 @@ def test_server_download(tmpdir):
     download_model(
         url='https://docarray.jina.ai/_static/favicon.png',
         target_folder=tmpdir,
-        md5sum='a084999188f4290e2654aec43207ff2e',
+        md5sum='66ea4817d73514888dcf6c7d2b00016d',
         with_resume=True,
     )
     assert os.path.getsize(target_path) == file_size
     assert not os.path.exists(part_path)
 
 
-@pytest.mark.parametrize('md5', ['ABC', None, 'a084999188f4290e2654aec43207ff2e'])
+@pytest.mark.parametrize('md5', ['ABC', None, '66ea4817d73514888dcf6c7d2b00016d'])
 def test_server_download_md5(tmpdir, md5):
     if md5 != 'ABC':
         download_model(
