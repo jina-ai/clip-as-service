@@ -102,11 +102,11 @@ _MULTILINGUALCLIP_MODELS = {
 }
 
 _CNCLIP_MODELS = {
-    'ViT-B-16': (),
-    'ViT-L-14': (),
-    'ViT-L-14-336': (),
-    'ViT-L-14-336': (),
-    'RN50': (),
+    'CN-CLIP/ViT-B-16': (),
+    'CN-CLIP/ViT-L-14': (),
+    'CN-CLIP/ViT-L-14-336': (),
+    'CN-CLIP/ViT-H-14': (),
+    'CN-CLIP/RN50': (),
 }
 
 _VISUAL_MODEL_IMAGE_SIZE = {
