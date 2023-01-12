@@ -37,10 +37,10 @@ class CNClipModel(CLIPModel):
         return _CNCLIP_MODEL_MAPS[name]
 
     def encode_text(self, input_ids: 'torch.Tensor', **kwargs):
-        return self._model.encode_text(input_ids)
+        return self._model.encode_text(input_ids).detach()
 
     def encode_image(self, pixel_values: 'torch.Tensor', **kwargs):
-        return self._model.encode_image(pixel_values)
+        return self._model.encode_image(pixel_values).detach()
 
     @property
     def model_name(self):
