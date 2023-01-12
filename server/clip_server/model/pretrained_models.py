@@ -101,6 +101,13 @@ _MULTILINGUALCLIP_MODELS = {
     'M-CLIP/LABSE-Vit-L-14': (),
 }
 
+_DAMO_MODELS = {
+    'damo/multi-modal_clip-vit-base-patch16_zh': (),
+    'damo/multi-modal_clip-vit-huge-patch14_zh': (),
+    'damo/multi-modal_clip-vit-large-patch14_zh': (),
+    'damo/multi-modal_clip-vit-large-patch14_336_zh': (),
+}
+
 _VISUAL_MODEL_IMAGE_SIZE = {
     'RN50': 224,
     'RN101': 224,

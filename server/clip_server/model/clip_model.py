@@ -1,6 +1,7 @@
 from clip_server.model.pretrained_models import (
     _OPENCLIP_MODELS,
     _MULTILINGUALCLIP_MODELS,
+    _DAMO_MODELS,
     _VISUAL_MODEL_IMAGE_SIZE,
 )
 
@@ -34,6 +35,10 @@ class CLIPModel(BaseCLIPModel):
                 from clip_server.model.mclip_model import MultilingualCLIPModel
 
                 instance = super().__new__(MultilingualCLIPModel)
+            elif name in _DAMO_MODELS:
+                from clip_server_model.damo_model import DamoModel
+
+                instance = super().__new__(DamoModel)
             else:
                 raise ValueError(
                     'CLIP model {} not found; below is a list of all available models:\n{}'.format(

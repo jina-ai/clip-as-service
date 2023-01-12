@@ -48,6 +48,7 @@ setup(
         'jina>=3.12.0',
         'prometheus-client',
         'open_clip_torch>=2.8.0',
+        'modelscope',
     ],
     extras_require={
         'onnx': [
