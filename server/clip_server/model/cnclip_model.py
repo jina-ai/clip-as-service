@@ -24,7 +24,7 @@ class CNClipModel(CLIPModel):
         dtype: str = None,
         **kwargs
     ):
-        super().__init__()
+        super().__init__(name)
         self._name = _CNCLIP_MODEL_MAPS[name]
 
         self._model, self._preprocess = load_from_name(
