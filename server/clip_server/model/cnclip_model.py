@@ -12,6 +12,7 @@ _CNCLIP_MODEL_MAPS = {
     'CN-CLIP/RN50': 'RN50',
 }
 
+
 class CNClipModel(CLIPModel):
     def __init__(
         self,
@@ -24,7 +25,9 @@ class CNClipModel(CLIPModel):
         super().__init__()
         self._name = _CNCLIP_MODEL_MAPS[name]
 
-        self._model, self._preprocess = load_from_name(_CNCLIP_MODEL_MAPS[name], device=device)
+        self._model, self._preprocess = load_from_name(
+            _CNCLIP_MODEL_MAPS[name], device=device
+        )
         self._model.eval()
 
     @staticmethod
