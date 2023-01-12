@@ -3,7 +3,7 @@ from clip_server.model.clip_model import CLIPModel
 from clip_server.model.clip_onnx import CLIPOnnxModel
 from clip_server.model.openclip_model import OpenCLIPModel
 from clip_server.model.mclip_model import MultilingualCLIPModel
-from clip_server.model.damo_model import DamoModel
+from clip_server.model.cnclip_model import CNClipModel
 
 
 @pytest.mark.parametrize(
@@ -13,7 +13,7 @@ from clip_server.model.damo_model import DamoModel
         ('RN50::openai', OpenCLIPModel),
         ('roberta-ViT-B-32::laion2b-s12b-b32k', OpenCLIPModel),
         ('M-CLIP/LABSE-Vit-L-14', MultilingualCLIPModel),
-        ('damo/multi-modal_clip-vit-large-patch14_336_zh', DamoModel),
+        ('ViT-B-16', CNClipModel),
     ],
 )
 def test_torch_model(name, model_cls):
