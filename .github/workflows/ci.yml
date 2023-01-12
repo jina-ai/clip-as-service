@@ -113,6 +113,7 @@ jobs:
           pip install --no-cache-dir "server/[onnx]"
           pip install --no-cache-dir "server/[transformers]"
           pip install --no-cache-dir "server/[search]"
+          pip install --no-cache-dir "server/[cn_clip]"
       - name: Test
         id: test
         run: |
@@ -164,6 +165,7 @@ jobs:
           } || {
             echo "flash attention was not installed."
           }
+          pip install --no-cache-dir "server/[cn_clip]"
       - name: Test
         id: test
         run: |
