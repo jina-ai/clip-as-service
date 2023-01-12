@@ -13,7 +13,7 @@ from clip_server.model.cnclip_model import CNClipModel
         ('RN50::openai', OpenCLIPModel),
         ('roberta-ViT-B-32::laion2b-s12b-b32k', OpenCLIPModel),
         ('M-CLIP/LABSE-Vit-L-14', MultilingualCLIPModel),
-        ('ViT-B-16', CNClipModel),
+        ('CN-CLIP/ViT-B-16', CNClipModel),
     ],
 )
 def test_torch_model(name, model_cls):
