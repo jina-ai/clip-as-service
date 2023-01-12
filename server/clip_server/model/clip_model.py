@@ -48,6 +48,7 @@ class CLIPModel(BaseCLIPModel):
                                 '\t- {}\n'.format(i)
                                 for i in list(_OPENCLIP_MODELS.keys())
                                 + list(_MULTILINGUALCLIP_MODELS.keys())
+                                + list(_CNCLIP_MODELS.keys())
                             ]
                         ),
                     )
