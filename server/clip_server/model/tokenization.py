@@ -31,7 +31,7 @@ class Tokenizer:
         """
         :param texts: An input string or a list of input strings to tokenize
         :param context_length: The context length to use; all English CLIP models use 77 as the context length.
-            for Chinese CLIP models, context_length = 52, no truncate
+            for Chinese CLIP models, context_length = 52, if the number of characters is bigger than 50, sentence will be truncate and omit the part left
         :param truncate: Whether to truncate the text in case its encoding is longer than the context length.
 
         :return: A dict of tokenized representations of the input strings and their corresponding attention masks with both
