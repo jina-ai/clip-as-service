@@ -60,6 +60,7 @@ setup(
         'transformers': ['transformers>=4.16.2'],
         'search': ['annlite>=0.3.10'],
         'flash-attn': ['flash-attn'],
+        'cn_clip': ['cn_clip'],
     },
     classifiers=[
         'Development Status :: 5 - Production/Stable',

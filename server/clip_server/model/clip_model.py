@@ -1,6 +1,7 @@
 from clip_server.model.pretrained_models import (
     _OPENCLIP_MODELS,
     _MULTILINGUALCLIP_MODELS,
+    _CNCLIP_MODELS,
     _VISUAL_MODEL_IMAGE_SIZE,
 )
 
@@ -34,6 +35,10 @@ class CLIPModel(BaseCLIPModel):
                 from clip_server.model.mclip_model import MultilingualCLIPModel
 
                 instance = super().__new__(MultilingualCLIPModel)
+            elif name in _CNCLIP_MODELS:
+                from clip_server.model.cnclip_model import CNClipModel
+
+                instance = super().__new__(CNClipModel)
             else:
                 raise ValueError(
                     'CLIP model {} not found; below is a list of all available models:\n{}'.format(
@@ -43,6 +48,7 @@ class CLIPModel(BaseCLIPModel):
                                 '\t- {}\n'.format(i)
                                 for i in list(_OPENCLIP_MODELS.keys())
                                 + list(_MULTILINGUALCLIP_MODELS.keys())
+                                + list(_CNCLIP_MODELS.keys())
                             ]
                         ),
                     )

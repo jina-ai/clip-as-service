@@ -101,6 +101,14 @@ _MULTILINGUALCLIP_MODELS = {
     'M-CLIP/LABSE-Vit-L-14': (),
 }
 
+_CNCLIP_MODELS = {
+    'CN-CLIP/ViT-B-16': (),
+    'CN-CLIP/ViT-L-14': (),
+    'CN-CLIP/ViT-L-14-336': (),
+    'CN-CLIP/ViT-H-14': (),
+    'CN-CLIP/RN50': (),
+}
+
 _VISUAL_MODEL_IMAGE_SIZE = {
     'RN50': 224,
     'RN101': 224,

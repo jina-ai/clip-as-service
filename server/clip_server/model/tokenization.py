@@ -1,6 +1,9 @@
 import torch
 from typing import List, Union
-from clip_server.model.pretrained_models import _MULTILINGUALCLIP_MODELS
+from clip_server.model.pretrained_models import (
+    _MULTILINGUALCLIP_MODELS,
+    _CNCLIP_MODELS,
+)
 
 
 class Tokenizer:
@@ -10,6 +13,10 @@ class Tokenizer:
             import transformers
 
             self._tokenizer = transformers.AutoTokenizer.from_pretrained(name)
+        elif name in _CNCLIP_MODELS:
+            import cn_clip.clip as cnclip
+
+            self._tokenizer = cnclip
         else:
             from clip_server.model.simple_tokenizer import SimpleTokenizer
 
@@ -23,13 +30,19 @@ class Tokenizer:
     ):
         """
         :param texts: An input string or a list of input strings to tokenize
-        :param context_length: The context length to use; all CLIP models use 77 as the context length.
+        :param context_length: The context length to use; all English CLIP models use 77 as the context length.
+            for Chinese CLIP models, context_length = 52, if the number of characters is bigger than 50, sentence will be truncate and omit the part left
         :param truncate: Whether to truncate the text in case its encoding is longer than the context length.
 
         :return: A dict of tokenized representations of the input strings and their corresponding attention masks with both
             shape = [batch size, context_length]
         """
-        return self._tokenize(texts, context_length=context_length, truncate=truncate)
+        if self._name in _CNCLIP_MODELS:
+            return self._tokenize(texts, context_length=52)
+        else:
+            return self._tokenize(
+                texts, context_length=context_length, truncate=truncate
+            )
 
     def _tokenize(
         self,
@@ -51,6 +64,17 @@ class Tokenizer:
             return {
                 'input_ids': result['input_ids'],
                 'attention_mask': result['attention_mask'],
+            }
+        elif self._name in _CNCLIP_MODELS:
+            result = self._tokenizer.tokenize(
+                texts=texts,
+                context_length=52,  # in all cnclip baseline model context length is 52
+            )
+            attn_mask = result.clone()
+            attn_mask[result != 0] = 1
+            return {
+                "input_ids": result,
+                "attention_mask": attn_mask,
             }
         else:
             sot_token = self._tokenizer.encoder['<|startoftext|>']
