@@ -36,7 +36,7 @@ def test_server_download(tmpdir):
     assert not os.path.exists(part_path)
 
 
-@pytest.mark.parametrize('md5', ['ABC', None, '66ea4817d73514888dcf6c7d2b00016d'])
+@pytest.mark.parametrize('md5', ['ABC', None, '43104e468ddd23c55bc662d84c87a7f8'])
 def test_server_download_md5(tmpdir, md5):
     if md5 != 'ABC':
         download_model(
