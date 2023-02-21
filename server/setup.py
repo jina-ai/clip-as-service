@@ -59,7 +59,12 @@ setup(
             if sys.platform != 'darwin'
             else ['onnxruntime==1.13.1']
         ),
-        'tensorrt': ['onnx', 'onnxmltools', 'onnxruntime==1.13.1', 'nvidia-tensorrt'],
+        'tensorrt': [
+            'onnx',
+            'onnxmltools',
+            'onnxruntime-gpu==1.13.1',
+            'nvidia-tensorrt',
+        ],
         'transformers': ['transformers>=4.16.2'],
         'search': ['annlite>=0.3.10'],
         'flash-attn': ['flash-attn'],
