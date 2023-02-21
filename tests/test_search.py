@@ -15,7 +15,9 @@ from clip_client import Client
         lambda: (Document(text='hello, world') for _ in range(10)),
         DocumentArray(
             [
-                Document(uri='https://docarray.jina.ai/_static/favicon.png'),
+                Document(
+                    uri='https://raw.githubusercontent.com/jina-ai/clip-as-service/main/docs/_static/favicon.png'
+                ),
                 Document(
                     uri=f'{os.path.dirname(os.path.abspath(__file__))}/img/00000.jpg'
                 ),
@@ -52,7 +54,9 @@ def test_index_search(make_search_flow, inputs, limit):
         lambda: (Document(text='hello, world') for _ in range(10)),
         DocumentArray(
             [
-                Document(uri='https://docarray.jina.ai/_static/favicon.png'),
+                Document(
+                    uri='https://raw.githubusercontent.com/jina-ai/clip-as-service/main/docs/_static/favicon.png'
+                ),
                 Document(
                     uri=f'{os.path.dirname(os.path.abspath(__file__))}/img/00000.jpg'
                 ),

@@ -26,7 +26,7 @@ async def test_async_encode(make_flow):
         DocumentArray(
             [
                 Document(
-                    uri='https://docarray.jina.ai/_static/favicon.png',
+                    uri='https://raw.githubusercontent.com/jina-ai/clip-as-service/main/docs/_static/favicon.png',
                     text='hello, world',
                 ),
             ]
