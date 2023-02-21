@@ -10,7 +10,7 @@ import numpy as np
 
 def test_server_download(tmpdir):
     download_model(
-        url='https://raw.githubusercontent.com/jina-ai/clip-as-service/main/docs/_static/favicon.png',
+        url='https://clip-as-service.jina.ai/_static/favicon.png',
         target_folder=tmpdir,
         md5sum='66ea4817d73514888dcf6c7d2b00016d',
         with_resume=False,
@@ -27,7 +27,7 @@ def test_server_download(tmpdir):
     os.remove(target_path)
 
     download_model(
-        url='https://raw.githubusercontent.com/jina-ai/clip-as-service/main/docs/_static/favicon.png',
+        url='https://clip-as-service.jina.ai/_static/favicon.png',
         target_folder=tmpdir,
         md5sum='66ea4817d73514888dcf6c7d2b00016d',
         with_resume=True,
@@ -40,7 +40,7 @@ def test_server_download(tmpdir):
 def test_server_download_md5(tmpdir, md5):
     if md5 != 'ABC':
         download_model(
-            url='https://raw.githubusercontent.com/jina-ai/clip-as-service/main/docs/_static/favicon.png',
+            url='https://clip-as-service.jina.ai/_static/favicon.png',
             target_folder=tmpdir,
             md5sum=md5,
             with_resume=False,
@@ -48,7 +48,7 @@ def test_server_download_md5(tmpdir, md5):
     else:
         with pytest.raises(Exception):
             download_model(
-                url='https://raw.githubusercontent.com/jina-ai/clip-as-service/main/docs/_static/favicon.png',
+                url='https://clip-as-service.jina.ai/_static/favicon.png',
                 target_folder=tmpdir,
                 md5sum=md5,
                 with_resume=False,
@@ -58,7 +58,7 @@ def test_server_download_md5(tmpdir, md5):
 def test_server_download_not_regular_file(tmpdir):
     with pytest.raises(Exception):
         download_model(
-            url='https://raw.githubusercontent.com/jina-ai/clip-as-service/main/docs/_static/favicon.png',
+            url='https://clip-as-service.jina.ai/_static/favicon.png',
             target_folder=tmpdir,
             md5sum='',
             with_resume=False,
@@ -87,7 +87,7 @@ def test_make_onnx_flow_wrong_name_path():
     'image_uri',
     [
         f'{os.path.dirname(os.path.abspath(__file__))}/img/00000.jpg',
-        'https://raw.githubusercontent.com/jina-ai/clip-as-service/main/docs/_static/favicon.png',
+        'https://clip-as-service.jina.ai/_static/favicon.png',
     ],
 )
 @pytest.mark.parametrize('size', [224, 288, 384, 448])

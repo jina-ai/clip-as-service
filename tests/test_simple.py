@@ -35,7 +35,7 @@ def test_protocols(port_generator, protocol, jit, pytestconfig):
         ('hello, world', 'goodbye, world'),
         lambda: ('hello, world' for _ in range(10)),
         [
-            'https://raw.githubusercontent.com/jina-ai/clip-as-service/main/docs/_static/favicon.png',
+            'https://clip-as-service.jina.ai/_static/favicon.png',
             f'{os.path.dirname(os.path.abspath(__file__))}/img/00000.jpg',
             'hello, world',
         ],
@@ -58,9 +58,7 @@ def test_plain_inputs(make_flow, inputs):
         lambda: (Document(text='hello, world') for _ in range(10)),
         DocumentArray(
             [
-                Document(
-                    uri='https://raw.githubusercontent.com/jina-ai/clip-as-service/main/docs/_static/favicon.png'
-                ),
+                Document(uri='https://clip-as-service.jina.ai/_static/favicon.png'),
                 Document(
                     uri=f'{os.path.dirname(os.path.abspath(__file__))}/img/00000.jpg'
                 ),
@@ -92,7 +90,7 @@ def test_docarray_inputs(make_flow, inputs):
         DocumentArray(
             [
                 Document(
-                    uri='https://raw.githubusercontent.com/jina-ai/clip-as-service/main/docs/_static/favicon.png',
+                    uri='https://clip-as-service.jina.ai/_static/favicon.png',
                     text='hello, world',
                 ),
             ]
@@ -119,7 +117,7 @@ def test_docarray_preserve_original_inputs(make_flow, inputs):
         DocumentArray(
             [
                 Document(
-                    uri='https://raw.githubusercontent.com/jina-ai/clip-as-service/main/docs/_static/favicon.png',
+                    uri='https://clip-as-service.jina.ai/_static/favicon.png',
                     text='hello, world',
                 ),
             ]
