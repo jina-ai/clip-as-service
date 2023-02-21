@@ -62,6 +62,7 @@ setup(
         'tensorrt': [
             'onnx',
             'onnxmltools',
+            'onnxruntime==1.13.1',
             'onnxruntime-gpu==1.13.1',
             'nvidia-tensorrt',
         ],
