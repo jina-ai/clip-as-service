@@ -12,7 +12,7 @@ def test_server_download(tmpdir):
     download_model(
         url='https://clip-as-service.jina.ai/_static/favicon.png',
         target_folder=tmpdir,
-        md5sum='66ea4817d73514888dcf6c7d2b00016d',
+        md5sum='43104e468ddd23c55bc662d84c87a7f8',
         with_resume=False,
     )
     target_path = os.path.join(tmpdir, 'favicon.png')
@@ -29,7 +29,7 @@ def test_server_download(tmpdir):
     download_model(
         url='https://clip-as-service.jina.ai/_static/favicon.png',
         target_folder=tmpdir,
-        md5sum='66ea4817d73514888dcf6c7d2b00016d',
+        md5sum='43104e468ddd23c55bc662d84c87a7f8',
         with_resume=True,
     )
     assert os.path.getsize(target_path) == file_size
