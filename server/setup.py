@@ -53,9 +53,13 @@ setup(
         'onnx': [
             'onnx',
             'onnxmltools',
-            'onnxruntime==1.13.1',
-        ],
-        # + (['onnxruntime-gpu==1.13.1'] if sys.platform != 'darwin' else []),
+            # 'onnxruntime==1.13.1',
+        ]
+        + (
+            ['onnxruntime-gpu==1.13.1']
+            if sys.platform != 'darwin'
+            else ['onnxruntime==1.13.1']
+        ),
         'tensorrt': [
             'nvidia-tensorrt==8.4.1.5',
             # 'onnxruntime==1.13.1',
