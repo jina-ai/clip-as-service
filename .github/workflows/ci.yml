@@ -158,6 +158,7 @@ jobs:
           python -m pip install wheel pytest pytest-cov nvidia-pyindex
           pip install -e "client/[test]"
           pip install -e "server/[tensorrt]"
+          pip install -e "server/[onnx]"
           pip install -e "server/[transformers]"
           {
             pip install -e "server/[flash-attn]"

@@ -61,9 +61,9 @@ setup(
         ),
         'tensorrt': [
             'nvidia-tensorrt',
-            'onnxruntime==1.13.1',
-            'onnx',
-            'onnxmltools',
+            # 'onnxruntime==1.13.1',
+            # 'onnx',
+            # 'onnxmltools',
         ],
         'transformers': ['transformers>=4.16.2'],
         'search': ['annlite>=0.3.10'],
