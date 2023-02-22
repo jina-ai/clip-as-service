@@ -591,9 +591,21 @@ The build argument `--build-arg GROUP_ID=$(id -g ${USER}) --build-arg USER_ID=$(
 
 ### Run
 
+````{tab} PyTorch
 ```bash
 docker run -p 51009:51000 -v $HOME/.cache:/home/cas/.cache --gpus all jinaai/clip-server
 ```
+````
+````{tab} ONNX
+```bash
+docker run -p 51009:51000 -v $HOME/.cache:/home/cas/.cache --gpus all jinaai/clip-server:master-onnx onnx-flow.yml
+```
+````
+````{tab} TensorRT
+```bash
+docker run -p 51009:51000 -v $HOME/.cache:/home/cas/.cache --gpus all jinaai/clip-server:master-tensorrt tensorrt-flow.yml
+```
+````
 
 Here, `51009` is the public port on the host and `51000` is the {ref}`in-container port defined inside YAML<flow-config>`. The argument `-v $HOME/.cache:/home/cas/.cache` leverages host's cache and prevents you to download the same model next time on start. 
 
@@ -601,11 +613,23 @@ Due to the limitation of the terminal inside Docker container, you will **not** 
 
 To pass a YAML config from the host, one can do:
 
+````{tab} PyTorch
 ```bash
 cat my.yml | docker run -i -p 51009:51000 -v $HOME/.cache:/home/cas/.cache --gpus all jinaai/clip-server -i
 ```
+````
+````{tab} ONNX
+```bash
+cat my.yml | docker run -i -p 51009:51000 -v $HOME/.cache:/home/cas/.cache --gpus all jinaai/clip-server:master-onnx -i
+```
+````
+````{tab} TensorRT
+```bash
+cat my.yml | docker run -i -p 51009:51000 -v $HOME/.cache:/home/cas/.cache --gpus all jinaai/clip-server:master-tensorrt -i
+```
+````
 
-The CLI usage is the same {ref}`as described here <start-server>`.
+The CLI usage is the same {ref}`as described here <server-address>`.
 
 ```{tip}
 You can enable debug logging via: `docker run --env JINA_LOG_LEVEL=debug ...`
