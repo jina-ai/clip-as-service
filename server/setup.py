@@ -53,7 +53,6 @@ setup(
         'onnx': [
             'onnx',
             'onnxmltools',
-            # 'onnxruntime==1.13.1',
         ]
         + (
             ['onnxruntime-gpu==1.13.1']
@@ -62,9 +61,6 @@ setup(
         ),
         'tensorrt': [
             'nvidia-tensorrt==8.4.1.5',
-            # 'onnxruntime==1.13.1',
-            # 'onnx',
-            # 'onnxmltools',
         ],
         'transformers': ['transformers>=4.16.2'],
         'search': ['annlite>=0.3.10'],
