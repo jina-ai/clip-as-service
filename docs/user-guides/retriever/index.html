@@ -337,61 +337,61 @@ Specifically, we use the <a class="reference external" href="https://github.com/
 <section id="start-the-server">
 <h2>Start the server<a class="headerlink" href="#start-the-server" title="Permalink to this heading">#</a></h2>
 <p>To start the server, you can use the following command:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python -m clip_server search_flow.yml
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>clip_server<span class="w"> </span>search_flow.yml
 </pre></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">search_flow.yml</span></code> is the yaml configuration file for the search flow. It defines a <a class="reference external" href="https://docs.jina.ai/fundamentals/flow/">Jina Flow</a> to implement the CLIP search system.
 Below is an example of the Flow YAML file, we can put it into two subsections as below:</p>
 <div class="tab-set docutils">
 <input checked="True" class="tab-input" id="tab-set--0-input--1" name="tab-set--0" type="radio"><label class="tab-label" for="tab-set--0-input--1">CLIP model config</label><div class="tab-content docutils">
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">jtype</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Flow</span><span class="w"></span>
-<span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;1&#39;</span><span class="w"></span>
-<span class="nt">with</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">61000</span><span class="w"></span>
-<span class="nt">executors</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">encoder</span><span class="w"></span>
-<span class="w">    </span><span class="nt">uses</span><span class="p">:</span><span class="w"></span>
-<span class="w">      </span><span class="nt">jtype</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CLIPEncoder</span><span class="w"></span>
-<span class="hll"><span class="w">      </span><span class="nt">metas</span><span class="p">:</span><span class="w"></span>
-</span><span class="w">        </span><span class="nt">py_modules</span><span class="p">:</span><span class="w"></span>
-<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">clip_server.executors.clip_torch</span><span class="w"></span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">jtype</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Flow</span>
+<span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;1&#39;</span>
+<span class="nt">with</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">61000</span>
+<span class="nt">executors</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">encoder</span>
+<span class="w">    </span><span class="nt">uses</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">jtype</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CLIPEncoder</span>
+<span class="hll"><span class="w">      </span><span class="nt">metas</span><span class="p">:</span>
+</span><span class="w">        </span><span class="nt">py_modules</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">clip_server.executors.clip_torch</span>
 <span class="w">    </span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">indexer</span><span class="w"></span>
-<span class="w">    </span><span class="nt">uses</span><span class="p">:</span><span class="w"></span>
-<span class="w">      </span><span class="nt">jtype</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">AnnLiteIndexer</span><span class="w"></span>
-<span class="w">      </span><span class="nt">with</span><span class="p">:</span><span class="w"></span>
-<span class="w">        </span><span class="nt">n_dim</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">512</span><span class="w"></span>
-<span class="w">      </span><span class="nt">metas</span><span class="p">:</span><span class="w"></span>
-<span class="w">        </span><span class="nt">py_modules</span><span class="p">:</span><span class="w"></span>
-<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">annlite.executor</span><span class="w"></span>
-<span class="w">    </span><span class="nt">workspace</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;./workspace&#39;</span><span class="w"></span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">indexer</span>
+<span class="w">    </span><span class="nt">uses</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">jtype</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">AnnLiteIndexer</span>
+<span class="w">      </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">n_dim</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">512</span>
+<span class="w">      </span><span class="nt">metas</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">py_modules</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">annlite.executor</span>
+<span class="w">    </span><span class="nt">workspace</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;./workspace&#39;</span>
 </pre></div>
 </div>
 </div>
 <input class="tab-input" id="tab-set--0-input--2" name="tab-set--0" type="radio"><label class="tab-label" for="tab-set--0-input--2">Annlite indexer config</label><div class="tab-content docutils">
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">jtype</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Flow</span><span class="w"></span>
-<span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;1&#39;</span><span class="w"></span>
-<span class="nt">with</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">61000</span><span class="w"></span>
-<span class="nt">executors</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">encoder</span><span class="w"></span>
-<span class="w">    </span><span class="nt">uses</span><span class="p">:</span><span class="w"></span>
-<span class="w">      </span><span class="nt">jtype</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CLIPEncoder</span><span class="w"></span>
-<span class="w">      </span><span class="nt">with</span><span class="p">:</span><span class="w"></span>
-<span class="w">      </span><span class="nt">metas</span><span class="p">:</span><span class="w"></span>
-<span class="w">        </span><span class="nt">py_modules</span><span class="p">:</span><span class="w"></span>
-<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">clip_server.executors.clip_torch</span><span class="w"></span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">jtype</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Flow</span>
+<span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;1&#39;</span>
+<span class="nt">with</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">61000</span>
+<span class="nt">executors</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">encoder</span>
+<span class="w">    </span><span class="nt">uses</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">jtype</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CLIPEncoder</span>
+<span class="w">      </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">metas</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">py_modules</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">clip_server.executors.clip_torch</span>
 <span class="w">          </span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">indexer</span><span class="w"></span>
-<span class="w">    </span><span class="nt">uses</span><span class="p">:</span><span class="w"></span>
-<span class="w">      </span><span class="nt">jtype</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">AnnLiteIndexer</span><span class="w"></span>
-<span class="hll"><span class="w">      </span><span class="nt">with</span><span class="p">:</span><span class="w"></span>
-</span><span class="hll"><span class="w">        </span><span class="nt">n_dim</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">512</span><span class="w"></span>
-</span><span class="hll"><span class="w">        </span><span class="nt">limit</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span><span class="w"></span>
-</span><span class="w">      </span><span class="nt">metas</span><span class="p">:</span><span class="w"></span>
-<span class="w">        </span><span class="nt">py_modules</span><span class="p">:</span><span class="w"></span>
-<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">annlite.executor</span><span class="w"></span>
-<span class="w">    </span><span class="nt">workspace</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;./workspace&#39;</span><span class="w"></span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">indexer</span>
+<span class="w">    </span><span class="nt">uses</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">jtype</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">AnnLiteIndexer</span>
+<span class="hll"><span class="w">      </span><span class="nt">with</span><span class="p">:</span>
+</span><span class="hll"><span class="w">        </span><span class="nt">n_dim</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">512</span>
+</span><span class="hll"><span class="w">        </span><span class="nt">limit</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span>
+</span><span class="w">      </span><span class="nt">metas</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">py_modules</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">annlite.executor</span>
+<span class="w">    </span><span class="nt">workspace</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;./workspace&#39;</span>
 </pre></div>
 </div>
 </div>
@@ -474,30 +474,30 @@ Columns used for filtering are stored in string type so the memory usage is depe
 it’s not possible to implement index operations on a single machine. <strong>Sharding</strong>,
 a type of partitioning that separates a large dataset into smaller, faster, more easily managed parts, is needed in this case.</p>
 <p>You need to specify the <code class="docutils literal notranslate"><span class="pre">shards</span></code> and <code class="docutils literal notranslate"><span class="pre">polling</span></code> in the YAML config:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">jtype</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Flow</span><span class="w"></span>
-<span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;1&#39;</span><span class="w"></span>
-<span class="nt">with</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">61000</span><span class="w"></span>
-<span class="nt">executors</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">encoder</span><span class="w"></span>
-<span class="w">    </span><span class="nt">uses</span><span class="p">:</span><span class="w"></span>
-<span class="w">      </span><span class="nt">jtype</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CLIPEncoder</span><span class="w"></span>
-<span class="w">      </span><span class="nt">metas</span><span class="p">:</span><span class="w"></span>
-<span class="w">        </span><span class="nt">py_modules</span><span class="p">:</span><span class="w"></span>
-<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">clip_server.executors.clip_torch</span><span class="w"></span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">jtype</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Flow</span>
+<span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;1&#39;</span>
+<span class="nt">with</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">61000</span>
+<span class="nt">executors</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">encoder</span>
+<span class="w">    </span><span class="nt">uses</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">jtype</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CLIPEncoder</span>
+<span class="w">      </span><span class="nt">metas</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">py_modules</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">clip_server.executors.clip_torch</span>
 <span class="w">          </span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">indexer</span><span class="w"></span>
-<span class="w">    </span><span class="nt">uses</span><span class="p">:</span><span class="w"></span>
-<span class="w">      </span><span class="nt">jtype</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">AnnLiteIndexer</span><span class="w"></span>
-<span class="w">      </span><span class="nt">with</span><span class="p">:</span><span class="w"></span>
-<span class="w">        </span><span class="nt">n_dim</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">512</span><span class="w"></span>
-<span class="w">      </span><span class="nt">metas</span><span class="p">:</span><span class="w"></span>
-<span class="w">        </span><span class="nt">py_modules</span><span class="p">:</span><span class="w"></span>
-<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">annlite.executor</span><span class="w"></span>
-<span class="w">    </span><span class="nt">workspace</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;./workspace&#39;</span><span class="w"></span>
-<span class="w">    </span><span class="nt">shards</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span><span class="w"></span>
-<span class="w">    </span><span class="nt">polling</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="s">&#39;/index&#39;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&#39;ANY&#39;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&#39;/search&#39;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&#39;ALL&#39;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&#39;/update&#39;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&#39;ALL&#39;</span><span class="p p-Indicator">,</span><span class="w"></span>
-<span class="w">              </span><span class="s">&#39;/delete&#39;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&#39;ALL&#39;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&#39;/status&#39;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&#39;ALL&#39;</span><span class="p p-Indicator">}</span><span class="w"></span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">indexer</span>
+<span class="w">    </span><span class="nt">uses</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">jtype</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">AnnLiteIndexer</span>
+<span class="w">      </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">n_dim</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">512</span>
+<span class="w">      </span><span class="nt">metas</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">py_modules</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">annlite.executor</span>
+<span class="w">    </span><span class="nt">workspace</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;./workspace&#39;</span>
+<span class="w">    </span><span class="nt">shards</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span>
+<span class="w">    </span><span class="nt">polling</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="s">&#39;/index&#39;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&#39;ANY&#39;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&#39;/search&#39;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&#39;ALL&#39;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&#39;/update&#39;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&#39;ALL&#39;</span><span class="p p-Indicator">,</span>
+<span class="w">              </span><span class="s">&#39;/delete&#39;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&#39;ALL&#39;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&#39;/status&#39;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&#39;ALL&#39;</span><span class="p p-Indicator">}</span>
 </pre></div>
 </div>
 <div class="table-wrapper colwidths-auto docutils container">
@@ -570,7 +570,7 @@ a type of partitioning that separates a large dataset into smaller, faster, more
                         <div class="copyright">
                             Copyright &#169; Jina AI Limited. All rights reserved.
                         </div><div class="last-updated">
-                            Last updated on Dec 12, 2022</div>
+                            Last updated on Feb 22, 2023</div>
                     </div>
                     <div class="right-details">
                         <div class="social-btns">
