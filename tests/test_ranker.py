@@ -68,14 +68,14 @@ async def test_torch_executor_rank_text2imgs(encoder_class):
     [
         [
             Document(
-                uri='https://docarray.jina.ai/_static/favicon.png',
+                uri='https://clip-as-service.jina.ai/_static/favicon.png',
                 matches=[
                     Document(text='hello, world'),
                     Document(text='goodbye, world'),
                 ],
             ),
             Document(
-                uri='https://docarray.jina.ai/_static/favicon.png',
+                uri='https://clip-as-service.jina.ai/_static/favicon.png',
                 matches=[
                     Document(text='hello, world'),
                     Document(text='goodbye, world'),
@@ -85,14 +85,14 @@ async def test_torch_executor_rank_text2imgs(encoder_class):
         DocumentArray(
             [
                 Document(
-                    uri='https://docarray.jina.ai/_static/favicon.png',
+                    uri='https://clip-as-service.jina.ai/_static/favicon.png',
                     matches=[
                         Document(text='hello, world'),
                         Document(text='goodbye, world'),
                     ],
                 ),
                 Document(
-                    uri='https://docarray.jina.ai/_static/favicon.png',
+                    uri='https://clip-as-service.jina.ai/_static/favicon.png',
                     matches=[
                         Document(text='hello, world'),
                         Document(text='goodbye, world'),
@@ -102,7 +102,7 @@ async def test_torch_executor_rank_text2imgs(encoder_class):
         ),
         lambda: (
             Document(
-                uri='https://docarray.jina.ai/_static/favicon.png',
+                uri='https://clip-as-service.jina.ai/_static/favicon.png',
                 matches=[
                     Document(text='hello, world'),
                     Document(text='goodbye, world'),
@@ -115,7 +115,9 @@ async def test_torch_executor_rank_text2imgs(encoder_class):
                 Document(
                     text='hello, world',
                     matches=[
-                        Document(uri='https://docarray.jina.ai/_static/favicon.png'),
+                        Document(
+                            uri='https://clip-as-service.jina.ai/_static/favicon.png'
+                        ),
                         Document(
                             uri=f'{os.path.dirname(os.path.abspath(__file__))}/img/00000.jpg'
                         ),
@@ -144,7 +146,7 @@ def test_docarray_inputs(make_flow, inputs):
     [
         [
             Document(
-                uri='https://docarray.jina.ai/_static/favicon.png',
+                uri='https://clip-as-service.jina.ai/_static/favicon.png',
                 matches=[
                     Document(text='hello, world'),
                     Document(text='goodbye, world'),
@@ -154,7 +156,7 @@ def test_docarray_inputs(make_flow, inputs):
         DocumentArray(
             [
                 Document(
-                    uri='https://docarray.jina.ai/_static/favicon.png',
+                    uri='https://clip-as-service.jina.ai/_static/favicon.png',
                     matches=[
                         Document(text='hello, world'),
                         Document(text='goodbye, world'),
@@ -164,7 +166,7 @@ def test_docarray_inputs(make_flow, inputs):
         ),
         lambda: (
             Document(
-                uri='https://docarray.jina.ai/_static/favicon.png',
+                uri='https://clip-as-service.jina.ai/_static/favicon.png',
                 matches=[
                     Document(text='hello, world'),
                     Document(text='goodbye, world'),
@@ -177,7 +179,9 @@ def test_docarray_inputs(make_flow, inputs):
                 Document(
                     text='hello, world',
                     matches=[
-                        Document(uri='https://docarray.jina.ai/_static/favicon.png'),
+                        Document(
+                            uri='https://clip-as-service.jina.ai/_static/favicon.png'
+                        ),
                         Document(
                             uri=f'{os.path.dirname(os.path.abspath(__file__))}/img/00000.jpg'
                         ),

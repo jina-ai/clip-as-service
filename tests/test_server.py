@@ -10,9 +10,9 @@ import numpy as np
 
 def test_server_download(tmpdir):
     download_model(
-        url='https://docarray.jina.ai/_static/favicon.png',
+        url='https://clip-as-service.jina.ai/_static/favicon.png',
         target_folder=tmpdir,
-        md5sum='66ea4817d73514888dcf6c7d2b00016d',
+        md5sum='43104e468ddd23c55bc662d84c87a7f8',
         with_resume=False,
     )
     target_path = os.path.join(tmpdir, 'favicon.png')
@@ -27,20 +27,20 @@ def test_server_download(tmpdir):
     os.remove(target_path)
 
     download_model(
-        url='https://docarray.jina.ai/_static/favicon.png',
+        url='https://clip-as-service.jina.ai/_static/favicon.png',
         target_folder=tmpdir,
-        md5sum='66ea4817d73514888dcf6c7d2b00016d',
+        md5sum='43104e468ddd23c55bc662d84c87a7f8',
         with_resume=True,
     )
     assert os.path.getsize(target_path) == file_size
     assert not os.path.exists(part_path)
 
 
-@pytest.mark.parametrize('md5', ['ABC', None, '66ea4817d73514888dcf6c7d2b00016d'])
+@pytest.mark.parametrize('md5', ['ABC', None, '43104e468ddd23c55bc662d84c87a7f8'])
 def test_server_download_md5(tmpdir, md5):
     if md5 != 'ABC':
         download_model(
-            url='https://docarray.jina.ai/_static/favicon.png',
+            url='https://clip-as-service.jina.ai/_static/favicon.png',
             target_folder=tmpdir,
             md5sum=md5,
             with_resume=False,
@@ -48,7 +48,7 @@ def test_server_download_md5(tmpdir, md5):
     else:
         with pytest.raises(Exception):
             download_model(
-                url='https://docarray.jina.ai/_static/favicon.png',
+                url='https://clip-as-service.jina.ai/_static/favicon.png',
                 target_folder=tmpdir,
                 md5sum=md5,
                 with_resume=False,
@@ -58,7 +58,7 @@ def test_server_download_md5(tmpdir, md5):
 def test_server_download_not_regular_file(tmpdir):
     with pytest.raises(Exception):
         download_model(
-            url='https://docarray.jina.ai/_static/favicon.png',
+            url='https://clip-as-service.jina.ai/_static/favicon.png',
             target_folder=tmpdir,
             md5sum='',
             with_resume=False,
@@ -87,7 +87,7 @@ def test_make_onnx_flow_wrong_name_path():
     'image_uri',
     [
         f'{os.path.dirname(os.path.abspath(__file__))}/img/00000.jpg',
-        'https://docarray.jina.ai/_static/favicon.png',
+        'https://clip-as-service.jina.ai/_static/favicon.png',
     ],
 )
 @pytest.mark.parametrize('size', [224, 288, 384, 448])

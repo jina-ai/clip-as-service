@@ -32,10 +32,10 @@ def test_numpy_softmax(shape, axis):
                     Document(text='goodbye, world'),
                     Document(
                         text='hello, world',
-                        uri='https://docarray.jina.ai/_static/favicon.png',
+                        uri='https://clip-as-service.jina.ai/_static/favicon.png',
                     ),
                     Document(
-                        uri='https://docarray.jina.ai/_static/favicon.png',
+                        uri='https://clip-as-service.jina.ai/_static/favicon.png',
                     ),
                 ]
             ),
@@ -47,14 +47,14 @@ def test_numpy_softmax(shape, axis):
                     Document(text='hello, world'),
                     Document(tensor=np.array([0, 1, 2])),
                     Document(
-                        uri='https://docarray.jina.ai/_static/favicon.png'
+                        uri='https://clip-as-service.jina.ai/_static/favicon.png'
                     ).load_uri_to_blob(),
                     Document(
                         tensor=np.array([0, 1, 2]),
-                        uri='https://docarray.jina.ai/_static/favicon.png',
+                        uri='https://clip-as-service.jina.ai/_static/favicon.png',
                     ),
                     Document(
-                        uri='https://docarray.jina.ai/_static/favicon.png',
+                        uri='https://clip-as-service.jina.ai/_static/favicon.png',
                     ),
                 ]
             ),
@@ -64,7 +64,7 @@ def test_numpy_softmax(shape, axis):
             DocumentArray(
                 [
                     Document(text='hello, world'),
-                    Document(uri='https://docarray.jina.ai/_static/favicon.png'),
+                    Document(uri='https://clip-as-service.jina.ai/_static/favicon.png'),
                 ]
             ),
             (1, 1),
@@ -86,7 +86,7 @@ def test_split_img_txt_da(inputs):
         DocumentArray(
             [
                 Document(
-                    uri='https://docarray.jina.ai/_static/favicon.png',
+                    uri='https://clip-as-service.jina.ai/_static/favicon.png',
                 ).load_uri_to_blob(),
             ]
         )

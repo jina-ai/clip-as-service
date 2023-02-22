@@ -136,7 +136,7 @@ jobs:
           fail_ci_if_error: false
           token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
 
-  gpu-test:
+  trt-gpu-test:
     needs: prep-testbed
     runs-on: [self-hosted, x64, gpu, linux]
     strategy:
@@ -173,6 +173,58 @@ jobs:
             -v -s -m "gpu" ./tests/test_tensorrt.py
           pytest --suppress-no-test-exit-code --cov=clip_client --cov=clip_server --cov-report=xml \
             -v -s -m "gpu" ./tests/test_simple.py
+          echo "::set-output name=codecov_flag::cas"
+        timeout-minutes: 30
+        env:
+          # fix re-initialized torch runtime error on cuda device
+          JINA_MP_START_METHOD: spawn
+      - name: Check codecov file
+        id: check_files
+        uses: andstor/file-existence-action@v1
+        with:
+          files: "coverage.xml"
+      - name: Upload coverage from test to Codecov
+        uses: codecov/codecov-action@v3
+        if: steps.check_files.outputs.files_exists == 'true' && ${{ matrix.python-version }} == '3.7'
+        with:
+          file: coverage.xml
+          name: gpu-related-codecov
+          flags: ${{ steps.test.outputs.codecov_flag }}
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
+
+  gpu-model-test:
+    needs: prep-testbed
+    runs-on: [ self-hosted, x64, gpu, linux ]
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [ 3.7 ]
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          # For coverage builds fetch the whole history
+          fetch-depth: 0
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Prepare enviroment
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install wheel pytest pytest-cov nvidia-pyindex
+          pip install -e "client/[test]"
+          pip install -e "server/[onnx]"
+          pip install -e "server/[transformers]"
+          {
+            pip install -e "server/[flash-attn]"
+          } || {
+            echo "flash attention was not installed."
+          }
+          pip install --no-cache-dir "server/[cn_clip]"
+      - name: Test
+        id: test
+        run: |
           pytest --suppress-no-test-exit-code --cov=clip_client --cov=clip_server --cov-report=xml \
             -v -s -m "gpu" ./tests/test_model.py
           echo "::set-output name=codecov_flag::cas"
@@ -197,7 +249,7 @@ jobs:
 
   # just for blocking the merge until all parallel core-test are successful
   success-all-test:
-    needs: [commit-lint, core-test, gpu-test]
+    needs: [commit-lint, core-test, trt-gpu-test, gpu-model-test]
     if: always()
     runs-on: ubuntu-latest
     steps:
