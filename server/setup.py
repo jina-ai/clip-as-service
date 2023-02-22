@@ -51,9 +51,9 @@ setup(
     ],
     extras_require={
         'onnx': [
+            'onnxruntime==1.13.1',
             'onnx',
             'onnxmltools',
-            'onnxruntime==1.13.1',
         ]
         + (['onnxruntime-gpu==1.13.1'] if sys.platform != 'darwin' else []),
         'tensorrt': [
