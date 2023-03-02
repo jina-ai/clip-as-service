@@ -403,8 +403,7 @@ class Client:
                 on_error=on_error,
                 on_always=partial(self._update_pbar, func=on_always),
                 parameters=parameters,
-                    prefetch=10,
-
+                prefetch=10,
             ):
                 continue
 
@@ -520,7 +519,6 @@ class Client:
                 on_always=partial(self._update_pbar, func=on_always),
                 parameters=parameters,
                 prefetch=10,
-
             )
 
         return results
@@ -556,8 +554,7 @@ class Client:
                 on_error=on_error,
                 on_always=partial(self._update_pbar, func=on_always),
                 parameters=parameters,
-                    prefetch=10,
-
+                prefetch=10,
             ):
                 continue
 
@@ -657,7 +654,6 @@ class Client:
                 on_always=partial(self._update_pbar, func=on_always),
                 parameters=parameters,
                 prefetch=10,
-
             )
 
         return results
@@ -722,8 +718,7 @@ class Client:
                 on_error=on_error,
                 on_always=partial(self._update_pbar, func=on_always),
                 parameters=parameters,
-                    prefetch=10,
-
+                prefetch=10,
             ):
                 continue
 
@@ -825,7 +820,6 @@ class Client:
                 on_always=partial(self._update_pbar, func=on_always),
                 parameters=parameters,
                 prefetch=10,
-
             )
 
         return results
@@ -891,8 +885,7 @@ class Client:
                 on_error=on_error,
                 on_always=partial(self._update_pbar, func=on_always),
                 parameters=parameters,
-                    prefetch=10,
-
+                prefetch=10,
             ):
                 continue
 
