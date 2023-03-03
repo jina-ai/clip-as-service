@@ -251,7 +251,7 @@ class Client:
             It takes the response ``DataRequest`` as the only argument
         :param on_always: the callback function executed while streaming, after completion of each request.
             It takes the response ``DataRequest`` as the only argument
-        :param prefetch: the number of in-flight requests made by the post() method. Use a lower value for expensive
+        :param prefetch: the number of in-flight batches made by the post() method. Use a lower value for expensive
             operations, and a higher value for faster response times
         :return: the embedding in a numpy ndarray with shape ``[N, D]``. ``N`` is in the same length of ``content``
         """
@@ -281,7 +281,7 @@ class Client:
             It takes the response ``DataRequest`` as the only argument
         :param on_always: the callback function executed while streaming, after completion of each request.
             It takes the response ``DataRequest`` as the only argument
-        :param prefetch: the number of in-flight requests made by the post() method. Use a lower value for expensive
+        :param prefetch: the number of in-flight batches made by the post() method. Use a lower value for expensive
             operations, and a higher value for faster response times
         :return: the embedding in a numpy ndarray with shape ``[N, D]``. ``N`` is in the same length of ``content``
         """
@@ -568,7 +568,7 @@ class Client:
             It takes the response ``DataRequest`` as the only argument
         :param on_always: the callback function executed while streaming, after each request is completed.
             It takes the response ``DataRequest`` as the only argument
-        :param prefetch: the number of in-flight requests made by the post() method. Use a lower value for expensive
+        :param prefetch: the number of in-flight batches made by the post() method. Use a lower value for expensive
             operations, and a higher value for faster response times
         :return: the embedding in a numpy ndarray with shape ``[N, D]``. ``N`` is in the same length of ``content``
         """
@@ -599,7 +599,7 @@ class Client:
             It takes the response ``DataRequest`` as the only argument
         :param on_always: the callback function executed while streaming, after each request is completed.
             It takes the response ``DataRequest`` as the only argument
-        :param prefetch: the number of in-flight requests made by the post() method. Use a lower value for expensive
+        :param prefetch: the number of in-flight batches made by the post() method. Use a lower value for expensive
             operations, and a higher value for faster response times
         :return: the embedding in a numpy ndarray with shape ``[N, D]``. ``N`` is in the same length of ``content``
         """
@@ -742,7 +742,7 @@ class Client:
             It takes the response ``DataRequest`` as the only argument
         :param on_always: the callback function executed while streaming, after each request is completed.
             It takes the response ``DataRequest`` as the only argument
-        :param prefetch: the number of in-flight requests made by the post() method. Use a lower value for expensive
+        :param prefetch: the number of in-flight batches made by the post() method. Use a lower value for expensive
             operations, and a higher value for faster response times
         """
         ...
@@ -777,7 +777,7 @@ class Client:
             It takes the response ``DataRequest`` as the only argument
         :param on_always: the callback function executed while streaming, after each request is completed.
             It takes the response ``DataRequest`` as the only argument
-        :param prefetch: the number of in-flight requests made by the post() method. Use a lower value for expensive
+        :param prefetch: the number of in-flight batches made by the post() method. Use a lower value for expensive
             operations, and a higher value for faster response times
         """
         ...
