@@ -153,9 +153,9 @@ class Client:
         os.environ['JINA_GRPC_SEND_BYTES'] = '0'
         os.environ['JINA_GRPC_RECV_BYTES'] = '0'
 
-        self._s_task = self._pbar.add_task(
-            ':arrow_up: Send', total=total, total_size=0, start=False
-        )
+        # self._s_task = self._pbar.add_task(
+        #     ':arrow_up: Send', total=total, total_size=0, start=False
+        # )
         self._r_task = self._pbar.add_task(
             ':arrow_down: Recv', total=total, total_size=0, start=False
         )
@@ -174,8 +174,8 @@ class Client:
         from rich import filesize
         from docarray import Document
 
-        if hasattr(self, '_pbar'):
-            self._pbar.start_task(self._s_task)
+        # if hasattr(self, '_pbar'):
+        #     self._pbar.start_task(self._s_task)
 
         for c in content:
             if isinstance(c, str):
@@ -199,16 +199,16 @@ class Client:
             else:
                 raise TypeError(f'unsupported input type {c!r}')
 
-            if hasattr(self, '_pbar'):
-                self._pbar.update(
-                    self._s_task,
-                    advance=1,
-                    total_size=str(
-                        filesize.decimal(
-                            int(os.environ.get('JINA_GRPC_SEND_BYTES', '0'))
-                        )
-                    ),
-                )
+            # if hasattr(self, '_pbar'):
+            #     self._pbar.update(
+            #         self._s_task,
+            #         advance=1,
+            #         total_size=str(
+            #             filesize.decimal(
+            #                 int(os.environ.get('JINA_GRPC_SEND_BYTES', '0'))
+            #             )
+            #         ),
+            #     )
 
             if results is not None:
                 results.append(d)
@@ -426,8 +426,8 @@ class Client:
         from rich import filesize
         from docarray import Document
 
-        if hasattr(self, '_pbar'):
-            self._pbar.start_task(self._s_task)
+        # if hasattr(self, '_pbar'):
+        #     self._pbar.start_task(self._s_task)
 
         for c in content:
             if isinstance(c, Document):
@@ -435,16 +435,16 @@ class Client:
             else:
                 raise TypeError(f'Unsupported input type {c!r}')
 
-            if hasattr(self, '_pbar'):
-                self._pbar.update(
-                    self._s_task,
-                    advance=1,
-                    total_size=str(
-                        filesize.decimal(
-                            int(os.environ.get('JINA_GRPC_SEND_BYTES', '0'))
-                        )
-                    ),
-                )
+            # if hasattr(self, '_pbar'):
+            #     self._pbar.update(
+            #         self._s_task,
+            #         advance=1,
+            #         total_size=str(
+            #             filesize.decimal(
+            #                 int(os.environ.get('JINA_GRPC_SEND_BYTES', '0'))
+            #             )
+            #         ),
+            #     )
 
             if results is not None:
                 results.append(d)
