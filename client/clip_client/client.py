@@ -154,7 +154,7 @@ class Client:
         os.environ['JINA_GRPC_RECV_BYTES'] = '0'
 
         self._r_task = self._pbar.add_task(
-            ':arrow_down: Recv', total=total, total_size=0, start=False
+            ':arrow_down: Progress', total=total, total_size=0, start=False
         )
 
     @staticmethod
