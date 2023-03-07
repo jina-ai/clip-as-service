@@ -426,6 +426,14 @@ You can specify `.encode(..., batch_size=8)` to control how many `Document`s are
 
 Intuitively, setting `batch_size=1024` should result in very high GPU utilization on each request. However, a large batch size like this also means sending each request would take longer. Given that `clip-client` is designed with request and response streaming, large batch size would not benefit from the time overlapping between request streaming and response streaming.
 
+### Control prefetch size
+
+To control the number of in-flight batches, you can use the `.encode(..., prefetch=100)` option. 
+The way this works is that when you send a large request, the outgoing request stream will usually finish before the incoming response stream due to the asynchronous design. 
+This is because the request handling is typically time-consuming, which can prevent the server from sending back the response and may cause it to close the connection as it thinks the incoming channel is idle. 
+By default, the client is set to a prefetch value of 100. However, it is recommended to use a lower value for expensive operations and a higher value for faster response times.
+
+For more information about client prefetching, please refer to [Rate Limit](https://docs.jina.ai/concepts/client/rate-limit/) in Jina documentation.
 
 ### Show progressbar
 
@@ -459,8 +467,9 @@ Here are some suggestions when encoding a large number of `Document`s:
 
     c.encode(iglob('**/*.png'))
     ```
-2. Adjust `batch_size`.
-3. Turn on the progressbar.
+2. Adjust the `batch_size` parameters.
+3. Adjust the `prefetch` parameters.
+4. Turn on the progressbar.
 
 ````{danger}
 In any case, avoiding the following coding:

@@ -153,11 +153,8 @@ class Client:
         os.environ['JINA_GRPC_SEND_BYTES'] = '0'
         os.environ['JINA_GRPC_RECV_BYTES'] = '0'
 
-        self._s_task = self._pbar.add_task(
-            ':arrow_up: Send', total=total, total_size=0, start=False
-        )
         self._r_task = self._pbar.add_task(
-            ':arrow_down: Recv', total=total, total_size=0, start=False
+            ':arrow_down: Progress', total=total, total_size=0, start=False
         )
 
     @staticmethod
@@ -171,11 +168,7 @@ class Client:
     def _iter_doc(
         self, content, results: Optional['DocumentArray'] = None
     ) -> Generator['Document', None, None]:
-        from rich import filesize
         from docarray import Document
-
-        if hasattr(self, '_pbar'):
-            self._pbar.start_task(self._s_task)
 
         for c in content:
             if isinstance(c, str):
@@ -198,17 +191,6 @@ class Client:
                     raise TypeError(f'unsupported input type {c!r} {c.content_type}')
             else:
                 raise TypeError(f'unsupported input type {c!r}')
-
-            if hasattr(self, '_pbar'):
-                self._pbar.update(
-                    self._s_task,
-                    advance=1,
-                    total_size=str(
-                        filesize.decimal(
-                            int(os.environ.get('JINA_GRPC_SEND_BYTES', '0'))
-                        )
-                    ),
-                )
 
             if results is not None:
                 results.append(d)
@@ -251,6 +233,7 @@ class Client:
         on_done: Optional['CallbackFnType'] = None,
         on_error: Optional['CallbackFnType'] = None,
         on_always: Optional['CallbackFnType'] = None,
+        prefetch: int = 100,
     ) -> 'np.ndarray':
         """Encode images and texts into embeddings where the input is an iterable of raw strings.
         Each image and text must be represented as a string. The following strings are acceptable:
@@ -268,6 +251,8 @@ class Client:
             It takes the response ``DataRequest`` as the only argument
         :param on_always: the callback function executed while streaming, after completion of each request.
             It takes the response ``DataRequest`` as the only argument
+        :param prefetch: the number of in-flight batches made by the post() method. Use a lower value for expensive
+            operations, and a higher value for faster response times
         :return: the embedding in a numpy ndarray with shape ``[N, D]``. ``N`` is in the same length of ``content``
         """
         ...
@@ -283,6 +268,7 @@ class Client:
         on_done: Optional['CallbackFnType'] = None,
         on_error: Optional['CallbackFnType'] = None,
         on_always: Optional['CallbackFnType'] = None,
+        prefetch: int = 100,
     ) -> 'DocumentArray':
         """Encode images and texts into embeddings where the input is an iterable of :class:`docarray.Document`.
         :param content: an iterable of :class:`docarray.Document`, each Document must be filled with `.uri`, `.text` or `.blob`.
@@ -295,6 +281,8 @@ class Client:
             It takes the response ``DataRequest`` as the only argument
         :param on_always: the callback function executed while streaming, after completion of each request.
             It takes the response ``DataRequest`` as the only argument
+        :param prefetch: the number of in-flight batches made by the post() method. Use a lower value for expensive
+            operations, and a higher value for faster response times
         :return: the embedding in a numpy ndarray with shape ``[N, D]``. ``N`` is in the same length of ``content``
         """
         ...
@@ -314,6 +302,7 @@ class Client:
         on_done = kwargs.pop('on_done', None)
         on_error = kwargs.pop('on_error', None)
         on_always = kwargs.pop('on_always', None)
+        prefetch = kwargs.pop('prefetch', 100)
         results = DocumentArray() if not on_done and not on_always else None
         if not on_done:
             on_done = partial(
@@ -334,6 +323,7 @@ class Client:
                 on_error=on_error,
                 on_always=partial(self._update_pbar, func=on_always),
                 parameters=parameters,
+                prefetch=prefetch,
             )
 
         unbox = hasattr(content, '__len__') and isinstance(content[0], str)
@@ -350,6 +340,7 @@ class Client:
         on_done: Optional['CallbackFnType'] = None,
         on_error: Optional['CallbackFnType'] = None,
         on_always: Optional['CallbackFnType'] = None,
+        prefetch: int = 100,
     ) -> 'np.ndarray':
         ...
 
@@ -364,6 +355,7 @@ class Client:
         on_done: Optional['CallbackFnType'] = None,
         on_error: Optional['CallbackFnType'] = None,
         on_always: Optional['CallbackFnType'] = None,
+        prefetch: int = 100,
     ) -> 'DocumentArray':
         ...
 
@@ -382,6 +374,7 @@ class Client:
         on_done = kwargs.pop('on_done', None)
         on_error = kwargs.pop('on_error', None)
         on_always = kwargs.pop('on_always', None)
+        prefetch = kwargs.pop('prefetch', 100)
         results = DocumentArray() if not on_done and not on_always else None
         if not on_done:
             on_done = partial(
@@ -402,6 +395,7 @@ class Client:
                 on_error=on_error,
                 on_always=partial(self._update_pbar, func=on_always),
                 parameters=parameters,
+                prefetch=prefetch,
             ):
                 continue
 
@@ -411,29 +405,13 @@ class Client:
     def _iter_rank_docs(
         self, content, results: Optional['DocumentArray'] = None, source='matches'
     ) -> Generator['Document', None, None]:
-        from rich import filesize
         from docarray import Document
-
-        if hasattr(self, '_pbar'):
-            self._pbar.start_task(self._s_task)
 
         for c in content:
             if isinstance(c, Document):
                 d = self._prepare_rank_doc(c, source)
             else:
                 raise TypeError(f'Unsupported input type {c!r}')
-
-            if hasattr(self, '_pbar'):
-                self._pbar.update(
-                    self._s_task,
-                    advance=1,
-                    total_size=str(
-                        filesize.decimal(
-                            int(os.environ.get('JINA_GRPC_SEND_BYTES', '0'))
-                        )
-                    ),
-                )
-
             if results is not None:
                 results.append(d)
             yield d
@@ -498,6 +476,7 @@ class Client:
         on_done = kwargs.pop('on_done', None)
         on_error = kwargs.pop('on_error', None)
         on_always = kwargs.pop('on_always', None)
+        prefetch = kwargs.pop('prefetch', 100)
         results = DocumentArray() if not on_done and not on_always else None
         if not on_done:
             on_done = partial(self._gather_result, results=results, attribute='matches')
@@ -516,6 +495,7 @@ class Client:
                 on_error=on_error,
                 on_always=partial(self._update_pbar, func=on_always),
                 parameters=parameters,
+                prefetch=prefetch,
             )
 
         return results
@@ -533,6 +513,7 @@ class Client:
         on_done = kwargs.pop('on_done', None)
         on_error = kwargs.pop('on_error', None)
         on_always = kwargs.pop('on_always', None)
+        prefetch = kwargs.pop('prefetch', 100)
         results = DocumentArray() if not on_done and not on_always else None
         if not on_done:
             on_done = partial(self._gather_result, results=results, attribute='matches')
@@ -551,6 +532,7 @@ class Client:
                 on_error=on_error,
                 on_always=partial(self._update_pbar, func=on_always),
                 parameters=parameters,
+                prefetch=prefetch,
             ):
                 continue
 
@@ -567,6 +549,7 @@ class Client:
         on_done: Optional['CallbackFnType'] = None,
         on_error: Optional['CallbackFnType'] = None,
         on_always: Optional['CallbackFnType'] = None,
+        prefetch: int = 100,
     ):
         """Index the images or texts where their embeddings are computed by the server CLIP model.
 
@@ -585,6 +568,8 @@ class Client:
             It takes the response ``DataRequest`` as the only argument
         :param on_always: the callback function executed while streaming, after each request is completed.
             It takes the response ``DataRequest`` as the only argument
+        :param prefetch: the number of in-flight batches made by the post() method. Use a lower value for expensive
+            operations, and a higher value for faster response times
         :return: the embedding in a numpy ndarray with shape ``[N, D]``. ``N`` is in the same length of ``content``
         """
         ...
@@ -600,6 +585,7 @@ class Client:
         on_done: Optional['CallbackFnType'] = None,
         on_error: Optional['CallbackFnType'] = None,
         on_always: Optional['CallbackFnType'] = None,
+        prefetch: int = 100,
     ) -> 'DocumentArray':
         """Index the images or texts where their embeddings are computed by the server CLIP model.
 
@@ -613,6 +599,8 @@ class Client:
             It takes the response ``DataRequest`` as the only argument
         :param on_always: the callback function executed while streaming, after each request is completed.
             It takes the response ``DataRequest`` as the only argument
+        :param prefetch: the number of in-flight batches made by the post() method. Use a lower value for expensive
+            operations, and a higher value for faster response times
         :return: the embedding in a numpy ndarray with shape ``[N, D]``. ``N`` is in the same length of ``content``
         """
         ...
@@ -630,6 +618,7 @@ class Client:
         on_done = kwargs.pop('on_done', None)
         on_error = kwargs.pop('on_error', None)
         on_always = kwargs.pop('on_always', None)
+        prefetch = kwargs.pop('prefetch', 100)
         results = DocumentArray() if not on_done and not on_always else None
         if not on_done:
             on_done = partial(
@@ -649,6 +638,7 @@ class Client:
                 on_error=on_error,
                 on_always=partial(self._update_pbar, func=on_always),
                 parameters=parameters,
+                prefetch=prefetch,
             )
 
         return results
@@ -664,6 +654,7 @@ class Client:
         on_done: Optional['CallbackFnType'] = None,
         on_error: Optional['CallbackFnType'] = None,
         on_always: Optional['CallbackFnType'] = None,
+        prefetch: int = 100,
     ):
         ...
 
@@ -678,6 +669,7 @@ class Client:
         on_done: Optional['CallbackFnType'] = None,
         on_error: Optional['CallbackFnType'] = None,
         on_always: Optional['CallbackFnType'] = None,
+        prefetch: int = 100,
     ):
         ...
 
@@ -694,6 +686,7 @@ class Client:
         on_done = kwargs.pop('on_done', None)
         on_error = kwargs.pop('on_error', None)
         on_always = kwargs.pop('on_always', None)
+        prefetch = kwargs.pop('prefetch', 100)
         results = DocumentArray() if not on_done and not on_always else None
         if not on_done:
             on_done = partial(
@@ -713,6 +706,7 @@ class Client:
                 on_error=on_error,
                 on_always=partial(self._update_pbar, func=on_always),
                 parameters=parameters,
+                prefetch=prefetch,
             ):
                 continue
 
@@ -730,6 +724,7 @@ class Client:
         on_done: Optional['CallbackFnType'] = None,
         on_error: Optional['CallbackFnType'] = None,
         on_always: Optional['CallbackFnType'] = None,
+        prefetch: int = 100,
     ) -> 'DocumentArray':
         """Search for top k results for given query string or ``Document``.
 
@@ -747,6 +742,8 @@ class Client:
             It takes the response ``DataRequest`` as the only argument
         :param on_always: the callback function executed while streaming, after each request is completed.
             It takes the response ``DataRequest`` as the only argument
+        :param prefetch: the number of in-flight batches made by the post() method. Use a lower value for expensive
+            operations, and a higher value for faster response times
         """
         ...
 
@@ -762,6 +759,7 @@ class Client:
         on_done: Optional['CallbackFnType'] = None,
         on_error: Optional['CallbackFnType'] = None,
         on_always: Optional['CallbackFnType'] = None,
+        prefetch: int = 100,
     ) -> 'DocumentArray':
         """Search for top k results for given query string or ``Document``.
 
@@ -779,6 +777,8 @@ class Client:
             It takes the response ``DataRequest`` as the only argument
         :param on_always: the callback function executed while streaming, after each request is completed.
             It takes the response ``DataRequest`` as the only argument
+        :param prefetch: the number of in-flight batches made by the post() method. Use a lower value for expensive
+            operations, and a higher value for faster response times
         """
         ...
 
@@ -795,6 +795,7 @@ class Client:
         on_done = kwargs.pop('on_done', None)
         on_error = kwargs.pop('on_error', None)
         on_always = kwargs.pop('on_always', None)
+        prefetch = kwargs.pop('prefetch', 100)
         results = DocumentArray() if not on_done and not on_always else None
         if not on_done:
             on_done = partial(self._gather_result, results=results, attribute='matches')
@@ -813,6 +814,7 @@ class Client:
                 on_error=on_error,
                 on_always=partial(self._update_pbar, func=on_always),
                 parameters=parameters,
+                prefetch=prefetch,
             )
 
         return results
@@ -829,6 +831,7 @@ class Client:
         on_done: Optional['CallbackFnType'] = None,
         on_error: Optional['CallbackFnType'] = None,
         on_always: Optional['CallbackFnType'] = None,
+        prefetch: int = 100,
     ):
         ...
 
@@ -844,6 +847,7 @@ class Client:
         on_done: Optional['CallbackFnType'] = None,
         on_error: Optional['CallbackFnType'] = None,
         on_always: Optional['CallbackFnType'] = None,
+        prefetch: int = 100,
     ):
         ...
 
@@ -860,6 +864,7 @@ class Client:
         on_done = kwargs.pop('on_done', None)
         on_error = kwargs.pop('on_error', None)
         on_always = kwargs.pop('on_always', None)
+        prefetch = kwargs.pop('prefetch', 100)
         results = DocumentArray() if not on_done and not on_always else None
         if not on_done:
             on_done = partial(self._gather_result, results=results, attribute='matches')
@@ -878,6 +883,7 @@ class Client:
                 on_error=on_error,
                 on_always=partial(self._update_pbar, func=on_always),
                 parameters=parameters,
+                prefetch=prefetch,
             ):
                 continue
 
