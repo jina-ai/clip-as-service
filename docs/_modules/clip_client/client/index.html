@@ -446,11 +446,8 @@
         <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;JINA_GRPC_SEND_BYTES&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;0&#39;</span>
         <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;JINA_GRPC_RECV_BYTES&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;0&#39;</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_s_task</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pbar</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span>
-            <span class="s1">&#39;:arrow_up: Send&#39;</span><span class="p">,</span> <span class="n">total</span><span class="o">=</span><span class="n">total</span><span class="p">,</span> <span class="n">total_size</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="kc">False</span>
-        <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_r_task</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pbar</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span>
-            <span class="s1">&#39;:arrow_down: Recv&#39;</span><span class="p">,</span> <span class="n">total</span><span class="o">=</span><span class="n">total</span><span class="p">,</span> <span class="n">total_size</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="kc">False</span>
+            <span class="s1">&#39;:arrow_down: Progress&#39;</span><span class="p">,</span> <span class="n">total</span><span class="o">=</span><span class="n">total</span><span class="p">,</span> <span class="n">total_size</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="kc">False</span>
         <span class="p">)</span>
 
     <span class="nd">@staticmethod</span>
@@ -464,11 +461,7 @@
     <span class="k">def</span> <span class="nf">_iter_doc</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">content</span><span class="p">,</span> <span class="n">results</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;DocumentArray&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="s1">&#39;Document&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
-        <span class="kn">from</span> <span class="nn">rich</span> <span class="kn">import</span> <span class="n">filesize</span>
         <span class="kn">from</span> <span class="nn">docarray</span> <span class="kn">import</span> <span class="n">Document</span>
-
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_pbar&#39;</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_pbar</span><span class="o">.</span><span class="n">start_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_s_task</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">content</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
@@ -491,17 +484,6 @@
                     <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;unsupported input type </span><span class="si">{</span><span class="n">c</span><span class="si">!r}</span><span class="s1"> </span><span class="si">{</span><span class="n">c</span><span class="o">.</span><span class="n">content_type</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;unsupported input type </span><span class="si">{</span><span class="n">c</span><span class="si">!r}</span><span class="s1">&#39;</span><span class="p">)</span>
-
-            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_pbar&#39;</span><span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_pbar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_s_task</span><span class="p">,</span>
-                    <span class="n">advance</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-                    <span class="n">total_size</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span>
-                        <span class="n">filesize</span><span class="o">.</span><span class="n">decimal</span><span class="p">(</span>
-                            <span class="nb">int</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;JINA_GRPC_SEND_BYTES&#39;</span><span class="p">,</span> <span class="s1">&#39;0&#39;</span><span class="p">))</span>
-                        <span class="p">)</span>
-                    <span class="p">),</span>
-                <span class="p">)</span>
 
             <span class="k">if</span> <span class="n">results</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
@@ -544,6 +526,7 @@
         <span class="n">on_done</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;CallbackFnType&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">on_error</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;CallbackFnType&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">on_always</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;CallbackFnType&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">prefetch</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;np.ndarray&#39;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Encode images and texts into embeddings where the input is an iterable of raw strings.</span>
 <span class="sd">        Each image and text must be represented as a string. The following strings are acceptable:</span>
@@ -561,6 +544,8 @@
 <span class="sd">            It takes the response ``DataRequest`` as the only argument</span>
 <span class="sd">        :param on_always: the callback function executed while streaming, after completion of each request.</span>
 <span class="sd">            It takes the response ``DataRequest`` as the only argument</span>
+<span class="sd">        :param prefetch: the number of in-flight batches made by the post() method. Use a lower value for expensive</span>
+<span class="sd">            operations, and a higher value for faster response times</span>
 <span class="sd">        :return: the embedding in a numpy ndarray with shape ``[N, D]``. ``N`` is in the same length of ``content``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span>
@@ -576,6 +561,7 @@
         <span class="n">on_done</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;CallbackFnType&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">on_error</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;CallbackFnType&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">on_always</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;CallbackFnType&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">prefetch</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;DocumentArray&#39;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Encode images and texts into embeddings where the input is an iterable of :class:`docarray.Document`.</span>
 <span class="sd">        :param content: an iterable of :class:`docarray.Document`, each Document must be filled with `.uri`, `.text` or `.blob`.</span>
@@ -588,6 +574,8 @@
 <span class="sd">            It takes the response ``DataRequest`` as the only argument</span>
 <span class="sd">        :param on_always: the callback function executed while streaming, after completion of each request.</span>
 <span class="sd">            It takes the response ``DataRequest`` as the only argument</span>
+<span class="sd">        :param prefetch: the number of in-flight batches made by the post() method. Use a lower value for expensive</span>
+<span class="sd">            operations, and a higher value for faster response times</span>
 <span class="sd">        :return: the embedding in a numpy ndarray with shape ``[N, D]``. ``N`` is in the same length of ``content``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span>
@@ -607,6 +595,7 @@
         <span class="n">on_done</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;on_done&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="n">on_error</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;on_error&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="n">on_always</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;on_always&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">prefetch</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;prefetch&#39;</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
         <span class="n">results</span> <span class="o">=</span> <span class="n">DocumentArray</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">on_done</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">on_always</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">on_done</span><span class="p">:</span>
             <span class="n">on_done</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span>
@@ -627,6 +616,7 @@
                 <span class="n">on_error</span><span class="o">=</span><span class="n">on_error</span><span class="p">,</span>
                 <span class="n">on_always</span><span class="o">=</span><span class="n">partial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_update_pbar</span><span class="p">,</span> <span class="n">func</span><span class="o">=</span><span class="n">on_always</span><span class="p">),</span>
                 <span class="n">parameters</span><span class="o">=</span><span class="n">parameters</span><span class="p">,</span>
+                <span class="n">prefetch</span><span class="o">=</span><span class="n">prefetch</span><span class="p">,</span>
             <span class="p">)</span>
 
         <span class="n">unbox</span> <span class="o">=</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="s1">&#39;__len__&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">content</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">str</span><span class="p">)</span>
@@ -643,6 +633,7 @@
         <span class="n">on_done</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;CallbackFnType&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">on_error</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;CallbackFnType&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">on_always</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;CallbackFnType&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">prefetch</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;np.ndarray&#39;</span><span class="p">:</span>
         <span class="o">...</span>
 
@@ -657,6 +648,7 @@
         <span class="n">on_done</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;CallbackFnType&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">on_error</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;CallbackFnType&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">on_always</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;CallbackFnType&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">prefetch</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;DocumentArray&#39;</span><span class="p">:</span>
         <span class="o">...</span>
 
@@ -675,6 +667,7 @@
         <span class="n">on_done</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;on_done&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="n">on_error</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;on_error&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="n">on_always</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;on_always&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">prefetch</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;prefetch&#39;</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
         <span class="n">results</span> <span class="o">=</span> <span class="n">DocumentArray</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">on_done</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">on_always</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">on_done</span><span class="p">:</span>
             <span class="n">on_done</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span>
@@ -695,6 +688,7 @@
                 <span class="n">on_error</span><span class="o">=</span><span class="n">on_error</span><span class="p">,</span>
                 <span class="n">on_always</span><span class="o">=</span><span class="n">partial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_update_pbar</span><span class="p">,</span> <span class="n">func</span><span class="o">=</span><span class="n">on_always</span><span class="p">),</span>
                 <span class="n">parameters</span><span class="o">=</span><span class="n">parameters</span><span class="p">,</span>
+                <span class="n">prefetch</span><span class="o">=</span><span class="n">prefetch</span><span class="p">,</span>
             <span class="p">):</span>
                 <span class="k">continue</span>
 
@@ -704,29 +698,13 @@
     <span class="k">def</span> <span class="nf">_iter_rank_docs</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">content</span><span class="p">,</span> <span class="n">results</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;DocumentArray&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="s1">&#39;matches&#39;</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="s1">&#39;Document&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
-        <span class="kn">from</span> <span class="nn">rich</span> <span class="kn">import</span> <span class="n">filesize</span>
         <span class="kn">from</span> <span class="nn">docarray</span> <span class="kn">import</span> <span class="n">Document</span>
-
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_pbar&#39;</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_pbar</span><span class="o">.</span><span class="n">start_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_s_task</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">content</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">Document</span><span class="p">):</span>
                 <span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_rank_doc</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">source</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unsupported input type </span><span class="si">{</span><span class="n">c</span><span class="si">!r}</span><span class="s1">&#39;</span><span class="p">)</span>
-
-            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_pbar&#39;</span><span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_pbar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_s_task</span><span class="p">,</span>
-                    <span class="n">advance</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-                    <span class="n">total_size</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span>
-                        <span class="n">filesize</span><span class="o">.</span><span class="n">decimal</span><span class="p">(</span>
-                            <span class="nb">int</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;JINA_GRPC_SEND_BYTES&#39;</span><span class="p">,</span> <span class="s1">&#39;0&#39;</span><span class="p">))</span>
-                        <span class="p">)</span>
-                    <span class="p">),</span>
-                <span class="p">)</span>
-
             <span class="k">if</span> <span class="n">results</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
             <span class="k">yield</span> <span class="n">d</span>
@@ -791,6 +769,7 @@
         <span class="n">on_done</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;on_done&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="n">on_error</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;on_error&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="n">on_always</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;on_always&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">prefetch</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;prefetch&#39;</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
         <span class="n">results</span> <span class="o">=</span> <span class="n">DocumentArray</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">on_done</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">on_always</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">on_done</span><span class="p">:</span>
             <span class="n">on_done</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_gather_result</span><span class="p">,</span> <span class="n">results</span><span class="o">=</span><span class="n">results</span><span class="p">,</span> <span class="n">attribute</span><span class="o">=</span><span class="s1">&#39;matches&#39;</span><span class="p">)</span>
@@ -809,6 +788,7 @@
                 <span class="n">on_error</span><span class="o">=</span><span class="n">on_error</span><span class="p">,</span>
                 <span class="n">on_always</span><span class="o">=</span><span class="n">partial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_update_pbar</span><span class="p">,</span> <span class="n">func</span><span class="o">=</span><span class="n">on_always</span><span class="p">),</span>
                 <span class="n">parameters</span><span class="o">=</span><span class="n">parameters</span><span class="p">,</span>
+                <span class="n">prefetch</span><span class="o">=</span><span class="n">prefetch</span><span class="p">,</span>
             <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">results</span></div>
@@ -826,6 +806,7 @@
         <span class="n">on_done</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;on_done&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="n">on_error</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;on_error&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="n">on_always</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;on_always&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">prefetch</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;prefetch&#39;</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
         <span class="n">results</span> <span class="o">=</span> <span class="n">DocumentArray</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">on_done</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">on_always</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">on_done</span><span class="p">:</span>
             <span class="n">on_done</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_gather_result</span><span class="p">,</span> <span class="n">results</span><span class="o">=</span><span class="n">results</span><span class="p">,</span> <span class="n">attribute</span><span class="o">=</span><span class="s1">&#39;matches&#39;</span><span class="p">)</span>
@@ -844,6 +825,7 @@
                 <span class="n">on_error</span><span class="o">=</span><span class="n">on_error</span><span class="p">,</span>
                 <span class="n">on_always</span><span class="o">=</span><span class="n">partial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_update_pbar</span><span class="p">,</span> <span class="n">func</span><span class="o">=</span><span class="n">on_always</span><span class="p">),</span>
                 <span class="n">parameters</span><span class="o">=</span><span class="n">parameters</span><span class="p">,</span>
+                <span class="n">prefetch</span><span class="o">=</span><span class="n">prefetch</span><span class="p">,</span>
             <span class="p">):</span>
                 <span class="k">continue</span>
 
@@ -860,6 +842,7 @@
         <span class="n">on_done</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;CallbackFnType&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">on_error</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;CallbackFnType&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">on_always</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;CallbackFnType&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">prefetch</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Index the images or texts where their embeddings are computed by the server CLIP model.</span>
 
@@ -878,6 +861,8 @@
 <span class="sd">            It takes the response ``DataRequest`` as the only argument</span>
 <span class="sd">        :param on_always: the callback function executed while streaming, after each request is completed.</span>
 <span class="sd">            It takes the response ``DataRequest`` as the only argument</span>
+<span class="sd">        :param prefetch: the number of in-flight batches made by the post() method. Use a lower value for expensive</span>
+<span class="sd">            operations, and a higher value for faster response times</span>
 <span class="sd">        :return: the embedding in a numpy ndarray with shape ``[N, D]``. ``N`` is in the same length of ``content``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span>
@@ -893,6 +878,7 @@
         <span class="n">on_done</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;CallbackFnType&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">on_error</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;CallbackFnType&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">on_always</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;CallbackFnType&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">prefetch</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;DocumentArray&#39;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Index the images or texts where their embeddings are computed by the server CLIP model.</span>
 
@@ -906,6 +892,8 @@
 <span class="sd">            It takes the response ``DataRequest`` as the only argument</span>
 <span class="sd">        :param on_always: the callback function executed while streaming, after each request is completed.</span>
 <span class="sd">            It takes the response ``DataRequest`` as the only argument</span>
+<span class="sd">        :param prefetch: the number of in-flight batches made by the post() method. Use a lower value for expensive</span>
+<span class="sd">            operations, and a higher value for faster response times</span>
 <span class="sd">        :return: the embedding in a numpy ndarray with shape ``[N, D]``. ``N`` is in the same length of ``content``</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span>
@@ -923,6 +911,7 @@
         <span class="n">on_done</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;on_done&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="n">on_error</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;on_error&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="n">on_always</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;on_always&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">prefetch</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;prefetch&#39;</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
         <span class="n">results</span> <span class="o">=</span> <span class="n">DocumentArray</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">on_done</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">on_always</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">on_done</span><span class="p">:</span>
             <span class="n">on_done</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span>
@@ -942,6 +931,7 @@
                 <span class="n">on_error</span><span class="o">=</span><span class="n">on_error</span><span class="p">,</span>
                 <span class="n">on_always</span><span class="o">=</span><span class="n">partial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_update_pbar</span><span class="p">,</span> <span class="n">func</span><span class="o">=</span><span class="n">on_always</span><span class="p">),</span>
                 <span class="n">parameters</span><span class="o">=</span><span class="n">parameters</span><span class="p">,</span>
+                <span class="n">prefetch</span><span class="o">=</span><span class="n">prefetch</span><span class="p">,</span>
             <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">results</span></div>
@@ -957,6 +947,7 @@
         <span class="n">on_done</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;CallbackFnType&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">on_error</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;CallbackFnType&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">on_always</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;CallbackFnType&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">prefetch</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="o">...</span>
 
@@ -971,6 +962,7 @@
         <span class="n">on_done</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;CallbackFnType&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">on_error</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;CallbackFnType&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">on_always</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;CallbackFnType&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">prefetch</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="o">...</span>
 
@@ -987,6 +979,7 @@
         <span class="n">on_done</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;on_done&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="n">on_error</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;on_error&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="n">on_always</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;on_always&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">prefetch</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;prefetch&#39;</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
         <span class="n">results</span> <span class="o">=</span> <span class="n">DocumentArray</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">on_done</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">on_always</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">on_done</span><span class="p">:</span>
             <span class="n">on_done</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span>
@@ -1006,6 +999,7 @@
                 <span class="n">on_error</span><span class="o">=</span><span class="n">on_error</span><span class="p">,</span>
                 <span class="n">on_always</span><span class="o">=</span><span class="n">partial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_update_pbar</span><span class="p">,</span> <span class="n">func</span><span class="o">=</span><span class="n">on_always</span><span class="p">),</span>
                 <span class="n">parameters</span><span class="o">=</span><span class="n">parameters</span><span class="p">,</span>
+                <span class="n">prefetch</span><span class="o">=</span><span class="n">prefetch</span><span class="p">,</span>
             <span class="p">):</span>
                 <span class="k">continue</span>
 
@@ -1023,6 +1017,7 @@
         <span class="n">on_done</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;CallbackFnType&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">on_error</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;CallbackFnType&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">on_always</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;CallbackFnType&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">prefetch</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;DocumentArray&#39;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Search for top k results for given query string or ``Document``.</span>
 
@@ -1040,6 +1035,8 @@
 <span class="sd">            It takes the response ``DataRequest`` as the only argument</span>
 <span class="sd">        :param on_always: the callback function executed while streaming, after each request is completed.</span>
 <span class="sd">            It takes the response ``DataRequest`` as the only argument</span>
+<span class="sd">        :param prefetch: the number of in-flight batches made by the post() method. Use a lower value for expensive</span>
+<span class="sd">            operations, and a higher value for faster response times</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span>
 
@@ -1055,6 +1052,7 @@
         <span class="n">on_done</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;CallbackFnType&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">on_error</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;CallbackFnType&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">on_always</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;CallbackFnType&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">prefetch</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;DocumentArray&#39;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Search for top k results for given query string or ``Document``.</span>
 
@@ -1072,6 +1070,8 @@
 <span class="sd">            It takes the response ``DataRequest`` as the only argument</span>
 <span class="sd">        :param on_always: the callback function executed while streaming, after each request is completed.</span>
 <span class="sd">            It takes the response ``DataRequest`` as the only argument</span>
+<span class="sd">        :param prefetch: the number of in-flight batches made by the post() method. Use a lower value for expensive</span>
+<span class="sd">            operations, and a higher value for faster response times</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span>
 
@@ -1088,6 +1088,7 @@
         <span class="n">on_done</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;on_done&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="n">on_error</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;on_error&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="n">on_always</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;on_always&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">prefetch</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;prefetch&#39;</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
         <span class="n">results</span> <span class="o">=</span> <span class="n">DocumentArray</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">on_done</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">on_always</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">on_done</span><span class="p">:</span>
             <span class="n">on_done</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_gather_result</span><span class="p">,</span> <span class="n">results</span><span class="o">=</span><span class="n">results</span><span class="p">,</span> <span class="n">attribute</span><span class="o">=</span><span class="s1">&#39;matches&#39;</span><span class="p">)</span>
@@ -1106,6 +1107,7 @@
                 <span class="n">on_error</span><span class="o">=</span><span class="n">on_error</span><span class="p">,</span>
                 <span class="n">on_always</span><span class="o">=</span><span class="n">partial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_update_pbar</span><span class="p">,</span> <span class="n">func</span><span class="o">=</span><span class="n">on_always</span><span class="p">),</span>
                 <span class="n">parameters</span><span class="o">=</span><span class="n">parameters</span><span class="p">,</span>
+                <span class="n">prefetch</span><span class="o">=</span><span class="n">prefetch</span><span class="p">,</span>
             <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">results</span></div>
@@ -1122,6 +1124,7 @@
         <span class="n">on_done</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;CallbackFnType&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">on_error</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;CallbackFnType&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">on_always</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;CallbackFnType&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">prefetch</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="o">...</span>
 
@@ -1137,6 +1140,7 @@
         <span class="n">on_done</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;CallbackFnType&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">on_error</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;CallbackFnType&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">on_always</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;CallbackFnType&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">prefetch</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="o">...</span>
 
@@ -1153,6 +1157,7 @@
         <span class="n">on_done</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;on_done&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="n">on_error</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;on_error&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="n">on_always</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;on_always&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">prefetch</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;prefetch&#39;</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
         <span class="n">results</span> <span class="o">=</span> <span class="n">DocumentArray</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">on_done</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">on_always</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">on_done</span><span class="p">:</span>
             <span class="n">on_done</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_gather_result</span><span class="p">,</span> <span class="n">results</span><span class="o">=</span><span class="n">results</span><span class="p">,</span> <span class="n">attribute</span><span class="o">=</span><span class="s1">&#39;matches&#39;</span><span class="p">)</span>
@@ -1171,6 +1176,7 @@
                 <span class="n">on_error</span><span class="o">=</span><span class="n">on_error</span><span class="p">,</span>
                 <span class="n">on_always</span><span class="o">=</span><span class="n">partial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_update_pbar</span><span class="p">,</span> <span class="n">func</span><span class="o">=</span><span class="n">on_always</span><span class="p">),</span>
                 <span class="n">parameters</span><span class="o">=</span><span class="n">parameters</span><span class="p">,</span>
+                <span class="n">prefetch</span><span class="o">=</span><span class="n">prefetch</span><span class="p">,</span>
             <span class="p">):</span>
                 <span class="k">continue</span>
 
@@ -1189,7 +1195,7 @@
                         <div class="copyright">
                             Copyright &#169; Jina AI Limited. All rights reserved.
                         </div><div class="last-updated">
-                            Last updated on Feb 22, 2023</div>
+                            Last updated on Mar 08, 2023</div>
                     </div>
                     <div class="right-details">
                         <div class="social-btns">

@@ -712,6 +712,14 @@ to search for relevant Documents in the index for a given query.</p>
 <p>You can specify <code class="docutils literal notranslate"><span class="pre">.encode(...,</span> <span class="pre">batch_size=8)</span></code> to control how many <code class="docutils literal notranslate"><span class="pre">Document</span></code>s are sent in each request. You can play this number and find the perfect balance between network transmission and GPU utilization.</p>
 <p>Intuitively, setting <code class="docutils literal notranslate"><span class="pre">batch_size=1024</span></code> should result in very high GPU utilization on each request. However, a large batch size like this also means sending each request would take longer. Given that <code class="docutils literal notranslate"><span class="pre">clip-client</span></code> is designed with request and response streaming, large batch size would not benefit from the time overlapping between request streaming and response streaming.</p>
 </section>
+<section id="control-prefetch-size">
+<h3>Control prefetch size<a class="headerlink" href="#control-prefetch-size" title="Permalink to this heading">#</a></h3>
+<p>To control the number of in-flight batches, you can use the <code class="docutils literal notranslate"><span class="pre">.encode(...,</span> <span class="pre">prefetch=100)</span></code> option.
+The way this works is that when you send a large request, the outgoing request stream will usually finish before the incoming response stream due to the asynchronous design.
+This is because the request handling is typically time-consuming, which can prevent the server from sending back the response and may cause it to close the connection as it thinks the incoming channel is idle.
+By default, the client is set to a prefetch value of 100. However, it is recommended to use a lower value for expensive operations and a higher value for faster response times.</p>
+<p>For more information about client prefetching, please refer to <a class="reference external" href="https://docs.jina.ai/concepts/client/rate-limit/">Rate Limit</a> in Jina documentation.</p>
+</section>
 <section id="show-progressbar">
 <h3>Show progressbar<a class="headerlink" href="#show-progressbar" title="Permalink to this heading">#</a></h3>
 <p>You can use <code class="docutils literal notranslate"><span class="pre">.encode(...,</span> <span class="pre">show_progress=True)</span></code> to turn on the progress bar.</p>
@@ -744,7 +752,8 @@ to search for relevant Documents in the index for a given query.</p>
 </pre></div>
 </div>
 </li>
-<li><p>Adjust <code class="docutils literal notranslate"><span class="pre">batch_size</span></code>.</p></li>
+<li><p>Adjust the <code class="docutils literal notranslate"><span class="pre">batch_size</span></code> parameters.</p></li>
+<li><p>Adjust the <code class="docutils literal notranslate"><span class="pre">prefetch</span></code> parameters.</p></li>
 <li><p>Turn on the progressbar.</p></li>
 </ol>
 <div class="admonition danger">
@@ -912,7 +921,7 @@ What you should do, is to rely on asynchronous programming or multi-processing r
                         <div class="copyright">
                             Copyright &#169; Jina AI Limited. All rights reserved.
                         </div><div class="last-updated">
-                            Last updated on Feb 22, 2023</div>
+                            Last updated on Mar 08, 2023</div>
                     </div>
                     <div class="right-details">
                         <div class="social-btns">
@@ -958,6 +967,7 @@ What you should do, is to rely on asynchronous programming or multi-processing r
 <li><a class="reference internal" href="#profiling">Profiling</a></li>
 <li><a class="reference internal" href="#best-practices">Best practices</a><ul>
 <li><a class="reference internal" href="#control-batch-size">Control batch size</a></li>
+<li><a class="reference internal" href="#control-prefetch-size">Control prefetch size</a></li>
 <li><a class="reference internal" href="#show-progressbar">Show progressbar</a></li>
 <li><a class="reference internal" href="#processing-large-number-of-documents">Processing large number of Documents</a></li>
 <li><a class="reference internal" href="#custom-callback">Custom callback</a></li>
