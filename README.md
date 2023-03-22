@@ -1,13 +1,13 @@
 <p align="center">
-<br>
-<br>
-<br>
-<img src="https://github.com/jina-ai/clip-as-service/blob/main/docs/_static/logo-light.svg?raw=true" alt="CLIP-as-service logo: The data structure for unstructured data" width="200px">
-<br>
-<br>
-<br>
-<b>Embed images and sentences into fixed-length vectors with CLIP</b>
+<a href="https://cloud.jina.ai/user/inference">
+  <img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/banner.svg?raw=true" width="300px">
+</a>
+
+<p align="center">
+<a href="https://clip-as-service.jina.ai"><img src="https://github.com/jina-ai/clip-as-service/blob/main/docs/_static/logo-light.svg?raw=true" alt="CLIP-as-service logo: The data structure for unstructured data" width="200px"></a>
+<br><br><br>
 </p>
+
 
 <p align=center>
 <a href="https://pypi.org/project/clip_server/"><img alt="PyPI" src="https://img.shields.io/pypi/v/clip_server?label=Release&style=flat-square"></a>
