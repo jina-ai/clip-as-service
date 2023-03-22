@@ -1,6 +1,6 @@
 <p align="center">
 <a href="https://cloud.jina.ai/user/inference">
-  <img src="https://github.com/jina-ai/clip-as-service/blob/d63a337476a99fd19fc4e755c2f6bbe088d363d8/.github/README-img/banner.svg?raw=true" width="100%">
+  <img src="https://github.com/jina-ai/clip-as-service/blob/4b315ae60087e1318bdceea19c55cdfd389687af/.github/README-img/banner.svg?raw=true" width="100%">
 </a>
 
 <p align="center">
