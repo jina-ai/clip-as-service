@@ -1,6 +1,6 @@
 # Hosted by Jina AI
 
-```{include} ../README.md
+```{include} ../../README.md
 :start-after: <!-- start inference-banner -->
 :end-before: <!-- end inference-banner -->
 ```
