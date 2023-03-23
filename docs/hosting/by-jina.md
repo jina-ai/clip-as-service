@@ -1,14 +1,24 @@
 # Hosted by Jina AI
 
+```{include} ../README.md
+:start-after: <!-- start inference-banner -->
+:end-before: <!-- end inference-banner -->
+```
+
 Just like any other machine learning models, CLIP models have better performance when running on GPU. However, it is not always possible to have a GPU machine at hand, and it could be costly to configure a GPU machine. To make CLIP models more accessible, we provide a hosted service for CLIP models. You can send requests to our hosted service and get the embedding results back. 
 
 An always-online server `api.clip.jina.ai` loaded with `ViT-L-14-336::openai` is there for you to play or develop your CLIP applications. The server is available for **encoding** and **ranking** tasks.
 
-`ViT-L-14-336::openai` was released in April 2022 and this is the best model within all models offered by [OpenAI](https://github.com/openai/CLIP/blob/main/clip/clip.py#L30) and also the best model when we developed this free service.
+`ViT-L-14-336::openai` was released in April 2022 and this is the best model within all models offered by [OpenAI](https://github.com/openai/CLIP/blob/main/clip/clip.py#L30) and also the best model when we developed this service.
 
-However, the "best model" is not always the best choice for your application. You may want to use a smaller model for faster response time, or a larger model for better accuracy. We provide the Inference API for you to customize your models, and this feature is currently in beta.
+However, the "best model" is not always the best choice for your application. You may want to use a smaller model for faster response time, or a larger model for better accuracy. 
+With the [Inference API](https://cloud.jina.ai/user/inference) in [Jina AI Cloud](https://cloud.jina.ai/), you have the flexibility to choose the model that best suits your specific needs. 
+You can easily switch between models and customize the settings to achieve the desired balance between accuracy and speed. 
+So whether you're working on a research project or a commercial application, our Inference API can help you bring the power of AI to your solution. 
+[Give it a try today and see how it can improve your workflow and make your life easier 🚀](https://cloud.jina.ai/user/inference)
 
-Before you start, make sure you have obtained an access token from our [console website](https://console.clip.jina.ai/get_started), or via CLI as described in [this guide](https://docs.jina.ai/jina-ai-cloud/login/#create-a-new-pat)
+Before you start, make sure you have obtained a personal access token from the [Jina AI Cloud](https://cloud.jina.ai/settings/tokens), 
+or via CLI as described in [this guide](https://docs.jina.ai/jina-ai-cloud/login/#create-a-new-pat):
 
 ```bash
 jina auth token create <name of PAT> -e <expiration days>
