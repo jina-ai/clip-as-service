@@ -1,7 +1,9 @@
+<!-- start inference-banner -->
 <p align="center">
 <a href="https://cloud.jina.ai/user/inference">
   <img src="https://github.com/jina-ai/clip-as-service/blob/4b315ae60087e1318bdceea19c55cdfd389687af/.github/README-img/banner.svg?raw=true" width="100%">
 </a>
+<!-- end inference-banner -->
 
 <p align="center">
 <a href="https://clip-as-service.jina.ai"><img src="https://github.com/jina-ai/clip-as-service/blob/main/docs/_static/logo-light.svg?raw=true" alt="CLIP-as-service logo: The data structure for unstructured data" width="200px"></a>
