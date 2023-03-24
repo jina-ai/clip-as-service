@@ -12,10 +12,7 @@ An always-online server `api.clip.jina.ai` loaded with `ViT-L-14-336::openai` is
 `ViT-L-14-336::openai` was released in April 2022 and this is the best model within all models offered by [OpenAI](https://github.com/openai/CLIP/blob/main/clip/clip.py#L30) and also the best model when we developed this service.
 
 However, the "best model" is not always the best choice for your application. You may want to use a smaller model for faster response time, or a larger model for better accuracy. 
-With the [Inference API](https://cloud.jina.ai/user/inference) in [Jina AI Cloud](https://cloud.jina.ai/), you have the flexibility to choose the model that best suits your specific needs. 
-You can easily switch between models and customize the settings to achieve the desired balance between accuracy and speed. 
-So whether you're working on a research project or a commercial application, our Inference API can help you bring the power of AI to your solution. 
-[Give it a try today and see how it can improve your workflow and make your life easier 🚀](https://cloud.jina.ai/user/inference)
+With the [Inference](https://cloud.jina.ai/user/inference) in [Jina AI Cloud](https://cloud.jina.ai/), you have the flexibility to choose the model that best suits your specific needs. 
 
 Before you start, make sure you have obtained a personal access token from the [Jina AI Cloud](https://cloud.jina.ai/settings/tokens), 
 or via CLI as described in [this guide](https://docs.jina.ai/jina-ai-cloud/login/#create-a-new-pat):
