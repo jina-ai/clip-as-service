@@ -1,13 +1,15 @@
+<!-- start inference-banner -->
 <p align="center">
-<br>
-<br>
-<br>
-<img src="https://github.com/jina-ai/clip-as-service/blob/main/docs/_static/logo-light.svg?raw=true" alt="CLIP-as-service logo: The data structure for unstructured data" width="200px">
-<br>
-<br>
-<br>
-<b>Embed images and sentences into fixed-length vectors with CLIP</b>
+<a href="https://cloud.jina.ai/user/inference">
+  <img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/banner.svg?raw=true" width="100%">
+</a>
+<!-- end inference-banner -->
+
+<p align="center">
+<a href="https://clip-as-service.jina.ai"><img src="https://github.com/jina-ai/clip-as-service/blob/main/docs/_static/logo-light.svg?raw=true" alt="CLIP-as-service logo: The data structure for unstructured data" width="200px"></a>
+<br><br><br>
 </p>
+
 
 <p align=center>
 <a href="https://pypi.org/project/clip_server/"><img alt="PyPI" src="https://img.shields.io/pypi/v/clip_server?label=Release&style=flat-square"></a>
@@ -37,8 +39,8 @@ CLIP-as-service is a low-latency high-scalability service for embedding images a
 ## Try it!
 
 An always-online server `api.clip.jina.ai` loaded with `ViT-L-14-336::openai` is there for you to play & test.
-Before you start, make sure you have obtained an access token from our [console website](https://console.clip.jina.ai/get_started), 
-or via CLI as described in [this guide](https://docs.jina.ai/jina-ai-cloud/login/#create-a-new-pat).
+Before you start, make sure you have obtained a personal access token from the [Jina AI Cloud](https://cloud.jina.ai/settings/tokens), 
+or via CLI as described in [this guide](https://docs.jina.ai/jina-ai-cloud/login/#create-a-new-pat):
 
 ```bash 
 jina auth token create <name of PAT> -e <expiration days>
@@ -750,11 +752,7 @@ Intrigued? That's only scratching the surface of what CLIP-as-service is capable
 ## Support
 
 - Join our [Slack community](https://slack.jina.ai) and chat with other community members about ideas.
-- Join our [Engineering All Hands](https://youtube.com/playlist?list=PL3UBBWOUVhFYRUa_gpYYKBqEAkO4sxmne) meet-up to discuss your use case and learn Jina's new features.
-    - **When?** The second Tuesday of every month
-    - **Where?**
-      Zoom ([see our public events calendar](https://calendar.google.com/calendar/embed?src=c_1t5ogfp2d45v8fit981j08mcm4%40group.calendar.google.com&ctz=Europe%2FBerlin)/[.ical](https://calendar.google.com/calendar/ical/c_1t5ogfp2d45v8fit981j08mcm4%40group.calendar.google.com/public/basic.ics))
-      and [live stream on YouTube](https://youtube.com/c/jina-ai)
+- Watch our [Engineering All Hands](https://youtube.com/playlist?list=PL3UBBWOUVhFYRUa_gpYYKBqEAkO4sxmne) to learn Jina's new features and stay up-to-date with the latest AI techniques.
 - Subscribe to the latest video tutorials on our [YouTube channel](https://youtube.com/c/jina-ai)
 
 ## Join Us
