@@ -1,7 +1,7 @@
 <!-- start inference-banner -->
 <p align="center">
 <a href="https://cloud.jina.ai/user/inference">
-  <img src="https://github.com/jina-ai/clip-as-service/blob/df4fbe1490beb2644dca452c0b440d1147fff1b7/.github/README-img/banner.svg?raw=true" width="100%">
+  <img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/banner.svg?raw=true" width="100%">
 </a>
 <!-- end inference-banner -->
 
