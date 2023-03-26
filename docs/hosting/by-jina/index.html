@@ -32,10 +32,10 @@
 <link rel="index" title="Index" href="../../genindex/" /><link rel="search" title="Search" href="../../search/" /><link rel="next" title="Host on JCloud" href="../on-jcloud/" /><link rel="prev" title="FAQ" href="../../user-guides/faq/" />
         <link rel="canonical" href="https://clip-as-service.jina.ai/hosting/by-jina.html" />
 
-    <link rel="shortcut icon" href="../../_static/favicon.png"/><!-- Generated with Sphinx 5.3.0 and Furo 2022.12.07 -->
+    <link rel="shortcut icon" href="../../_static/favicon.png"/><!-- Generated with Sphinx 5.3.0 and Furo 2023.03.23 -->
         <title>Hosted by Jina AI - CLIP-as-service 0.8.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=91d0f0d1c444bdcb17a68e833c7a53903343c195" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=fad236701ea90a88636c2a8c73b44ae642ed2a53" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" />
@@ -319,11 +319,17 @@
                 <article role="main">
                     <section class="tex2jax_ignore mathjax_ignore" id="hosted-by-jina-ai">
 <h1>Hosted by Jina AI<a class="headerlink" href="#hosted-by-jina-ai" title="Permalink to this heading">#</a></h1>
+<p align="center">
+<a href="https://cloud.jina.ai/user/inference">
+  <img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/banner.svg?raw=true" width="100%">
+</a>
 <p>Just like any other machine learning models, CLIP models have better performance when running on GPU. However, it is not always possible to have a GPU machine at hand, and it could be costly to configure a GPU machine. To make CLIP models more accessible, we provide a hosted service for CLIP models. You can send requests to our hosted service and get the embedding results back.</p>
 <p>An always-online server <code class="docutils literal notranslate"><span class="pre">api.clip.jina.ai</span></code> loaded with <code class="docutils literal notranslate"><span class="pre">ViT-L-14-336::openai</span></code> is there for you to play or develop your CLIP applications. The server is available for <strong>encoding</strong> and <strong>ranking</strong> tasks.</p>
-<p><code class="docutils literal notranslate"><span class="pre">ViT-L-14-336::openai</span></code> was released in April 2022 and this is the best model within all models offered by <a class="reference external" href="https://github.com/openai/CLIP/blob/main/clip/clip.py#L30">OpenAI</a> and also the best model when we developed this free service.</p>
-<p>However, the “best model” is not always the best choice for your application. You may want to use a smaller model for faster response time, or a larger model for better accuracy. We provide the Inference API for you to customize your models, and this feature is currently in beta.</p>
-<p>Before you start, make sure you have obtained an access token from our <a class="reference external" href="https://console.clip.jina.ai/get_started">console website</a>, or via CLI as described in <a class="reference external" href="https://docs.jina.ai/jina-ai-cloud/login/#create-a-new-pat">this guide</a></p>
+<p><code class="docutils literal notranslate"><span class="pre">ViT-L-14-336::openai</span></code> was released in April 2022 and this is the best model within all models offered by <a class="reference external" href="https://github.com/openai/CLIP/blob/main/clip/clip.py#L30">OpenAI</a> and also the best model when we developed this service.</p>
+<p>However, the “best model” is not always the best choice for your application. You may want to use a smaller model for faster response time, or a larger model for better accuracy.
+With the <a class="reference external" href="https://cloud.jina.ai/user/inference">Inference</a> in <a class="reference external" href="https://cloud.jina.ai/">Jina AI Cloud</a>, you have the flexibility to choose the model that best suits your specific needs.</p>
+<p>Before you start, make sure you have obtained a personal access token from the <a class="reference external" href="https://cloud.jina.ai/settings/tokens">Jina AI Cloud</a>,
+or via CLI as described in <a class="reference external" href="https://docs.jina.ai/jina-ai-cloud/login/#create-a-new-pat">this guide</a>:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>jina<span class="w"> </span>auth<span class="w"> </span>token<span class="w"> </span>create<span class="w"> </span>&lt;name<span class="w"> </span>of<span class="w"> </span>PAT&gt;<span class="w"> </span>-e<span class="w"> </span>&lt;expiration<span class="w"> </span>days&gt;
 </pre></div>
 </div>
@@ -440,7 +446,7 @@
                         <div class="copyright">
                             Copyright &#169; Jina AI Limited. All rights reserved.
                         </div><div class="last-updated">
-                            Last updated on Mar 21, 2023</div>
+                            Last updated on Mar 26, 2023</div>
                     </div>
                     <div class="right-details">
                         <div class="social-btns">
