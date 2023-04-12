@@ -33,10 +33,9 @@ def preproc_image(
 
     for d in da:
         content = d.content
-
-        if d.tensor:
+        if d.tensor is not None:
             d.convert_image_tensor_to_blob()
-        elif d.blob is None and d.uri:
+        elif d.content_type != 'blob' and d.uri:
             # in case user uses HTTP protocol and send data via curl not using .blob (base64), but in .uri
             d.load_uri_to_blob()
 
