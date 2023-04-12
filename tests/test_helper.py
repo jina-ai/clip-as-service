@@ -87,7 +87,7 @@ def test_split_img_txt_da(inputs):
             [
                 Document(
                     uri='https://clip-as-service.jina.ai/_static/favicon.png',
-                ).load_uri_to_blob(),
+                ).load_uri_to_image_tensor(),
             ]
         )
     ],
@@ -95,7 +95,7 @@ def test_split_img_txt_da(inputs):
 def test_preproc_image(inputs):
     from clip_server.model import clip
 
-    preprocess_fn = clip._transform_ndarray(224)
+    preprocess_fn = clip._transform_blob(224)
     da, pixel_values = preproc_image(inputs, preprocess_fn, drop_image_content=True)
     assert len(da) == 1
     assert not da[0].blob
