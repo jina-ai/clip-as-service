@@ -68,7 +68,7 @@ class CLIPEncoder(Executor):
         self._model = CLIPOnnxModel(name, model_path, dtype)
         self._tokenizer = Tokenizer(name)
 
-        self._image_transform = clip._transform_ndarray(self._model.image_size)
+        self._image_transform = clip._transform_blob(self._model.image_size)
 
         # define the priority order for the execution providers
         providers = ['CPUExecutionProvider']
