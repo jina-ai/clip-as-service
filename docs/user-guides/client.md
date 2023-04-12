@@ -490,9 +490,9 @@ This is extremely slow as only one document is encoded at a time, it is a bad ut
 - `on_error` is executed while streaming, whenever an error occurs in each request
 - `on_always` is always performed while streaming, no matter the success or failure of each request
 
-Note that these callbacks only work for requests (and failures) inside the stream. For `on_error`, if the failure is due to an error happening outside of streaming, then it will not be triggered. For example, a `SIGKILL` from the client OS during the handling of the request, or a networking issue, will not trigger the callback. Learn more about [handling exceptions in `on_error`](https://docs.jina.ai/fundamentals/client/client/#handle-exceptions-in-callbacks).
+Note that these callbacks only work for requests (and failures) inside the stream. For `on_error`, if the failure is due to an error happening outside of streaming, then it will not be triggered. For example, a `SIGKILL` from the client OS during the handling of the request, or a networking issue, will not trigger the callback. Learn more about [handling exceptions in `on_error`](https://docs.jina.ai/concepts/client/callbacks/#handle-exceptions-in-callbacks).
 
-Callback functions take a `Response` of the type DataRequest, which contains resulting Documents, parameters, and other information. Learn more about [handling `DataRequest` in callbacks](https://docs.jina.ai/fundamentals/client/client/#handle-datarequest-in-callbacks).
+Callback functions take a `Response` of the type DataRequest, which contains resulting Documents, parameters, and other information. Learn more about [handling `DataRequest` in callbacks](https://docs.jina.ai/concepts/client/callbacks/#handle-datarequest-in-callbacks).
 
 In the following example, we will use `on_done` to save the results to a database. We use a simple `dict` to simulate the database. The error is saved to log file using `on_error`. `on_always` will print the number of documents processed in each request.
 
