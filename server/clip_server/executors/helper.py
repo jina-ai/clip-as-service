@@ -33,14 +33,13 @@ def preproc_image(
 
     for d in da:
         content = d.content
-
-        if d.blob:
-            d.convert_blob_to_image_tensor()
-        elif d.tensor is None and d.uri:
+        if d.tensor is not None:
+            d.convert_image_tensor_to_blob()
+        elif d.content_type != 'blob' and d.uri:
             # in case user uses HTTP protocol and send data via curl not using .blob (base64), but in .uri
-            d.load_uri_to_image_tensor()
+            d.load_uri_to_blob()
 
-        tensors_batch.append(preprocess_fn(d.tensor).detach())
+        tensors_batch.append(preprocess_fn(d.blob).detach())
 
         # recover doc content
         d.content = content
