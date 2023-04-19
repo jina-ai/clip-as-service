@@ -59,6 +59,7 @@
 
 
 
+
 <a name=release-note-0-0-3></a>
 ## Release Note (`0.0.3`)
 
@@ -1487,4 +1488,50 @@
  - [[```ae05624d```](https://github.com/jina-ai/clip-as-service/commit/ae05624d68bf8c3fbcefc1d07b0adabbe1cad422)] __-__ use new free service in playground (#844) (*felix-wang*)
  - [[```6cdc3e21```](https://github.com/jina-ai/clip-as-service/commit/6cdc3e21bb6e0b0476b94e40cfa88a475d4a5f7d)] __-__ __version__: the next version will be 0.8.1 (*Jina Dev Bot*)
  - [[```920b3107```](https://github.com/jina-ai/clip-as-service/commit/920b31070f54b1b6af4d4e58e7db351a576e0783)] __-__ bump version to 0.8.0 (*numb3r3*)
+
+<a name=release-note-0-8-2></a>
+## Release Note (`0.8.2`)
+
+> Release time: 2023-04-19 08:23:45
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Ziniu Yu,  Yang Ruiyi,  YangXiuyu,  Jie Fu,  zawabest,  Girish Chandrashekar,  Jina Dev Bot,  🙇
+
+
+### 🆕 New Features
+
+ - [[```cce3b05a```](https://github.com/jina-ai/clip-as-service/commit/cce3b05a1cfa23db129e8a7077e75e75f5da73c6)] __-__ set prefetch in client for traffic control (#897) (*Ziniu Yu*)
+ - [[```dabbe8bc```](https://github.com/jina-ai/clip-as-service/commit/dabbe8bc3ef633e4460e1be3f1c06792fe08f00c)] __-__ add cn clip model (#888) (*Yang Ruiyi*)
+ - [[```1fe3a5a0```](https://github.com/jina-ai/clip-as-service/commit/1fe3a5a01123dcfea8a7981fc5aea212d42c1299)] __-__ add fp16 inference support (torch/onnx) (#871) (*YangXiuyu*)
+ - [[```1eebdd7f```](https://github.com/jina-ai/clip-as-service/commit/1eebdd7f489abb8e694226d5c5c29b011eab229a)] __-__ add custom tracing spans with jina&gt;=3.12.0 (#861) (*Girish Chandrashekar*)
+ - [[```f2515394```](https://github.com/jina-ai/clip-as-service/commit/f25153942464bb9230158af33c324cdb0b8b70a4)] __-__ add three new open clip roberta base models  (#860) (*YangXiuyu*)
+ - [[```e4717a35```](https://github.com/jina-ai/clip-as-service/commit/e4717a35f850e6a2cd8b4d8b4c994fad30fd5c72)] __-__ Integrate flash attention (#853) (*YangXiuyu*)
+
+### 🐞 Bug fixes
+
+ - [[```280b925e```](https://github.com/jina-ai/clip-as-service/commit/280b925e16ab5605a124d412f66ff56caa492553)] __-__ fix docarray at v1 (#911) (*Ziniu Yu*)
+ - [[```35733a0b```](https://github.com/jina-ai/clip-as-service/commit/35733a0ba7fe6d9ae64d2d4d657d6ded2df3a6d1)] __-__ replace transform ndarray with transform blob (#910) (*Ziniu Yu*)
+ - [[```d70f2382```](https://github.com/jina-ai/clip-as-service/commit/d70f238220f76593fb9b14e43e50f9a9d2cecd8a)] __-__ onnx package conflict during setup (#894) (*Ziniu Yu*)
+ - [[```8a576c58```](https://github.com/jina-ai/clip-as-service/commit/8a576c585756e6526b1fe4a526858252d096535a)] __-__ install pytorch cu116 for server docker image (#882) (*Ziniu Yu*)
+ - [[```0b293ec8```](https://github.com/jina-ai/clip-as-service/commit/0b293ec834e80f7335aa625d683904594373a607)] __-__ dynamic convert onnx model to fp16 during start session (#876) (*YangXiuyu*)
+ - [[```fd16e5ab```](https://github.com/jina-ai/clip-as-service/commit/fd16e5abef94e274572d40912f12baeffece8696)] __-__ check dtype when loading models (#872) (*Ziniu Yu*)
+ - [[```67f551ca```](https://github.com/jina-ai/clip-as-service/commit/67f551ca46c2bcf8c8598d6749544bd335da8bdb)] __-__ torchvision version to avoid compatibility issue (#866) (*Jie Fu*)
+ - [[```0223e6fa```](https://github.com/jina-ai/clip-as-service/commit/0223e6fa071534bfc1a3b2010dd7065623afd540)] __-__ add pip installable flash attention (#863) (*YangXiuyu*)
+
+### 📗 Documentation
+
+ - [[```1888ef65```](https://github.com/jina-ai/clip-as-service/commit/1888ef65f20a94b38f318696e663d447c7cb1dc6)] __-__ fix broken link in client doc (#909) (*Ziniu Yu*)
+ - [[```f4eed3bc```](https://github.com/jina-ai/clip-as-service/commit/f4eed3bcbf5757571365159582d09f22c0ca8ed2)] __-__ add link and intro to inference api (#900) (*Ziniu Yu*)
+ - [[```702fff88```](https://github.com/jina-ai/clip-as-service/commit/702fff88fc8070138b6eee517d9bb6167da0e87f)] __-__ default model suggestion (#874) (*Jie Fu*)
+
+### 🍹 Other Improvements
+
+ - [[```19b4fa51```](https://github.com/jina-ai/clip-as-service/commit/19b4fa51f7534b38a8ca236f05483602e44c0536)] __-__ remove docsqa html (#899) (*Ziniu Yu*)
+ - [[```aa07d257```](https://github.com/jina-ai/clip-as-service/commit/aa07d2577fd27df03ccfff409ee00420071c41af)] __-__ remove docsqa (#898) (*Ziniu Yu*)
+ - [[```f3421f7c```](https://github.com/jina-ai/clip-as-service/commit/f3421f7c1decbbdd3a5e1f1038666479c8fe60f6)] __-__ bump open-clip-torch to v2.8.0 (#883) (*Ziniu Yu*)
+ - [[```c7af9f71```](https://github.com/jina-ai/clip-as-service/commit/c7af9f718550600973c6880de442619228f655e8)] __-__ fix configuration file for the search flow doc (#869) (*zawabest*)
+ - [[```53cd0630```](https://github.com/jina-ai/clip-as-service/commit/53cd06301efde97e6e59a2b143323ccd5f5f2565)] __-__ hide changelog in docs (#864) (*Ziniu Yu*)
+ - [[```9bb7d1f4```](https://github.com/jina-ai/clip-as-service/commit/9bb7d1f47d19e15e844108dec5f84cabcce7975d)] __-__ __version__: the next version will be 0.8.2 (*Jina Dev Bot*)
 
