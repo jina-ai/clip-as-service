@@ -154,7 +154,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Prepare enviroment
         run: |
-          python -m pip install --upgrade pip
+          python -m pip install pip==23.0.1
           python -m pip install wheel pytest pytest-cov nvidia-pyindex
           pip install -e "client/[test]"
           pip install -e "server/[tensorrt]"
@@ -211,7 +211,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Prepare enviroment
         run: |
-          python -m pip install --upgrade pip
+          python -m pip install pip==23.0.1
           python -m pip install wheel pytest pytest-cov nvidia-pyindex
           pip install -e "client/[test]"
           pip install -e "server/[onnx]"
