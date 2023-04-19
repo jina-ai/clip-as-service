@@ -38,7 +38,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=fad236701ea90a88636c2a8c73b44ae642ed2a53" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
     <link rel="stylesheet" type="text/css" href="../../_static/main.css" />
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta2/css/all.min.css" />
@@ -326,10 +326,10 @@ You can also <a class="reference external" href="https://finetuner.jina.ai/tasks
 <p>This tutorial requires <code class="docutils literal notranslate"><span class="pre">finetuner</span> <span class="pre">&gt;=v0.6.4</span></code>, <code class="docutils literal notranslate"><span class="pre">clip_server</span> <span class="pre">&gt;=v0.6.0</span></code>.</p>
 <section id="prepare-training-data">
 <h2>Prepare Training Data<a class="headerlink" href="#prepare-training-data" title="Permalink to this heading">#</a></h2>
-<p>Finetuner accepts training data and evaluation data in the form of <code class="xref py py-class docutils literal notranslate"><span class="pre">DocumentArray</span></code>.
+<p>Finetuner accepts training data and evaluation data in the form of <a class="reference external" href="https://docarray.jina.ai/api/docarray.array.document/#docarray.array.document.DocumentArray" title="(in DocArray v0.21.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DocumentArray</span></code></a>.
 The training data for CLIP is a list of (text, image) pairs.
-Each pair is stored in a <code class="xref py py-class docutils literal notranslate"><span class="pre">Document</span></code> which wraps two <a class="reference external" href="https://docarray.jina.ai/fundamentals/document/nested/"><code class="docutils literal notranslate"><span class="pre">chunks</span></code></a> with <code class="docutils literal notranslate"><span class="pre">image</span></code> and <code class="docutils literal notranslate"><span class="pre">text</span></code> modality respectively.
-You can push the resulting <code class="xref py py-class docutils literal notranslate"><span class="pre">DocumentArray</span></code> to the cloud using the <code class="xref py py-meth docutils literal notranslate"><span class="pre">push()</span></code> method.</p>
+Each pair is stored in a <a class="reference external" href="https://docarray.jina.ai/api/docarray.document/#docarray.document.Document" title="(in DocArray v0.21.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Document</span></code></a> which wraps two <a class="reference external" href="https://docarray.jina.ai/fundamentals/document/nested/"><code class="docutils literal notranslate"><span class="pre">chunks</span></code></a> with <code class="docutils literal notranslate"><span class="pre">image</span></code> and <code class="docutils literal notranslate"><span class="pre">text</span></code> modality respectively.
+You can push the resulting <a class="reference external" href="https://docarray.jina.ai/api/docarray.array.document/#docarray.array.document.DocumentArray" title="(in DocArray v0.21.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DocumentArray</span></code></a> to the cloud using the <a class="reference external" href="https://docarray.jina.ai/api/docarray.array.document/#docarray.array.document.DocumentArray.push" title="(in DocArray v0.21.0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">push()</span></code></a> method.</p>
 <p>We use <a class="reference external" href="https://github.com/xuewyang/Fashion_Captioning">fashion captioning dataset</a> as a sample dataset in this tutorial.
 The following are examples of descriptions and image urls from the dataset.
 We also include a preview of each image.</p>
@@ -361,7 +361,7 @@ We also include a preview of each image.</p>
 </tbody>
 </table>
 </div>
-<p>You can use the following script to transform the first three entries of the dataset to a <code class="xref py py-class docutils literal notranslate"><span class="pre">DocumentArray</span></code> and push it to the cloud using the name <code class="docutils literal notranslate"><span class="pre">fashion-sample</span></code>.</p>
+<p>You can use the following script to transform the first three entries of the dataset to a <a class="reference external" href="https://docarray.jina.ai/api/docarray.array.document/#docarray.array.document.DocumentArray" title="(in DocArray v0.21.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DocumentArray</span></code></a> and push it to the cloud using the name <code class="docutils literal notranslate"><span class="pre">fashion-sample</span></code>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">docarray</span> <span class="kn">import</span> <span class="n">Document</span><span class="p">,</span> <span class="n">DocumentArray</span>
 
 <span class="n">train_da</span> <span class="o">=</span> <span class="n">DocumentArray</span><span class="p">(</span>
@@ -560,7 +560,7 @@ We also include a preview of each image.</p>
                         <div class="copyright">
                             Copyright &#169; Jina AI Limited. All rights reserved.
                         </div><div class="last-updated">
-                            Last updated on Apr 12, 2023</div>
+                            Last updated on Apr 19, 2023</div>
                     </div>
                     <div class="right-details">
                         <div class="social-btns">
