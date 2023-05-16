@@ -13,7 +13,7 @@
 
 <p align=center>
 <a href="https://pypi.org/project/clip_server/"><img alt="PyPI" src="https://img.shields.io/pypi/v/clip_server?label=Release&style=flat-square"></a>
-<a href="https://slack.jina.ai"><img src="https://img.shields.io/badge/Slack-3.1k-blueviolet?logo=slack&amp;logoColor=white&style=flat-square"></a>
+<a href="https://discord.jina.ai"><img src="https://img.shields.io/discord/1106542220112302130?logo=discord&logoColor=white&style=flat-square"></a>
 <a href="https://codecov.io/gh/jina-ai/clip-as-service"><img alt="Codecov branch" src="https://img.shields.io/codecov/c/github/jina-ai/clip-as-service/main?logo=Codecov&logoColor=white&style=flat-square"></a>
 <a href="https://colab.research.google.com/github/jina-ai/clip-as-service/blob/main/docs/hosting/cas-on-colab.ipynb"><img src="https://img.shields.io/badge/Host-on%20Google%20Colab%20(GPU/TPU)-brightgreen?style=flat-square&logo=googlecolab&&logoColor=white" alt="Host on Google Colab with GPU/TPU support"></a>
 </p>
@@ -751,7 +751,7 @@ Intrigued? That's only scratching the surface of what CLIP-as-service is capable
 <!-- start support-pitch -->
 ## Support
 
-- Join our [Slack community](https://slack.jina.ai) and chat with other community members about ideas.
+- Join our [Discord community](https://discord.jina.ai) and chat with other community members about ideas.
 - Watch our [Engineering All Hands](https://youtube.com/playlist?list=PL3UBBWOUVhFYRUa_gpYYKBqEAkO4sxmne) to learn Jina's new features and stay up-to-date with the latest AI techniques.
 - Subscribe to the latest video tutorials on our [YouTube channel](https://youtube.com/c/jina-ai)
 
