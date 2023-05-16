@@ -10,7 +10,6 @@
 <br><br><br>
 </p>
 
-
 <p align=center>
 <a href="https://pypi.org/project/clip_server/"><img alt="PyPI" src="https://img.shields.io/pypi/v/clip_server?label=Release&style=flat-square"></a>
 <a href="https://discord.jina.ai"><img src="https://img.shields.io/discord/1106542220112302130?logo=discord&logoColor=white&style=flat-square"></a>
@@ -22,15 +21,15 @@
 
 CLIP-as-service is a low-latency high-scalability service for embedding images and text. It can be easily integrated as a microservice into neural search solutions.
 
-⚡ **Fast**: Serve CLIP models with TensorRT, ONNX runtime and PyTorch w/o JIT with 800QPS<sup>[*]</sup>. Non-blocking duplex streaming on requests and responses, designed for large data and long-running tasks. 
+⚡ **Fast**: Serve CLIP models with TensorRT, ONNX runtime and PyTorch w/o JIT with 800QPS<sup>[*]</sup>. Non-blocking duplex streaming on requests and responses, designed for large data and long-running tasks.
 
 🫐 **Elastic**: Horizontally scale up and down multiple CLIP models on single GPU, with automatic load balancing.
 
-🐥 **Easy-to-use**: No learning curve, minimalist design on client and server. Intuitive and consistent API for image and sentence embedding. 
+🐥 **Easy-to-use**: No learning curve, minimalist design on client and server. Intuitive and consistent API for image and sentence embedding.
 
 👒 **Modern**: Async client support. Easily switch between gRPC, HTTP, WebSocket protocols with TLS and compression.
 
-🍱 **Integration**: Smooth integration with neural search ecosystem including [Jina](https://github.com/jina-ai/jina) and [DocArray](https://github.com/jina-ai/docarray). Build cross-modal and multi-modal solutions in no time. 
+🍱 **Integration**: Smooth integration with neural search ecosystem including [Jina](https://github.com/jina-ai/jina) and [DocArray](https://github.com/jina-ai/docarray). Build cross-modal and multi-modal solutions in no time.
 
 <sup>[*] with default config (single replica, PyTorch no JIT) on GeForce RTX 3090. </sup>
 
@@ -39,17 +38,16 @@ CLIP-as-service is a low-latency high-scalability service for embedding images a
 ## Try it!
 
 An always-online server `api.clip.jina.ai` loaded with `ViT-L-14-336::openai` is there for you to play & test.
-Before you start, make sure you have obtained a personal access token from the [Jina AI Cloud](https://cloud.jina.ai/settings/tokens), 
+Before you start, make sure you have obtained a personal access token from the [Jina AI Cloud](https://cloud.jina.ai/settings/tokens),
 or via CLI as described in [this guide](https://docs.jina.ai/jina-ai-cloud/login/#create-a-new-pat):
 
-```bash 
+```bash
 jina auth token create <name of PAT> -e <expiration days>
 ```
 
 Then, you need to configure the access token in the parameter `credential` of the client in python or set it in the HTTP request header `Authorization` as `<your access token>`.
 
-⚠️ Our demo server `demo-cas.jina.ai` is sunset and no longer available after **15th of Sept 2022**. 
-
+⚠️ Our demo server `demo-cas.jina.ai` is sunset and no longer available after **15th of Sept 2022**.
 
 ### Text & image embedding
 
@@ -66,10 +64,10 @@ curl \
 -X POST https://api.clip.jina.ai:8443/post \
 -H 'Content-Type: application/json' \
 -H 'Authorization: <your access token>' \
--d '{"data":[{"text": "First do it"}, 
-    {"text": "then do it right"}, 
-    {"text": "then do it better"}, 
-    {"uri": "https://picsum.photos/200"}], 
+-d '{"data":[{"text": "First do it"},
+    {"text": "then do it right"},
+    {"text": "then do it better"},
+    {"uri": "https://picsum.photos/200"}],
     "execEndpoint":"/"}'
 ```
 
@@ -94,6 +92,7 @@ r = c.encode(
 )
 print(r)
 ```
+
 </td>
 </tr>
 </table>
@@ -160,6 +159,7 @@ curl \
 ```
 
 gives:
+
 ```
 "the blue car is on the left, the red car is on the right"
 0.5232442617416382
@@ -173,7 +173,6 @@ gives:
 
 </td>
 </tr>
-
 
 <tr>
 <td>
@@ -198,6 +197,7 @@ curl \
 ```
 
 gives:
+
 ```
 "this is a photo of three berries"
 0.48507222533226013
@@ -216,15 +216,13 @@ gives:
 </td>
 </tr>
 
-
 </table>
-
 
 ## [Documentation](https://clip-as-service.jina.ai)
 
 ## Install
 
-CLIP-as-service consists of two Python packages `clip-server` and `clip-client` that can be installed _independently_. Both require Python 3.7+. 
+CLIP-as-service consists of two Python packages `clip-server` and `clip-client` that can be installed _independently_. Both require Python 3.7+.
 
 ### Install server
 
@@ -252,9 +250,10 @@ pip install "clip-server[onnx]"
 <td>
 
 ```bash
-pip install nvidia-pyindex 
+pip install nvidia-pyindex
 pip install "clip-server[tensorrt]"
 ```
+
 </td>
 </tr>
 </table>
@@ -271,7 +270,6 @@ pip install clip-client
 
 You can run a simple connectivity check after install.
 
-
 <table>
 <tr>
 <th> C/S </th> 
@@ -282,12 +280,12 @@ You can run a simple connectivity check after install.
 <td>
 Server
 </td>
-<td> 
+<td>
 
 ```bash
 python -m clip_server
 ```
-     
+
 </td>
 <td>
 
@@ -299,7 +297,7 @@ python -m clip_server
 <td>
 Client
 </td>
-<td> 
+<td>
 
 ```python
 from clip_client import Client
@@ -307,7 +305,7 @@ from clip_client import Client
 c = Client('grpc://0.0.0.0:23456')
 c.profile()
 ```
-     
+
 </td>
 <td>
 
@@ -317,9 +315,7 @@ c.profile()
 </tr>
 </table>
 
-
-You can change `0.0.0.0` to the intranet or public IP address to test the connectivity over private and public network. 
-
+You can change `0.0.0.0` to the intranet or public IP address to test the connectivity over private and public network.
 
 ## Get Started
 
@@ -327,25 +323,30 @@ You can change `0.0.0.0` to the intranet or public IP address to test the connec
 
 1. Start the server: `python -m clip_server`. Remember its address and port.
 2. Create a client:
+
    ```python
     from clip_client import Client
-   
+
     c = Client('grpc://0.0.0.0:51000')
-    ```
+   ```
+
 3. To get sentence embedding:
-    ```python    
-    r = c.encode(['First do it', 'then do it right', 'then do it better'])
-    
-    print(r.shape)  # [3, 512] 
-    ```
+
+   ```python
+   r = c.encode(['First do it', 'then do it right', 'then do it better'])
+
+   print(r.shape)  # [3, 512]
+   ```
+
 4. To get image embedding:
-    ```python    
-    r = c.encode(['apple.png',  # local image 
-                  'https://clip-as-service.jina.ai/_static/favicon.png',  # remote image
-                  'data:image/gif;base64,R0lGODlhEAAQAMQAAORHHOVSKudfOulrSOp3WOyDZu6QdvCchPGolfO0o/XBs/fNwfjZ0frl3/zy7////wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAkAABAALAAAAAAQABAAAAVVICSOZGlCQAosJ6mu7fiyZeKqNKToQGDsM8hBADgUXoGAiqhSvp5QAnQKGIgUhwFUYLCVDFCrKUE1lBavAViFIDlTImbKC5Gm2hB0SlBCBMQiB0UjIQA7'])  # in image URI
-    
-    print(r.shape)  # [3, 512]
-    ```
+
+   ```python
+   r = c.encode(['apple.png',  # local image
+                 'https://clip-as-service.jina.ai/_static/favicon.png',  # remote image
+                 'data:image/gif;base64,R0lGODlhEAAQAMQAAORHHOVSKudfOulrSOp3WOyDZu6QdvCchPGolfO0o/XBs/fNwfjZ0frl3/zy7////wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAkAABAALAAAAAAQABAAAAVVICSOZGlCQAosJ6mu7fiyZeKqNKToQGDsM8hBADgUXoGAiqhSvp5QAnQKGIgUhwFUYLCVDFCrKUE1lBavAViFIDlTImbKC5Gm2hB0SlBCBMQiB0UjIQA7'])  # in image URI
+
+   print(r.shape)  # [3, 512]
+   ```
 
 More comprehensive server and client user guides can be found in the [docs](https://clip-as-service.jina.ai/).
 
@@ -415,7 +416,7 @@ da = DocumentArray.pull('ttl-embedding', show_progress=True, local_cache=True)
 
 </details>
 
-#### Search via sentence 
+#### Search via sentence
 
 Let's build a simple prompt to allow a user to type sentence:
 
@@ -461,7 +462,6 @@ Now you can input arbitrary English sentences and view the top-9 matching images
 </tr>
 </table>
 
-
 <table>
 <tr>
 <th> "professor cat is very serious" </th> 
@@ -493,7 +493,7 @@ Now you can input arbitrary English sentences and view the top-9 matching images
 </tr>
 </table>
 
-Let's save the embedding result for our next example: 
+Let's save the embedding result for our next example:
 
 ```python
 da.save_binary('ttl-image')
@@ -503,7 +503,7 @@ da.save_binary('ttl-image')
 
 We can also switch the input and output of the last program to achieve image-to-text search. Precisely, given a query image find the sentence that best describes the image.
 
-Let's use all sentences from the book "Pride and Prejudice". 
+Let's use all sentences from the book "Pride and Prejudice".
 
 ```python
 from docarray import Document, DocumentArray
@@ -521,23 +521,23 @@ da.summary()
 ```
 
 ```text
-            Documents Summary            
-                                         
-  Length                 6403            
-  Homogenous Documents   True            
-  Common Attributes      ('id', 'text')  
-                                         
-                     Attributes Summary                     
-                                                            
-  Attribute   Data type   #Unique values   Has empty value  
- ────────────────────────────────────────────────────────── 
-  id          ('str',)    6403             False            
-  text        ('str',)    6030             False            
+            Documents Summary
+
+  Length                 6403
+  Homogenous Documents   True
+  Common Attributes      ('id', 'text')
+
+                     Attributes Summary
+
+  Attribute   Data type   #Unique values   Has empty value
+ ──────────────────────────────────────────────────────────
+  id          ('str',)    6403             False
+  text        ('str',)    6030             False
 ```
 
 #### Encode sentences
 
-Now encode these 6,403 sentences, it may take 10 seconds or less depending on your GPU and network: 
+Now encode these 6,403 sentences, it may take 10 seconds or less depending on your GPU and network:
 
 ```python
 from clip_client import Client
@@ -575,7 +575,7 @@ for d in img_da.sample(10):
 
 #### Showcase
 
-Fun time! Note, unlike the previous example, here the input is an image and the sentence is the output. All sentences come from the book "Pride and Prejudice". 
+Fun time! Note, unlike the previous example, here the input is an image and the sentence is the output. All sentences come from the book "Pride and Prejudice".
 
 <table>
 <tr>
@@ -583,7 +583,6 @@ Fun time! Note, unlike the previous example, here the input is an image and the 
 <p align="center">
 <img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/Besides,-there-was-truth-in-his-looks.png?raw=true" alt="Visualization of the image sprite of Totally looks like dataset" height="100px">
 </p>
-
 
 </td>
 <td>
@@ -632,7 +631,6 @@ Fun time! Note, unlike the previous example, here the input is an image and the 
 <img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/“A-gamester!”-she-cried.png?raw=true" alt="Visualization of the image sprite of Totally looks like dataset" height="100px">
 </p>
 
-
 </td>
 <td>
 
@@ -673,8 +671,6 @@ Fun time! Note, unlike the previous example, here the input is an image and the 
 </tr>
 </table>
 
-
-
 ### Rank image-text matches via CLIP model
 
 From `0.3.0` CLIP-as-service adds a new `/rank` endpoint that re-ranks cross-modal matches according to their joint likelihood in CLIP model. For example, given an image Document with some predefined sentence matches as below:
@@ -706,7 +702,7 @@ print(r['@m', ['text', 'scores__clip_score__value']])
 ```
 
 ```text
-[['a photo of a television studio', 'a photo of a conference room', 'a photo of a lecture room', 'a photo of a control room', 'a photo of a podium indoor'], 
+[['a photo of a television studio', 'a photo of a conference room', 'a photo of a lecture room', 'a photo of a control room', 'a photo of a podium indoor'],
 [0.9920725226402283, 0.006038925610482693, 0.0009973491542041302, 0.00078492151806131, 0.00010626466246321797]]
 ```
 
@@ -748,7 +744,17 @@ class ReRank(Executor):
 
 Intrigued? That's only scratching the surface of what CLIP-as-service is capable of. [Read our docs to learn more](https://clip-as-service.jina.ai).
 
+## Build locally with Docker
+
+You need to be in the `server` directory to build the Docker image.
+
+```bash
+cd server
+docker build . -f ../Dockerfiles/cuda.Dockerfile -t clip-as-service-gpu:latest
+```
+
 <!-- start support-pitch -->
+
 ## Support
 
 - Join our [Discord community](https://discord.jina.ai) and chat with other community members about ideas.
