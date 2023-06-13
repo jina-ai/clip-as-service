@@ -2,6 +2,7 @@
 
 import io
 
+import pillow_avif
 from PIL import Image
 from torchvision.transforms import Compose, Resize, CenterCrop, ToTensor, Normalize
 
