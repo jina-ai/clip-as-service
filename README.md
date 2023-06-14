@@ -38,18 +38,10 @@ CLIP-as-service is a low-latency high-scalability service for embedding images a
 
 ## Try it!
 
-An always-online server `api.clip.jina.ai` loaded with `ViT-L-14-336::openai` is there for you to play & test.
-Before you start, make sure you have obtained a personal access token from the [Jina AI Cloud](https://cloud.jina.ai/settings/tokens), 
-or via CLI as described in [this guide](https://docs.jina.ai/jina-ai-cloud/login/#create-a-new-pat):
-
-```bash 
-jina auth token create <name of PAT> -e <expiration days>
-```
-
-Then, you need to configure the access token in the parameter `credential` of the client in python or set it in the HTTP request header `Authorization` as `<your access token>`.
-
-⚠️ Our demo server `demo-cas.jina.ai` is sunset and no longer available after **15th of Sept 2022**. 
-
+You can access to the hosted CLIP service at [Jina AI's Inference](https://cloud.jina.ai/user/inference) with free credits.
+Inference provides a selection of AI models for common tasks, such as visual reasoning, question answering, or embedding modalities like texts and images. 
+All the available models are accessible via simple API calls - HTTPS or gRPC.
+Read this [Inference Guide](https://clip-as-service.jina.ai/hosting/by-jina/) to learn more.
 
 ### Text & image embedding
 
@@ -63,7 +55,7 @@ Then, you need to configure the access token in the parameter `credential` of th
 
 ```bash
 curl \
--X POST https://api.clip.jina.ai:8443/post \
+-X POST https://<your-inference-address>-http.wolf.jina.ai/post \
 -H 'Content-Type: application/json' \
 -H 'Authorization: <your access token>' \
 -d '{"data":[{"text": "First do it"}, 
@@ -81,7 +73,8 @@ curl \
 from clip_client import Client
 
 c = Client(
-    'grpcs://api.clip.jina.ai:2096', credential={'Authorization': '<your access token>'}
+    'grpcs://<your-inference-address>-grpc.wolf.jina.ai',
+    credential={'Authorization': '<your access token>'},
 )
 
 r = c.encode(
@@ -117,7 +110,7 @@ There are four basic visual reasoning skills: object recognition, object countin
 
 ```bash
 curl \
--X POST https://api.clip.jina.ai:8443/post \
+-X POST https://<your-inference-address>-http.wolf.jina.ai/post \
 -H 'Content-Type: application/json' \
 -H 'Authorization: <your access token>' \
 -d '{"data":[{"uri": "https://picsum.photos/id/1/300/300",
@@ -146,7 +139,7 @@ gives:
 
 ```bash
 curl \
--X POST https://api.clip.jina.ai:8443/post \
+-X POST https://<your-inference-address>-http.wolf.jina.ai/post \
 -H 'Content-Type: application/json' \
 -H 'Authorization: <your access token>' \
 -d '{"data":[{"uri": "https://picsum.photos/id/133/300/300",
@@ -183,7 +176,7 @@ gives:
 
 ```bash
 curl \
--X POST https://api.clip.jina.ai:8443/post \
+-X POST https://<your-inference-address>-http.wolf.jina.ai/post \
 -H 'Content-Type: application/json' \
 -H 'Authorization: <your access token>' \
 -d '{"data":[{"uri": "https://picsum.photos/id/102/300/300",
