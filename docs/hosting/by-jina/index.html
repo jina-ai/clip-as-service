@@ -6,11 +6,11 @@
 <meta property="og:title" content="Hosted by Jina AI" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://clip-as-service.jina.ai/hosting/by-jina/" />
-<meta property="og:site_name" content="CLIP-as-service 0.8.2 Documentation" />
-<meta property="og:description" content="Just like any other machine learning models, CLIP models have better performance when running on GPU. However, it is not always possible to have a GPU machine at hand, and it could be costly to configure a GPU machine. To make CLIP models more accessible, we provide a hosted service for CLIP mode..." />
+<meta property="og:site_name" content="CLIP-as-service 0.8.3 Documentation" />
+<meta property="og:description" content="In today’s dynamic business environment, enterprises face a multitude of challenges that require advanced solutions to maintain a competitive edge. From managing vast amounts of unstructured data to delivering personalized customer experiences, businesses need efficient tools to tackle these obst..." />
 <meta property="og:image" content="https://clip-as-service.jina.ai/_static/banner.png" />
-<meta property="og:image:alt" content="CLIP-as-service 0.8.2 Documentation" />
-<meta name="description" content="Just like any other machine learning models, CLIP models have better performance when running on GPU. However, it is not always possible to have a GPU machine at hand, and it could be costly to configure a GPU machine. To make CLIP models more accessible, we provide a hosted service for CLIP mode..." />
+<meta property="og:image:alt" content="CLIP-as-service 0.8.3 Documentation" />
+<meta name="description" content="In today’s dynamic business environment, enterprises face a multitude of challenges that require advanced solutions to maintain a competitive edge. From managing vast amounts of unstructured data to delivering personalized customer experiences, businesses need efficient tools to tackle these obst..." />
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@JinaAI_">
 <meta name="twitter:creator" content="@JinaAI_">
@@ -33,7 +33,7 @@
         <link rel="canonical" href="https://clip-as-service.jina.ai/hosting/by-jina.html" />
 
     <link rel="shortcut icon" href="../../_static/favicon.png"/><!-- Generated with Sphinx 5.3.0 and Furo 2023.03.27 -->
-        <title>Hosted by Jina AI - CLIP-as-service 0.8.2 documentation</title>
+        <title>Hosted by Jina AI - CLIP-as-service 0.8.3 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=fad236701ea90a88636c2a8c73b44ae642ed2a53" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -166,7 +166,7 @@
         </div>
         <div class="header-center">
             <a href="../../">
-                <div class="brand">CLIP-as-service 0.8.2 documentation</div>
+                <div class="brand">CLIP-as-service 0.8.3 documentation</div>
             </a>
         </div>
         <div class="header-right">
@@ -323,91 +323,66 @@
 <a href="https://cloud.jina.ai/user/inference">
   <img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/banner.svg?raw=true" width="100%">
 </a>
-<p>Just like any other machine learning models, CLIP models have better performance when running on GPU. However, it is not always possible to have a GPU machine at hand, and it could be costly to configure a GPU machine. To make CLIP models more accessible, we provide a hosted service for CLIP models. You can send requests to our hosted service and get the embedding results back.</p>
-<p>An always-online server <code class="docutils literal notranslate"><span class="pre">api.clip.jina.ai</span></code> loaded with <code class="docutils literal notranslate"><span class="pre">ViT-L-14-336::openai</span></code> is there for you to play or develop your CLIP applications. The server is available for <strong>encoding</strong> and <strong>ranking</strong> tasks.</p>
-<p><code class="docutils literal notranslate"><span class="pre">ViT-L-14-336::openai</span></code> was released in April 2022 and this is the best model within all models offered by <a class="reference external" href="https://github.com/openai/CLIP/blob/main/clip/clip.py#L30">OpenAI</a> and also the best model when we developed this service.</p>
-<p>However, the “best model” is not always the best choice for your application. You may want to use a smaller model for faster response time, or a larger model for better accuracy.
-With the <a class="reference external" href="https://cloud.jina.ai/user/inference">Inference</a> in <a class="reference external" href="https://cloud.jina.ai/">Jina AI Cloud</a>, you have the flexibility to choose the model that best suits your specific needs.</p>
-<p>Before you start, make sure you have obtained a personal access token from the <a class="reference external" href="https://cloud.jina.ai/settings/tokens">Jina AI Cloud</a>,
-or via CLI as described in <a class="reference external" href="https://docs.jina.ai/jina-ai-cloud/login/#create-a-new-pat">this guide</a>:</p>
+<p>In today’s dynamic business environment, enterprises face a multitude of challenges that require advanced solutions to
+maintain a competitive edge.
+From managing vast amounts of unstructured data to delivering personalized customer experiences, businesses need
+efficient tools to tackle these obstacles.
+Machine learning (ML) has emerged as a powerful tool for automating repetitive tasks, processing data effectively, and
+generating valuable insights from multimedia content.
+Jina AI’s Inference offers a comprehensive solution to streamline access to curated, state-of-the-art ML models,
+eliminating traditional roadblocks such as costly and time-consuming MLOps steps and the distinction between public and
+custom neural network models.</p>
+<section id="getting-started">
+<h2>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this heading">#</a></h2>
+<p>To access the fastest and most performant CLIP models, <a class="reference external" href="https://cloud.jina.ai/user/inference">Jina AI’s Inference</a> is
+the go-to choice.
+Follow the steps below to get started:</p>
+<ol class="simple">
+<li><p>Sign up for a free account at <a class="reference external" href="https://cloud.jina.ai">Jina AI Cloud</a>.</p></li>
+<li><p>Once you have created an account, navigate to the Inference tab to create a new CLIP model.</p></li>
+<li><p>The model can be accessed either through an HTTP endpoint or a gRPC endpoint.</p></li>
+</ol>
+</section>
+<section id="obtaining-a-personal-access-token">
+<h2>Obtaining a Personal Access Token<a class="headerlink" href="#obtaining-a-personal-access-token" title="Permalink to this heading">#</a></h2>
+<p>Before you begin using <a class="reference external" href="https://cloud.jina.ai/user/inference">Jina AI’s Inference</a>, ensure that you have obtained a
+personal access token (PAT) from the <a class="reference external" href="https://cloud.jina.ai">Jina AI Cloud</a> or through the command-line interface (CLI).
+Use the following guide to create a new PAT:</p>
+<ol class="simple">
+<li><p>Access the <a class="reference external" href="https://cloud.jina.ai">Jina AI Cloud</a> and log in to your account.</p></li>
+<li><p>Navigate to the <a class="reference external" href="https://cloud.jina.ai/settings/tokens"><strong>Access token</strong></a> section in the <strong>Settings</strong> tab, or alternatively, create a PAT via the CLI using the command:</p></li>
+</ol>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>jina<span class="w"> </span>auth<span class="w"> </span>token<span class="w"> </span>create<span class="w"> </span>&lt;name<span class="w"> </span>of<span class="w"> </span>PAT&gt;<span class="w"> </span>-e<span class="w"> </span>&lt;expiration<span class="w"> </span>days&gt;
 </pre></div>
 </div>
-<section id="connect-in-python">
-<span id="by-jina-python"></span><h2>Connect in Python<a class="headerlink" href="#connect-in-python" title="Permalink to this heading">#</a></h2>
-<p>We provide two ways to send requests to our hosted service: via gRPCs and via HTTPs.</p>
-<div class="table-wrapper colwidths-auto docutils container">
-<table class="colwidths-auto docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Protocol</p></th>
-<th class="head"><p>Address</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>gRPCs</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">grpcs://api.clip.jina.ai:2096</span></code></p></td>
-</tr>
-<tr class="row-odd"><td><p>HTTPs</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">https://api.clip.jina.ai:8443</span></code></p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<p>To use the service, you need select the protocol by specifying corresponding address in the client. For example, if you want to use gRPCs, you need to specify the address as <code class="docutils literal notranslate"><span class="pre">grpcs://api.clip.jina.ai:2096</span></code>.</p>
-<p>Then, you need to configure the access token in the parameter <code class="docutils literal notranslate"><span class="pre">credential</span></code> of the client:</p>
-<div class="tab-set docutils">
-<input checked="True" class="tab-input" id="tab-set--0-input--1" name="tab-set--0" type="radio"><label class="tab-label" for="tab-set--0-input--1">via gRPCs</label><div class="tab-content docutils">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">clip_client</span> <span class="kn">import</span> <span class="n">Client</span>
-
-<span class="n">c</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span>
-<span class="hll">    <span class="s1">&#39;grpcs://api.clip.jina.ai:2096&#39;</span><span class="p">,</span> <span class="n">credential</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;Authorization&#39;</span><span class="p">:</span> <span class="s1">&#39;&lt;your access token&gt;&#39;</span><span class="p">}</span>
-</span><span class="p">)</span>
-
-<span class="n">r</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span>
-    <span class="p">[</span>
-        <span class="s1">&#39;First do it&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;then do it right&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;then do it better&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;https://picsum.photos/200&#39;</span><span class="p">,</span>
-    <span class="p">]</span>
-<span class="p">)</span>
+</section>
+<section id="installing-the-inference-client">
+<h2>Installing the Inference Client<a class="headerlink" href="#installing-the-inference-client" title="Permalink to this heading">#</a></h2>
+<p>To interact with the model created in Inference, you will need to install the <code class="docutils literal notranslate"><span class="pre">inference-client</span></code> Python package.
+Follow the steps below to install the package using pip:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>inference-client
 </pre></div>
-</div>
-</div>
-<input class="tab-input" id="tab-set--0-input--2" name="tab-set--0" type="radio"><label class="tab-label" for="tab-set--0-input--2">via HTTPs</label><div class="tab-content docutils">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">clip_client</span> <span class="kn">import</span> <span class="n">Client</span>
-
-<span class="n">c</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span>
-<span class="hll">    <span class="s1">&#39;https://api.clip.jina.ai:8443&#39;</span><span class="p">,</span> <span class="n">credential</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;Authorization&#39;</span><span class="p">:</span> <span class="s1">&#39;&lt;your access token&gt;&#39;</span><span class="p">}</span>
-</span><span class="p">)</span>
-
-<span class="n">r</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span>
-    <span class="p">[</span>
-        <span class="s1">&#39;First do it&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;then do it right&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;then do it better&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;https://picsum.photos/200&#39;</span><span class="p">,</span>
-    <span class="p">]</span>
-<span class="p">)</span>
-</pre></div>
-</div>
-</div>
 </div>
 </section>
-<section id="connect-using-plain-http-request-via-curl">
-<span id="by-jina-curl"></span><h2>Connect using plain HTTP request via <code class="docutils literal notranslate"><span class="pre">curl</span></code><a class="headerlink" href="#connect-using-plain-http-request-via-curl" title="Permalink to this heading">#</a></h2>
-<p>You can also send requests to our hosted service using plain HTTP request via <code class="docutils literal notranslate"><span class="pre">curl</span></code> by configuring the access token in the HTTP request header <code class="docutils literal notranslate"><span class="pre">Authorization</span></code> as <code class="docutils literal notranslate"><span class="pre">&lt;your</span> <span class="pre">access</span> <span class="pre">token&gt;</span></code>.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span><span class="se">\</span>
--X<span class="w"> </span>POST<span class="w"> </span>https://api.clip.jina.ai:8443/post<span class="w"> </span><span class="se">\</span>
--H<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
-<span class="hll">-H<span class="w"> </span><span class="s1">&#39;Authorization: &lt;your access token&gt;&#39;</span><span class="w"> </span><span class="se">\</span>
-</span>-d<span class="w"> </span><span class="s1">&#39;{&quot;data&quot;:[{&quot;text&quot;: &quot;First do it&quot;}, </span>
-<span class="s1">    {&quot;text&quot;: &quot;then do it right&quot;}, </span>
-<span class="s1">    {&quot;text&quot;: &quot;then do it better&quot;}, </span>
-<span class="s1">    {&quot;uri&quot;: &quot;https://picsum.photos/200&quot;}], </span>
-<span class="s1">    &quot;execEndpoint&quot;:&quot;/&quot;}&#39;</span>
+<section id="interacting-with-the-model">
+<h2>Interacting with the Model<a class="headerlink" href="#interacting-with-the-model" title="Permalink to this heading">#</a></h2>
+<p>Once you have your personal access token and the model name listed in the Inference detail page, you can start
+interacting with the model using the <code class="docutils literal notranslate"><span class="pre">inference-client</span></code> Python package.
+Follow the example code snippet below:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">inference_client</span> <span class="kn">import</span> <span class="n">Client</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span><span class="n">token</span><span class="o">=</span><span class="s1">&#39;&lt;your auth token&gt;&#39;</span><span class="p">)</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span><span class="s1">&#39;&lt;your model name&gt;&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
+<p>The CLIP models offer the following functionalities:</p>
+<ol class="simple">
+<li><p>Encoding: Users can encode data by calling the <code class="docutils literal notranslate"><span class="pre">model.encode</span></code> method. For detailed instructions on using this method, refer to the <a class="reference external" href="https://jina.readme.io/docs/encode">Encode documentation</a>.</p></li>
+<li><p>Ranking: Users can perform ranking by calling the <code class="docutils literal notranslate"><span class="pre">model.rank</span></code> method. Refer to the <a class="reference external" href="https://jina.readme.io/docs/rank">Rank documentation</a> for detailed instructions on using this method.</p></li>
+</ol>
+<p>For further details on usage and information about other tasks and models supported in Inference, as well as how to use
+<code class="docutils literal notranslate"><span class="pre">curl</span></code> to interact with the model, please consult the <a class="reference external" href="https://jina.readme.io/docs/inference">Inference documentation</a>.</p>
 </section>
 </section>
 
@@ -446,14 +421,14 @@ or via CLI as described in <a class="reference external" href="https://docs.jina
                         <div class="copyright">
                             Copyright &#169; Jina AI Limited. All rights reserved.
                         </div><div class="last-updated">
-                            Last updated on Apr 19, 2023</div>
+                            Last updated on Jun 14, 2023</div>
                     </div>
                     <div class="right-details">
                         <div class="social-btns">
                             <a class='social-btn' href="https://github.com/jina-ai/clip-as-service/" aria-label="GitHub"
                                target="_blank" rel="noreferrer"> <i class="fab fa-github"></i></a>
-                            <a class='social-btn' href="https://slack.jina.ai" aria-label="Slack" target="_blank"
-                               rel="noreferrer"> <i class="fab fa-slack"></i></a>
+                            <a class='social-btn' href="https://discord.jina.ai" aria-label="Discord" target="_blank"
+                               rel="noreferrer"> <i class="fab fa-discord"></i></a>
                             <a class='social-btn' href="https://youtube.com/c/jina-ai" aria-label="YouTube"
                                target="_blank" rel="noreferrer"> <i class="fab fa-youtube"></i></a>
                             <a class='social-btn' href="https://twitter.com/JinaAI_" aria-label="Twitter"
@@ -479,8 +454,10 @@ or via CLI as described in <a class="reference external" href="https://docs.jina
                     <div class="toc-tree">
                         <ul>
 <li><a class="reference internal" href="#">Hosted by Jina AI</a><ul>
-<li><a class="reference internal" href="#connect-in-python">Connect in Python</a></li>
-<li><a class="reference internal" href="#connect-using-plain-http-request-via-curl">Connect using plain HTTP request via <code class="docutils literal notranslate"><span class="pre">curl</span></code></a></li>
+<li><a class="reference internal" href="#getting-started">Getting started</a></li>
+<li><a class="reference internal" href="#obtaining-a-personal-access-token">Obtaining a Personal Access Token</a></li>
+<li><a class="reference internal" href="#installing-the-inference-client">Installing the Inference Client</a></li>
+<li><a class="reference internal" href="#interacting-with-the-model">Interacting with the Model</a></li>
 </ul>
 </li>
 </ul>

@@ -5,102 +5,66 @@
 :end-before: <!-- end inference-banner -->
 ```
 
-Just like any other machine learning models, CLIP models have better performance when running on GPU. However, it is not always possible to have a GPU machine at hand, and it could be costly to configure a GPU machine. To make CLIP models more accessible, we provide a hosted service for CLIP models. You can send requests to our hosted service and get the embedding results back. 
+In today's dynamic business environment, enterprises face a multitude of challenges that require advanced solutions to 
+maintain a competitive edge. 
+From managing vast amounts of unstructured data to delivering personalized customer experiences, businesses need 
+efficient tools to tackle these obstacles. 
+Machine learning (ML) has emerged as a powerful tool for automating repetitive tasks, processing data effectively, and 
+generating valuable insights from multimedia content. 
+Jina AI's Inference offers a comprehensive solution to streamline access to curated, state-of-the-art ML models, 
+eliminating traditional roadblocks such as costly and time-consuming MLOps steps and the distinction between public and 
+custom neural network models.
 
-An always-online server `api.clip.jina.ai` loaded with `ViT-L-14-336::openai` is there for you to play or develop your CLIP applications. The server is available for **encoding** and **ranking** tasks.
+## Getting started
 
-`ViT-L-14-336::openai` was released in April 2022 and this is the best model within all models offered by [OpenAI](https://github.com/openai/CLIP/blob/main/clip/clip.py#L30) and also the best model when we developed this service.
+To access the fastest and most performant CLIP models, [Jina AI's Inference](https://cloud.jina.ai/user/inference) is 
+the go-to choice. 
+Follow the steps below to get started:
 
-However, the "best model" is not always the best choice for your application. You may want to use a smaller model for faster response time, or a larger model for better accuracy. 
-With the [Inference](https://cloud.jina.ai/user/inference) in [Jina AI Cloud](https://cloud.jina.ai/), you have the flexibility to choose the model that best suits your specific needs. 
+1. Sign up for a free account at [Jina AI Cloud](https://cloud.jina.ai).
+2. Once you have created an account, navigate to the Inference tab to create a new CLIP model.
+3. The model can be accessed either through an HTTP endpoint or a gRPC endpoint.
 
-Before you start, make sure you have obtained a personal access token from the [Jina AI Cloud](https://cloud.jina.ai/settings/tokens), 
-or via CLI as described in [this guide](https://docs.jina.ai/jina-ai-cloud/login/#create-a-new-pat):
+## Obtaining a Personal Access Token
+
+Before you begin using [Jina AI's Inference](https://cloud.jina.ai/user/inference), ensure that you have obtained a 
+personal access token (PAT) from the [Jina AI Cloud](https://cloud.jina.ai) or through the command-line interface (CLI). 
+Use the following guide to create a new PAT:
+
+1. Access the [Jina AI Cloud](https://cloud.jina.ai) and log in to your account.
+2. Navigate to the [**Access token**](https://cloud.jina.ai/settings/tokens) section in the **Settings** tab, or alternatively, create a PAT via the CLI using the command:
 
 ```bash
 jina auth token create <name of PAT> -e <expiration days>
 ```
 
-(by-jina-python)=
-## Connect in Python
+## Installing the Inference Client
 
-We provide two ways to send requests to our hosted service: via gRPCs and via HTTPs.
+To interact with the model created in Inference, you will need to install the `inference-client` Python package. 
+Follow the steps below to install the package using pip:
 
-| Protocol | Address                         |
-| -------- | ------------------------------- |
-| gRPCs    | `grpcs://api.clip.jina.ai:2096` |
-| HTTPs    | `https://api.clip.jina.ai:8443` |
-
-
-To use the service, you need select the protocol by specifying corresponding address in the client. For example, if you want to use gRPCs, you need to specify the address as `grpcs://api.clip.jina.ai:2096`. 
-
-Then, you need to configure the access token in the parameter `credential` of the client:
-
-
-````{tab} via gRPCs
-
-```{code-block} python
----
-emphasize-lines: 4
----
-from clip_client import Client
-
-c = Client(
-    'grpcs://api.clip.jina.ai:2096', credential={'Authorization': '<your access token>'}
-)
-
-r = c.encode(
-    [
-        'First do it',
-        'then do it right',
-        'then do it better',
-        'https://picsum.photos/200',
-    ]
-)
+```bash
+pip install inference-client
 ```
 
-````
-````{tab} via HTTPs
+## Interacting with the Model
 
-```{code-block} python
----
-emphasize-lines: 4
----
-from clip_client import Client
+Once you have your personal access token and the model name listed in the Inference detail page, you can start 
+interacting with the model using the `inference-client` Python package. 
+Follow the example code snippet below:
 
-c = Client(
-    'https://api.clip.jina.ai:8443', credential={'Authorization': '<your access token>'}
-)
+```python
+from inference_client import Client
 
-r = c.encode(
-    [
-        'First do it',
-        'then do it right',
-        'then do it better',
-        'https://picsum.photos/200',
-    ]
-)
+client = Client(token='<your auth token>')
+
+model = client.get_model('<your model name>')
 ```
 
-````
+The CLIP models offer the following functionalities:
 
-(by-jina-curl)=
-## Connect using plain HTTP request via `curl`
+1. Encoding: Users can encode data by calling the `model.encode` method. For detailed instructions on using this method, refer to the [Encode documentation](https://jina.readme.io/docs/encode).
+2. Ranking: Users can perform ranking by calling the `model.rank` method. Refer to the [Rank documentation](https://jina.readme.io/docs/rank) for detailed instructions on using this method.
 
-You can also send requests to our hosted service using plain HTTP request via `curl` by configuring the access token in the HTTP request header `Authorization` as `<your access token>`.
-
-
-```{code-block} bash
----
-emphasize-lines: 4
----
-curl \
--X POST https://api.clip.jina.ai:8443/post \
--H 'Content-Type: application/json' \
--H 'Authorization: <your access token>' \
--d '{"data":[{"text": "First do it"}, 
-    {"text": "then do it right"}, 
-    {"text": "then do it better"}, 
-    {"uri": "https://picsum.photos/200"}], 
-    "execEndpoint":"/"}'
-```
+For further details on usage and information about other tasks and models supported in Inference, as well as how to use 
+`curl` to interact with the model, please consult the [Inference documentation](https://jina.readme.io/docs/inference).
