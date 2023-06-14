@@ -49,6 +49,7 @@ setup(
         'docarray<0.30.0',
         'prometheus-client',
         'open_clip_torch>=2.8.0',
+        'pillow-avif-plugin'
     ],
     extras_require={
         'onnx': [
