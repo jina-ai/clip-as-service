@@ -1,10 +1,3 @@
-<!-- start inference-banner -->
-<p align="center">
-<a href="https://cloud.jina.ai/user/inference">
-  <img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/banner.svg?raw=true" width="100%">
-</a>
-<!-- end inference-banner -->
-
 <p align="center">
 <a href="https://clip-as-service.jina.ai"><img src="https://github.com/jina-ai/clip-as-service/blob/main/docs/_static/logo-light.svg?raw=true" alt="CLIP-as-service logo: The data structure for unstructured data" width="200px"></a>
 <br><br><br>
@@ -36,12 +29,6 @@ CLIP-as-service is a low-latency high-scalability service for embedding images a
 
 <!-- end elevator-pitch -->
 
-## Try it!
-
-You can access to the hosted CLIP service at [Jina AI's Inference](https://cloud.jina.ai/user/inference) with free credits.
-Inference provides a selection of AI models for common tasks, such as visual reasoning, question answering, or embedding modalities like texts and images. 
-All the available models are accessible via simple API calls - HTTPS or gRPC.
-Read this [Inference Guide](https://clip-as-service.jina.ai/hosting/by-jina/) to learn more.
 
 ### Text & image embedding
 
@@ -745,7 +732,6 @@ Intrigued? That's only scratching the surface of what CLIP-as-service is capable
 ## Support
 
 - Join our [Discord community](https://discord.jina.ai) and chat with other community members about ideas.
-- Watch our [Engineering All Hands](https://youtube.com/playlist?list=PL3UBBWOUVhFYRUa_gpYYKBqEAkO4sxmne) to learn Jina's new features and stay up-to-date with the latest AI techniques.
 - Subscribe to the latest video tutorials on our [YouTube channel](https://youtube.com/c/jina-ai)
 
 ## Join Us
