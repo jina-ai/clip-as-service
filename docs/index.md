@@ -1,11 +1,6 @@
 # Welcome to CLIP-as-service!
 
 ```{include} ../README.md
-:start-after: <!-- start inference-banner -->
-:end-before: <!-- end inference-banner -->
-```
-
-```{include} ../README.md
 :start-after: <!-- start elevator-pitch -->
 :end-before: <!-- end elevator-pitch -->
 ```
