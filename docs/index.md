@@ -6,61 +6,6 @@
 ```
 
 ## Try it!
-
-You can access to the hosted CLIP service at [Jina AI's Inference](https://cloud.jina.ai/user/inference) with free credits.
-Inference provides a selection of AI models for common tasks, such as visual reasoning, question answering, or embedding modalities like texts and images. 
-All the available models are accessible via simple API calls - HTTPS or gRPC.
-Read this [Inference Guide](https://clip-as-service.jina.ai/hosting/by-jina/) to learn more.
-
-````{tab} via gRPC ⚡⚡
-
-```bash
-pip install clip-client
-```
-
-```{code-block} python
----
-emphasize-lines: 5
----
-from clip_client import Client
-
-c = Client(
-    'grpcs://<your-inference-address>-grpc.wolf.jina.ai', 
-    credential={'Authorization': '<your access token>'}
-)
-
-r = c.encode(
-    [
-        'First do it',
-        'then do it right',
-        'then do it better',
-        'https://picsum.photos/200',
-    ]
-)
-print(r)
-```
-
-````
-
-````{tab} via HTTPS 🔐
-
-```{code-block} bash
----
-emphasize-lines: 4
----
-curl \
--X POST https://<your-inference-address>-http.wolf.jina.ai/post \
--H 'Content-Type: application/json' \
--H 'Authorization: <your access token>' \
--d '{"data":[{"text": "First do it"}, 
-    {"text": "then do it right"}, 
-    {"text": "then do it better"}, 
-    {"uri": "https://picsum.photos/200"}], 
-    "execEndpoint":"/"}'
-```
-
-````
-
 ## Install
 
 ![PyPI](https://img.shields.io/pypi/v/clip_client?color=%23ffffff&label=%20) is the latest version.
@@ -201,8 +146,6 @@ user-guides/faq
 :caption: Hosting
 :hidden:
 
-hosting/by-jina
-hosting/on-jcloud
 hosting/colab
 ```
 
