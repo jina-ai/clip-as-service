@@ -146,7 +146,6 @@ user-guides/faq
 :caption: Hosting
 :hidden:
 
-
 hosting/colab
 ```
 
