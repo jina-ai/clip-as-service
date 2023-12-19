@@ -45,8 +45,8 @@ setup(
         'torch',
         'regex',
         'torchvision<=0.13.0' if sys.version_info <= (3, 7, 2) else 'torchvision',
-        'jina>=3.12.0',
-        'docarray<0.30.0',
+        'jina==3.14.1',
+        'docarray==0.21.0',
         'prometheus-client',
         'open_clip_torch>=2.8.0',
         'pillow-avif-plugin'
