@@ -50,6 +50,7 @@ setup(
         "prometheus-client",
         "open_clip_torch>=2.8.0",
         "pillow-avif-plugin",
+        "opentelemetry-exporter-prometheus>=1.12.0rc1",
     ],
     extras_require={
         "onnx": [

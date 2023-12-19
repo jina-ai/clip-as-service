@@ -45,6 +45,7 @@ setup(
         "jina>=3.12.0,<3.15.0",
         "docarray[common]>=0.19.0,<0.30.0",
         "packaging",
+        "opentelemetry-exporter-prometheus>=1.12.0rc1",
     ],
     extras_require={
         "test": [
