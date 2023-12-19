@@ -48,7 +48,7 @@ setup(
         "jina>=3.12.0",
         "docarray==0.21.0",
         "prometheus-client",
-        "open_clip_torch>=2.8.0",
+        "open_clip_torch>=2.8.0,<2.9.0",
         "pillow-avif-plugin",
     ],
     extras_require={
