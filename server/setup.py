@@ -54,7 +54,7 @@ setup(
     extras_require={
         "onnx": [
             "onnx",
-            "onnxmltools",
+            "onnxmltools<1.12.0",
         ]
         + (
             ["onnxruntime-gpu<=1.13.1"]
