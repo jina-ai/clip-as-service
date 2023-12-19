@@ -42,7 +42,7 @@ setup(
     zip_safe=False,
     setup_requires=["setuptools>=18.0", "wheel"],
     install_requires=[
-        "jina>=3.12.0,<3.23.0",
+        "jina>=3.12.0",
         "docarray[common]>=0.19.0,<0.30.0",
         "packaging",
     ],
