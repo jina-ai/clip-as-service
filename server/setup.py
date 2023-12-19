@@ -45,12 +45,11 @@ setup(
         "torch",
         "regex",
         "torchvision<=0.13.0" if sys.version_info <= (3, 7, 2) else "torchvision",
-        "jina>=3.12.0,<3.15.0",
+        "jina>=3.12.0,<3.16.0",
         "docarray==0.21.0",
         "prometheus-client",
         "open_clip_torch>=2.8.0",
         "pillow-avif-plugin",
-        "opentelemetry-exporter-prometheus>=1.12.0rc1",
     ],
     extras_require={
         "onnx": [
