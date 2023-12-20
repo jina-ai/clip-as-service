@@ -46,15 +46,15 @@ setup(
         'regex',
         'torchvision<=0.13.0' if sys.version_info <= (3, 7, 2) else 'torchvision',
         'jina>=3.12.0',
-        'docarray<0.30.0',
+        'docarray==0.21.0',
         'prometheus-client',
-        'open_clip_torch>=2.8.0',
-        'pillow-avif-plugin'
+        'open_clip_torch>=2.8.0,<2.9.0',
+        'pillow-avif-plugin',
     ],
     extras_require={
         'onnx': [
             'onnx',
-            'onnxmltools',
+            'onnxmltools<1.12.0',
         ]
         + (
             ['onnxruntime-gpu<=1.13.1']

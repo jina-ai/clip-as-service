@@ -35,7 +35,6 @@ The URL-like scheme `grpc://0.0.0.0:23456` is what you get after {ref}`running t
 | `port`   | The public port of the server                                                                                                                                                               | `51234`       |
             
 
-Jina AI provides a hosted service for CLIP models. Refer [here](hosting/by-jina#by-jina-python) for more details on how to connect to the hosted service.
 
 ## Encoding
 
@@ -629,5 +628,3 @@ curl -X POST http://0.0.0.0:51000/post \
 [-0.022064208984375,0.1044921875,...]
 [-0.0750732421875,-0.166015625,...]
 ```
-
-To connect to the CLIP server hosted by Jina AI, please refer to [this page](/hosting/by-jina#by-jina-curl).
