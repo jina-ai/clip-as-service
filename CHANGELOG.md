@@ -60,6 +60,7 @@
 
 
 
+
 <a name=release-note-0-0-3></a>
 ## Release Note (`0.0.3`)
 
@@ -1534,4 +1535,30 @@
  - [[```c7af9f71```](https://github.com/jina-ai/clip-as-service/commit/c7af9f718550600973c6880de442619228f655e8)] __-__ fix configuration file for the search flow doc (#869) (*zawabest*)
  - [[```53cd0630```](https://github.com/jina-ai/clip-as-service/commit/53cd06301efde97e6e59a2b143323ccd5f5f2565)] __-__ hide changelog in docs (#864) (*Ziniu Yu*)
  - [[```9bb7d1f4```](https://github.com/jina-ai/clip-as-service/commit/9bb7d1f47d19e15e844108dec5f84cabcce7975d)] __-__ __version__: the next version will be 0.8.2 (*Jina Dev Bot*)
+
+<a name=release-note-0-8-3></a>
+## Release Note (`0.8.3`)
+
+> Release time: 2023-12-20 04:13:18
+
+
+
+🙇 We'd like to thank all contributors for this new release! In particular,
+ Zihao Jing,  Han Xiao,  Nick de Silva,  Ziniu Yu,  Jina Dev Bot,  🙇
+
+
+### 🐞 Bug fixes
+
+ - [[```280b925e```](https://github.com/jina-ai/clip-as-service/commit/280b925e16ab5605a124d412f66ff56caa492553)] __-__ fix docarray at v1 (#911) (*Ziniu Yu*)
+
+### 📗 Documentation
+
+ - [[```ca2b25b7```](https://github.com/jina-ai/clip-as-service/commit/ca2b25b7564bc9b18ae38b93f0134e1f9aa0cee7)] __-__ remove jina self-hosted parts (#942) (*Zihao Jing*)
+ - [[```6e418fe6```](https://github.com/jina-ai/clip-as-service/commit/6e418fe69c10dbac155e02267828d922a5601691)] __-__ replace free service docs with inference docs (#918) (*Ziniu Yu*)
+
+### 🍹 Other Improvements
+
+ - [[```d4e7a30b```](https://github.com/jina-ai/clip-as-service/commit/d4e7a30b755b2d314f89181fcc42624a1224b9ae)] __-__ Update README.md (*Han Xiao*)
+ - [[```679de4e3```](https://github.com/jina-ai/clip-as-service/commit/679de4e3c9cb02b712f58540f6a3dd2e32d8e5e9)] __-__ change slack link to discord (*Han Xiao*)
+ - [[```02abdc7b```](https://github.com/jina-ai/clip-as-service/commit/02abdc7b68214bedc181d9ef4be1c093ee60c609)] __-__ __version__: the next version will be 0.8.3 (*Jina Dev Bot*)
 
