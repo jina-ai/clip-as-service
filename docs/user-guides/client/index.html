@@ -225,8 +225,6 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Hosting</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../hosting/by-jina/">Hosted by Jina AI</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../hosting/on-jcloud/">Host on JCloud</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../hosting/colab/">Host on Google Colab</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Playground</span></p>
@@ -365,7 +363,6 @@
 </tbody>
 </table>
 </div>
-<p>Jina AI provides a hosted service for CLIP models. Refer <a class="reference external" href="hosting/by-jina#by-jina-python">here</a> for more details on how to connect to the hosted service.</p>
 </section>
 <section id="encoding">
 <h2>Encoding<a class="headerlink" href="#encoding" title="Permalink to this heading">#</a></h2>
@@ -373,7 +370,7 @@
 <p><a class="reference internal" href="../../api/clip_client.client/#clip_client.client.Client.encode" title="clip_client.client.Client.encode"><code class="xref py py-func docutils literal notranslate"><span class="pre">encode()</span></code></a> supports two basic input types:</p>
 <ul class="simple">
 <li><p><strong>An iterable of <code class="docutils literal notranslate"><span class="pre">str</span></code></strong>, e.g. <code class="docutils literal notranslate"><span class="pre">List[str]</span></code>, <code class="docutils literal notranslate"><span class="pre">Tuple[str]</span></code>, <code class="docutils literal notranslate"><span class="pre">Generator[str]</span></code> are all acceptable.</p></li>
-<li><p><strong>An iterable of <a class="reference external" href="https://docarray.jina.ai/api/docarray.document/#docarray.document.Document" title="(in DocArray v0.21.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Document</span></code></a></strong>, e.g. <code class="docutils literal notranslate"><span class="pre">List[Document]</span></code>, <a class="reference external" href="https://docarray.jina.ai/api/docarray.array.document/#docarray.array.document.DocumentArray" title="(in DocArray v0.21.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DocumentArray</span></code></a>, <code class="docutils literal notranslate"><span class="pre">Generator[Document]</span></code> are all acceptable.</p></li>
+<li><p><strong>An iterable of <code class="xref py py-class docutils literal notranslate"><span class="pre">Document</span></code></strong>, e.g. <code class="docutils literal notranslate"><span class="pre">List[Document]</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">DocumentArray</span></code>, <code class="docutils literal notranslate"><span class="pre">Generator[Document]</span></code> are all acceptable.</p></li>
 </ul>
 <p>Depending on the input, the output of <a class="reference internal" href="../../api/clip_client.client/#clip_client.client.Client.encode" title="clip_client.client.Client.encode"><code class="xref py py-func docutils literal notranslate"><span class="pre">encode()</span></code></a> is different:</p>
 <ul class="simple">
@@ -882,7 +879,6 @@ What you should do, is to rely on asynchronous programming or multi-processing r
 [-0.0750732421875,-0.166015625,...]
 </pre></div>
 </div>
-<p>To connect to the CLIP server hosted by Jina AI, please refer to <a class="reference external" href="/hosting/by-jina#by-jina-curl">this page</a>.</p>
 </section>
 </section>
 
@@ -921,7 +917,7 @@ What you should do, is to rely on asynchronous programming or multi-processing r
                         <div class="copyright">
                             Copyright &#169; Jina AI Limited. All rights reserved.
                         </div><div class="last-updated">
-                            Last updated on Jun 14, 2023</div>
+                            Last updated on Dec 20, 2023</div>
                     </div>
                     <div class="right-details">
                         <div class="social-btns">

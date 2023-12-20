@@ -30,7 +30,7 @@ Please follow the walk-through there. Enjoy the free GPU/TPU to build your aweso
 
 
 ```{tip}
-Hosing service on Google Colab is not recommended if you server aims to be long-live or permanent. It is often used for quick experiment, demonstration or leveraging its free GPU/TPU. For stable, secure and free hosting of Jina apps, please check out [Jcloud](https://docs.jina.ai/fundamentals/jcloud/).
+Hosing service on Google Colab is not recommended if you server aims to be long-live or permanent. It is often used for quick experiment, demonstration or leveraging its free GPU/TPU. For stable, please deploy the CLIP model on your own server.
 ```
 
 

@@ -225,8 +225,6 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Hosting</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="hosting/by-jina/">Hosted by Jina AI</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hosting/on-jcloud/">Host on JCloud</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hosting/colab/">Host on Google Colab</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Playground</span></p>
@@ -319,10 +317,6 @@
                 <article role="main">
                     <section class="tex2jax_ignore mathjax_ignore" id="welcome-to-clip-as-service">
 <h1>Welcome to CLIP-as-service!<a class="headerlink" href="#welcome-to-clip-as-service" title="Permalink to this heading">#</a></h1>
-<p align="center">
-<a href="https://cloud.jina.ai/user/inference">
-  <img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/banner.svg?raw=true" width="100%">
-</a>
 <p>CLIP-as-service is a low-latency high-scalability service for embedding images and text. It can be easily integrated as a microservice into neural search solutions.</p>
 <p>⚡ <strong>Fast</strong>: Serve CLIP models with TensorRT, ONNX runtime and PyTorch w/o JIT with 800QPS<sup>[*]</sup>. Non-blocking duplex streaming on requests and responses, designed for large data and long-running tasks.</p>
 <p>🫐 <strong>Elastic</strong>: Horizontally scale up and down multiple CLIP models on single GPU, with automatic load balancing.</p>
@@ -332,76 +326,34 @@
 <p><sup>[*] with default config (single replica, PyTorch no JIT) on GeForce RTX 3090. </sup></p>
 <section id="try-it">
 <h2>Try it!<a class="headerlink" href="#try-it" title="Permalink to this heading">#</a></h2>
-<p>You can access to the hosted CLIP service at <a class="reference external" href="https://cloud.jina.ai/user/inference">Jina AI’s Inference</a> with free credits.
-Inference provides a selection of AI models for common tasks, such as visual reasoning, question answering, or embedding modalities like texts and images.
-All the available models are accessible via simple API calls - HTTPS or gRPC.
-Read this <a class="reference external" href="https://clip-as-service.jina.ai/hosting/by-jina/">Inference Guide</a> to learn more.</p>
-<div class="tab-set docutils">
-<input checked="True" class="tab-input" id="tab-set--0-input--1" name="tab-set--0" type="radio"><label class="tab-label" for="tab-set--0-input--1">via gRPC ⚡⚡</label><div class="tab-content docutils">
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>clip-client
-</pre></div>
-</div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">clip_client</span> <span class="kn">import</span> <span class="n">Client</span>
-
-<span class="n">c</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span>
-    <span class="s1">&#39;grpcs://&lt;your-inference-address&gt;-grpc.wolf.jina.ai&#39;</span><span class="p">,</span> 
-<span class="hll">    <span class="n">credential</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;Authorization&#39;</span><span class="p">:</span> <span class="s1">&#39;&lt;your access token&gt;&#39;</span><span class="p">}</span>
-</span><span class="p">)</span>
-
-<span class="n">r</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span>
-    <span class="p">[</span>
-        <span class="s1">&#39;First do it&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;then do it right&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;then do it better&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;https://picsum.photos/200&#39;</span><span class="p">,</span>
-    <span class="p">]</span>
-<span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<input class="tab-input" id="tab-set--0-input--2" name="tab-set--0" type="radio"><label class="tab-label" for="tab-set--0-input--2">via HTTPS 🔐</label><div class="tab-content docutils">
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span><span class="se">\</span>
--X<span class="w"> </span>POST<span class="w"> </span>https://&lt;your-inference-address&gt;-http.wolf.jina.ai/post<span class="w"> </span><span class="se">\</span>
--H<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
-<span class="hll">-H<span class="w"> </span><span class="s1">&#39;Authorization: &lt;your access token&gt;&#39;</span><span class="w"> </span><span class="se">\</span>
-</span>-d<span class="w"> </span><span class="s1">&#39;{&quot;data&quot;:[{&quot;text&quot;: &quot;First do it&quot;}, </span>
-<span class="s1">    {&quot;text&quot;: &quot;then do it right&quot;}, </span>
-<span class="s1">    {&quot;text&quot;: &quot;then do it better&quot;}, </span>
-<span class="s1">    {&quot;uri&quot;: &quot;https://picsum.photos/200&quot;}], </span>
-<span class="s1">    &quot;execEndpoint&quot;:&quot;/&quot;}&#39;</span>
-</pre></div>
-</div>
-</div>
-</div>
 </section>
 <section id="install">
 <h2>Install<a class="headerlink" href="#install" title="Permalink to this heading">#</a></h2>
 <p><img alt="PyPI" src="https://img.shields.io/pypi/v/clip_client?color=%23ffffff&amp;label=%20" /> is the latest version.</p>
 <p>Make sure you are using Python 3.7+. You can install the client and server independently. It is <strong>not required</strong> to install both: e.g. you can install <code class="docutils literal notranslate"><span class="pre">clip_server</span></code> on a GPU machine and <code class="docutils literal notranslate"><span class="pre">clip_client</span></code> on a local laptop.</p>
 <div class="tab-set docutils">
-<input checked="True" class="tab-input" id="tab-set--1-input--1" name="tab-set--1" type="radio"><label class="tab-label" for="tab-set--1-input--1">Client</label><div class="tab-content docutils">
+<input checked="True" class="tab-input" id="tab-set--0-input--1" name="tab-set--0" type="radio"><label class="tab-label" for="tab-set--0-input--1">Client</label><div class="tab-content docutils">
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>clip-client
 </pre></div>
 </div>
 </div>
-<input class="tab-input" id="tab-set--1-input--2" name="tab-set--1" type="radio"><label class="tab-label" for="tab-set--1-input--2">Server (PyTorch)</label><div class="tab-content docutils">
+<input class="tab-input" id="tab-set--0-input--2" name="tab-set--0" type="radio"><label class="tab-label" for="tab-set--0-input--2">Server (PyTorch)</label><div class="tab-content docutils">
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>clip-server
 </pre></div>
 </div>
 </div>
-<input class="tab-input" id="tab-set--1-input--3" name="tab-set--1" type="radio"><label class="tab-label" for="tab-set--1-input--3">Server (ONNX)</label><div class="tab-content docutils">
+<input class="tab-input" id="tab-set--0-input--3" name="tab-set--0" type="radio"><label class="tab-label" for="tab-set--0-input--3">Server (ONNX)</label><div class="tab-content docutils">
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;clip_server[onnx]&quot;</span>
 </pre></div>
 </div>
 </div>
-<input class="tab-input" id="tab-set--1-input--4" name="tab-set--1" type="radio"><label class="tab-label" for="tab-set--1-input--4">Server (TensorRT)</label><div class="tab-content docutils">
+<input class="tab-input" id="tab-set--0-input--4" name="tab-set--0" type="radio"><label class="tab-label" for="tab-set--0-input--4">Server (TensorRT)</label><div class="tab-content docutils">
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>nvidia-pyindex<span class="w"> </span>
 pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;clip_server[tensorrt]&quot;</span>
 </pre></div>
 </div>
 </div>
-<input class="tab-input" id="tab-set--1-input--5" name="tab-set--1" type="radio"><label class="tab-label" for="tab-set--1-input--5">Server on Google Colab</label><div class="tab-content docutils">
+<input class="tab-input" id="tab-set--0-input--5" name="tab-set--0" type="radio"><label class="tab-label" for="tab-set--0-input--5">Server on Google Colab</label><div class="tab-content docutils">
 <p class="sd-text-center"><a class="sd-sphinx-override sd-btn sd-text-wrap sd-btn-primary reference external" href="https://colab.research.google.com/github/jina-ai/clip-as-service/blob/main/docs/hosting/cas-on-colab.ipynb"><span><svg version="1.1" width="1.0em" height="1.0em" class="sd-octicon sd-octicon-link-external" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M10.604 1h4.146a.25.25 0 01.25.25v4.146a.25.25 0 01-.427.177L13.03 4.03 9.28 7.78a.75.75 0 01-1.06-1.06l3.75-3.75-1.543-1.543A.25.25 0 0110.604 1zM3.75 2A1.75 1.75 0 002 3.75v8.5c0 .966.784 1.75 1.75 1.75h8.5A1.75 1.75 0 0014 12.25v-3.5a.75.75 0 00-1.5 0v3.5a.25.25 0 01-.25.25h-8.5a.25.25 0 01-.25-.25v-8.5a.25.25 0 01.25-.25h3.5a.75.75 0 000-1.5h-3.5z"></path></svg> Open the notebook on Google Colab </span></a></p>
 </div>
 </div>
@@ -412,17 +364,17 @@ pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot
 <section id="start-the-server">
 <h3>Start the server<a class="headerlink" href="#start-the-server" title="Permalink to this heading">#</a></h3>
 <div class="tab-set docutils">
-<input checked="True" class="tab-input" id="tab-set--2-input--1" name="tab-set--2" type="radio"><label class="tab-label" for="tab-set--2-input--1">Start PyTorch Server </label><div class="tab-content docutils">
+<input checked="True" class="tab-input" id="tab-set--1-input--1" name="tab-set--1" type="radio"><label class="tab-label" for="tab-set--1-input--1">Start PyTorch Server </label><div class="tab-content docutils">
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>clip_server
 </pre></div>
 </div>
 </div>
-<input class="tab-input" id="tab-set--2-input--2" name="tab-set--2" type="radio"><label class="tab-label" for="tab-set--2-input--2">Start ONNX Server </label><div class="tab-content docutils">
+<input class="tab-input" id="tab-set--1-input--2" name="tab-set--1" type="radio"><label class="tab-label" for="tab-set--1-input--2">Start ONNX Server </label><div class="tab-content docutils">
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>clip_server<span class="w"> </span>onnx-flow.yml
 </pre></div>
 </div>
 </div>
-<input class="tab-input" id="tab-set--2-input--3" name="tab-set--2" type="radio"><label class="tab-label" for="tab-set--2-input--3">Start TensorRT Server </label><div class="tab-content docutils">
+<input class="tab-input" id="tab-set--1-input--3" name="tab-set--1" type="radio"><label class="tab-label" for="tab-set--1-input--3">Start TensorRT Server </label><div class="tab-content docutils">
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>clip_server<span class="w"> </span>tensorrt-flow.yml
 </pre></div>
 </div>
@@ -516,7 +468,7 @@ pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot
                         <div class="copyright">
                             Copyright &#169; Jina AI Limited. All rights reserved.
                         </div><div class="last-updated">
-                            Last updated on Jun 14, 2023</div>
+                            Last updated on Dec 20, 2023</div>
                     </div>
                     <div class="right-details">
                         <div class="social-btns">
