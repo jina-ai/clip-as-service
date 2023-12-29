@@ -126,10 +126,10 @@ class CLIPVisionCfg:
         False  # use (imagenet) pretrained weights for named model
     )
     timm_pool: str = (
-        'avg'  # feature pooling for timm model ('abs_attn', 'rot_attn', 'avg', '')
+        "avg"  # feature pooling for timm model ('abs_attn', 'rot_attn', 'avg', '')
     )
     timm_proj: str = (
-        'linear'  # linear projection for timm model output ('linear', 'mlp', '')
+        "linear"  # linear projection for timm model output ('linear', 'mlp', '')
     )
     timm_proj_bias: bool = False  # enable bias final projection
 
@@ -145,8 +145,8 @@ class CLIPTextCfg:
     hf_model_name: str = None
     hf_tokenizer_name: str = None
     hf_model_pretrained: bool = True
-    proj: str = 'mlp'
-    pooler_type: str = 'mean_pooler'
+    proj: str = "mlp"
+    pooler_type: str = "mean_pooler"
 
 
 def _build_vision_tower(
@@ -293,7 +293,7 @@ class CLIP(_CLIP):
         self.positional_embedding = text.positional_embedding
         self.ln_final = text.ln_final
         self.text_projection = text.text_projection
-        self.register_buffer('attn_mask', text.attn_mask, persistent=False)
+        self.register_buffer("attn_mask", text.attn_mask, persistent=False)
         self.logit_scale = nn.Parameter(torch.ones([]) * np.log(1 / 0.07))
 
 
@@ -329,13 +329,13 @@ def convert_weights_to_lp(model: nn.Module, dtype=torch.float16):
 convert_weights_to_fp16 = convert_weights_to_lp  # backwards compat
 
 
-def load_state_dict(checkpoint_path: str, map_location='cpu'):
+def load_state_dict(checkpoint_path: str, map_location="cpu"):
     checkpoint = torch.load(checkpoint_path, map_location=map_location)
-    if isinstance(checkpoint, dict) and 'state_dict' in checkpoint:
-        state_dict = checkpoint['state_dict']
+    if isinstance(checkpoint, dict) and "state_dict" in checkpoint:
+        state_dict = checkpoint["state_dict"]
     else:
         state_dict = checkpoint
-    if next(iter(state_dict.items()))[0].startswith('module'):
+    if next(iter(state_dict.items()))[0].startswith("module"):
         state_dict = {k[7:]: v for k, v in state_dict.items()}
     return state_dict
 
@@ -429,7 +429,7 @@ def build_model_from_openai_state_dict(
 
 def load_openai_model(
     model_path: str,
-    device: Union[str, torch.device] = 'cuda' if torch.cuda.is_available() else 'cpu',
+    device: Union[str, torch.device] = "cuda" if torch.cuda.is_available() else "cpu",
     dtype: Optional[Union[str, torch.dtype]] = None,
     jit: bool = True,
 ):
@@ -453,10 +453,10 @@ def load_openai_model(
         A torchvision transform that converts a PIL image into a tensor that the returned model can take as its input
     """
     if isinstance(dtype, str):
-        dtype = __cast_dtype__.get(dtype, 'amp')
+        dtype = __cast_dtype__.get(dtype, "amp")
     elif dtype is None:
         dtype = (
-            torch.float32 if device in ('cpu', torch.device('cpu')) else torch.float16
+            torch.float32 if device in ("cpu", torch.device("cpu")) else torch.float16
         )
     try:
         # loading JIT archive
@@ -484,7 +484,7 @@ def load_openai_model(
         # model from OpenAI state dict is in manually cast fp16 mode, must be converted for AMP/fp32/bf16 use
         model = model.to(device)
         if dtype == torch.float32 or (
-            isinstance(dtype, str) and dtype.startswith('amp')
+            isinstance(dtype, str) and dtype.startswith("amp")
         ):
             model.float()
         elif dtype == torch.bfloat16:
@@ -562,7 +562,7 @@ def load_openai_model(
 def load_openclip_model(
     model_name: str,
     model_path: str,
-    device: Union[str, torch.device] = 'cpu',
+    device: Union[str, torch.device] = "cpu",
     jit: bool = False,
     force_quick_gelu: bool = False,
     force_custom_text: bool = False,
@@ -573,35 +573,35 @@ def load_openclip_model(
         dtype = __cast_dtype__.get(dtype)
     elif dtype is None:
         dtype = (
-            torch.float32 if device in ('cpu', torch.device('cpu')) else torch.float16
+            torch.float32 if device in ("cpu", torch.device("cpu")) else torch.float16
         )
 
     model_name = model_name.replace(
-        '/', '-'
+        "/", "-"
     )  # for callers using old naming with / in ViT names
 
     if model_name in _MODEL_CONFIGS:
         model_cfg = deepcopy(_MODEL_CONFIGS[model_name])
     else:
-        raise RuntimeError(f'Model config for {model_name} not found.')
+        raise RuntimeError(f"Model config for {model_name} not found.")
 
     if force_quick_gelu:
         # override for use of QuickGELU on non-OpenAI transformer models
         model_cfg["quick_gelu"] = True
 
     if pretrained_image:
-        if 'timm_model_name' in model_cfg.get('vision_cfg', {}):
+        if "timm_model_name" in model_cfg.get("vision_cfg", {}):
             # pretrained weight loading for timm models set via vision_cfg
-            model_cfg['vision_cfg']['timm_model_pretrained'] = True
+            model_cfg["vision_cfg"]["timm_model_pretrained"] = True
         else:
             assert (
                 False
-            ), 'pretrained image towers currently only supported for timm models'
+            ), "pretrained image towers currently only supported for timm models"
 
     custom_text = (
-        model_cfg.pop('custom_text', False)
+        model_cfg.pop("custom_text", False)
         or force_custom_text
-        or ('hf_model_name' in model_cfg['text_cfg'])
+        or ("hf_model_name" in model_cfg["text_cfg"])
     )
 
     if custom_text:

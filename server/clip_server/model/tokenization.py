@@ -57,13 +57,13 @@ class Tokenizer:
                 texts,
                 max_length=context_length,
                 return_attention_mask=True,
-                return_tensors='pt',
+                return_tensors="pt",
                 padding=True,
                 truncation=True,
             )
             return {
-                'input_ids': result['input_ids'],
-                'attention_mask': result['attention_mask'],
+                "input_ids": result["input_ids"],
+                "attention_mask": result["attention_mask"],
             }
         elif self._name in _CNCLIP_MODELS:
             result = self._tokenizer.tokenize(
@@ -77,8 +77,8 @@ class Tokenizer:
                 "attention_mask": attn_mask,
             }
         else:
-            sot_token = self._tokenizer.encoder['<|startoftext|>']
-            eot_token = self._tokenizer.encoder['<|endoftext|>']
+            sot_token = self._tokenizer.encoder["<|startoftext|>"]
+            eot_token = self._tokenizer.encoder["<|endoftext|>"]
             all_tokens = [
                 [sot_token] + self._tokenizer.encode(text) + [eot_token]
                 for text in texts
@@ -96,9 +96,9 @@ class Tokenizer:
                         tokens[-1] = eot_token
                     else:
                         raise RuntimeError(
-                            f'Input {texts[i]} is too long for context length {context_length}'
+                            f"Input {texts[i]} is too long for context length {context_length}"
                         )
                 input_ids[i, : len(tokens)] = torch.tensor(tokens)
                 attention_mask[i, : len(tokens)] = 1
 
-            return {'input_ids': input_ids, 'attention_mask': attention_mask}
+            return {"input_ids": input_ids, "attention_mask": attention_mask}

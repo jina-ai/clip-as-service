@@ -37,21 +37,21 @@ class Client:
             _port = r.port
             self._scheme = r.scheme
         except:
-            raise ValueError(f'{server} is not a valid scheme')
+            raise ValueError(f"{server} is not a valid scheme")
 
         _tls = False
-        if self._scheme in ('grpcs', 'https', 'wss'):
+        if self._scheme in ("grpcs", "https", "wss"):
             self._scheme = self._scheme[:-1]
             _tls = True
 
-        if self._scheme == 'ws':
-            self._scheme = 'websocket'  # temp fix for the core
+        if self._scheme == "ws":
+            self._scheme = "websocket"  # temp fix for the core
             if credential:
                 warnings.warn(
-                    'Credential is not supported for websocket, please use grpc or http'
+                    "Credential is not supported for websocket, please use grpc or http"
                 )
 
-        if self._scheme in ('grpc', 'http', 'websocket'):
+        if self._scheme in ("grpc", "http", "websocket"):
             _kwargs = dict(host=r.hostname, port=_port, protocol=self._scheme, tls=_tls)
 
             from jina import Client
@@ -59,13 +59,13 @@ class Client:
             self._client = Client(**_kwargs)
             self._async_client = Client(**_kwargs, asyncio=True)
         else:
-            raise ValueError(f'{server} is not a valid scheme')
+            raise ValueError(f"{server} is not a valid scheme")
 
         self._authorization = credential.get(
-            'Authorization', os.environ.get('CLIP_AUTH_TOKEN')
+            "Authorization", os.environ.get("CLIP_AUTH_TOKEN")
         )
 
-    def profile(self, content: Optional[str] = '') -> Dict[str, float]:
+    def profile(self, content: Optional[str] = "") -> Dict[str, float]:
         """Profiling a single query's roundtrip including network and computation latency. Results is summarized in a table.
         :param content: the content to be sent for profiling. By default it sends an empty Document
             that helps you understand the network latency.
@@ -73,7 +73,7 @@ class Client:
         """
         st = time.perf_counter()
         r = self._client.post(
-            '/', self._iter_doc([content], DocumentArray()), return_responses=True
+            "/", self._iter_doc([content], DocumentArray()), return_responses=True
         )
         ed = (time.perf_counter() - st) * 1000
         route = r[0].routes
@@ -91,35 +91,35 @@ class Client:
         def make_table(_title, _time, _percent):
             table = Table(show_header=False, box=None)
             table.add_row(
-                _title, f'[b]{_time:.0f}[/b]ms', f'[dim]{_percent * 100:.0f}%[/dim]'
+                _title, f"[b]{_time:.0f}[/b]ms", f"[dim]{_percent * 100:.0f}%[/dim]"
             )
             return table
 
         from rich.tree import Tree
 
-        t = Tree(make_table('Roundtrip', ed, 1))
-        t.add(make_table('Client-server network', network_time, network_time / ed))
-        t2 = t.add(make_table('Server', gateway_time, gateway_time / ed))
+        t = Tree(make_table("Roundtrip", ed, 1))
+        t.add(make_table("Client-server network", network_time, network_time / ed))
+        t2 = t.add(make_table("Server", gateway_time, gateway_time / ed))
         t2.add(
             make_table(
-                'Gateway-CLIP network', server_network, server_network / gateway_time
+                "Gateway-CLIP network", server_network, server_network / gateway_time
             )
         )
-        t2.add(make_table('CLIP model', clip_time, clip_time / gateway_time))
+        t2.add(make_table("CLIP model", clip_time, clip_time / gateway_time))
 
         from rich import print
 
         print(t)
 
         return {
-            'Roundtrip': ed,
-            'Client-server network': network_time,
-            'Server': gateway_time,
-            'Gateway-CLIP network': server_network,
-            'CLIP model': clip_time,
+            "Roundtrip": ed,
+            "Client-server network": network_time,
+            "Server": gateway_time,
+            "Gateway-CLIP network": server_network,
+            "CLIP model": clip_time,
         }
 
-    def _update_pbar(self, response, func: Optional['CallbackFnType'] = None):
+    def _update_pbar(self, response, func: Optional["CallbackFnType"] = None):
         from rich import filesize
 
         r = response.data.docs
@@ -129,7 +129,7 @@ class Client:
             self._r_task,
             advance=len(r),
             total_size=str(
-                filesize.decimal(int(os.environ.get('JINA_GRPC_RECV_BYTES', '0')))
+                filesize.decimal(int(os.environ.get("JINA_GRPC_RECV_BYTES", "0")))
             ),
         )
         if func is not None:
@@ -139,48 +139,48 @@ class Client:
         if total is None:
             total = 500
             warnings.warn(
-                'The length of the input is unknown, the progressbar would not be accurate.'
+                "The length of the input is unknown, the progressbar would not be accurate."
             )
         elif total > 500:
             warnings.warn(
-                'Please ensure all the inputs are valid, otherwise the request will be aborted.'
+                "Please ensure all the inputs are valid, otherwise the request will be aborted."
             )
 
         from docarray.array.mixins.io.pbar import get_pbar
 
         self._pbar = get_pbar(disable)
 
-        os.environ['JINA_GRPC_SEND_BYTES'] = '0'
-        os.environ['JINA_GRPC_RECV_BYTES'] = '0'
+        os.environ["JINA_GRPC_SEND_BYTES"] = "0"
+        os.environ["JINA_GRPC_RECV_BYTES"] = "0"
 
         self._r_task = self._pbar.add_task(
-            ':arrow_down: Progress', total=total, total_size=0, start=False
+            ":arrow_down: Progress", total=total, total_size=0, start=False
         )
 
     @staticmethod
     def _gather_result(
-        response, results: 'DocumentArray', attribute: Optional[str] = None
+        response, results: "DocumentArray", attribute: Optional[str] = None
     ):
         r = response.data.docs
         if attribute:
-            results[r[:, 'id']][:, attribute] = r[:, attribute]
+            results[r[:, "id"]][:, attribute] = r[:, attribute]
 
     def _iter_doc(
-        self, content, results: Optional['DocumentArray'] = None
-    ) -> Generator['Document', None, None]:
+        self, content, results: Optional["DocumentArray"] = None
+    ) -> Generator["Document", None, None]:
         from docarray import Document
 
         for c in content:
             if isinstance(c, str):
                 _mime = mimetypes.guess_type(c)[0]
-                if _mime and _mime.startswith('image'):
+                if _mime and _mime.startswith("image"):
                     d = Document(
                         uri=c,
                     ).load_uri_to_blob()
                 else:
                     d = Document(text=c)
             elif isinstance(c, Document):
-                if c.content_type in ('text', 'blob'):
+                if c.content_type in ("text", "blob"):
                     d = c
                 elif not c.blob and c.uri:
                     c.load_uri_to_blob()
@@ -188,37 +188,37 @@ class Client:
                 elif c.tensor is not None:
                     d = c
                 else:
-                    raise TypeError(f'unsupported input type {c!r} {c.content_type}')
+                    raise TypeError(f"unsupported input type {c!r} {c.content_type}")
             else:
-                raise TypeError(f'unsupported input type {c!r}')
+                raise TypeError(f"unsupported input type {c!r}")
 
             if results is not None:
                 results.append(d)
             yield d
 
     def _get_post_payload(
-        self, content, results: Optional['DocumentArray'] = None, **kwargs
+        self, content, results: Optional["DocumentArray"] = None, **kwargs
     ):
         payload = dict(
             inputs=self._iter_doc(content, results),
-            request_size=kwargs.get('batch_size', 8),
-            total_docs=len(content) if hasattr(content, '__len__') else None,
+            request_size=kwargs.get("batch_size", 8),
+            total_docs=len(content) if hasattr(content, "__len__") else None,
         )
 
-        if self._scheme == 'grpc' and self._authorization:
-            payload.update(metadata=(('authorization', self._authorization),))
-        elif self._scheme == 'http' and self._authorization:
-            payload.update(headers={'Authorization': self._authorization})
+        if self._scheme == "grpc" and self._authorization:
+            payload.update(metadata=(("authorization", self._authorization),))
+        elif self._scheme == "http" and self._authorization:
+            payload.update(headers={"Authorization": self._authorization})
         return payload
 
     @staticmethod
-    def _unboxed_result(results: Optional['DocumentArray'] = None, unbox: bool = False):
+    def _unboxed_result(results: Optional["DocumentArray"] = None, unbox: bool = False):
         if results is not None:
             if results.embeddings is None:
                 raise ValueError(
-                    'Empty embedding returned from the server. '
-                    'This often due to a mis-config of the server, '
-                    'restarting the server or changing the serving port number often solves the problem'
+                    "Empty embedding returned from the server. "
+                    "This often due to a mis-config of the server, "
+                    "restarting the server or changing the serving port number often solves the problem"
                 )
             return results.embeddings if unbox else results
 
@@ -230,11 +230,11 @@ class Client:
         batch_size: Optional[int] = None,
         show_progress: bool = False,
         parameters: Optional[dict] = None,
-        on_done: Optional['CallbackFnType'] = None,
-        on_error: Optional['CallbackFnType'] = None,
-        on_always: Optional['CallbackFnType'] = None,
+        on_done: Optional["CallbackFnType"] = None,
+        on_error: Optional["CallbackFnType"] = None,
+        on_always: Optional["CallbackFnType"] = None,
         prefetch: int = 100,
-    ) -> 'np.ndarray':
+    ) -> "np.ndarray":
         """Encode images and texts into embeddings where the input is an iterable of raw strings.
         Each image and text must be represented as a string. The following strings are acceptable:
             - local image filepath, will be considered as an image
@@ -260,16 +260,16 @@ class Client:
     @overload
     def encode(
         self,
-        content: Union['DocumentArray', Iterable['Document']],
+        content: Union["DocumentArray", Iterable["Document"]],
         *,
         batch_size: Optional[int] = None,
         show_progress: bool = False,
         parameters: Optional[dict] = None,
-        on_done: Optional['CallbackFnType'] = None,
-        on_error: Optional['CallbackFnType'] = None,
-        on_always: Optional['CallbackFnType'] = None,
+        on_done: Optional["CallbackFnType"] = None,
+        on_error: Optional["CallbackFnType"] = None,
+        on_always: Optional["CallbackFnType"] = None,
         prefetch: int = 100,
-    ) -> 'DocumentArray':
+    ) -> "DocumentArray":
         """Encode images and texts into embeddings where the input is an iterable of :class:`docarray.Document`.
         :param content: an iterable of :class:`docarray.Document`, each Document must be filled with `.uri`, `.text` or `.blob`.
         :param batch_size: the number of elements in each request when sending ``content``
@@ -292,32 +292,32 @@ class Client:
             raise TypeError(
                 f'Content must be an Iterable of [str, Document], try `.encode(["{content}"])` instead'
             )
-        if hasattr(content, '__len__') and len(content) == 0:
+        if hasattr(content, "__len__") and len(content) == 0:
             return DocumentArray() if isinstance(content, DocumentArray) else []
 
         self._prepare_streaming(
-            not kwargs.get('show_progress'),
-            total=len(content) if hasattr(content, '__len__') else None,
+            not kwargs.get("show_progress"),
+            total=len(content) if hasattr(content, "__len__") else None,
         )
-        on_done = kwargs.pop('on_done', None)
-        on_error = kwargs.pop('on_error', None)
-        on_always = kwargs.pop('on_always', None)
-        prefetch = kwargs.pop('prefetch', 100)
+        on_done = kwargs.pop("on_done", None)
+        on_error = kwargs.pop("on_error", None)
+        on_always = kwargs.pop("on_always", None)
+        prefetch = kwargs.pop("prefetch", 100)
         results = DocumentArray() if not on_done and not on_always else None
         if not on_done:
             on_done = partial(
-                self._gather_result, results=results, attribute='embedding'
+                self._gather_result, results=results, attribute="embedding"
             )
 
         with self._pbar:
-            parameters = kwargs.pop('parameters', {})
-            parameters['drop_image_content'] = parameters.get(
-                'drop_image_content', True
+            parameters = kwargs.pop("parameters", {})
+            parameters["drop_image_content"] = parameters.get(
+                "drop_image_content", True
             )
-            model_name = parameters.pop('model_name', '') if parameters else ''
+            model_name = parameters.pop("model_name", "") if parameters else ""
 
             self._client.post(
-                on=f'/encode/{model_name}'.rstrip('/'),
+                on=f"/encode/{model_name}".rstrip("/"),
                 **self._get_post_payload(content, results, **kwargs),
                 on_done=on_done,
                 on_error=on_error,
@@ -326,7 +326,7 @@ class Client:
                 prefetch=prefetch,
             )
 
-        unbox = hasattr(content, '__len__') and isinstance(content[0], str)
+        unbox = hasattr(content, "__len__") and isinstance(content[0], str)
         return self._unboxed_result(results, unbox)
 
     @overload
@@ -337,26 +337,26 @@ class Client:
         batch_size: Optional[int] = None,
         show_progress: bool = False,
         parameters: Optional[dict] = None,
-        on_done: Optional['CallbackFnType'] = None,
-        on_error: Optional['CallbackFnType'] = None,
-        on_always: Optional['CallbackFnType'] = None,
+        on_done: Optional["CallbackFnType"] = None,
+        on_error: Optional["CallbackFnType"] = None,
+        on_always: Optional["CallbackFnType"] = None,
         prefetch: int = 100,
-    ) -> 'np.ndarray':
+    ) -> "np.ndarray":
         ...
 
     @overload
     async def aencode(
         self,
-        content: Union['DocumentArray', Iterable['Document']],
+        content: Union["DocumentArray", Iterable["Document"]],
         *,
         batch_size: Optional[int] = None,
         show_progress: bool = False,
         parameters: Optional[dict] = None,
-        on_done: Optional['CallbackFnType'] = None,
-        on_error: Optional['CallbackFnType'] = None,
-        on_always: Optional['CallbackFnType'] = None,
+        on_done: Optional["CallbackFnType"] = None,
+        on_error: Optional["CallbackFnType"] = None,
+        on_always: Optional["CallbackFnType"] = None,
         prefetch: int = 100,
-    ) -> 'DocumentArray':
+    ) -> "DocumentArray":
         ...
 
     async def aencode(self, content, **kwargs):
@@ -364,32 +364,32 @@ class Client:
             raise TypeError(
                 f'Content must be an Iterable of [str, Document], try `.aencode(["{content}"])` instead'
             )
-        if hasattr(content, '__len__') and len(content) == 0:
+        if hasattr(content, "__len__") and len(content) == 0:
             return DocumentArray() if isinstance(content, DocumentArray) else []
 
         self._prepare_streaming(
-            not kwargs.get('show_progress'),
-            total=len(content) if hasattr(content, '__len__') else None,
+            not kwargs.get("show_progress"),
+            total=len(content) if hasattr(content, "__len__") else None,
         )
-        on_done = kwargs.pop('on_done', None)
-        on_error = kwargs.pop('on_error', None)
-        on_always = kwargs.pop('on_always', None)
-        prefetch = kwargs.pop('prefetch', 100)
+        on_done = kwargs.pop("on_done", None)
+        on_error = kwargs.pop("on_error", None)
+        on_always = kwargs.pop("on_always", None)
+        prefetch = kwargs.pop("prefetch", 100)
         results = DocumentArray() if not on_done and not on_always else None
         if not on_done:
             on_done = partial(
-                self._gather_result, results=results, attribute='embedding'
+                self._gather_result, results=results, attribute="embedding"
             )
 
         with self._pbar:
-            parameters = kwargs.pop('parameters', {})
-            parameters['drop_image_content'] = parameters.get(
-                'drop_image_content', True
+            parameters = kwargs.pop("parameters", {})
+            parameters["drop_image_content"] = parameters.get(
+                "drop_image_content", True
             )
-            model_name = parameters.get('model_name', '') if parameters else ''
+            model_name = parameters.get("model_name", "") if parameters else ""
 
             async for _ in self._async_client.post(
-                on=f'/encode/{model_name}'.rstrip('/'),
+                on=f"/encode/{model_name}".rstrip("/"),
                 **self._get_post_payload(content, results, **kwargs),
                 on_done=on_done,
                 on_error=on_error,
@@ -399,42 +399,42 @@ class Client:
             ):
                 continue
 
-        unbox = hasattr(content, '__len__') and isinstance(content[0], str)
+        unbox = hasattr(content, "__len__") and isinstance(content[0], str)
         return self._unboxed_result(results, unbox)
 
     def _iter_rank_docs(
-        self, content, results: Optional['DocumentArray'] = None, source='matches'
-    ) -> Generator['Document', None, None]:
+        self, content, results: Optional["DocumentArray"] = None, source="matches"
+    ) -> Generator["Document", None, None]:
         from docarray import Document
 
         for c in content:
             if isinstance(c, Document):
                 d = self._prepare_rank_doc(c, source)
             else:
-                raise TypeError(f'Unsupported input type {c!r}')
+                raise TypeError(f"Unsupported input type {c!r}")
             if results is not None:
                 results.append(d)
             yield d
 
     def _get_rank_payload(
-        self, content, results: Optional['DocumentArray'] = None, **kwargs
+        self, content, results: Optional["DocumentArray"] = None, **kwargs
     ):
         payload = dict(
             inputs=self._iter_rank_docs(
-                content, results, source=kwargs.get('source', 'matches')
+                content, results, source=kwargs.get("source", "matches")
             ),
-            request_size=kwargs.get('batch_size', 8),
-            total_docs=len(content) if hasattr(content, '__len__') else None,
+            request_size=kwargs.get("batch_size", 8),
+            total_docs=len(content) if hasattr(content, "__len__") else None,
         )
-        if self._scheme == 'grpc' and self._authorization:
-            payload.update(metadata=(('authorization', self._authorization),))
-        elif self._scheme == 'http' and self._authorization:
-            payload.update(headers={'Authorization': self._authorization})
+        if self._scheme == "grpc" and self._authorization:
+            payload.update(metadata=(("authorization", self._authorization),))
+        elif self._scheme == "http" and self._authorization:
+            payload.update(headers={"Authorization": self._authorization})
         return payload
 
     @staticmethod
-    def _prepare_single_doc(d: 'Document'):
-        if d.content_type in ('text', 'blob'):
+    def _prepare_single_doc(d: "Document"):
+        if d.content_type in ("text", "blob"):
             return d
         elif not d.blob and d.uri:
             d.load_uri_to_blob()
@@ -442,20 +442,20 @@ class Client:
         elif d.tensor is not None:
             return d
         else:
-            raise TypeError(f'Unsupported input type {d!r} {d.content_type}')
+            raise TypeError(f"Unsupported input type {d!r} {d.content_type}")
 
     @staticmethod
-    def _prepare_rank_doc(d: 'Document', _source: str = 'matches'):
+    def _prepare_rank_doc(d: "Document", _source: str = "matches"):
         _get = lambda d: getattr(d, _source)
         if not _get(d):
-            raise ValueError(f'`.rank()` requires every doc to have `.{_source}`')
+            raise ValueError(f"`.rank()` requires every doc to have `.{_source}`")
         d = Client._prepare_single_doc(d)
         setattr(d, _source, [Client._prepare_single_doc(c) for c in _get(d)])
         return d
 
     def rank(
-        self, docs: Union['DocumentArray', Iterable['Document']], **kwargs
-    ) -> 'DocumentArray':
+        self, docs: Union["DocumentArray", Iterable["Document"]], **kwargs
+    ) -> "DocumentArray":
         """Rank image-text matches according to the server CLIP model.
         Given a Document with nested matches, where the root is image/text and the matches is in another modality, i.e.
         text/image; this method ranks the matches according to the CLIP model.
@@ -466,30 +466,30 @@ class Client:
         :return: the ranked Documents in a DocumentArray.
         """
         if isinstance(docs, str):
-            raise TypeError(f'Content must be an Iterable of [Document]')
+            raise TypeError(f"Content must be an Iterable of [Document]")
 
         self._prepare_streaming(
-            not kwargs.get('show_progress'),
-            total=len(docs) if hasattr(docs, '__len__') else None,
+            not kwargs.get("show_progress"),
+            total=len(docs) if hasattr(docs, "__len__") else None,
         )
 
-        on_done = kwargs.pop('on_done', None)
-        on_error = kwargs.pop('on_error', None)
-        on_always = kwargs.pop('on_always', None)
-        prefetch = kwargs.pop('prefetch', 100)
+        on_done = kwargs.pop("on_done", None)
+        on_error = kwargs.pop("on_error", None)
+        on_always = kwargs.pop("on_always", None)
+        prefetch = kwargs.pop("prefetch", 100)
         results = DocumentArray() if not on_done and not on_always else None
         if not on_done:
-            on_done = partial(self._gather_result, results=results, attribute='matches')
+            on_done = partial(self._gather_result, results=results, attribute="matches")
 
         with self._pbar:
-            parameters = kwargs.pop('parameters', {})
-            parameters['drop_image_content'] = parameters.get(
-                'drop_image_content', True
+            parameters = kwargs.pop("parameters", {})
+            parameters["drop_image_content"] = parameters.get(
+                "drop_image_content", True
             )
-            model_name = parameters.get('model_name', '') if parameters else ''
+            model_name = parameters.get("model_name", "") if parameters else ""
 
             self._client.post(
-                on=f'/rank/{model_name}'.rstrip('/'),
+                on=f"/rank/{model_name}".rstrip("/"),
                 **self._get_rank_payload(docs, results, **kwargs),
                 on_done=on_done,
                 on_error=on_error,
@@ -501,32 +501,32 @@ class Client:
         return results
 
     async def arank(
-        self, docs: Union['DocumentArray', Iterable['Document']], **kwargs
-    ) -> 'DocumentArray':
+        self, docs: Union["DocumentArray", Iterable["Document"]], **kwargs
+    ) -> "DocumentArray":
         if isinstance(docs, str):
-            raise TypeError(f'Content must be an Iterable of [Document]')
+            raise TypeError(f"Content must be an Iterable of [Document]")
 
         self._prepare_streaming(
-            not kwargs.get('show_progress'),
-            total=len(docs) if hasattr(docs, '__len__') else None,
+            not kwargs.get("show_progress"),
+            total=len(docs) if hasattr(docs, "__len__") else None,
         )
-        on_done = kwargs.pop('on_done', None)
-        on_error = kwargs.pop('on_error', None)
-        on_always = kwargs.pop('on_always', None)
-        prefetch = kwargs.pop('prefetch', 100)
+        on_done = kwargs.pop("on_done", None)
+        on_error = kwargs.pop("on_error", None)
+        on_always = kwargs.pop("on_always", None)
+        prefetch = kwargs.pop("prefetch", 100)
         results = DocumentArray() if not on_done and not on_always else None
         if not on_done:
-            on_done = partial(self._gather_result, results=results, attribute='matches')
+            on_done = partial(self._gather_result, results=results, attribute="matches")
 
         with self._pbar:
-            parameters = kwargs.pop('parameters', {})
-            parameters['drop_image_content'] = parameters.get(
-                'drop_image_content', True
+            parameters = kwargs.pop("parameters", {})
+            parameters["drop_image_content"] = parameters.get(
+                "drop_image_content", True
             )
-            model_name = parameters.get('model_name', '') if parameters else ''
+            model_name = parameters.get("model_name", "") if parameters else ""
 
             async for _ in self._async_client.post(
-                on=f'/rank/{model_name}'.rstrip('/'),
+                on=f"/rank/{model_name}".rstrip("/"),
                 **self._get_rank_payload(docs, results, **kwargs),
                 on_done=on_done,
                 on_error=on_error,
@@ -546,9 +546,9 @@ class Client:
         batch_size: Optional[int] = None,
         show_progress: bool = False,
         parameters: Optional[Dict] = None,
-        on_done: Optional['CallbackFnType'] = None,
-        on_error: Optional['CallbackFnType'] = None,
-        on_always: Optional['CallbackFnType'] = None,
+        on_done: Optional["CallbackFnType"] = None,
+        on_error: Optional["CallbackFnType"] = None,
+        on_always: Optional["CallbackFnType"] = None,
         prefetch: int = 100,
     ):
         """Index the images or texts where their embeddings are computed by the server CLIP model.
@@ -577,16 +577,16 @@ class Client:
     @overload
     def index(
         self,
-        content: Union['DocumentArray', Iterable['Document']],
+        content: Union["DocumentArray", Iterable["Document"]],
         *,
         batch_size: Optional[int] = None,
         show_progress: bool = False,
         parameters: Optional[dict] = None,
-        on_done: Optional['CallbackFnType'] = None,
-        on_error: Optional['CallbackFnType'] = None,
-        on_always: Optional['CallbackFnType'] = None,
+        on_done: Optional["CallbackFnType"] = None,
+        on_error: Optional["CallbackFnType"] = None,
+        on_always: Optional["CallbackFnType"] = None,
         prefetch: int = 100,
-    ) -> 'DocumentArray':
+    ) -> "DocumentArray":
         """Index the images or texts where their embeddings are computed by the server CLIP model.
 
         :param content: an iterable of :class:`docarray.Document`, each Document must be filled with `.uri`, `.text` or `.blob`.
@@ -612,27 +612,27 @@ class Client:
             )
 
         self._prepare_streaming(
-            not kwargs.get('show_progress'),
-            total=len(content) if hasattr(content, '__len__') else None,
+            not kwargs.get("show_progress"),
+            total=len(content) if hasattr(content, "__len__") else None,
         )
-        on_done = kwargs.pop('on_done', None)
-        on_error = kwargs.pop('on_error', None)
-        on_always = kwargs.pop('on_always', None)
-        prefetch = kwargs.pop('prefetch', 100)
+        on_done = kwargs.pop("on_done", None)
+        on_error = kwargs.pop("on_error", None)
+        on_always = kwargs.pop("on_always", None)
+        prefetch = kwargs.pop("prefetch", 100)
         results = DocumentArray() if not on_done and not on_always else None
         if not on_done:
             on_done = partial(
-                self._gather_result, results=results, attribute='embedding'
+                self._gather_result, results=results, attribute="embedding"
             )
 
         with self._pbar:
-            parameters = kwargs.pop('parameters', {})
-            parameters['drop_image_content'] = parameters.get(
-                'drop_image_content', True
+            parameters = kwargs.pop("parameters", {})
+            parameters["drop_image_content"] = parameters.get(
+                "drop_image_content", True
             )
 
             self._client.post(
-                on='/index',
+                on="/index",
                 **self._get_post_payload(content, results, **kwargs),
                 on_done=on_done,
                 on_error=on_error,
@@ -651,9 +651,9 @@ class Client:
         batch_size: Optional[int] = None,
         show_progress: bool = False,
         parameters: Optional[Dict] = None,
-        on_done: Optional['CallbackFnType'] = None,
-        on_error: Optional['CallbackFnType'] = None,
-        on_always: Optional['CallbackFnType'] = None,
+        on_done: Optional["CallbackFnType"] = None,
+        on_error: Optional["CallbackFnType"] = None,
+        on_always: Optional["CallbackFnType"] = None,
         prefetch: int = 100,
     ):
         ...
@@ -661,14 +661,14 @@ class Client:
     @overload
     async def aindex(
         self,
-        content: Union['DocumentArray', Iterable['Document']],
+        content: Union["DocumentArray", Iterable["Document"]],
         *,
         batch_size: Optional[int] = None,
         show_progress: bool = False,
         parameters: Optional[dict] = None,
-        on_done: Optional['CallbackFnType'] = None,
-        on_error: Optional['CallbackFnType'] = None,
-        on_always: Optional['CallbackFnType'] = None,
+        on_done: Optional["CallbackFnType"] = None,
+        on_error: Optional["CallbackFnType"] = None,
+        on_always: Optional["CallbackFnType"] = None,
         prefetch: int = 100,
     ):
         ...
@@ -680,27 +680,27 @@ class Client:
             )
 
         self._prepare_streaming(
-            not kwargs.get('show_progress'),
-            total=len(content) if hasattr(content, '__len__') else None,
+            not kwargs.get("show_progress"),
+            total=len(content) if hasattr(content, "__len__") else None,
         )
-        on_done = kwargs.pop('on_done', None)
-        on_error = kwargs.pop('on_error', None)
-        on_always = kwargs.pop('on_always', None)
-        prefetch = kwargs.pop('prefetch', 100)
+        on_done = kwargs.pop("on_done", None)
+        on_error = kwargs.pop("on_error", None)
+        on_always = kwargs.pop("on_always", None)
+        prefetch = kwargs.pop("prefetch", 100)
         results = DocumentArray() if not on_done and not on_always else None
         if not on_done:
             on_done = partial(
-                self._gather_result, results=results, attribute='embedding'
+                self._gather_result, results=results, attribute="embedding"
             )
 
         with self._pbar:
-            parameters = kwargs.pop('parameters', {})
-            parameters['drop_image_content'] = parameters.get(
-                'drop_image_content', True
+            parameters = kwargs.pop("parameters", {})
+            parameters["drop_image_content"] = parameters.get(
+                "drop_image_content", True
             )
 
             async for _ in self._async_client.post(
-                on='/index',
+                on="/index",
                 **self._get_post_payload(content, results, **kwargs),
                 on_done=on_done,
                 on_error=on_error,
@@ -721,11 +721,11 @@ class Client:
         batch_size: Optional[int] = None,
         show_progress: bool = False,
         parameters: Optional[Dict] = None,
-        on_done: Optional['CallbackFnType'] = None,
-        on_error: Optional['CallbackFnType'] = None,
-        on_always: Optional['CallbackFnType'] = None,
+        on_done: Optional["CallbackFnType"] = None,
+        on_error: Optional["CallbackFnType"] = None,
+        on_always: Optional["CallbackFnType"] = None,
         prefetch: int = 100,
-    ) -> 'DocumentArray':
+    ) -> "DocumentArray":
         """Search for top k results for given query string or ``Document``.
 
         If the input is a string, will use this string as query. If the input is a ``Document``,
@@ -750,17 +750,17 @@ class Client:
     @overload
     def search(
         self,
-        content: Union['DocumentArray', Iterable['Document']],
+        content: Union["DocumentArray", Iterable["Document"]],
         *,
         limit: int = 10,
         batch_size: Optional[int] = None,
         show_progress: bool = False,
         parameters: Optional[dict] = None,
-        on_done: Optional['CallbackFnType'] = None,
-        on_error: Optional['CallbackFnType'] = None,
-        on_always: Optional['CallbackFnType'] = None,
+        on_done: Optional["CallbackFnType"] = None,
+        on_error: Optional["CallbackFnType"] = None,
+        on_always: Optional["CallbackFnType"] = None,
         prefetch: int = 100,
-    ) -> 'DocumentArray':
+    ) -> "DocumentArray":
         """Search for top k results for given query string or ``Document``.
 
         If the input is a string, will use this string as query. If the input is a ``Document``,
@@ -782,33 +782,33 @@ class Client:
         """
         ...
 
-    def search(self, content, limit: int = 10, **kwargs) -> 'DocumentArray':
+    def search(self, content, limit: int = 10, **kwargs) -> "DocumentArray":
         if isinstance(content, str):
             raise TypeError(
                 f'content must be an Iterable of [str, Document], try `.search(["{content}"])` instead'
             )
 
         self._prepare_streaming(
-            not kwargs.get('show_progress'),
-            total=len(content) if hasattr(content, '__len__') else None,
+            not kwargs.get("show_progress"),
+            total=len(content) if hasattr(content, "__len__") else None,
         )
-        on_done = kwargs.pop('on_done', None)
-        on_error = kwargs.pop('on_error', None)
-        on_always = kwargs.pop('on_always', None)
-        prefetch = kwargs.pop('prefetch', 100)
+        on_done = kwargs.pop("on_done", None)
+        on_error = kwargs.pop("on_error", None)
+        on_always = kwargs.pop("on_always", None)
+        prefetch = kwargs.pop("prefetch", 100)
         results = DocumentArray() if not on_done and not on_always else None
         if not on_done:
-            on_done = partial(self._gather_result, results=results, attribute='matches')
+            on_done = partial(self._gather_result, results=results, attribute="matches")
 
         with self._pbar:
-            parameters = kwargs.pop('parameters', {})
-            parameters['limit'] = limit
-            parameters['drop_image_content'] = parameters.get(
-                'drop_image_content', True
+            parameters = kwargs.pop("parameters", {})
+            parameters["limit"] = limit
+            parameters["drop_image_content"] = parameters.get(
+                "drop_image_content", True
             )
 
             self._client.post(
-                on='/search',
+                on="/search",
                 **self._get_post_payload(content, results, **kwargs),
                 on_done=on_done,
                 on_error=on_error,
@@ -828,9 +828,9 @@ class Client:
         batch_size: Optional[int] = None,
         show_progress: bool = False,
         parameters: Optional[Dict] = None,
-        on_done: Optional['CallbackFnType'] = None,
-        on_error: Optional['CallbackFnType'] = None,
-        on_always: Optional['CallbackFnType'] = None,
+        on_done: Optional["CallbackFnType"] = None,
+        on_error: Optional["CallbackFnType"] = None,
+        on_always: Optional["CallbackFnType"] = None,
         prefetch: int = 100,
     ):
         ...
@@ -838,15 +838,15 @@ class Client:
     @overload
     async def asearch(
         self,
-        content: Union['DocumentArray', Iterable['Document']],
+        content: Union["DocumentArray", Iterable["Document"]],
         *,
         limit: int = 10,
         batch_size: Optional[int] = None,
         show_progress: bool = False,
         parameters: Optional[dict] = None,
-        on_done: Optional['CallbackFnType'] = None,
-        on_error: Optional['CallbackFnType'] = None,
-        on_always: Optional['CallbackFnType'] = None,
+        on_done: Optional["CallbackFnType"] = None,
+        on_error: Optional["CallbackFnType"] = None,
+        on_always: Optional["CallbackFnType"] = None,
         prefetch: int = 100,
     ):
         ...
@@ -858,26 +858,26 @@ class Client:
             )
 
         self._prepare_streaming(
-            not kwargs.get('show_progress'),
-            total=len(content) if hasattr(content, '__len__') else None,
+            not kwargs.get("show_progress"),
+            total=len(content) if hasattr(content, "__len__") else None,
         )
-        on_done = kwargs.pop('on_done', None)
-        on_error = kwargs.pop('on_error', None)
-        on_always = kwargs.pop('on_always', None)
-        prefetch = kwargs.pop('prefetch', 100)
+        on_done = kwargs.pop("on_done", None)
+        on_error = kwargs.pop("on_error", None)
+        on_always = kwargs.pop("on_always", None)
+        prefetch = kwargs.pop("prefetch", 100)
         results = DocumentArray() if not on_done and not on_always else None
         if not on_done:
-            on_done = partial(self._gather_result, results=results, attribute='matches')
+            on_done = partial(self._gather_result, results=results, attribute="matches")
 
         with self._pbar:
-            parameters = kwargs.pop('parameters', {})
-            parameters['limit'] = limit
-            parameters['drop_image_content'] = parameters.get(
-                'drop_image_content', True
+            parameters = kwargs.pop("parameters", {})
+            parameters["limit"] = limit
+            parameters["drop_image_content"] = parameters.get(
+                "drop_image_content", True
             )
 
             async for _ in self._async_client.post(
-                on='/search',
+                on="/search",
                 **self._get_post_payload(content, results, **kwargs),
                 on_done=on_done,
                 on_error=on_error,

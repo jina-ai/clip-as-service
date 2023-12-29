@@ -15,7 +15,7 @@ except ImportError:
 
 
 def _convert_image_to_rgb(image):
-    return image.convert('RGB')
+    return image.convert("RGB")
 
 
 def _blob2image(blob):

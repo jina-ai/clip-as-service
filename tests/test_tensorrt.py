@@ -10,69 +10,69 @@ from clip_client.client import Client
 
 @pytest.mark.gpu
 @pytest.mark.parametrize(
-    'inputs',
+    "inputs",
     [
-        [Document(text='hello, world'), Document(text='goodbye, world')],
-        DocumentArray([Document(text='hello, world'), Document(text='goodbye, world')]),
-        lambda: (Document(text='hello, world') for _ in range(10)),
+        [Document(text="hello, world"), Document(text="goodbye, world")],
+        DocumentArray([Document(text="hello, world"), Document(text="goodbye, world")]),
+        lambda: (Document(text="hello, world") for _ in range(10)),
         DocumentArray(
             [
-                Document(uri='https://clip-as-service.jina.ai/_static/favicon.png'),
+                Document(uri="https://clip-as-service.jina.ai/_static/favicon.png"),
                 Document(
-                    uri=f'{os.path.dirname(os.path.abspath(__file__))}/img/00000.jpg'
+                    uri=f"{os.path.dirname(os.path.abspath(__file__))}/img/00000.jpg"
                 ),
-                Document(text='hello, world'),
+                Document(text="hello, world"),
                 Document(
-                    uri=f'{os.path.dirname(os.path.abspath(__file__))}/img/00000.jpg'
+                    uri=f"{os.path.dirname(os.path.abspath(__file__))}/img/00000.jpg"
                 ).load_uri_to_image_tensor(),
             ]
         ),
         DocumentArray.from_files(
-            f'{os.path.dirname(os.path.abspath(__file__))}/**/*.jpg'
+            f"{os.path.dirname(os.path.abspath(__file__))}/**/*.jpg"
         ),
     ],
 )
 def test_docarray_inputs(make_trt_flow, inputs):
-    c = Client(server=f'grpc://0.0.0.0:{make_trt_flow.port}')
+    c = Client(server=f"grpc://0.0.0.0:{make_trt_flow.port}")
     r = c.encode(inputs if not callable(inputs) else inputs())
     assert isinstance(r, DocumentArray)
     assert r.embeddings.shape
-    if hasattr(inputs, '__len__'):
+    if hasattr(inputs, "__len__"):
         assert inputs[0] is r[0]
 
 
 @pytest.mark.gpu
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    'd',
+    "d",
     [
         Document(
-            uri='https://clip-as-service.jina.ai/_static/favicon.png',
-            matches=[Document(text='hello, world'), Document(text='goodbye, world')],
+            uri="https://clip-as-service.jina.ai/_static/favicon.png",
+            matches=[Document(text="hello, world"), Document(text="goodbye, world")],
         ),
         Document(
-            text='hello, world',
+            text="hello, world",
             matches=[
-                Document(uri='https://clip-as-service.jina.ai/_static/favicon.png'),
+                Document(uri="https://clip-as-service.jina.ai/_static/favicon.png"),
                 Document(
-                    uri=f'{os.path.dirname(os.path.abspath(__file__))}/img/00000.jpg'
+                    uri=f"{os.path.dirname(os.path.abspath(__file__))}/img/00000.jpg"
                 ),
             ],
         ),
     ],
 )
 async def test_async_arank(make_trt_flow, d):
-    c = Client(server=f'grpc://0.0.0.0:{make_trt_flow.port}')
+    c = Client(server=f"grpc://0.0.0.0:{make_trt_flow.port}")
     r = await c.arank([d])
     assert isinstance(r, DocumentArray)
     assert d is r[0]
-    rv = r['@m', 'scores__clip_score__value']
+    rv = r["@m", "scores__clip_score__value"]
     for v in rv:
         assert v is not None
         assert v > 0
     np.testing.assert_almost_equal(sum(rv), 1.0)
 
-    rv = r['@m', 'scores__clip_score_cosine__value']
+    rv = r["@m", "scores__clip_score_cosine__value"]
     for v in rv:
         assert v is not None
         assert -1.0 <= v <= 1.0

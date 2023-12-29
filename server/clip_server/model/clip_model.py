@@ -41,11 +41,11 @@ class CLIPModel(BaseCLIPModel):
                 instance = super().__new__(CNClipModel)
             else:
                 raise ValueError(
-                    'CLIP model {} not found; below is a list of all available models:\n{}'.format(
+                    "CLIP model {} not found; below is a list of all available models:\n{}".format(
                         name,
-                        ''.join(
+                        "".join(
                             [
-                                '\t- {}\n'.format(i)
+                                "\t- {}\n".format(i)
                                 for i in list(_OPENCLIP_MODELS.keys())
                                 + list(_MULTILINGUALCLIP_MODELS.keys())
                                 + list(_CNCLIP_MODELS.keys())

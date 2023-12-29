@@ -2,7 +2,7 @@ import pytest
 from jina import helper, Flow
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope="session")
 def port_generator():
     generated_ports = set()
 
@@ -16,10 +16,10 @@ def port_generator():
     return random_port
 
 
-@pytest.fixture(scope='session', params=['onnx', 'torch', 'onnx_custom'])
+@pytest.fixture(scope="session", params=["onnx", "torch", "onnx_custom"])
 def make_flow(port_generator, request):
-    if request.param != 'onnx_custom':
-        if request.param == 'onnx':
+    if request.param != "onnx_custom":
+        if request.param == "onnx":
             from clip_server.executors.clip_onnx import CLIPEncoder
         else:
             from clip_server.executors.clip_torch import CLIPEncoder
@@ -33,14 +33,14 @@ def make_flow(port_generator, request):
             name=request.param,
             uses=CLIPEncoder,
             uses_with={
-                'model_path': os.path.expanduser('~/.cache/clip/ViT-B-32-openai')
+                "model_path": os.path.expanduser("~/.cache/clip/ViT-B-32-openai")
             },
         )
     with f:
         yield f
 
 
-@pytest.fixture(scope='session', params=['torch'])
+@pytest.fixture(scope="session", params=["torch"])
 def make_torch_flow(port_generator, request):
     from clip_server.executors.clip_torch import CLIPEncoder
 
@@ -49,7 +49,7 @@ def make_torch_flow(port_generator, request):
         yield f
 
 
-@pytest.fixture(scope='session', params=['tensorrt'])
+@pytest.fixture(scope="session", params=["tensorrt"])
 def make_trt_flow(port_generator, request):
     from clip_server.executors.clip_tensorrt import CLIPEncoder
 
@@ -58,7 +58,7 @@ def make_trt_flow(port_generator, request):
         yield f
 
 
-@pytest.fixture(params=['torch'])
+@pytest.fixture(params=["torch"])
 def make_search_flow(tmpdir, port_generator, request):
     from clip_server.executors.clip_torch import CLIPEncoder
     from annlite.executor import AnnLiteIndexer
@@ -67,10 +67,10 @@ def make_search_flow(tmpdir, port_generator, request):
         Flow(port=port_generator())
         .add(name=request.param, uses=CLIPEncoder)
         .add(
-            name='annlite',
+            name="annlite",
             uses=AnnLiteIndexer,
             workspace=tmpdir,
-            uses_with={'n_dim': 512},
+            uses_with={"n_dim": 512},
         )
     )
     with f:

@@ -16,25 +16,25 @@ class OpenCLIPModel(CLIPModel):
     def __init__(
         self,
         name: str,
-        device: str = 'cpu',
+        device: str = "cpu",
         jit: bool = False,
         dtype: str = None,
         **kwargs
     ):
         super().__init__(name, **kwargs)
 
-        if '::' in name:
-            model_name, pretrained = name.split('::')
+        if "::" in name:
+            model_name, pretrained = name.split("::")
         else:
             model_name = name
-            pretrained = 'openai'
+            pretrained = "openai"
 
         self._model_name = model_name
 
         model_url, md5sum = get_model_url_md5(name)
         model_path = download_model(model_url, md5sum=md5sum)
 
-        if pretrained == 'openai':
+        if pretrained == "openai":
             self._model = load_openai_model(
                 model_path=model_path, device=device, jit=jit, dtype=dtype
             )
@@ -49,16 +49,16 @@ class OpenCLIPModel(CLIPModel):
 
     @staticmethod
     def get_model_name(name: str):
-        if '::' in name:
-            model_name, pretrained = name.split('::')
+        if "::" in name:
+            model_name, pretrained = name.split("::")
         else:
             model_name = name
-        if model_name == 'ViT-L/14@336px':
-            return 'ViT-L-14-336'
-        return model_name.replace('/', '-')
+        if model_name == "ViT-L/14@336px":
+            return "ViT-L-14-336"
+        return model_name.replace("/", "-")
 
-    def encode_text(self, input_ids: 'torch.Tensor', **kwargs):
+    def encode_text(self, input_ids: "torch.Tensor", **kwargs):
         return self._model.encode_text(input_ids)
 
-    def encode_image(self, pixel_values: 'torch.Tensor', **kwargs):
+    def encode_image(self, pixel_values: "torch.Tensor", **kwargs):
         return self._model.encode_image(pixel_values)

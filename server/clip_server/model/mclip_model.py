@@ -7,10 +7,10 @@ from clip_server.model.clip_model import CLIPModel
 from clip_server.model.openclip_model import OpenCLIPModel
 
 _CLIP_MODEL_MAPS = {
-    'M-CLIP/XLM-Roberta-Large-Vit-B-32': 'ViT-B-32::openai',
-    'M-CLIP/XLM-Roberta-Large-Vit-L-14': 'ViT-L-14::openai',
-    'M-CLIP/XLM-Roberta-Large-Vit-B-16Plus': 'ViT-B-16-plus-240::laion400m_e31',
-    'M-CLIP/LABSE-Vit-L-14': 'ViT-L-14::openai',
+    "M-CLIP/XLM-Roberta-Large-Vit-B-32": "ViT-B-32::openai",
+    "M-CLIP/XLM-Roberta-Large-Vit-L-14": "ViT-L-14::openai",
+    "M-CLIP/XLM-Roberta-Large-Vit-B-16Plus": "ViT-B-16-plus-240::laion400m_e31",
+    "M-CLIP/LABSE-Vit-L-14": "ViT-L-14::openai",
 }
 
 
@@ -19,7 +19,7 @@ class MCLIPConfig(transformers.PretrainedConfig):
 
     def __init__(
         self,
-        modelBase: str = 'xlm-roberta-large',
+        modelBase: str = "xlm-roberta-large",
         transformerDimSize: int = 1024,
         imageDimSize: int = 768,
         **kwargs
@@ -51,7 +51,7 @@ class MultilingualCLIP(transformers.PreTrainedModel):
 
 
 class MultilingualCLIPModel(CLIPModel):
-    def __init__(self, name: str, device: str = 'cpu', jit: bool = False, **kwargs):
+    def __init__(self, name: str, device: str = "cpu", jit: bool = False, **kwargs):
         super().__init__(name, **kwargs)
         self._mclip_model = MultilingualCLIP.from_pretrained(name)
         self._mclip_model.to(device=device)
@@ -60,10 +60,10 @@ class MultilingualCLIPModel(CLIPModel):
 
     @staticmethod
     def get_model_name(name: str):
-        return _CLIP_MODEL_MAPS[name].split('::')[0]
+        return _CLIP_MODEL_MAPS[name].split("::")[0]
 
     def encode_text(
-        self, input_ids: 'torch.Tensor', attention_mask: 'torch.Tensor', **kwargs
+        self, input_ids: "torch.Tensor", attention_mask: "torch.Tensor", **kwargs
     ):
         return self._mclip_model(
             input_ids=input_ids, attention_mask=attention_mask, **kwargs

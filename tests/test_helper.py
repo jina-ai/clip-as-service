@@ -6,8 +6,8 @@ from clip_server.executors.helper import preproc_image
 from docarray import Document, DocumentArray
 
 
-@pytest.mark.parametrize('shape', [(5, 10), (5, 10, 10)])
-@pytest.mark.parametrize('axis', [-1, 1, 0])
+@pytest.mark.parametrize("shape", [(5, 10), (5, 10, 10)])
+@pytest.mark.parametrize("axis", [-1, 1, 0])
 def test_numpy_softmax(shape, axis):
     import torch
 
@@ -23,19 +23,19 @@ def test_numpy_softmax(shape, axis):
 
 
 @pytest.mark.parametrize(
-    'inputs',
+    "inputs",
     [
         (
             DocumentArray(
                 [
-                    Document(text='hello, world'),
-                    Document(text='goodbye, world'),
+                    Document(text="hello, world"),
+                    Document(text="goodbye, world"),
                     Document(
-                        text='hello, world',
-                        uri='https://clip-as-service.jina.ai/_static/favicon.png',
+                        text="hello, world",
+                        uri="https://clip-as-service.jina.ai/_static/favicon.png",
                     ),
                     Document(
-                        uri='https://clip-as-service.jina.ai/_static/favicon.png',
+                        uri="https://clip-as-service.jina.ai/_static/favicon.png",
                     ),
                 ]
             ),
@@ -44,17 +44,17 @@ def test_numpy_softmax(shape, axis):
         (
             DocumentArray(
                 [
-                    Document(text='hello, world'),
+                    Document(text="hello, world"),
                     Document(tensor=np.array([0, 1, 2])),
                     Document(
-                        uri='https://clip-as-service.jina.ai/_static/favicon.png'
+                        uri="https://clip-as-service.jina.ai/_static/favicon.png"
                     ).load_uri_to_blob(),
                     Document(
                         tensor=np.array([0, 1, 2]),
-                        uri='https://clip-as-service.jina.ai/_static/favicon.png',
+                        uri="https://clip-as-service.jina.ai/_static/favicon.png",
                     ),
                     Document(
-                        uri='https://clip-as-service.jina.ai/_static/favicon.png',
+                        uri="https://clip-as-service.jina.ai/_static/favicon.png",
                     ),
                 ]
             ),
@@ -63,8 +63,8 @@ def test_numpy_softmax(shape, axis):
         (
             DocumentArray(
                 [
-                    Document(text='hello, world'),
-                    Document(uri='https://clip-as-service.jina.ai/_static/favicon.png'),
+                    Document(text="hello, world"),
+                    Document(uri="https://clip-as-service.jina.ai/_static/favicon.png"),
                 ]
             ),
             (1, 1),
@@ -81,12 +81,12 @@ def test_split_img_txt_da(inputs):
 
 
 @pytest.mark.parametrize(
-    'inputs',
+    "inputs",
     [
         DocumentArray(
             [
                 Document(
-                    uri='https://clip-as-service.jina.ai/_static/favicon.png',
+                    uri="https://clip-as-service.jina.ai/_static/favicon.png",
                 ).load_uri_to_image_tensor(),
             ]
         )
@@ -100,4 +100,4 @@ def test_preproc_image(inputs):
     assert len(da) == 1
     assert not da[0].blob
     assert not da[0].tensor
-    assert pixel_values.get('pixel_values') is not None
+    assert pixel_values.get("pixel_values") is not None

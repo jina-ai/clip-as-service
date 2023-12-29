@@ -7,11 +7,11 @@ from clip_server.model.pretrained_models import _VISUAL_MODEL_IMAGE_SIZE
 from cn_clip.clip import load_from_name
 
 _CNCLIP_MODEL_MAPS = {
-    'CN-CLIP/ViT-B-16': 'ViT-B-16',
-    'CN-CLIP/ViT-L-14': 'ViT-L-14',
-    'CN-CLIP/ViT-L-14-336': 'ViT-L-14-336',
-    'CN-CLIP/ViT-H-14': 'ViT-H-14',
-    'CN-CLIP/RN50': 'RN50',
+    "CN-CLIP/ViT-B-16": "ViT-B-16",
+    "CN-CLIP/ViT-L-14": "ViT-L-14",
+    "CN-CLIP/ViT-L-14-336": "ViT-L-14-336",
+    "CN-CLIP/ViT-H-14": "ViT-H-14",
+    "CN-CLIP/RN50": "RN50",
 }
 
 
@@ -19,7 +19,7 @@ class CNClipModel(CLIPModel):
     def __init__(
         self,
         name: str,
-        device: str = 'cpu',
+        device: str = "cpu",
         jit: bool = False,
         dtype: str = None,
         **kwargs
@@ -36,10 +36,10 @@ class CNClipModel(CLIPModel):
     def get_model_name(name: str):
         return _CNCLIP_MODEL_MAPS[name]
 
-    def encode_text(self, input_ids: 'torch.Tensor', **kwargs):
+    def encode_text(self, input_ids: "torch.Tensor", **kwargs):
         return self._model.encode_text(input_ids).detach()
 
-    def encode_image(self, pixel_values: 'torch.Tensor', **kwargs):
+    def encode_image(self, pixel_values: "torch.Tensor", **kwargs):
         return self._model.encode_image(pixel_values).detach()
 
     @property

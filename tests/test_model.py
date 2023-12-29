@@ -7,13 +7,13 @@ from clip_server.model.cnclip_model import CNClipModel
 
 
 @pytest.mark.parametrize(
-    'name, model_cls',
+    "name, model_cls",
     [
-        ('ViT-L/14@336px', OpenCLIPModel),
-        ('RN50::openai', OpenCLIPModel),
-        ('roberta-ViT-B-32::laion2b-s12b-b32k', OpenCLIPModel),
-        ('M-CLIP/LABSE-Vit-L-14', MultilingualCLIPModel),
-        ('CN-CLIP/ViT-B-16', CNClipModel),
+        ("ViT-L/14@336px", OpenCLIPModel),
+        ("RN50::openai", OpenCLIPModel),
+        ("roberta-ViT-B-32::laion2b-s12b-b32k", OpenCLIPModel),
+        ("M-CLIP/LABSE-Vit-L-14", MultilingualCLIPModel),
+        ("CN-CLIP/ViT-B-16", CNClipModel),
     ],
 )
 def test_torch_model(name, model_cls):
@@ -22,11 +22,11 @@ def test_torch_model(name, model_cls):
 
 
 @pytest.mark.parametrize(
-    'name',
+    "name",
     [
-        'RN50::openai',
-        'ViT-H-14::laion2b-s32b-b79k',
-        'M-CLIP/LABSE-Vit-L-14',
+        "RN50::openai",
+        "ViT-H-14::laion2b-s32b-b79k",
+        "M-CLIP/LABSE-Vit-L-14",
     ],
 )
 def test_onnx_model(name):
@@ -35,10 +35,10 @@ def test_onnx_model(name):
 
 @pytest.mark.gpu
 @pytest.mark.parametrize(
-    'name',
-    ['ViT-H-14::laion2b-s32b-b79k'],
+    "name",
+    ["ViT-H-14::laion2b-s32b-b79k"],
 )
 def test_large_onnx_model_fp16(name):
     from clip_server.executors.clip_onnx import CLIPEncoder
 
-    CLIPEncoder(name, dtype='fp16')
+    CLIPEncoder(name, dtype="fp16")
