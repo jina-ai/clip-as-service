@@ -24,18 +24,18 @@ class BenchmarkClient(threading.Thread):
         self,
         server: str,
         batch_size: int = 1,
-        modality: str = "text",
+        modality: str = 'text',
         num_iter: Optional[int] = 100,
         image_sample: str = None,
         **kwargs,
     ):
-        """
+        '''
         @param server: the CLIP-as-service server URI
         @param batch_size: number of batch sample
         @param num_iter: number of repeat run per experiment
         @param image_sample: uri of the test image
-        """
-        assert num_iter > 2, "num_iter must be greater than 2"
+        '''
+        assert num_iter > 2, 'num_iter must be greater than 2'
         super().__init__()
         self.server = server
         self.batch_size = batch_size
@@ -49,30 +49,30 @@ class BenchmarkClient(threading.Thread):
             from clip_client import Client
         except ImportError:
             raise ImportError(
-                "clip_client module is not available. it is required for benchmarking."
-                'Please use ""pip install clip-client" to install it.'
+                'clip_client module is not available. it is required for benchmarking.'
+                'Please use ''pip install clip-client' to install it.'
             )
 
-        if self.modality == "text":
+        if self.modality == 'text':
             from clip_server.model.simple_tokenizer import SimpleTokenizer
 
             tokenizer = SimpleTokenizer()
             vocab = list(tokenizer.encoder.keys())
             batch = DocumentArray(
                 [
-                    Document(text=" ".join(random.choices(vocab, k=78)))
+                    Document(text=' '.join(random.choices(vocab, k=78)))
                     for _ in range(self.batch_size)
                 ]
             )
-        elif self.modality == "image":
+        elif self.modality == 'image':
             batch = DocumentArray(
                 [
-                    Document(blob=open(self.image_sample, "rb").read())
+                    Document(blob=open(self.image_sample, 'rb').read())
                     for _ in range(self.batch_size)
                 ]
             )
         else:
-            raise ValueError(f'The modality "{self.modality}" is unsupported')
+            raise ValueError(f'The modality '{self.modality}' is unsupported')
 
         client = Client(self.server)
 
@@ -84,26 +84,26 @@ class BenchmarkClient(threading.Thread):
         self.avg_time = np.mean(time_costs[2:])
 
 
-@click.command(name="clip-as-service benchmark")
-@click.argument("server")
+@click.command(name='clip-as-service benchmark')
+@click.argument('server')
 @click.option(
-    "--batch_sizes",
+    '--batch_sizes',
     multiple=True,
     type=int,
     default=[1, 8, 16, 32, 64],
-    help="number of batch",
+    help='number of batch',
 )
 @click.option(
-    "--num_iter", default=10, help="number of repeat run per experiment (must > 2)"
+    '--num_iter', default=10, help='number of repeat run per experiment (must > 2)'
 )
 @click.option(
-    "--concurrent_clients",
+    '--concurrent_clients',
     multiple=True,
     type=int,
     default=[1, 4, 16, 32, 64],
-    help="number of concurrent clients per experiment",
+    help='number of concurrent clients per experiment',
 )
-@click.option("--image_sample", help="path to the image sample file")
+@click.option('--image_sample', help='path to the image sample file')
 def main(server, batch_sizes, num_iter, concurrent_clients, image_sample):
     # wait until the server is ready
     for batch_size in batch_sizes:
@@ -113,7 +113,7 @@ def main(server, batch_sizes, num_iter, concurrent_clients, image_sample):
                     server,
                     batch_size=batch_size,
                     num_iter=num_iter,
-                    modality="image" if (image_sample is not None) else "text",
+                    modality='image' if (image_sample is not None) else 'text',
                     image_sample=image_sample,
                 )
                 for _ in range(num_client)
@@ -134,11 +134,11 @@ def main(server, batch_sizes, num_iter, concurrent_clients, image_sample):
             )
 
             print(
-                "(concurrent client=%d, batch_size=%d) avg speed: %.3f\tmax speed: %.3f\tmin speed: %.3f"
+                '(concurrent client=%d, batch_size=%d) avg speed: %.3f\tmax speed: %.3f\tmin speed: %.3f'
                 % (num_client, batch_size, avg_speed, max_speed, min_speed),
                 flush=True,
             )
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

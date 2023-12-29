@@ -8,7 +8,7 @@ This demo demonstrates the text-to-image and image-to-image searching in CLIP se
 
 In this demo, we use [``Open-Image-Dataset``](https://storage.googleapis.com/openimages/web/download.html) dataset (consist of 125,346 images) to demonstrate Text & Image retrieval.
 
-<iframe frameborder="0" allowtransparency="true" scrolling="no" src="https://jemmyshin-laion5b-streamlit-streamlit-demo-rddbqz.streamlitapp.com?embedded=true" style="overflow:hidden;overflow-x:hidden;overflow-y:hidden;height:100vh;width:100%"></iframe>
+<iframe frameborder='0' allowtransparency='true' scrolling='no' src='https://jemmyshin-laion5b-streamlit-streamlit-demo-rddbqz.streamlitapp.com?embedded=true' style='overflow:hidden;overflow-x:hidden;overflow-y:hidden;height:100vh;width:100%'></iframe>
 
 ```{button-link} https://jemmyshin-laion5b-streamlit-streamlit-demo-rddbqz.streamlitapp.com/
 :color: primary

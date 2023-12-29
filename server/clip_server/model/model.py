@@ -1,4 +1,4 @@
-""" CLIP Model
+''' CLIP Model
 
 Adapted from https://github.com/mlfoundations/open_clip.
 
@@ -6,7 +6,7 @@ Originally MIT License, Copyright (c) 2012-2021 Gabriel Ilharco, Mitchell Wortsm
 Nicholas Carlini, Rohan Taori, Achal Dave, Vaishaal Shankar,
 John Miller, Hongseok Namkoong, Hannaneh Hajishirzi, Ali Farhadi,
 Ludwig Schmidt
-"""
+'''
 
 import warnings
 import torch
@@ -126,10 +126,10 @@ class CLIPVisionCfg:
         False  # use (imagenet) pretrained weights for named model
     )
     timm_pool: str = (
-        "avg"  # feature pooling for timm model ('abs_attn', 'rot_attn', 'avg', '')
+        'avg'  # feature pooling for timm model ('abs_attn', 'rot_attn', 'avg', '')
     )
     timm_proj: str = (
-        "linear"  # linear projection for timm model output ('linear', 'mlp', '')
+        'linear'  # linear projection for timm model output ('linear', 'mlp', '')
     )
     timm_proj_bias: bool = False  # enable bias final projection
 
@@ -145,8 +145,8 @@ class CLIPTextCfg:
     hf_model_name: str = None
     hf_tokenizer_name: str = None
     hf_model_pretrained: bool = True
-    proj: str = "mlp"
-    pooler_type: str = "mean_pooler"
+    proj: str = 'mlp'
+    pooler_type: str = 'mean_pooler'
 
 
 def _build_vision_tower(
@@ -293,12 +293,12 @@ class CLIP(_CLIP):
         self.positional_embedding = text.positional_embedding
         self.ln_final = text.ln_final
         self.text_projection = text.text_projection
-        self.register_buffer("attn_mask", text.attn_mask, persistent=False)
+        self.register_buffer('attn_mask', text.attn_mask, persistent=False)
         self.logit_scale = nn.Parameter(torch.ones([]) * np.log(1 / 0.07))
 
 
 def convert_weights_to_lp(model: nn.Module, dtype=torch.float16):
-    """Convert applicable model parameters to low-precision (bf16 or fp16)"""
+    '''Convert applicable model parameters to low-precision (bf16 or fp16)'''
 
     def _convert_weights(l):
         if isinstance(l, (nn.Conv1d, nn.Conv2d, nn.Linear)):
@@ -308,16 +308,16 @@ def convert_weights_to_lp(model: nn.Module, dtype=torch.float16):
 
         if isinstance(l, (nn.MultiheadAttention, Attention)):
             for attr in [
-                *[f"{s}_proj_weight" for s in ["in", "q", "k", "v"]],
-                "in_proj_bias",
-                "bias_k",
-                "bias_v",
+                *[f'{s}_proj_weight' for s in ['in', 'q', 'k', 'v']],
+                'in_proj_bias',
+                'bias_k',
+                'bias_v',
             ]:
                 tensor = getattr(l, attr)
                 if tensor is not None:
                     tensor.data = tensor.data.to(dtype)
 
-        for name in ["text_projection", "proj"]:
+        for name in ['text_projection', 'proj']:
             if hasattr(l, name):
                 attr = getattr(l, name)
                 if attr is not None:
@@ -329,13 +329,13 @@ def convert_weights_to_lp(model: nn.Module, dtype=torch.float16):
 convert_weights_to_fp16 = convert_weights_to_lp  # backwards compat
 
 
-def load_state_dict(checkpoint_path: str, map_location="cpu"):
+def load_state_dict(checkpoint_path: str, map_location='cpu'):
     checkpoint = torch.load(checkpoint_path, map_location=map_location)
-    if isinstance(checkpoint, dict) and "state_dict" in checkpoint:
-        state_dict = checkpoint["state_dict"]
+    if isinstance(checkpoint, dict) and 'state_dict' in checkpoint:
+        state_dict = checkpoint['state_dict']
     else:
         state_dict = checkpoint
-    if next(iter(state_dict.items()))[0].startswith("module"):
+    if next(iter(state_dict.items()))[0].startswith('module'):
         state_dict = {k[7:]: v for k, v in state_dict.items()}
     return state_dict
 
@@ -345,55 +345,55 @@ def build_model_from_openai_state_dict(
     quick_gelu: bool = False,
     dtype: torch.dtype = torch.float16,
 ):
-    vit = "visual.proj" in state_dict
+    vit = 'visual.proj' in state_dict
 
     if vit:
-        vision_width = state_dict["visual.conv1.weight"].shape[0]
+        vision_width = state_dict['visual.conv1.weight'].shape[0]
         vision_layers = len(
             [
                 k
                 for k in state_dict.keys()
-                if k.startswith("visual.") and k.endswith(".attn.in_proj_weight")
+                if k.startswith('visual.') and k.endswith('.attn.in_proj_weight')
             ]
         )
-        vision_patch_size = state_dict["visual.conv1.weight"].shape[-1]
+        vision_patch_size = state_dict['visual.conv1.weight'].shape[-1]
         grid_size = round(
-            (state_dict["visual.positional_embedding"].shape[0] - 1) ** 0.5
+            (state_dict['visual.positional_embedding'].shape[0] - 1) ** 0.5
         )
         image_size = vision_patch_size * grid_size
     else:
         counts: list = [
             len(
                 set(
-                    k.split(".")[2]
+                    k.split('.')[2]
                     for k in state_dict
-                    if k.startswith(f"visual.layer{b}")
+                    if k.startswith(f'visual.layer{b}')
                 )
             )
             for b in [1, 2, 3, 4]
         ]
         vision_layers = tuple(counts)
-        vision_width = state_dict["visual.layer1.0.conv1.weight"].shape[0]
+        vision_width = state_dict['visual.layer1.0.conv1.weight'].shape[0]
         output_width = round(
-            (state_dict["visual.attnpool.positional_embedding"].shape[0] - 1) ** 0.5
+            (state_dict['visual.attnpool.positional_embedding'].shape[0] - 1) ** 0.5
         )
         vision_patch_size = None
         assert (
             output_width**2 + 1
-            == state_dict["visual.attnpool.positional_embedding"].shape[0]
+            == state_dict['visual.attnpool.positional_embedding'].shape[0]
         )
         image_size = output_width * 32
 
-    embed_dim = state_dict["text_projection"].shape[1]
-    context_length = state_dict["positional_embedding"].shape[0]
-    vocab_size = state_dict["token_embedding.weight"].shape[0]
-    transformer_width = state_dict["ln_final.weight"].shape[0]
+    embed_dim = state_dict['text_projection'].shape[1]
+    context_length = state_dict['positional_embedding'].shape[0]
+    vocab_size = state_dict['token_embedding.weight'].shape[0]
+    transformer_width = state_dict['ln_final.weight'].shape[0]
     transformer_heads = transformer_width // 64
     transformer_layers = len(
         set(
-            k.split(".")[2]
+            k.split('.')[2]
             for k in state_dict
-            if k.startswith(f"transformer.resblocks")
+            if k.startswith(f'transformer.resblocks')
         )
     )
 
@@ -418,7 +418,7 @@ def build_model_from_openai_state_dict(
         dtype=dtype,
     )
 
-    for key in ["input_resolution", "context_length", "vocab_size"]:
+    for key in ['input_resolution', 'context_length', 'vocab_size']:
         state_dict.pop(key, None)
 
     convert_weights_to_fp16(model)
@@ -429,11 +429,11 @@ def build_model_from_openai_state_dict(
 
 def load_openai_model(
     model_path: str,
-    device: Union[str, torch.device] = "cuda" if torch.cuda.is_available() else "cpu",
+    device: Union[str, torch.device] = 'cuda' if torch.cuda.is_available() else 'cpu',
     dtype: Optional[Union[str, torch.dtype]] = None,
     jit: bool = True,
 ):
-    """Load a CLIP model
+    '''Load a CLIP model
 
     Parameters
     ----------
@@ -451,25 +451,25 @@ def load_openai_model(
         The CLIP model
     preprocess : Callable[[PIL.Image], torch.Tensor]
         A torchvision transform that converts a PIL image into a tensor that the returned model can take as its input
-    """
+    '''
     if isinstance(dtype, str):
-        dtype = __cast_dtype__.get(dtype, "amp")
+        dtype = __cast_dtype__.get(dtype, 'amp')
     elif dtype is None:
         dtype = (
-            torch.float32 if device in ("cpu", torch.device("cpu")) else torch.float16
+            torch.float32 if device in ('cpu', torch.device('cpu')) else torch.float16
         )
     try:
         # loading JIT archive
-        model = torch.jit.load(model_path, map_location=device if jit else "cpu").eval()
+        model = torch.jit.load(model_path, map_location=device if jit else 'cpu').eval()
         state_dict = None
     except RuntimeError:
         # loading saved state dict
         if jit:
             warnings.warn(
-                f"File {model_path} is not a JIT archive. Loading as a state dict instead"
+                f'File {model_path} is not a JIT archive. Loading as a state dict instead'
             )
             jit = False
-        state_dict = torch.load(model_path, map_location="cpu")
+        state_dict = torch.load(model_path, map_location='cpu')
 
     if not jit:
         # Build a non-jit model from the OpenAI jitted model state dict
@@ -478,13 +478,13 @@ def load_openai_model(
                 state_dict or model.state_dict(), dtype=dtype
             )
         except KeyError:
-            sd = {k[7:]: v for k, v in state_dict["state_dict"].items()}
+            sd = {k[7:]: v for k, v in state_dict['state_dict'].items()}
             model = build_model_from_openai_state_dict(sd, dtype=dtype)
 
         # model from OpenAI state dict is in manually cast fp16 mode, must be converted for AMP/fp32/bf16 use
         model = model.to(device)
         if dtype == torch.float32 or (
-            isinstance(dtype, str) and dtype.startswith("amp")
+            isinstance(dtype, str) and dtype.startswith('amp')
         ):
             model.float()
         elif dtype == torch.bfloat16:
@@ -498,23 +498,23 @@ def load_openai_model(
     )
     device_node = [
         n
-        for n in device_holder.graph.findAllNodes("prim::Constant")
-        if "Device" in repr(n)
+        for n in device_holder.graph.findAllNodes('prim::Constant')
+        if 'Device' in repr(n)
     ][-1]
 
     def patch_device(module):
         try:
-            graphs = [module.graph] if hasattr(module, "graph") else []
+            graphs = [module.graph] if hasattr(module, 'graph') else []
         except RuntimeError:
             graphs = []
 
-        if hasattr(module, "forward1"):
+        if hasattr(module, 'forward1'):
             graphs.append(module.forward1.graph)
 
         for graph in graphs:
-            for node in graph.findAllNodes("prim::Constant"):
-                if "value" in node.attributeNames() and str(node["value"]).startswith(
-                    "cuda"
+            for node in graph.findAllNodes('prim::Constant'):
+                if 'value' in node.attributeNames() and str(node['value']).startswith(
+                    'cuda'
                 ):
                     node.copyAttributes(device_node)
 
@@ -527,26 +527,26 @@ def load_openai_model(
         float_holder = torch.jit.trace(
             lambda: torch.ones([]).float(), example_inputs=[]
         )
-        float_input = list(float_holder.graph.findNode("aten::to").inputs())[1]
+        float_input = list(float_holder.graph.findNode('aten::to').inputs())[1]
         float_node = float_input.node()
 
         def patch_float(module):
             try:
-                graphs = [module.graph] if hasattr(module, "graph") else []
+                graphs = [module.graph] if hasattr(module, 'graph') else []
             except RuntimeError:
                 graphs = []
 
-            if hasattr(module, "forward1"):
+            if hasattr(module, 'forward1'):
                 graphs.append(module.forward1.graph)
 
             for graph in graphs:
-                for node in graph.findAllNodes("aten::to"):
+                for node in graph.findAllNodes('aten::to'):
                     inputs = list(node.inputs())
                     for i in [
                         1,
                         2,
                     ]:  # dtype can be the second or third argument to aten::to()
-                        if inputs[i].node()["value"] == 5:
+                        if inputs[i].node()['value'] == 5:
                             inputs[i].node().copyAttributes(float_node)
 
         model.apply(patch_float)
@@ -562,7 +562,7 @@ def load_openai_model(
 def load_openclip_model(
     model_name: str,
     model_path: str,
-    device: Union[str, torch.device] = "cpu",
+    device: Union[str, torch.device] = 'cpu',
     jit: bool = False,
     force_quick_gelu: bool = False,
     force_custom_text: bool = False,
@@ -573,35 +573,35 @@ def load_openclip_model(
         dtype = __cast_dtype__.get(dtype)
     elif dtype is None:
         dtype = (
-            torch.float32 if device in ("cpu", torch.device("cpu")) else torch.float16
+            torch.float32 if device in ('cpu', torch.device('cpu')) else torch.float16
         )
 
     model_name = model_name.replace(
-        "/", "-"
+        '/', '-'
     )  # for callers using old naming with / in ViT names
 
     if model_name in _MODEL_CONFIGS:
         model_cfg = deepcopy(_MODEL_CONFIGS[model_name])
     else:
-        raise RuntimeError(f"Model config for {model_name} not found.")
+        raise RuntimeError(f'Model config for {model_name} not found.')
 
     if force_quick_gelu:
         # override for use of QuickGELU on non-OpenAI transformer models
-        model_cfg["quick_gelu"] = True
+        model_cfg['quick_gelu'] = True
 
     if pretrained_image:
-        if "timm_model_name" in model_cfg.get("vision_cfg", {}):
+        if 'timm_model_name' in model_cfg.get('vision_cfg', {}):
             # pretrained weight loading for timm models set via vision_cfg
-            model_cfg["vision_cfg"]["timm_model_pretrained"] = True
+            model_cfg['vision_cfg']['timm_model_pretrained'] = True
         else:
             assert (
                 False
-            ), "pretrained image towers currently only supported for timm models"
+            ), 'pretrained image towers currently only supported for timm models'
 
     custom_text = (
-        model_cfg.pop("custom_text", False)
+        model_cfg.pop('custom_text', False)
         or force_custom_text
-        or ("hf_model_name" in model_cfg["text_cfg"])
+        or ('hf_model_name' in model_cfg['text_cfg'])
     )
 
     if custom_text:

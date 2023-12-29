@@ -15,8 +15,8 @@ jobs:
   token-check:
     runs-on: ubuntu-latest
     steps:
-      - run: echo "success!"
-        if: "${{ github.event.inputs.release_token }} == ${{ env.release_token }}"
+      - run: echo 'success!'
+        if: '${{ github.event.inputs.release_token }} == ${{ env.release_token }}'
         env:
           release_token: ${{ secrets.CAS_RELEASE_TOKEN }}
 
@@ -26,22 +26,22 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        pip_tag: [ "", "onnx", "tensorrt"]  # default: "" = core
+        pip_tag: [ '', 'onnx', 'tensorrt']  # default: '' = core
     steps:
       - uses: actions/checkout@v2
       - name: Set envs and versions
         run: |
           VCS_REF=${{ github.ref }}
-          echo "VCS_REF=$VCS_REF" >> $GITHUB_ENV
-          echo "Will build $VCS_REF"
-          echo "BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> $GITHUB_ENV
+          echo 'VCS_REF=$VCS_REF' >> $GITHUB_ENV
+          echo 'Will build $VCS_REF'
+          echo 'BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')' >> $GITHUB_ENV
 
-          if [[ "${{ matrix.pip_tag }}" == "perf" ]]; then
-            echo "JINA_PIP_INSTALL_PERF=1" >> $GITHUB_ENV
+          if [[ '${{ matrix.pip_tag }}' == 'perf' ]]; then
+            echo 'JINA_PIP_INSTALL_PERF=1' >> $GITHUB_ENV
           fi
 
-          if [[ "${{ matrix.pip_tag }}" == "" ]]; then
-            echo "JINA_PIP_INSTALL_CORE=1" >> $GITHUB_ENV
+          if [[ '${{ matrix.pip_tag }}' == '' ]]; then
+            echo 'JINA_PIP_INSTALL_CORE=1' >> $GITHUB_ENV
           fi
 
           JINA_VERSION=$(sed -n '/^__version__/p' ./server/clip_server/__init__.py | cut -d \' -f2)
@@ -50,34 +50,34 @@ jobs:
           JINA_MAJOR_VERSION=${JINA_MINOR_VERSION%.*}
 
           PY_TAG=${{matrix.py_version}}
-          if [ -n "${PY_TAG}" ]; then
+          if [ -n '${PY_TAG}' ]; then
             PY_TAG=-py${PY_TAG//./}
           fi
 
           PIP_TAG=${{ matrix.pip_tag }}
-          if [ -n "${PIP_TAG}" ]; then
+          if [ -n '${PIP_TAG}' ]; then
               PIP_TAG=-${PIP_TAG}
           fi
 
-          if [[ "${{ github.event.inputs.triggered_by }}" == "CD" ]]; then
+          if [[ '${{ github.event.inputs.triggered_by }}' == 'CD' ]]; then
 
-            if [[ "${{ matrix.py_version }}" == "$DEFAULT_PY_VERSION" ]]; then
-              echo "TAG_ALIAS=\
+            if [[ '${{ matrix.py_version }}' == '$DEFAULT_PY_VERSION' ]]; then
+              echo 'TAG_ALIAS=\
                               jinaai/clip-server:master${PY_TAG}${PIP_TAG}, \
-                              jinaai/clip-server:master${PIP_TAG}" \
+                              jinaai/clip-server:master${PIP_TAG}' \
                               >> $GITHUB_ENV
             else
               # on every CD
-              echo "TAG_ALIAS=\
-                              jinaai/clip-server:master${PY_TAG}${PIP_TAG}" \
+              echo 'TAG_ALIAS=\
+                              jinaai/clip-server:master${PY_TAG}${PIP_TAG}' \
                               >> $GITHUB_ENV
             fi
 
-          elif [[ "${{ github.event.inputs.triggered_by }}" == "TAG" ]]; then
+          elif [[ '${{ github.event.inputs.triggered_by }}' == 'TAG' ]]; then
             # on every tag release
 
-            if [[ "${{ matrix.py_version }}" == "$DEFAULT_PY_VERSION" ]]; then
-              echo "TAG_ALIAS=\
+            if [[ '${{ matrix.py_version }}' == '$DEFAULT_PY_VERSION' ]]; then
+              echo 'TAG_ALIAS=\
                               jinaai/clip-server:latest${PY_TAG}${PIP_TAG}, \
                               jinaai/clip-server:${JINA_VERSION}${PY_TAG}${PIP_TAG}, \
                               jinaai/clip-server:${JINA_MINOR_VERSION}${PY_TAG}${PIP_TAG}, \
@@ -86,33 +86,33 @@ jobs:
                               jinaai/clip-server:${JINA_VERSION}${PIP_TAG}, \
                               jinaai/clip-server:${JINA_MINOR_VERSION}${PIP_TAG}, \
                               jinaai/clip-server:${JINA_MAJOR_VERSION}${PIP_TAG} \
-                              " >> $GITHUB_ENV
+                              ' >> $GITHUB_ENV
             else
-              echo "TAG_ALIAS=\
+              echo 'TAG_ALIAS=\
                               jinaai/clip-server:latest${PY_TAG}${PIP_TAG}, \
                               jinaai/clip-server:${JINA_VERSION}${PY_TAG}${PIP_TAG}, \
                               jinaai/clip-server:${JINA_MINOR_VERSION}${PY_TAG}${PIP_TAG}, \
                               jinaai/clip-server:${JINA_MAJOR_VERSION}${PY_TAG}${PIP_TAG} \
-                              " >> $GITHUB_ENV
+                              ' >> $GITHUB_ENV
             fi
-          elif [[ "${{ github.event.inputs.triggered_by }}" == "MANUAL" ]]; then
+          elif [[ '${{ github.event.inputs.triggered_by }}' == 'MANUAL' ]]; then
             # on every manual release
-            if [[ "${{ matrix.py_version }}" == "$DEFAULT_PY_VERSION" ]]; then
-              echo "TAG_ALIAS=\
+            if [[ '${{ matrix.py_version }}' == '$DEFAULT_PY_VERSION' ]]; then
+              echo 'TAG_ALIAS=\
                               jinaai/clip-server:${JINA_VERSION}${PIP_TAG}, \
                               jinaai/clip-server:${JINA_VERSION}${PY_TAG}${PIP_TAG} \
-                              " >> $GITHUB_ENV
+                              ' >> $GITHUB_ENV
             else
-              echo "TAG_ALIAS=\
+              echo 'TAG_ALIAS=\
                               jinaai/clip-server:${JINA_VERSION}${PY_TAG}${PIP_TAG} \
-                              " >> $GITHUB_ENV
+                              ' >> $GITHUB_ENV
             fi
           else
-            echo "Bad triggered_by: ${{ github.event.inputs.triggered_by }}!"
+            echo 'Bad triggered_by: ${{ github.event.inputs.triggered_by }}!'
             exit 1
           fi
 
-          echo "JINA_VERSION=${JINA_VERSION}" >> $GITHUB_ENV
+          echo 'JINA_VERSION=${JINA_VERSION}' >> $GITHUB_ENV
 
       - name: Set up Docker Buildx
         id: buildx

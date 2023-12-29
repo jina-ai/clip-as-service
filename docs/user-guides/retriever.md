@@ -146,7 +146,7 @@ result = client.search(['smile'], limit=2)
 print(result['@m', ['text', 'scores__cosine']])
 ```
 
-The results will look like this, the most relevant doc is "she smiled, with pain" with the cosine distance of 0.096. And the apple image has the cosine distance of 0.799.
+The results will look like this, the most relevant doc is 'she smiled, with pain' with the cosine distance of 0.096. And the apple image has the cosine distance of 0.799.
 ```text
 [['she smiled, with pain', ''], [{'value': 0.09604918956756592}, {'value': 0.7994111776351929}]]
 ```

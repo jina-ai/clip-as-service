@@ -1,10 +1,10 @@
-__version__ = "0.8.4"
+__version__ = '0.8.4'
 
 import os
 
 from clip_client.client import Client
 
-if "NO_VERSION_CHECK" not in os.environ:
+if 'NO_VERSION_CHECK' not in os.environ:
     from clip_client.helper import is_latest_version
 
-    is_latest_version(github_repo="clip-as-service")
+    is_latest_version(github_repo='clip-as-service')

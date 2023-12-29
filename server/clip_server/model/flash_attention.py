@@ -50,13 +50,13 @@ class MultiheadAttention(nn.MultiheadAttention):
         max_s=None,
         need_weights=False,
     ):
-        """Implements the multihead softmax attention.
+        '''Implements the multihead softmax attention.
         Arguments
         ---------
             q,k,v: The tensor containing the query, key, and value. each of (B*S, H, D)
             key_padding_mask: a bool tensor of shape (B, S)
 
-        """
+        '''
 
         if cu_seqlens is None:
             max_s = seqlen

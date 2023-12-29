@@ -6,7 +6,7 @@ This chapter only tracks the most important breaking changes and explain the rat
 
 ## 0.4.0: rename `rerank` concept to `rank`
 
-"Reranking" is a new feature introduced since 0.3.3. This feature allows user to rank and score `document.matches` in a cross-modal way. From 0.4.0, this feature as well as all related functions will refer it simply as "rank".
+'Reranking' is a new feature introduced since 0.3.3. This feature allows user to rank and score `document.matches` in a cross-modal way. From 0.4.0, this feature as well as all related functions will refer it simply as 'rank'.
 
 ## 0.2.0: improve the service scalability with replicas
 

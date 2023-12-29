@@ -23,13 +23,13 @@ I had this AioRpcError, what should I do?
   ```text
     AioRpcError: <AioRpcError of RPC that terminated with:
             status = StatusCode.UNAVAILABLE
-            details = "failed to connect to all addresses"
+            details = 'failed to connect to all addresses'
             debug_error_string =
-    "{"created":"@1648074480.571952000","description":"Failed to pick subchannel",
-    "file":"src/core/ext/filters/client_channel/client_channel.cc","file_line":312
-    9,"referenced_errors":[{"created":"@1648074480.571952000","description":"faile
-    d to connect to all addresses","file":"src/core/lib/transport/error_utils.cc",
-    "file_line":163,"grpc_status":14}]}"
+    '{'created':'@1648074480.571952000','description':'Failed to pick subchannel',
+    'file':'src/core/ext/filters/client_channel/client_channel.cc','file_line':312
+    9,'referenced_errors':[{'created':'@1648074480.571952000','description':'faile
+    d to connect to all addresses','file':'src/core/lib/transport/error_utils.cc',
+    'file_line':163,'grpc_status':14}]}'
   ```
 
   You can try `.profile()` to {ref}`confirm it<profiling>`. If it still throws the same error, then your connection is broken.
@@ -43,7 +43,7 @@ I had this AioRpcError, what should I do?
   - Is there a firewall on the client side that restricts the port?
   - Is the security group (on Cloud providers) correctly configured?
 
-Why "CLIP-as-service" why not "CLIP-as-a-service"
+Why 'CLIP-as-service' why not 'CLIP-as-a-service'
 : Kind of pay homage to BERT-as-service. It is not about grammatically correct anyhow.
 
 What happened to the BERT-as-service.

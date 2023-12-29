@@ -16,8 +16,8 @@ jobs:
   token-check:
     runs-on: ubuntu-latest
     steps:
-      - run: echo "success!"
-        if: "${{ github.event.inputs.release_token }} == ${{ env.release_token }}"
+      - run: echo 'success!'
+        if: '${{ github.event.inputs.release_token }} == ${{ env.release_token }}'
         env:
           release_token: ${{ secrets.CAS_RELEASE_TOKEN }}
 
@@ -27,17 +27,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        pip_tag: ["", "onnx", "tensorrt"]  # default: "" = torch
-        engine_tag: ["", "cuda"]  # default: "" = cpu
+        pip_tag: ['', 'onnx', 'tensorrt']  # default: '' = torch
+        engine_tag: ['', 'cuda']  # default: '' = cpu
     steps:
       - uses: actions/checkout@v2
       - name: Set envs and versions
         run: |
           VCS_REF=${{ github.ref }}
-          echo "VCS_REF=$VCS_REF" >> $GITHUB_ENV
-          echo "Will build $VCS_REF"
-          echo "BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> $GITHUB_ENV
-          echo "BUILD_TARGET=clip_executor" >> $GITHUB_ENV
+          echo 'VCS_REF=$VCS_REF' >> $GITHUB_ENV
+          echo 'Will build $VCS_REF'
+          echo 'BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')' >> $GITHUB_ENV
+          echo 'BUILD_TARGET=clip_executor' >> $GITHUB_ENV
 
           CAS_VERSION=$(sed -n '/^__version__/p' ./server/clip_server/__init__.py | cut -d \' -f2)
           V_CAS_VERSION=v${CAS_VERSION}
@@ -45,43 +45,43 @@ jobs:
           CAS_MAJOR_VERSION=${CAS_MINOR_VERSION%.*}
           
           ENGINE_TAG=${{matrix.engine_tag}}
-          if [ -n "${ENGINE_TAG}" ]; then
+          if [ -n '${ENGINE_TAG}' ]; then
             ENGINE_TAG=-${ENGINE_TAG//./}
           fi
 
           PIP_TAG=${{ matrix.pip_tag }}
           BACKEND_TAG=torch
-          if [ -n "${PIP_TAG}" ]; then
+          if [ -n '${PIP_TAG}' ]; then
               BACKEND_TAG=${PIP_TAG}
               PIP_TAG=-${PIP_TAG}
           fi
 
-          if [[ "${{ github.event.inputs.triggered_by }}" == "CD" ]]; then
+          if [[ '${{ github.event.inputs.triggered_by }}' == 'CD' ]]; then
             # on every CD release
-            echo "TAG_ALIAS=\
-                            jinaai/clip_executor:master${PIP_TAG}${ENGINE_TAG}" \
+            echo 'TAG_ALIAS=\
+                            jinaai/clip_executor:master${PIP_TAG}${ENGINE_TAG}' \
                             >> $GITHUB_ENV
 
-          elif [[ "${{ github.event.inputs.triggered_by }}" == "TAG" ]]; then
+          elif [[ '${{ github.event.inputs.triggered_by }}' == 'TAG' ]]; then
             # on every tag release
-            echo "TAG_ALIAS=\
+            echo 'TAG_ALIAS=\
                             jinaai/clip_executor:latest${PIP_TAG}${ENGINE_TAG}, \
                             jinaai/clip_executor:${CAS_VERSION}${PIP_TAG}${ENGINE_TAG}, \
                             jinaai/clip_executor:${CAS_MINOR_VERSION}${PIP_TAG}${ENGINE_TAG} \
-                            " >> $GITHUB_ENV
+                            ' >> $GITHUB_ENV
             
-          elif [[ "${{ github.event.inputs.triggered_by }}" == "MANUAL" ]]; then
+          elif [[ '${{ github.event.inputs.triggered_by }}' == 'MANUAL' ]]; then
             # on every manual release
-            echo "TAG_ALIAS=\
+            echo 'TAG_ALIAS=\
                             jinaai/clip_executor:${CAS_VERSION}${PIP_TAG}${ENGINE_TAG} \
-                            " >> $GITHUB_ENV
+                            ' >> $GITHUB_ENV
           else
-            echo "Bad triggered_by: ${{ github.event.inputs.triggered_by }}!"
+            echo 'Bad triggered_by: ${{ github.event.inputs.triggered_by }}!'
             exit 1
           fi
 
-          echo "CAS_VERSION=${CAS_VERSION}" >> $GITHUB_ENV
-          echo "BACKEND_TAG=${BACKEND_TAG}" >> $GITHUB_ENV
+          echo 'CAS_VERSION=${CAS_VERSION}' >> $GITHUB_ENV
+          echo 'BACKEND_TAG=${BACKEND_TAG}' >> $GITHUB_ENV
 
       - name: Set up Docker Buildx
         id: buildx

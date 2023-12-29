@@ -6,7 +6,7 @@ In this demo, you can choose a picture, or copy-paste your image URL into the te
 
 The model is `ViT-L/14-336px` on one GPU.
 
-<iframe frameborder="0" allowtransparency="true" scrolling="no" src="../../_static/demo-text-rank.html" style="overflow:hidden;overflow-x:hidden;overflow-y:hidden;height:100vh;width:100%"></iframe>
+<iframe frameborder='0' allowtransparency='true' scrolling='no' src='../../_static/demo-text-rank.html' style='overflow:hidden;overflow-x:hidden;overflow-y:hidden;height:100vh;width:100%'></iframe>
 
 
 ```{button-link} ../../_static/demo-text-rank.html

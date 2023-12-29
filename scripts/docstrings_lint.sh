@@ -30,9 +30,9 @@ if [ ${#arrVar[@]} -eq 0 ]; then
   exit 0
 fi
 
-DARGLINT_OUTPUT=$(darglint -v 2 -s sphinx "${arrVar[@]}"); PYDOCSTYLE_OUTPUT=$(pydocstyle --select=D101,D102,D103 "${arrVar[@]}")
+DARGLINT_OUTPUT=$(darglint -v 2 -s sphinx '${arrVar[@]}'); PYDOCSTYLE_OUTPUT=$(pydocstyle --select=D101,D102,D103 '${arrVar[@]}')
 # status captured here
-if [[ -z "$PYDOCSTYLE_OUTPUT" ]] && [[ -z "$DARGLINT_OUTPUT" ]]; then
+if [[ -z '$PYDOCSTYLE_OUTPUT' ]] && [[ -z '$DARGLINT_OUTPUT' ]]; then
   echo 'OK'
   exit 0
 else

@@ -8,10 +8,10 @@ try:
     from clip_server.model.trt_utils import load_engine, build_engine, save_engine
 except ImportError:
     raise ImportError(
-        "It seems that TensorRT is not yet installed. "
-        "It is required when you declare TensorRT backend."
-        "Please find installation instruction on "
-        "https://docs.nvidia.com/deeplearning/tensorrt/install-guide/index.html"
+        'It seems that TensorRT is not yet installed. '
+        'It is required when you declare TensorRT backend.'
+        'Please find installation instruction on '
+        'https://docs.nvidia.com/deeplearning/tensorrt/install-guide/index.html'
     )
 from clip_server.model.pretrained_models import (
     _OPENCLIP_MODELS,
@@ -21,27 +21,27 @@ from clip_server.model.clip_model import BaseCLIPModel
 from clip_server.model.clip_onnx import _MODELS as ONNX_MODELS
 
 _MODELS = [
-    "RN50::openai",
-    "RN50::yfcc15m",
-    "RN50::cc12m",
-    "RN101::openai",
-    "RN101::yfcc15m",
-    "RN50x4::openai",
-    "ViT-B-32::openai",
-    "ViT-B-32::laion2b_e16",
-    "ViT-B-32::laion400m_e31",
-    "ViT-B-32::laion400m_e32",
-    "ViT-B-16::openai",
-    "ViT-B-16::laion400m_e31",
-    "ViT-B-16::laion400m_e32",
+    'RN50::openai',
+    'RN50::yfcc15m',
+    'RN50::cc12m',
+    'RN101::openai',
+    'RN101::yfcc15m',
+    'RN50x4::openai',
+    'ViT-B-32::openai',
+    'ViT-B-32::laion2b_e16',
+    'ViT-B-32::laion400m_e31',
+    'ViT-B-32::laion400m_e32',
+    'ViT-B-16::openai',
+    'ViT-B-16::laion400m_e31',
+    'ViT-B-16::laion400m_e32',
     # older version name format
-    "RN50",
-    "RN101",
-    "RN50x4",
+    'RN50',
+    'RN101',
+    'RN50x4',
     # 'RN50x16',
     # 'RN50x64',
-    "ViT-B/32",
-    "ViT-B/16",
+    'ViT-B/32',
+    'ViT-B/16',
     # 'ViT-L/14',
     # 'ViT-L/14@336px',
 ]
@@ -56,16 +56,16 @@ class CLIPTensorRTModel(BaseCLIPModel):
 
         if name in _MODELS:
             cache_dir = os.path.expanduser(
-                f'~/.cache/clip/{name.replace("/", "-").replace("::", "-")}'
+                f'~/.cache/clip/{name.replace('/', '-').replace('::', '-')}'
             )
 
             self._textual_path = os.path.join(
                 cache_dir,
-                f"textual.{ONNX_MODELS[name][0][1]}.trt",
+                f'textual.{ONNX_MODELS[name][0][1]}.trt',
             )
             self._visual_path = os.path.join(
                 cache_dir,
-                f"visual.{ONNX_MODELS[name][1][1]}.trt",
+                f'visual.{ONNX_MODELS[name][1][1]}.trt',
             )
 
             if not os.path.exists(self._textual_path) or not os.path.exists(
@@ -114,9 +114,9 @@ class CLIPTensorRTModel(BaseCLIPModel):
                 save_engine(text_engine, self._textual_path)
         else:
             raise RuntimeError(
-                "CLIP model {} not found or not supports Nvidia TensorRT backend; below is a list of all available models:\n{}".format(
+                'CLIP model {} not found or not supports Nvidia TensorRT backend; below is a list of all available models:\n{}'.format(
                     name,
-                    "".join(["\t- {}\n".format(i) for i in list(_MODELS.keys())]),
+                    ''.join(['\t- {}\n'.format(i) for i in list(_MODELS.keys())]),
                 )
             )
 

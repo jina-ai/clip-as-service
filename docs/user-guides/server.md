@@ -37,7 +37,7 @@ First time running will download the pretrained model (Pytorch `ViT-B/32` by def
 To use ONNX runtime for CLIP, you can run:
 
 ```bash
-pip install "clip_server[onnx]"
+pip install 'clip_server[onnx]'
 
 python -m clip_server onnx-flow.yml
 ```
@@ -49,7 +49,7 @@ python -m clip_server onnx-flow.yml
 
 ```bash
 pip install nvidia-pyindex
-pip install "clip_server[tensorrt]"
+pip install 'clip_server[tensorrt]'
 
 python -m clip_server tensorrt-flow.yml
 ```
@@ -537,7 +537,7 @@ with:
 Here, `protocol` can be either `http` or `grpc`; `cert.pem` or `key.pem` represent both parts of a certificate, key being the private key to the certificate and crt being the signed certificate. You can run the following command in terminal:
 
 ```bash
-openssl req -newkey rsa:4096 -nodes -sha512 -x509 -days 3650 -nodes -out cert.pem -keyout key.pem -subj "/CN=<your.clip.address>"
+openssl req -newkey rsa:4096 -nodes -sha512 -x509 -days 3650 -nodes -out cert.pem -keyout key.pem -subj '/CN=<your.clip.address>'
 ```
 
 Note that if you are using `protocol: grpc` then `/CN=<your.clip.address>` must strictly follow the IP address or the domain name of your server. Mismatch IP or domain name would throw an exception.
@@ -609,7 +609,7 @@ docker run -p 51009:51000 -v $HOME/.cache:/home/cas/.cache --gpus all jinaai/cli
 
 Here, `51009` is the public port on the host and `51000` is the {ref}`in-container port defined inside YAML<flow-config>`. The argument `-v $HOME/.cache:/home/cas/.cache` leverages host's cache and prevents you to download the same model next time on start. 
 
-Due to the limitation of the terminal inside Docker container, you will **not** see the classic Jina progress bar on start. Instead, you will face a few minutes awkward silent while model downloading and then see "Flow is ready to serve" dialog.
+Due to the limitation of the terminal inside Docker container, you will **not** see the classic Jina progress bar on start. Instead, you will face a few minutes awkward silent while model downloading and then see 'Flow is ready to serve' dialog.
 
 To pass a YAML config from the host, one can do:
 
@@ -664,12 +664,12 @@ jinaai/clip-server:{version}{extra}
 | On `x.y.z` release   | `jinaai/clip-server:x.y.z{extra}`  | `jinaai/clip-server:latest{python_version}{extra}`, `jinaai/clip-server:x.y{python_version}{extra}`, `jinaai/clip-server:x{python_version}{extra}` |
 
 3 images are built on the event listed above, i.e. taking the combination of:
-  - `{extra} = ["", "-onnx", "-tensorrt"]`
+  - `{extra} = ['', '-onnx', '-tensorrt']`
 
 #### Image size on different tags
 
 ```{warning}
-[Due to a known bug in shields.io/Docker Hub API](https://github.com/badges/shields/issues/7583), the following badge may show "invalid" status randomly.
+[Due to a known bug in shields.io/Docker Hub API](https://github.com/badges/shields/issues/7583), the following badge may show 'invalid' status randomly.
 ```
 
 | Image Size                                                                                                                                |

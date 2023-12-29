@@ -1,14 +1,14 @@
-<p align="center">
-<a href="https://clip-as-service.jina.ai"><img src="https://github.com/jina-ai/clip-as-service/blob/main/docs/_static/logo-light.svg?raw=true" alt="CLIP-as-service logo: The data structure for unstructured data" width="200px"></a>
+<p align='center'>
+<a href='https://clip-as-service.jina.ai'><img src='https://github.com/jina-ai/clip-as-service/blob/main/docs/_static/logo-light.svg?raw=true' alt='CLIP-as-service logo: The data structure for unstructured data' width='200px'></a>
 <br><br><br>
 </p>
 
 
 <p align=center>
-<a href="https://pypi.org/project/clip_server/"><img alt="PyPI" src="https://img.shields.io/pypi/v/clip_server?label=Release&style=flat-square"></a>
-<a href="https://discord.jina.ai"><img src="https://img.shields.io/discord/1106542220112302130?logo=discord&logoColor=white&style=flat-square"></a>
-<a href="https://codecov.io/gh/jina-ai/clip-as-service"><img alt="Codecov branch" src="https://img.shields.io/codecov/c/github/jina-ai/clip-as-service/main?logo=Codecov&logoColor=white&style=flat-square"></a>
-<a href="https://colab.research.google.com/github/jina-ai/clip-as-service/blob/main/docs/hosting/cas-on-colab.ipynb"><img src="https://img.shields.io/badge/Host-on%20Google%20Colab%20(GPU/TPU)-brightgreen?style=flat-square&logo=googlecolab&&logoColor=white" alt="Host on Google Colab with GPU/TPU support"></a>
+<a href='https://pypi.org/project/clip_server/'><img alt='PyPI' src='https://img.shields.io/pypi/v/clip_server?label=Release&style=flat-square'></a>
+<a href='https://discord.jina.ai'><img src='https://img.shields.io/discord/1106542220112302130?logo=discord&logoColor=white&style=flat-square'></a>
+<a href='https://codecov.io/gh/jina-ai/clip-as-service'><img alt='Codecov branch' src='https://img.shields.io/codecov/c/github/jina-ai/clip-as-service/main?logo=Codecov&logoColor=white&style=flat-square'></a>
+<a href='https://colab.research.google.com/github/jina-ai/clip-as-service/blob/main/docs/hosting/cas-on-colab.ipynb'><img src='https://img.shields.io/badge/Host-on%20Google%20Colab%20(GPU/TPU)-brightgreen?style=flat-square&logo=googlecolab&&logoColor=white' alt='Host on Google Colab with GPU/TPU support'></a>
 </p>
 
 <!-- start elevator-pitch -->
@@ -44,11 +44,11 @@ curl \
 -X POST https://<your-inference-address>-http.wolf.jina.ai/post \
 -H 'Content-Type: application/json' \
 -H 'Authorization: <your access token>' \
--d '{"data":[{"text": "First do it"}, 
-    {"text": "then do it right"}, 
-    {"text": "then do it better"}, 
-    {"uri": "https://picsum.photos/200"}], 
-    "execEndpoint":"/"}'
+-d '{'data':[{'text': 'First do it'}, 
+    {'text': 'then do it right'}, 
+    {'text': 'then do it better'}, 
+    {'uri': 'https://picsum.photos/200'}], 
+    'execEndpoint':'/'}'
 ```
 
 </td>
@@ -90,7 +90,7 @@ There are four basic visual reasoning skills: object recognition, object countin
 </tr>
 <tr>
 <td>
-<img src="https://picsum.photos/id/1/300/300">
+<img src='https://picsum.photos/id/1/300/300'>
 </td>
 <td>
 
@@ -99,19 +99,19 @@ curl \
 -X POST https://<your-inference-address>-http.wolf.jina.ai/post \
 -H 'Content-Type: application/json' \
 -H 'Authorization: <your access token>' \
--d '{"data":[{"uri": "https://picsum.photos/id/1/300/300",
-"matches": [{"text": "there is a woman in the photo"},
-            {"text": "there is a man in the photo"}]}],
-            "execEndpoint":"/rank"}' \
-| jq ".data[].matches[] | (.text, .scores.clip_score.value)"
+-d '{'data':[{'uri': 'https://picsum.photos/id/1/300/300',
+'matches': [{'text': 'there is a woman in the photo'},
+            {'text': 'there is a man in the photo'}]}],
+            'execEndpoint':'/rank'}' \
+| jq '.data[].matches[] | (.text, .scores.clip_score.value)'
 ```
 
 gives:
 
 ```
-"there is a woman in the photo"
+'there is a woman in the photo'
 0.626907229423523
-"there is a man in the photo"
+'there is a man in the photo'
 0.37309277057647705
 ```
 
@@ -119,7 +119,7 @@ gives:
 </tr>
 <tr>
 <td>
-<img src="https://picsum.photos/id/133/300/300">
+<img src='https://picsum.photos/id/133/300/300'>
 </td>
 <td>
 
@@ -128,25 +128,25 @@ curl \
 -X POST https://<your-inference-address>-http.wolf.jina.ai/post \
 -H 'Content-Type: application/json' \
 -H 'Authorization: <your access token>' \
--d '{"data":[{"uri": "https://picsum.photos/id/133/300/300",
-"matches": [
-{"text": "the blue car is on the left, the red car is on the right"},
-{"text": "the blue car is on the right, the red car is on the left"},
-{"text": "the blue car is on top of the red car"},
-{"text": "the blue car is below the red car"}]}],
-"execEndpoint":"/rank"}' \
-| jq ".data[].matches[] | (.text, .scores.clip_score.value)"
+-d '{'data':[{'uri': 'https://picsum.photos/id/133/300/300',
+'matches': [
+{'text': 'the blue car is on the left, the red car is on the right'},
+{'text': 'the blue car is on the right, the red car is on the left'},
+{'text': 'the blue car is on top of the red car'},
+{'text': 'the blue car is below the red car'}]}],
+'execEndpoint':'/rank'}' \
+| jq '.data[].matches[] | (.text, .scores.clip_score.value)'
 ```
 
 gives:
 ```
-"the blue car is on the left, the red car is on the right"
+'the blue car is on the left, the red car is on the right'
 0.5232442617416382
-"the blue car is on the right, the red car is on the left"
+'the blue car is on the right, the red car is on the left'
 0.32878655195236206
-"the blue car is below the red car"
+'the blue car is below the red car'
 0.11064132302999496
-"the blue car is on top of the red car"
+'the blue car is on top of the red car'
 0.03732786327600479
 ```
 
@@ -156,7 +156,7 @@ gives:
 
 <tr>
 <td>
-<img src="https://picsum.photos/id/102/300/300">
+<img src='https://picsum.photos/id/102/300/300'>
 </td>
 <td>
 
@@ -165,30 +165,30 @@ curl \
 -X POST https://<your-inference-address>-http.wolf.jina.ai/post \
 -H 'Content-Type: application/json' \
 -H 'Authorization: <your access token>' \
--d '{"data":[{"uri": "https://picsum.photos/id/102/300/300",
-"matches": [{"text": "this is a photo of one berry"},
-            {"text": "this is a photo of two berries"},
-            {"text": "this is a photo of three berries"},
-            {"text": "this is a photo of four berries"},
-            {"text": "this is a photo of five berries"},
-            {"text": "this is a photo of six berries"}]}],
-            "execEndpoint":"/rank"}' \
-| jq ".data[].matches[] | (.text, .scores.clip_score.value)"
+-d '{'data':[{'uri': 'https://picsum.photos/id/102/300/300',
+'matches': [{'text': 'this is a photo of one berry'},
+            {'text': 'this is a photo of two berries'},
+            {'text': 'this is a photo of three berries'},
+            {'text': 'this is a photo of four berries'},
+            {'text': 'this is a photo of five berries'},
+            {'text': 'this is a photo of six berries'}]}],
+            'execEndpoint':'/rank'}' \
+| jq '.data[].matches[] | (.text, .scores.clip_score.value)'
 ```
 
 gives:
 ```
-"this is a photo of three berries"
+'this is a photo of three berries'
 0.48507222533226013
-"this is a photo of four berries"
+'this is a photo of four berries'
 0.2377079576253891
-"this is a photo of one berry"
+'this is a photo of one berry'
 0.11304923892021179
-"this is a photo of five berries"
+'this is a photo of five berries'
 0.0731358453631401
-"this is a photo of two berries"
+'this is a photo of two berries'
 0.05045759305357933
-"this is a photo of six berries"
+'this is a photo of six berries'
 0.04057715833187103
 ```
 
@@ -224,7 +224,7 @@ pip install clip-server
 <td>
 
 ```bash
-pip install "clip-server[onnx]"
+pip install 'clip-server[onnx]'
 ```
 
 </td>
@@ -232,7 +232,7 @@ pip install "clip-server[onnx]"
 
 ```bash
 pip install nvidia-pyindex 
-pip install "clip-server[tensorrt]"
+pip install 'clip-server[tensorrt]'
 ```
 </td>
 </tr>
@@ -270,7 +270,7 @@ python -m clip_server
 </td>
 <td>
 
-<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/server-output.svg?raw=true" alt="Expected server output" width="300px">
+<img src='https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/server-output.svg?raw=true' alt='Expected server output' width='300px'>
 
 </td>
 </tr>
@@ -290,7 +290,7 @@ c.profile()
 </td>
 <td>
 
-<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/pyclient-output.svg?raw=true" alt="Expected clip-client output" width="300px">
+<img src='https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/pyclient-output.svg?raw=true' alt='Expected clip-client output' width='300px'>
 
 </td>
 </tr>
@@ -361,8 +361,8 @@ The dataset contains 12,032 images, so it may take a while to pull. Once done, y
 da.plot_image_sprites()
 ```
 
-<p align="center">
-<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/ttl-image-sprites.png?raw=true" alt="Visualization of the image sprite of Totally looks like dataset" width="50%">
+<p align='center'>
+<img src='https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/ttl-image-sprites.png?raw=true' alt='Visualization of the image sprite of Totally looks like dataset' width='50%'>
 </p>
 
 #### Encode images
@@ -411,29 +411,29 @@ Now you can input arbitrary English sentences and view the top-9 matching images
 
 <table>
 <tr>
-<th> "a happy potato" </th> 
-<th> "a super evil AI" </th> 
-<th> "a guy enjoying his burger" </th>
+<th> 'a happy potato' </th> 
+<th> 'a super evil AI' </th> 
+<th> 'a guy enjoying his burger' </th>
 </tr>
 <tr>
 <td>
 
-<p align="center">
-<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/a-happy-potato.png?raw=true" alt="Visualization of the image sprite of Totally looks like dataset" width="100%">
+<p align='center'>
+<img src='https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/a-happy-potato.png?raw=true' alt='Visualization of the image sprite of Totally looks like dataset' width='100%'>
 </p>
 
 </td>
 <td>
 
-<p align="center">
-<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/a-super-evil-AI.png?raw=true" alt="Visualization of the image sprite of Totally looks like dataset" width="100%">
+<p align='center'>
+<img src='https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/a-super-evil-AI.png?raw=true' alt='Visualization of the image sprite of Totally looks like dataset' width='100%'>
 </p>
 
 </td>
 <td>
 
-<p align="center">
-<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/a-guy-enjoying-his-burger.png?raw=true" alt="Visualization of the image sprite of Totally looks like dataset" width="100%">
+<p align='center'>
+<img src='https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/a-guy-enjoying-his-burger.png?raw=true' alt='Visualization of the image sprite of Totally looks like dataset' width='100%'>
 </p>
 
 </td>
@@ -443,29 +443,29 @@ Now you can input arbitrary English sentences and view the top-9 matching images
 
 <table>
 <tr>
-<th> "professor cat is very serious" </th> 
-<th> "an ego engineer lives with parent" </th> 
-<th> "there will be no tomorrow so lets eat unhealthy" </th>
+<th> 'professor cat is very serious' </th> 
+<th> 'an ego engineer lives with parent' </th> 
+<th> 'there will be no tomorrow so lets eat unhealthy' </th>
 </tr>
 <tr>
 <td>
 
-<p align="center">
-<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/professor-cat-is-very-serious.png?raw=true" alt="Visualization of the image sprite of Totally looks like dataset" width="100%">
+<p align='center'>
+<img src='https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/professor-cat-is-very-serious.png?raw=true' alt='Visualization of the image sprite of Totally looks like dataset' width='100%'>
 </p>
 
 </td>
 <td>
 
-<p align="center">
-<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/an-ego-engineer-lives-with-parent.png?raw=true" alt="Visualization of the image sprite of Totally looks like dataset" width="100%">
+<p align='center'>
+<img src='https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/an-ego-engineer-lives-with-parent.png?raw=true' alt='Visualization of the image sprite of Totally looks like dataset' width='100%'>
 </p>
 
 </td>
 <td>
 
-<p align="center">
-<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/there-will-be-no-tomorrow-so-lets-eat-unhealthy.png?raw=true" alt="Visualization of the image sprite of Totally looks like dataset" width="100%">
+<p align='center'>
+<img src='https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/there-will-be-no-tomorrow-so-lets-eat-unhealthy.png?raw=true' alt='Visualization of the image sprite of Totally looks like dataset' width='100%'>
 </p>
 
 </td>
@@ -482,7 +482,7 @@ da.save_binary('ttl-image')
 
 We can also switch the input and output of the last program to achieve image-to-text search. Precisely, given a query image find the sentence that best describes the image.
 
-Let's use all sentences from the book "Pride and Prejudice". 
+Let's use all sentences from the book 'Pride and Prejudice'. 
 
 ```python
 from docarray import Document, DocumentArray
@@ -554,43 +554,43 @@ for d in img_da.sample(10):
 
 #### Showcase
 
-Fun time! Note, unlike the previous example, here the input is an image and the sentence is the output. All sentences come from the book "Pride and Prejudice". 
+Fun time! Note, unlike the previous example, here the input is an image and the sentence is the output. All sentences come from the book 'Pride and Prejudice'. 
 
 <table>
 <tr>
 <td>
-<p align="center">
-<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/Besides,-there-was-truth-in-his-looks.png?raw=true" alt="Visualization of the image sprite of Totally looks like dataset" height="100px">
+<p align='center'>
+<img src='https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/Besides,-there-was-truth-in-his-looks.png?raw=true' alt='Visualization of the image sprite of Totally looks like dataset' height='100px'>
 </p>
 
 
 </td>
 <td>
 
-<p align="center">
-<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/Gardiner-smiled.png?raw=true" alt="Visualization of the image sprite of Totally looks like dataset" height="100px">
+<p align='center'>
+<img src='https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/Gardiner-smiled.png?raw=true' alt='Visualization of the image sprite of Totally looks like dataset' height='100px'>
 </p>
 
 </td>
 <td>
 
-<p align="center">
-<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/what’s-his-name.png?raw=true" alt="Visualization of the image sprite of Totally looks like dataset" height="100px">
+<p align='center'>
+<img src='https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/what’s-his-name.png?raw=true' alt='Visualization of the image sprite of Totally looks like dataset' height='100px'>
 </p>
 
 </td>
 <td>
 
-<p align="center">
-<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/By-tea-time,-however,-the-dose-had-been-enough,-and-Mr.png?raw=true" alt="Visualization of the image sprite of Totally looks like dataset" height="100px">
+<p align='center'>
+<img src='https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/By-tea-time,-however,-the-dose-had-been-enough,-and-Mr.png?raw=true' alt='Visualization of the image sprite of Totally looks like dataset' height='100px'>
 </p>
 
 </td>
 
 <td>
 
-<p align="center">
-<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/You-do-not-look-well.png?raw=true" alt="Visualization of the image sprite of Totally looks like dataset" height="100px">
+<p align='center'>
+<img src='https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/You-do-not-look-well.png?raw=true' alt='Visualization of the image sprite of Totally looks like dataset' height='100px'>
 </p>
 
 </td>
@@ -607,38 +607,38 @@ Fun time! Note, unlike the previous example, here the input is an image and the 
 <table>
 <tr>
 <td>
-<p align="center">
-<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/“A-gamester!”-she-cried.png?raw=true" alt="Visualization of the image sprite of Totally looks like dataset" height="100px">
+<p align='center'>
+<img src='https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/“A-gamester!”-she-cried.png?raw=true' alt='Visualization of the image sprite of Totally looks like dataset' height='100px'>
 </p>
 
 
 </td>
 <td>
 
-<p align="center">
-<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/If-you-mention-my-name-at-the-Bell,-you-will-be-attended-to.png?raw=true" alt="Visualization of the image sprite of Totally looks like dataset" height="100px">
+<p align='center'>
+<img src='https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/If-you-mention-my-name-at-the-Bell,-you-will-be-attended-to.png?raw=true' alt='Visualization of the image sprite of Totally looks like dataset' height='100px'>
 </p>
 
 </td>
 <td>
 
-<p align="center">
-<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/Never-mind-Miss-Lizzy’s-hair.png?raw=true" alt="Visualization of the image sprite of Totally looks like dataset" height="100px">
+<p align='center'>
+<img src='https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/Never-mind-Miss-Lizzy’s-hair.png?raw=true' alt='Visualization of the image sprite of Totally looks like dataset' height='100px'>
 </p>
 
 </td>
 <td>
 
-<p align="center">
-<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/Elizabeth-will-soon-be-the-wife-of-Mr.png?raw=true" alt="Visualization of the image sprite of Totally looks like dataset" height="100px">
+<p align='center'>
+<img src='https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/Elizabeth-will-soon-be-the-wife-of-Mr.png?raw=true' alt='Visualization of the image sprite of Totally looks like dataset' height='100px'>
 </p>
 
 </td>
 
 <td>
 
-<p align="center">
-<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/I-saw-them-the-night-before-last.png?raw=true" alt="Visualization of the image sprite of Totally looks like dataset" height="100px">
+<p align='center'>
+<img src='https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/I-saw-them-the-night-before-last.png?raw=true' alt='Visualization of the image sprite of Totally looks like dataset' height='100px'>
 </p>
 
 </td>
@@ -694,10 +694,10 @@ One can see now `a photo of a television studio` is ranked to the top with `clip
 <table>
 <tr>
 <td>
-<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/rerank.png?raw=true" alt="Rerank endpoint image input" height="150px">
+<img src='https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/rerank.png?raw=true' alt='Rerank endpoint image input' height='150px'>
 </td>
 <td>
-<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/rerank-chart.svg?raw=true" alt="Rerank endpoint output">
+<img src='https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/rerank-chart.svg?raw=true' alt='Rerank endpoint output'>
 </td>
 </tr>
 </table>
@@ -721,8 +721,8 @@ class ReRank(Executor):
         return await self._client.arank(docs)
 ```
 
-<p align="center">
-<img src="https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/client-dalle.png?raw=true" alt="CLIP-as-service used in DALLE Flow" width="300px">
+<p align='center'>
+<img src='https://github.com/jina-ai/clip-as-service/blob/main/.github/README-img/client-dalle.png?raw=true' alt='CLIP-as-service used in DALLE Flow' width='300px'>
 </p>
 
 Intrigued? That's only scratching the surface of what CLIP-as-service is capable of. [Read our docs to learn more](https://clip-as-service.jina.ai).

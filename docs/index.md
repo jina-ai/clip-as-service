@@ -32,7 +32,7 @@ pip install clip-server
 ````{tab} Server (ONNX)
 
 ```bash
-pip install "clip_server[onnx]"
+pip install 'clip_server[onnx]'
 ```
 
 ````
@@ -42,7 +42,7 @@ pip install "clip_server[onnx]"
 
 ```bash
 pip install nvidia-pyindex 
-pip install "clip_server[tensorrt]"
+pip install 'clip_server[tensorrt]'
 ```
 ````
 

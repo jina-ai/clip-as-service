@@ -96,7 +96,7 @@ gives you
 This feature uses [DocArray](https://docarray.jina.ai), which is installed together with `clip_client` as an upstream dependency. You do not need to install DocArray separately.
 ```
 
-If auto-detection on a list of raw string is too "sci-fi" to you, then you may use `docarray.Document` to make the input more explicit and organized. `Document` can be used as a container to easily represent a sentence or an image.
+If auto-detection on a list of raw string is too 'sci-fi' to you, then you may use `docarray.Document` to make the input more explicit and organized. `Document` can be used as a container to easily represent a sentence or an image.
 
 - Input: each `Document` must be filled with `.text` or `.uri` or `.blob` or `.tensor` attribute. 
   - `Document` filled with `.text` is considered as sentence;
@@ -188,7 +188,7 @@ Reading an image file into bytes and put into `.blob` is possible as shown above
 To encode `Document` in an asynchronous manner, one can use {func}`~clip_client.client.Client.aencode`.
 
 ```{tip}
-Despite the sexy word "async", many data scientists have misconceptions about asynchronous behavior. And their motivation of using async function is often wrong. _Async is not a silver bullet._ In a simple language, you will only need `.aencode()` when there is another concurrent task that is also async. Then you want to "overlap" the time spending of these two tasks.
+Despite the sexy word 'async', many data scientists have misconceptions about asynchronous behavior. And their motivation of using async function is often wrong. _Async is not a silver bullet._ In a simple language, you will only need `.aencode()` when there is another concurrent task that is also async. Then you want to 'overlap' the time spending of these two tasks.
 
 If your system is sync by design, there is nothing wrong about it. Go with `encode()` until you see a clear advantage of using `aencode()`, or until your boss tell you to do so.   
 ```
@@ -366,7 +366,7 @@ result = c.search(['smile'], limit=2)
 print(result['@m', ['text', 'scores__cosine']])
 ```
 
-The results will look like this, the most relevant doc is "she smiled, with pain" with the cosine distance of 0.096. And the apple image has the cosine distance of 0.799.
+The results will look like this, the most relevant doc is 'she smiled, with pain' with the cosine distance of 0.096. And the apple image has the cosine distance of 0.799.
 ```text
 [['she smiled, with pain', ''], [{'value': 0.09604918956756592}, {'value': 0.7994111776351929}]]
 ```
@@ -548,12 +548,12 @@ from anyio import CapacityLimiter
 c = Client('grpc://0.0.0.0:51001')
 app = FastAPI()
 
-@app.on_event("startup")
+@app.on_event('startup')
 def startup():
-    print("start")
-    RunVar("_default_thread_limiter").set(CapacityLimiter(1))
+    print('start')
+    RunVar('_default_thread_limiter').set(CapacityLimiter(1))
 
-@app.post("/")
+@app.post('/')
 def encode():
     r =  c.encode(['Hello world', 'Hello Jina'])
     print(r)
@@ -581,7 +581,7 @@ emphasize-lines: 3
 ---
 curl -X POST http://0.0.0.0:51000/post \ 
      -H 'Content-Type: application/json' \
-     -d '{"data":[{"text": "First do it"}, {"text": "then do it right"}, {"text": "then do it better"}], "execEndpoint":"/"}'
+     -d '{'data':[{'text': 'First do it'}, {'text': 'then do it right'}, {'text': 'then do it better'}], 'execEndpoint':'/'}'
 ```
 
 To encode a local image, you need to load it as base64 string and put into the `blob` field, and be careful with the quotes there:
@@ -592,7 +592,7 @@ emphasize-lines: 3
 ---
 curl -X POST http://0.0.0.0:51000/post \ 
      -H 'Content-Type: application/json' \
-     -d '{"data":[{"text": "First do it"}, {"blob":"'"$( base64 test-1.jpeg)"'" }], "execEndpoint":"/"}'
+     -d '{'data':[{'text': 'First do it'}, {'blob':'''$( base64 test-1.jpeg)''' }], 'execEndpoint':'/'}'
 ```
 
 To encode a remote image, you can simply put its address into `uri` field:
@@ -603,13 +603,13 @@ emphasize-lines: 3
 ---
 curl -X POST http://0.0.0.0:51000/post \ 
      -H 'Content-Type: application/json' \
-     -d '{"data":[{"text": "First do it"}, {"uri": "https://clip-as-service.jina.ai/_static/favicon.png"}], "execEndpoint":"/"}'
+     -d '{'data':[{'text': 'First do it'}, {'uri': 'https://clip-as-service.jina.ai/_static/favicon.png'}], 'execEndpoint':'/'}'
 ```
 
 Run it, you will get:
 
 ```json
-{"header":{"requestId":"8b1f4b419bc54e95ab4b63cc086233c9","status":null,"execEndpoint":"/","targetExecutor":""},"parameters":null,"routes":[{"executor":"gateway","startTime":"2022-04-01T15:24:28.267003+00:00","endTime":"2022-04-01T15:24:28.328868+00:00","status":null},{"executor":"clip_t","startTime":"2022-04-01T15:24:28.267189+00:00","endTime":"2022-04-01T15:24:28.328748+00:00","status":null}],"data":[{"id":"b15331b8281ffde1e9fb64005af28ffd","parent_id":null,"granularity":null,"adjacency":null,"blob":null,"tensor":null,"mime_type":"text/plain","text":"hello, world!","weight":null,"uri":null,"tags":null,"offset":null,"location":null,"embedding":[-0.022064208984375,0.1044921875, ..., -0.1363525390625,-0.447509765625],"modality":null,"evaluations":null,"scores":null,"chunks":null,"matches":null}]}
+{'header':{'requestId':'8b1f4b419bc54e95ab4b63cc086233c9','status':null,'execEndpoint':'/','targetExecutor':''},'parameters':null,'routes':[{'executor':'gateway','startTime':'2022-04-01T15:24:28.267003+00:00','endTime':'2022-04-01T15:24:28.328868+00:00','status':null},{'executor':'clip_t','startTime':'2022-04-01T15:24:28.267189+00:00','endTime':'2022-04-01T15:24:28.328748+00:00','status':null}],'data':[{'id':'b15331b8281ffde1e9fb64005af28ffd','parent_id':null,'granularity':null,'adjacency':null,'blob':null,'tensor':null,'mime_type':'text/plain','text':'hello, world!','weight':null,'uri':null,'tags':null,'offset':null,'location':null,'embedding':[-0.022064208984375,0.1044921875, ..., -0.1363525390625,-0.447509765625],'modality':null,'evaluations':null,'scores':null,'chunks':null,'matches':null}]}
 ```
 
 The embedding is inside `.data[].embedding`. If you have [jq](https://stedolan.github.io/jq/) installed, you can easily filter the embeddings out via:
@@ -620,7 +620,7 @@ emphasize-lines: 4
 ---
 curl -X POST http://0.0.0.0:51000/post \
      -H 'Content-Type: application/json' \
-     -d '{"data":[{"text": "hello, world!"}, {"blob":"'"$( base64 test-1.jpeg)"'" }], "execEndpoint":"/"}' | \
+     -d '{'data':[{'text': 'hello, world!'}, {'blob':'''$( base64 test-1.jpeg)''' }], 'execEndpoint':'/'}' | \
      jq -c '.data[] | .embedding'
 ```
 

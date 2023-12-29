@@ -3,7 +3,7 @@ name: Release CD
 on:
   push:
     tags:
-      - "v*"  # push to version tags trigger the build
+      - 'v*'  # push to version tags trigger the build
 
 jobs:
   update-doc:
@@ -13,7 +13,7 @@ jobs:
         with:
           workflow: Manual Docs Build
           token: ${{ secrets.JINA_DEV_BOT }}
-          inputs: '{ "release_token": "${{ env.release_token }}", "triggered_by": "TAG"}'
+          inputs: '{ 'release_token': '${{ env.release_token }}', 'triggered_by': 'TAG'}'
         env:
           release_token: ${{ secrets.CAS_RELEASE_TOKEN }}
 
@@ -25,7 +25,7 @@ jobs:
         uses: benc-uk/workflow-dispatch@v1
         with:
           workflow: Manual CAS Docker Build
-          inputs: '{ "release_token": "${{ env.release_token }}", "triggered_by": "TAG"}'
+          inputs: '{ 'release_token': '${{ env.release_token }}', 'triggered_by': 'TAG'}'
           token: ${{ secrets.JINA_DEV_BOT }}
         env:
           release_token: ${{ secrets.CAS_RELEASE_TOKEN }}
@@ -33,7 +33,7 @@ jobs:
         uses: benc-uk/workflow-dispatch@v1
         with:
           workflow: Manual Docker Build
-          inputs: '{ "release_token": "${{ env.release_token }}", "triggered_by": "TAG"}'
+          inputs: '{ 'release_token': '${{ env.release_token }}', 'triggered_by': 'TAG'}'
           token: ${{ secrets.JINA_DEV_BOT }}
         env:
           release_token: ${{ secrets.CAS_RELEASE_TOKEN }}
@@ -41,7 +41,7 @@ jobs:
         uses: benc-uk/workflow-dispatch@v1
         with:
           workflow: Manual Hub Push
-          inputs: '{ "release_token": "${{ env.release_token }}", "triggered_by": "TAG"}'
+          inputs: '{ 'release_token': '${{ env.release_token }}', 'triggered_by': 'TAG'}'
           token: ${{ secrets.JINA_DEV_BOT }}
         env:
           release_token: ${{ secrets.CAS_RELEASE_TOKEN }}

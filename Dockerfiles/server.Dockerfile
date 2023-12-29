@@ -9,13 +9,13 @@ ENV PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1
 
 # constant, wont invalidate cache
-LABEL org.opencontainers.image.vendor="Jina AI Limited" \
-      org.opencontainers.image.licenses="Apache 2.0" \
-      org.opencontainers.image.title="CLIP-as-Service" \
-      org.opencontainers.image.description="Embed images and sentences into fixed-length vectors with CLIP" \
-      org.opencontainers.image.authors="hello@jina.ai" \
-      org.opencontainers.image.url="clip-as-service" \
-      org.opencontainers.image.documentation="https://clip-as-service.jina.ai/"
+LABEL org.opencontainers.image.vendor='Jina AI Limited' \
+      org.opencontainers.image.licenses='Apache 2.0' \
+      org.opencontainers.image.title='CLIP-as-Service' \
+      org.opencontainers.image.description='Embed images and sentences into fixed-length vectors with CLIP' \
+      org.opencontainers.image.authors='hello@jina.ai' \
+      org.opencontainers.image.url='clip-as-service' \
+      org.opencontainers.image.documentation='https://clip-as-service.jina.ai/'
 
 
 RUN apt-get update \
@@ -30,7 +30,7 @@ COPY server ./server
 # given by builder
 ARG PIP_TAG
 RUN pip install --default-timeout=1000 --compile ./server/ \
-    && if [ -n "${PIP_TAG}" ]; then pip install --default-timeout=1000 --compile "./server[${PIP_TAG}]" ; fi
+    && if [ -n '${PIP_TAG}' ]; then pip install --default-timeout=1000 --compile './server[${PIP_TAG}]' ; fi
 
 ENV LD_LIBRARY_PATH=/usr/local/cuda/lib64
 
@@ -47,4 +47,4 @@ RUN groupadd -g ${GROUP_ID} ${USER_NAME} &&\
 
 USER ${USER_NAME}
 
-ENTRYPOINT ["python", "-m", "clip_server"]
+ENTRYPOINT ['python', '-m', 'clip_server']

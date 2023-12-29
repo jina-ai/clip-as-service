@@ -22,9 +22,9 @@ We also include a preview of each image.
 
 | Description                                                                                                                           | Image URL                                                                                                                                                           | Preview                                                                                                        |
 |---------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------|
-| subtly futuristic and edgy this liquid metal cuff bracelet is shaped from sculptural rectangular link                                 | [https://n.nordstrommedia.com/id/sr3/<br/>58d1a13f-b6b6-4e68-b2ff-3a3af47c422e.jpeg](https://n.nordstrommedia.com/id/sr3/58d1a13f-b6b6-4e68-b2ff-3a3af47c422e.jpeg) | <img src="https://n.nordstrommedia.com/id/sr3/58d1a13f-b6b6-4e68-b2ff-3a3af47c422e.jpeg?raw=true" width=100px> |
-| high quality leather construction defines a hearty boot one-piece on a tough lug sole                                                 | [https://n.nordstrommedia.com/id/sr3/<br/>21e7a67c-0a54-4d09-a4a4-6a0e0840540b.jpeg](https://n.nordstrommedia.com/id/sr3/21e7a67c-0a54-4d09-a4a4-6a0e0840540b.jpeg) | <img src="https://n.nordstrommedia.com/id/sr3/21e7a67c-0a54-4d09-a4a4-6a0e0840540b.jpeg?raw=true" width=100px> |
-| this shimmering tricot knit tote is traced with decorative whipstitching and diamond cut chain the two hallmark of the falabella line | [https://n.nordstrommedia.com/id/sr3/<br/>1d8dd635-6342-444d-a1d3-4f91a9cf222b.jpeg](https://n.nordstrommedia.com/id/sr3/1d8dd635-6342-444d-a1d3-4f91a9cf222b.jpeg) | <img src="https://n.nordstrommedia.com/id/sr3/1d8dd635-6342-444d-a1d3-4f91a9cf222b.jpeg?raw=true" width=100px> |
+| subtly futuristic and edgy this liquid metal cuff bracelet is shaped from sculptural rectangular link                                 | [https://n.nordstrommedia.com/id/sr3/<br/>58d1a13f-b6b6-4e68-b2ff-3a3af47c422e.jpeg](https://n.nordstrommedia.com/id/sr3/58d1a13f-b6b6-4e68-b2ff-3a3af47c422e.jpeg) | <img src='https://n.nordstrommedia.com/id/sr3/58d1a13f-b6b6-4e68-b2ff-3a3af47c422e.jpeg?raw=true' width=100px> |
+| high quality leather construction defines a hearty boot one-piece on a tough lug sole                                                 | [https://n.nordstrommedia.com/id/sr3/<br/>21e7a67c-0a54-4d09-a4a4-6a0e0840540b.jpeg](https://n.nordstrommedia.com/id/sr3/21e7a67c-0a54-4d09-a4a4-6a0e0840540b.jpeg) | <img src='https://n.nordstrommedia.com/id/sr3/21e7a67c-0a54-4d09-a4a4-6a0e0840540b.jpeg?raw=true' width=100px> |
+| this shimmering tricot knit tote is traced with decorative whipstitching and diamond cut chain the two hallmark of the falabella line | [https://n.nordstrommedia.com/id/sr3/<br/>1d8dd635-6342-444d-a1d3-4f91a9cf222b.jpeg](https://n.nordstrommedia.com/id/sr3/1d8dd635-6342-444d-a1d3-4f91a9cf222b.jpeg) | <img src='https://n.nordstrommedia.com/id/sr3/1d8dd635-6342-444d-a1d3-4f91a9cf222b.jpeg?raw=true' width=100px> |
 | ...                                                                                                                                   | ...                                                                                                                                                                 | ...                                                                                                            |
 
 You can use the following script to transform the first three entries of the dataset to a {class}`~docarray.array.document.DocumentArray` and push it to the cloud using the name `fashion-sample`.
@@ -189,33 +189,33 @@ You can use `finetuner.describe_models()` to check the supported models in `fine
 │                    openai/clip-vit-large-patch14 │  text-to-image │       1024 │  transformer │                        CLIP large model with patch size 14 │
 │                                  efficientnet_b0 │ image-to-image │       1280 │          cnn │                    EfficientNet B0 pre-trained on ImageNet │
 │                                  efficientnet_b4 │ image-to-image │       1792 │          cnn │                    EfficientNet B4 pre-trained on ImageNet │
-│                                    RN101::openai │  text-to-image │        512 │  transformer │                            Open CLIP "RN101::openai" model │
-│                          RN101-quickgelu::openai │  text-to-image │        512 │  transformer │                  Open CLIP "RN101-quickgelu::openai" model │
-│                         RN101-quickgelu::yfcc15m │  text-to-image │        512 │  transformer │                 Open CLIP "RN101-quickgelu::yfcc15m" model │
-│                                   RN101::yfcc15m │  text-to-image │        512 │  transformer │                           Open CLIP "RN101::yfcc15m" model │
-│                                      RN50::cc12m │  text-to-image │       1024 │  transformer │                              Open CLIP "RN50::cc12m" model │
-│                                     RN50::openai │  text-to-image │       1024 │  transformer │                             Open CLIP "RN50::openai" model │
-│                            RN50-quickgelu::cc12m │  text-to-image │       1024 │  transformer │                    Open CLIP "RN50-quickgelu::cc12m" model │
-│                           RN50-quickgelu::openai │  text-to-image │       1024 │  transformer │                   Open CLIP "RN50-quickgelu::openai" model │
-│                          RN50-quickgelu::yfcc15m │  text-to-image │       1024 │  transformer │                  Open CLIP "RN50-quickgelu::yfcc15m" model │
-│                                  RN50x16::openai │  text-to-image │        768 │  transformer │                          Open CLIP "RN50x16::openai" model │
-│                                   RN50x4::openai │  text-to-image │        640 │  transformer │                           Open CLIP "RN50x4::openai" model │
-│                                  RN50x64::openai │  text-to-image │       1024 │  transformer │                          Open CLIP "RN50x64::openai" model │
-│                                    RN50::yfcc15m │  text-to-image │       1024 │  transformer │                            Open CLIP "RN50::yfcc15m" model │
-│                          ViT-B-16::laion400m_e31 │  text-to-image │        512 │  transformer │                  Open CLIP "ViT-B-16::laion400m_e31" model │
-│                          ViT-B-16::laion400m_e32 │  text-to-image │        512 │  transformer │                  Open CLIP "ViT-B-16::laion400m_e32" model │
-│                                 ViT-B-16::openai │  text-to-image │        512 │  transformer │                         Open CLIP "ViT-B-16::openai" model │
-│                 ViT-B-16-plus-240::laion400m_e31 │  text-to-image │        640 │  transformer │         Open CLIP "ViT-B-16-plus-240::laion400m_e31" model │
-│                 ViT-B-16-plus-240::laion400m_e32 │  text-to-image │        640 │  transformer │         Open CLIP "ViT-B-16-plus-240::laion400m_e32" model │
-│                            ViT-B-32::laion2b_e16 │  text-to-image │        512 │  transformer │                    Open CLIP "ViT-B-32::laion2b_e16" model │
-│                          ViT-B-32::laion400m_e31 │  text-to-image │        512 │  transformer │                  Open CLIP "ViT-B-32::laion400m_e31" model │
-│                          ViT-B-32::laion400m_e32 │  text-to-image │        512 │  transformer │                  Open CLIP "ViT-B-32::laion400m_e32" model │
-│                                 ViT-B-32::openai │  text-to-image │        512 │  transformer │                         Open CLIP "ViT-B-32::openai" model │
-│                ViT-B-32-quickgelu::laion400m_e31 │  text-to-image │        512 │  transformer │        Open CLIP "ViT-B-32-quickgelu::laion400m_e31" model │
-│                ViT-B-32-quickgelu::laion400m_e32 │  text-to-image │        512 │  transformer │        Open CLIP "ViT-B-32-quickgelu::laion400m_e32" model │
-│                       ViT-B-32-quickgelu::openai │  text-to-image │        512 │  transformer │               Open CLIP "ViT-B-32-quickgelu::openai" model │
-│                             ViT-L-14-336::openai │  text-to-image │        768 │  transformer │                     Open CLIP "ViT-L-14-336::openai" model │
-│                                 ViT-L-14::openai │  text-to-image │        768 │  transformer │                         Open CLIP "ViT-L-14::openai" model │
+│                                    RN101::openai │  text-to-image │        512 │  transformer │                            Open CLIP 'RN101::openai' model │
+│                          RN101-quickgelu::openai │  text-to-image │        512 │  transformer │                  Open CLIP 'RN101-quickgelu::openai' model │
+│                         RN101-quickgelu::yfcc15m │  text-to-image │        512 │  transformer │                 Open CLIP 'RN101-quickgelu::yfcc15m' model │
+│                                   RN101::yfcc15m │  text-to-image │        512 │  transformer │                           Open CLIP 'RN101::yfcc15m' model │
+│                                      RN50::cc12m │  text-to-image │       1024 │  transformer │                              Open CLIP 'RN50::cc12m' model │
+│                                     RN50::openai │  text-to-image │       1024 │  transformer │                             Open CLIP 'RN50::openai' model │
+│                            RN50-quickgelu::cc12m │  text-to-image │       1024 │  transformer │                    Open CLIP 'RN50-quickgelu::cc12m' model │
+│                           RN50-quickgelu::openai │  text-to-image │       1024 │  transformer │                   Open CLIP 'RN50-quickgelu::openai' model │
+│                          RN50-quickgelu::yfcc15m │  text-to-image │       1024 │  transformer │                  Open CLIP 'RN50-quickgelu::yfcc15m' model │
+│                                  RN50x16::openai │  text-to-image │        768 │  transformer │                          Open CLIP 'RN50x16::openai' model │
+│                                   RN50x4::openai │  text-to-image │        640 │  transformer │                           Open CLIP 'RN50x4::openai' model │
+│                                  RN50x64::openai │  text-to-image │       1024 │  transformer │                          Open CLIP 'RN50x64::openai' model │
+│                                    RN50::yfcc15m │  text-to-image │       1024 │  transformer │                            Open CLIP 'RN50::yfcc15m' model │
+│                          ViT-B-16::laion400m_e31 │  text-to-image │        512 │  transformer │                  Open CLIP 'ViT-B-16::laion400m_e31' model │
+│                          ViT-B-16::laion400m_e32 │  text-to-image │        512 │  transformer │                  Open CLIP 'ViT-B-16::laion400m_e32' model │
+│                                 ViT-B-16::openai │  text-to-image │        512 │  transformer │                         Open CLIP 'ViT-B-16::openai' model │
+│                 ViT-B-16-plus-240::laion400m_e31 │  text-to-image │        640 │  transformer │         Open CLIP 'ViT-B-16-plus-240::laion400m_e31' model │
+│                 ViT-B-16-plus-240::laion400m_e32 │  text-to-image │        640 │  transformer │         Open CLIP 'ViT-B-16-plus-240::laion400m_e32' model │
+│                            ViT-B-32::laion2b_e16 │  text-to-image │        512 │  transformer │                    Open CLIP 'ViT-B-32::laion2b_e16' model │
+│                          ViT-B-32::laion400m_e31 │  text-to-image │        512 │  transformer │                  Open CLIP 'ViT-B-32::laion400m_e31' model │
+│                          ViT-B-32::laion400m_e32 │  text-to-image │        512 │  transformer │                  Open CLIP 'ViT-B-32::laion400m_e32' model │
+│                                 ViT-B-32::openai │  text-to-image │        512 │  transformer │                         Open CLIP 'ViT-B-32::openai' model │
+│                ViT-B-32-quickgelu::laion400m_e31 │  text-to-image │        512 │  transformer │        Open CLIP 'ViT-B-32-quickgelu::laion400m_e31' model │
+│                ViT-B-32-quickgelu::laion400m_e32 │  text-to-image │        512 │  transformer │        Open CLIP 'ViT-B-32-quickgelu::laion400m_e32' model │
+│                       ViT-B-32-quickgelu::openai │  text-to-image │        512 │  transformer │               Open CLIP 'ViT-B-32-quickgelu::openai' model │
+│                             ViT-L-14-336::openai │  text-to-image │        768 │  transformer │                     Open CLIP 'ViT-L-14-336::openai' model │
+│                                 ViT-L-14::openai │  text-to-image │        768 │  transformer │                         Open CLIP 'ViT-L-14::openai' model │
 │                                        resnet152 │ image-to-image │       2048 │          cnn │                          ResNet152 pre-trained on ImageNet │
 │                                         resnet50 │ image-to-image │       2048 │          cnn │                           ResNet50 pre-trained on ImageNet │
 │ sentence-transformers/msmarco-distilbert-base-v3 │   text-to-text │        768 │  transformer │                    Pretrained BERT, fine-tuned on MS Marco │

@@ -13,8 +13,8 @@ jobs:
         id: fc
         with:
           issue-number: ${{ github.event.pull_request.number }}
-          comment-author: "github-actions[bot]"
-          body-includes: "bad commit message"
+          comment-author: 'github-actions[bot]'
+          body-includes: 'bad commit message'
       - name: Delete comment if exist
         if: ${{ steps.fc.outputs.comment-id != 0 }}
         uses: actions/github-script@v3
@@ -29,10 +29,10 @@ jobs:
       - uses: actions/checkout@v2.5.0
         with:
           fetch-depth: 0
-      - run: 'echo "module.exports = {extends: [''@commitlint/config-conventional'']}" > commitlint.config.js'
+      - run: 'echo 'module.exports = {extends: [''@commitlint/config-conventional'']}' > commitlint.config.js'
       - uses: wagoid/commitlint-github-action@v4
         env:
-          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
       - name: if lint failed
         if: ${{ failure() }}
         uses: peter-evans/create-or-update-comment@v1
@@ -44,7 +44,7 @@ jobs:
             - [Commit Message Guideline for the First Time Contributor](https://github.com/jina-ai/jina/issues/553)
             - [Contributing Guideline](https://github.com/jina-ai/jina/blob/master/CONTRIBUTING.md)
             This message will be deleted automatically when the commit messages get fixed.
-          reaction-type: "eyes"
+          reaction-type: 'eyes'
 
   lint-flake-8:
     runs-on: ubuntu-latest
@@ -87,7 +87,7 @@ jobs:
       - id: set-matrix
         run: |
           sudo apt-get install jq
-          echo "::set-output name=matrix::$(bash scripts/get-all-test-paths.sh)"
+          echo '::set-output name=matrix::$(bash scripts/get-all-test-paths.sh)'
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
 
@@ -109,23 +109,23 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install wheel pytest pytest-cov
-          pip install --no-cache-dir "client/[test]"
-          pip install --no-cache-dir "server/[onnx]"
-          pip install --no-cache-dir "server/[transformers]"
-          pip install --no-cache-dir "server/[search]"
-          pip install --no-cache-dir "server/[cn_clip]"
+          pip install --no-cache-dir 'client/[test]'
+          pip install --no-cache-dir 'server/[onnx]'
+          pip install --no-cache-dir 'server/[transformers]'
+          pip install --no-cache-dir 'server/[search]'
+          pip install --no-cache-dir 'server/[cn_clip]'
       - name: Test
         id: test
         run: |
           pytest --suppress-no-test-exit-code --cov=clip_client --cov=clip_server --cov-report=xml \
             -v -s ${{ matrix.test-path }}
-          echo "::set-output name=codecov_flag::cas"
+          echo '::set-output name=codecov_flag::cas'
         timeout-minutes: 30
       - name: Check codecov file
         id: check_files
         uses: andstor/file-existence-action@v1
         with:
-          files: "coverage.xml"
+          files: 'coverage.xml'
       - name: Upload coverage from test to Codecov
         uses: codecov/codecov-action@v3
         if: steps.check_files.outputs.files_exists == 'true' && ${{ matrix.python-version }} == '3.7'
@@ -156,24 +156,24 @@ jobs:
         run: |
           python -m pip install pip==23.0.1
           python -m pip install wheel pytest pytest-cov nvidia-pyindex
-          pip install -e "client/[test]"
-          pip install -e "server/[tensorrt]"
-          pip install -e "server/[onnx]"
-          pip install -e "server/[transformers]"
+          pip install -e 'client/[test]'
+          pip install -e 'server/[tensorrt]'
+          pip install -e 'server/[onnx]'
+          pip install -e 'server/[transformers]'
           {
-            pip install -e "server/[flash-attn]"
+            pip install -e 'server/[flash-attn]'
           } || {
-            echo "flash attention was not installed."
+            echo 'flash attention was not installed.'
           }
-          pip install --no-cache-dir "server/[cn_clip]"
+          pip install --no-cache-dir 'server/[cn_clip]'
       - name: Test
         id: test
         run: |
           pytest --suppress-no-test-exit-code --cov=clip_client --cov=clip_server --cov-report=xml \
-            -v -s -m "gpu" ./tests/test_tensorrt.py
+            -v -s -m 'gpu' ./tests/test_tensorrt.py
           pytest --suppress-no-test-exit-code --cov=clip_client --cov=clip_server --cov-report=xml \
-            -v -s -m "gpu" ./tests/test_simple.py
-          echo "::set-output name=codecov_flag::cas"
+            -v -s -m 'gpu' ./tests/test_simple.py
+          echo '::set-output name=codecov_flag::cas'
         timeout-minutes: 30
         env:
           # fix re-initialized torch runtime error on cuda device
@@ -182,7 +182,7 @@ jobs:
         id: check_files
         uses: andstor/file-existence-action@v1
         with:
-          files: "coverage.xml"
+          files: 'coverage.xml'
       - name: Upload coverage from test to Codecov
         uses: codecov/codecov-action@v3
         if: steps.check_files.outputs.files_exists == 'true' && ${{ matrix.python-version }} == '3.7'
@@ -213,21 +213,21 @@ jobs:
         run: |
           python -m pip install pip==23.0.1
           python -m pip install wheel pytest pytest-cov nvidia-pyindex
-          pip install -e "client/[test]"
-          pip install -e "server/[onnx]"
-          pip install -e "server/[transformers]"
+          pip install -e 'client/[test]'
+          pip install -e 'server/[onnx]'
+          pip install -e 'server/[transformers]'
           {
-            pip install -e "server/[flash-attn]"
+            pip install -e 'server/[flash-attn]'
           } || {
-            echo "flash attention was not installed."
+            echo 'flash attention was not installed.'
           }
-          pip install --no-cache-dir "server/[cn_clip]"
+          pip install --no-cache-dir 'server/[cn_clip]'
       - name: Test
         id: test
         run: |
           pytest --suppress-no-test-exit-code --cov=clip_client --cov=clip_server --cov-report=xml \
-            -v -s -m "gpu" ./tests/test_model.py
-          echo "::set-output name=codecov_flag::cas"
+            -v -s -m 'gpu' ./tests/test_model.py
+          echo '::set-output name=codecov_flag::cas'
         timeout-minutes: 30
         env:
           # fix re-initialized torch runtime error on cuda device
@@ -236,7 +236,7 @@ jobs:
         id: check_files
         uses: andstor/file-existence-action@v1
         with:
-          files: "coverage.xml"
+          files: 'coverage.xml'
       - name: Upload coverage from test to Codecov
         uses: codecov/codecov-action@v3
         if: steps.check_files.outputs.files_exists == 'true' && ${{ matrix.python-version }} == '3.7'
@@ -259,4 +259,4 @@ jobs:
         run: exit 1
       - name: Success
         if: ${{ success() }}
-        run: echo "All Done"
+        run: echo 'All Done'

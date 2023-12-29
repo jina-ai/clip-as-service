@@ -27,7 +27,7 @@ def convert_float_to_float16(model_path: str, output_model_path: str):
 
 
 def quantize(model_path: str, output_model_path: str):
-    """
+    '''
     Quantize the weights of the model from float32 to in8 to allow very efficient inference on modern CPU
     Uses unsigned ints for activation values, signed ints for weights, per
     https://onnxruntime.ai/docs/performance/quantization.html#data-type-selection
@@ -35,7 +35,7 @@ def quantize(model_path: str, output_model_path: str):
     Args:
         onnx_model_path: Path to location the exported ONNX model is stored
     Returns: The Path generated for the quantized
-    """
+    '''
     from onnxruntime.quantization import quantize_dynamic, QuantType
 
     quantize_dynamic(
@@ -46,6 +46,6 @@ def quantize(model_path: str, output_model_path: str):
         activation_type=QuantType.QUInt8,
         weight_type=QuantType.QInt8,  # per docs, signed is faster on most CPUs
         optimize_model=True,
-        op_types_to_quantize=["MatMul", "Attention", "Mul", "Add"],
-        extra_options={"WeightSymmetric": False, "MatMulConstBOnly": True},
+        op_types_to_quantize=['MatMul', 'Attention', 'Mul', 'Add'],
+        extra_options={'WeightSymmetric': False, 'MatMulConstBOnly': True},
     )  # op_types_to_quantize=['MatMul', 'Relu', 'Add', 'Mul' ],

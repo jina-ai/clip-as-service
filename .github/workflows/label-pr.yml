@@ -19,7 +19,7 @@ jobs:
           fail_if_xl: 'false'
       - uses: actions/labeler@v3
         with:
-          repo-token: "${{ secrets.GITHUB_TOKEN }}"
+          repo-token: '${{ secrets.GITHUB_TOKEN }}'
       - id: docs_updated
         if: contains( github.event.pull_request.labels.*.name, 'area/docs')
         run: echo '::set-output name=docs::true'
@@ -32,7 +32,7 @@ jobs:
     if: ${{ needs.assign-label-to-pr.outputs.docs == 'true' }}
     steps:
       - run: |
-          echo "BRANCH_NAME=${{ github.head_ref }}" >> $GITHUB_ENV
+          echo 'BRANCH_NAME=${{ github.head_ref }}' >> $GITHUB_ENV
       - uses: actions/checkout@v2
         with:
           repository: jina-ai/clip-as-service
@@ -51,7 +51,7 @@ jobs:
           git fetch origin
           export NUM_RELEASES=2 # only 2 last tags to save build time
           bash makedoc.sh development
-          netlify deploy --dir=_build/dirhtml --alias="ft-${{ env.BRANCH_NAME }}" --message="Deploying docs to ${{ env.BRANCH_NAME }} branch"
+          netlify deploy --dir=_build/dirhtml --alias='ft-${{ env.BRANCH_NAME }}' --message='Deploying docs to ${{ env.BRANCH_NAME }} branch'
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN1 }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}

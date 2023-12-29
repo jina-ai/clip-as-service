@@ -6,7 +6,7 @@ This is *not* a search task. The images are random stock images and are related 
 
 The model is `ViT-L/14-336px` on one GPU.
 
-<iframe frameborder="0" allowtransparency="true" scrolling="no" src="../../_static/demo-embed.html" style="overflow:hidden;overflow-x:hidden;overflow-y:hidden;height:100vh;width:100%"></iframe>
+<iframe frameborder='0' allowtransparency='true' scrolling='no' src='../../_static/demo-embed.html' style='overflow:hidden;overflow-x:hidden;overflow-y:hidden;height:100vh;width:100%'></iframe>
 
 ```{button-link} ../../_static/demo-embed.html
 :color: primary

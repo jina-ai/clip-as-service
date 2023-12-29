@@ -18,8 +18,8 @@ jobs:
   token-check:
     runs-on: ubuntu-latest
     steps:
-      - run: echo "success!"
-        if: "${{ github.event.inputs.release_token }} == ${{ env.release_token }}"
+      - run: echo 'success!'
+        if: '${{ github.event.inputs.release_token }} == ${{ env.release_token }}'
         env:
           release_token: ${{ secrets.CAS_RELEASE_TOKEN }}
 
@@ -31,54 +31,54 @@ jobs:
       - name: Set envs and versions
         run: |
           VCS_REF=${{ github.ref }}
-          echo "VCS_REF=$VCS_REF" >> $GITHUB_ENV
-          echo "Will push $VCS_REF"
+          echo 'VCS_REF=$VCS_REF' >> $GITHUB_ENV
+          echo 'Will push $VCS_REF'
 
           CAS_VERSION=$(sed -n '/^__version__/p' ./server/clip_server/__init__.py | cut -d \' -f2)
           V_CAS_VERSION=v${CAS_VERSION}
           CAS_MINOR_VERSION=${CAS_VERSION%.*}
           CAS_MAJOR_VERSION=${CAS_MINOR_VERSION%.*}
 
-          if [[ "${{ github.event.inputs.triggered_by }}" == "CD" ]]; then
+          if [[ '${{ github.event.inputs.triggered_by }}' == 'CD' ]]; then
             # on every CD release
-            echo "TAG_ALIAS=\
+            echo 'TAG_ALIAS=\
                             -t latest \
-                            " >> $GITHUB_ENV
-            echo "GPU_TAG_ALIAS=\
+                            ' >> $GITHUB_ENV
+            echo 'GPU_TAG_ALIAS=\
                             -t latest-gpu \
-                            " >> $GITHUB_ENV
+                            ' >> $GITHUB_ENV
 
-          elif [[ "${{ github.event.inputs.triggered_by }}" == "TAG" ]]; then
+          elif [[ '${{ github.event.inputs.triggered_by }}' == 'TAG' ]]; then
             # on every tag release
-            echo "TAG_ALIAS=\
+            echo 'TAG_ALIAS=\
                             -t latest \
                             -t ${CAS_VERSION} \
                             -t ${CAS_MINOR_VERSION} \
-                            " >> $GITHUB_ENV
-            echo "GPU_TAG_ALIAS=\
+                            ' >> $GITHUB_ENV
+            echo 'GPU_TAG_ALIAS=\
                             -t latest-gpu \
                             -t ${CAS_VERSION}-gpu \
                             -t ${CAS_MINOR_VERSION}-gpu \
-                            " >> $GITHUB_ENV
+                            ' >> $GITHUB_ENV
 
-          elif [[ "${{ github.event.inputs.triggered_by }}" == "MANUAL" ]]; then
+          elif [[ '${{ github.event.inputs.triggered_by }}' == 'MANUAL' ]]; then
             # on every manual release
-            echo "TAG_ALIAS=\
+            echo 'TAG_ALIAS=\
                             -t ${CAS_VERSION} \
-                            " >> $GITHUB_ENV
-            echo "GPU_TAG_ALIAS=\
+                            ' >> $GITHUB_ENV
+            echo 'GPU_TAG_ALIAS=\
                             -t ${CAS_VERSION}-gpu \
-                            " >> $GITHUB_ENV
+                            ' >> $GITHUB_ENV
           else
-            echo "TAG_ALIAS=\
+            echo 'TAG_ALIAS=\
                             -t latest \
-                            " >> $GITHUB_ENV
-            echo "GPU_TAG_ALIAS=\
+                            ' >> $GITHUB_ENV
+            echo 'GPU_TAG_ALIAS=\
                             -t latest-gpu \
-                            " >> $GITHUB_ENV
+                            ' >> $GITHUB_ENV
           fi
 
-          echo "CAS_VERSION=${CAS_VERSION}" >> $GITHUB_ENV
+          echo 'CAS_VERSION=${CAS_VERSION}' >> $GITHUB_ENV
 
       - name: Prepare enviroment
         run: |
@@ -88,27 +88,27 @@ jobs:
         id: push_torch_executor
         run: |
           # FIX the import issue
-          echo -e "\
+          echo -e '\
           __version__ = '$CAS_VERSION'
           from .executors.clip_torch import CLIPEncoder\n\
-          " > server/clip_server/__init__.py
+          ' > server/clip_server/__init__.py
                     
-          echo -e "\
+          echo -e '\
           jtype: CLIPEncoder\n\
           metas:\n\
             py_modules:\n\
               - clip_server/__init__.py\n\
-          " > server/config.yml
+          ' > server/config.yml
           
-          echo -e "\
+          echo -e '\
           manifest_version: 1\n\
           name: CLIPTorchEncoder\n\
           description: Embed images and sentences into fixed-length vectors with CLIP\n\
           url: https://github.com/jina-ai/clip-as-service\n\
           keywords: [clip, clip-model, clip-as-service, pytorch]\n\
-          " > server/manifest.yml
+          ' > server/manifest.yml
           
-          python scripts/get-requirements.py "" server/requirements.txt
+          python scripts/get-requirements.py '' server/requirements.txt
           
           cp .github/README-exec/torch.readme.md server/README.md
           
@@ -125,25 +125,25 @@ jobs:
         id: push_onnx_executor
         run: |
           # FIX the import issue
-          echo -e "\
+          echo -e '\
           __version__ = '$CAS_VERSION'
           from .executors.clip_onnx import CLIPEncoder\n\
-          " > server/clip_server/__init__.py
+          ' > server/clip_server/__init__.py
           
-          echo -e "\
+          echo -e '\
           jtype: CLIPEncoder\n\
           metas:\n\
             py_modules:\n\
               - clip_server/__init__.py\n\
-          " > server/config.yml
+          ' > server/config.yml
           
-          echo -e "\
+          echo -e '\
           manifest_version: 1\n\
           name: CLIPOnnxEncoder\n\
           description: Embed images and sentences into fixed-length vectors with CLIP\n\
           url: https://github.com/jina-ai/clip-as-service\n\
           keywords: [clip, clip-model, clip-as-service, onnx, onnx-runtime]\n\
-          " > server/manifest.yml
+          ' > server/manifest.yml
           
           python scripts/get-requirements.py onnx server/requirements.txt
           
@@ -164,25 +164,25 @@ jobs:
         id: push_tensorrt_executor
         run: |
           # FIX the import issue
-          echo -e "\
+          echo -e '\
           __version__ = '$CAS_VERSION'
           from .executors.clip_tensorrt import CLIPEncoder\n\
-          " > server/clip_server/__init__.py
+          ' > server/clip_server/__init__.py
           
-          echo -e "\
+          echo -e '\
           jtype: CLIPEncoder\n\
           metas:\n\
             py_modules:\n\
               - clip_server/__init__.py\n\
-          " > server/config.yml
+          ' > server/config.yml
           
-          echo -e "\
+          echo -e '\
           manifest_version: 1\n\
           name: CLIPTensorRTEncoder\n\
           description: Embed images and sentences into fixed-length vectors with CLIP\n\
           url: https://github.com/jina-ai/clip-as-service\n\
           keywords: [clip, clip-model, clip-as-service, onnx, tensorrt]\n\
-          " > server/manifest.yml
+          ' > server/manifest.yml
           
           python scripts/get-requirements.py tensorrt server/requirements.txt
           

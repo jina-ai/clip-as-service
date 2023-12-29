@@ -18,7 +18,7 @@ jobs:
       - id: set-matrix
         run: |
           sudo apt-get install jq
-          echo "::set-output name=matrix::$(bash scripts/get-all-test-paths.sh)"
+          echo '::set-output name=matrix::$(bash scripts/get-all-test-paths.sh)'
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
 
@@ -40,23 +40,23 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install wheel
-          pip install --no-cache-dir "client/[test]"
-          pip install --no-cache-dir "server/[onnx]"
-          pip install --no-cache-dir "server/[transformers]"
-          pip install --no-cache-dir "server/[search]"
-          pip install --no-cache-dir "server/[cn_clip]"
+          pip install --no-cache-dir 'client/[test]'
+          pip install --no-cache-dir 'server/[onnx]'
+          pip install --no-cache-dir 'server/[transformers]'
+          pip install --no-cache-dir 'server/[search]'
+          pip install --no-cache-dir 'server/[cn_clip]'
       - name: Test
         id: test
         run: |
           pytest --suppress-no-test-exit-code --cov=clip_client --cov=clip_server --cov-report=xml \
-            -v -s -m "not gpu" ${{ matrix.test-path }}
-          echo "::set-output name=codecov_flag::cas"
+            -v -s -m 'not gpu' ${{ matrix.test-path }}
+          echo '::set-output name=codecov_flag::cas'
         timeout-minutes: 30
       - name: Check codecov file
         id: check_files
         uses: andstor/file-existence-action@v1
         with:
-          files: "coverage.xml"
+          files: 'coverage.xml'
       - name: Upload coverage from test to Codecov
         uses: codecov/codecov-action@v2
         if: steps.check_files.outputs.files_exists == 'true' && ${{ matrix.python-version }} == '3.7'
@@ -86,14 +86,14 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install wheel pytest pytest-cov nvidia-pyindex
-          pip install -e "client/[test]"
-          pip install -e "server/[tensorrt]"
+          pip install -e 'client/[test]'
+          pip install -e 'server/[tensorrt]'
       - name: Test
         id: test
         run: |
           pytest --suppress-no-test-exit-code --cov=clip_client --cov=clip_server --cov-report=xml \
-            -v -s -m "gpu" ./tests/test_tensorrt.py
-          echo "::set-output name=codecov_flag::cas"
+            -v -s -m 'gpu' ./tests/test_tensorrt.py
+          echo '::set-output name=codecov_flag::cas'
         timeout-minutes: 30
         env:
           # fix re-initialized torch runtime error on cuda device
@@ -102,7 +102,7 @@ jobs:
         id: check_files
         uses: andstor/file-existence-action@v1
         with:
-          files: "coverage.xml"
+          files: 'coverage.xml'
       - name: Upload coverage from test to Codecov
         uses: codecov/codecov-action@v3
         if: steps.check_files.outputs.files_exists == 'true' && ${{ matrix.python-version }} == '3.7'
@@ -132,14 +132,14 @@ jobs:
         uses: benc-uk/workflow-dispatch@v1
         with:
           workflow: Manual Docker Build
-          inputs: '{ "release_token": "${{ env.release_token }}", "triggered_by": "CD"}'
+          inputs: '{ 'release_token': '${{ env.release_token }}', 'triggered_by': 'CD'}'
           token: ${{ secrets.JINA_DEV_BOT }}
         env:
           release_token: ${{ secrets.CAS_RELEASE_TOKEN }}
       - uses: benc-uk/workflow-dispatch@v1
         with:
           workflow: Manual CAS Docker Build
-          inputs: '{ "release_token": "${{ env.release_token }}", "triggered_by": "CD"}'
+          inputs: '{ 'release_token': '${{ env.release_token }}', 'triggered_by': 'CD'}'
           token: ${{ secrets.JINA_DEV_BOT }}
         env:
           release_token: ${{ secrets.CAS_RELEASE_TOKEN }}
@@ -147,7 +147,7 @@ jobs:
         uses: benc-uk/workflow-dispatch@v1
         with:
           workflow: Manual Hub Push
-          inputs: '{ "release_token": "${{ env.release_token }}", "triggered_by": "CD"}'
+          inputs: '{ 'release_token': '${{ env.release_token }}', 'triggered_by': 'CD'}'
           token: ${{ secrets.JINA_DEV_BOT }}
         env:
           release_token: ${{ secrets.CAS_RELEASE_TOKEN }}
