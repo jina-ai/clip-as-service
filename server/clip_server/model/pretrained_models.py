@@ -158,6 +158,7 @@ def get_model_url_md5(name: str):
                 return (hg_download_url, model_pretrained[1])
             else:
                 print(f'Model not found on hugging face, trying to download from s3.')
+                
         except requests.exceptions.RequestException as e:
             print(str(e))
             print(f'Model not found on hugging face, trying to download from s3.')
