@@ -2,9 +2,11 @@ import os
 import hashlib
 import shutil
 import urllib
+import requests
 
 
 _OPENCLIP_S3_BUCKET = 'https://clip-as-service.s3.us-east-2.amazonaws.com/models/torch'
+_OPENCLIP_HUGGINGFACE_BUCKET = 'https://huggingface.co/jinaai/'
 _OPENCLIP_MODELS = {
     'RN50::openai': ('RN50.pt', '9140964eaaf9f68c95aa8df6ca13777c'),
     'RN50::yfcc15m': ('RN50-yfcc15m.pt', 'e9c564f91ae7dc754d9043fdcd2a9f22'),
@@ -132,7 +134,7 @@ _VISUAL_MODEL_IMAGE_SIZE = {
 def md5file(filename: str):
     hash_md5 = hashlib.md5()
     with open(filename, 'rb') as f:
-        for chunk in iter(lambda: f.read(4096), b""):
+        for chunk in iter(lambda: f.read(4096), b''):
             hash_md5.update(chunk)
 
     return hash_md5.hexdigest()
@@ -143,12 +145,28 @@ def get_model_url_md5(name: str):
     if len(model_pretrained) == 0:  # not on s3
         return None, None
     else:
+        hg_download_url = (
+            _OPENCLIP_HUGGINGFACE_BUCKET
+            + name.split('::')[0]
+            + '/resolve/main/'
+            + model_pretrained[0]
+            + '?download=true'
+        )
+        try:
+            response = requests.head(hg_download_url)
+            if response.status_code in [200, 302]:
+                return (hg_download_url, model_pretrained[1])
+            else:
+                print(f'Model not found on hugging face, trying to download from s3.')
+        except requests.exceptions.RequestException as e:
+            print(str(e))
+            print(f'Model not found on hugging face, trying to download from s3.')
         return (_OPENCLIP_S3_BUCKET + '/' + model_pretrained[0], model_pretrained[1])
 
 
 def download_model(
     url: str,
-    target_folder: str = os.path.expanduser("~/.cache/clip"),
+    target_folder: str = os.path.expanduser('~/.cache/clip'),
     md5sum: str = None,
     with_resume: bool = True,
     max_attempts: int = 3,
@@ -175,14 +193,14 @@ def download_model(
     )
 
     progress = Progress(
-        " \n",  # divide this bar from Flow's bar
-        TextColumn("[bold blue]{task.fields[filename]}", justify="right"),
-        "[progress.percentage]{task.percentage:>3.1f}%",
-        "•",
+        ' \n',  # divide this bar from Flow's bar
+        TextColumn('[bold blue]{task.fields[filename]}', justify='right'),
+        '[progress.percentage]{task.percentage:>3.1f}%',
+        '•',
         DownloadColumn(),
-        "•",
+        '•',
         TransferSpeedColumn(),
-        "•",
+        '•',
         TimeRemainingColumn(),
     )
 
