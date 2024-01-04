@@ -43,7 +43,7 @@ setup(
     setup_requires=['setuptools>=18.0', 'wheel'],
     install_requires=[
         'jina>=3.12.0',
-        'docarray[common]==0.20.0',
+        'docarray[common]==0.21.0',
         'packaging',
     ],
     extras_require={
