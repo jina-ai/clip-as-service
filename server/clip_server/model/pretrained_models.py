@@ -6,7 +6,7 @@ import requests
 
 
 _OPENCLIP_S3_BUCKET = 'https://clip-as-service.s3.us-east-2.amazonaws.com/models/torch'
-_OPENCLIP_HUGGINGFACE_BUCKET = 'https://huggingface.co/jinaai/'
+_OPENCLIP_HUGGINGFACE_BUCKET = 'https://huggingface.co/jinaai/clip-models/'
 _OPENCLIP_MODELS = {
     'RN50::openai': ('RN50.pt', '9140964eaaf9f68c95aa8df6ca13777c'),
     'RN50::yfcc15m': ('RN50-yfcc15m.pt', 'e9c564f91ae7dc754d9043fdcd2a9f22'),
@@ -147,8 +147,7 @@ def get_model_url_md5(name: str):
     else:
         hg_download_url = (
             _OPENCLIP_HUGGINGFACE_BUCKET
-            + name.split('::')[0]
-            + '/resolve/main/'
+            + 'resolve/main/'
             + model_pretrained[0]
             + '?download=true'
         )
