@@ -1,5 +1,6 @@
 import os
 from typing import Dict, Optional
+import requests
 
 from clip_server.model.pretrained_models import (
     download_model,
@@ -12,6 +13,7 @@ _S3_BUCKET = (
     'https://clip-as-service.s3.us-east-2.amazonaws.com/models/onnx/'  # Deprecated
 )
 _S3_BUCKET_V2 = 'https://clip-as-service.s3.us-east-2.amazonaws.com/models-436c69702d61732d53657276696365/onnx/'
+_HUGGINGFACE_ONNX_BUCKET = 'https://huggingface.co/jinaai/clip-models/'
 _MODELS = {
     'RN50::openai': (
         ('RN50/textual.onnx', '722418bfe47a1f5c79d1f44884bb3103'),
@@ -213,14 +215,14 @@ class CLIPOnnxModel(BaseCLIPModel):
                 )
                 textual_model_name, textual_model_md5 = _MODELS[name][0]
                 self._textual_path = download_model(
-                    url=_S3_BUCKET_V2 + textual_model_name,
+                    url=self.get_onnx_model_url(name=textual_model_name),
                     target_folder=cache_dir,
                     md5sum=textual_model_md5,
                     with_resume=True,
                 )
                 visual_model_name, visual_model_md5 = _MODELS[name][1]
                 self._visual_path = download_model(
-                    url=_S3_BUCKET_V2 + visual_model_name,
+                    url=self.get_onnx_model_url(name=visual_model_name),
                     target_folder=cache_dir,
                     md5sum=visual_model_md5,
                     with_resume=True,
@@ -260,6 +262,23 @@ class CLIPOnnxModel(BaseCLIPModel):
             return MultilingualCLIPModel.get_model_name(name)
 
         return name
+
+    @staticmethod
+    def get_onnx_model_url(name: str):
+        hf_download_url = (
+            _HUGGINGFACE_ONNX_BUCKET
+            + 'resolve/main/'
+            + name.split('/')[0]
+            + '-'
+            + name.split('/')[1]
+            + '?download=true'
+        )
+        try:
+            response = requests.head(hf_download_url, timeout=5)
+            if response.status_code in [200, 302]:
+                return hf_download_url
+        except Exception:
+            return _S3_BUCKET_V2 + name
 
     def start_sessions(
         self,

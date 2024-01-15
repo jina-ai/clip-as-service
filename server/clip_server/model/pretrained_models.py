@@ -145,25 +145,21 @@ def get_model_url_md5(name: str):
     if len(model_pretrained) == 0:  # not on s3
         return None, None
     else:
-        hg_download_url = (
+        hf_download_url = (
             _OPENCLIP_HUGGINGFACE_BUCKET
             + 'resolve/main/'
             + model_pretrained[0]
             + '?download=true'
         )
         try:
-            print(f'Test Hg url: {hg_download_url}')
-            response = requests.head(hg_download_url)
+            response = requests.head(hf_download_url, timeout=5)
             if response.status_code in [200, 302]:
-                print('Download from huggingface')
-                return (hg_download_url, model_pretrained[1])
-            else:
-                print(f'Model not found on hugging face, trying to download from s3.')
-
-        except requests.exceptions.RequestException as e:
-            print(str(e))
-            print(f'Model not found on hugging face, trying to download from s3.')
-        return (_OPENCLIP_S3_BUCKET + '/' + model_pretrained[0], model_pretrained[1])
+                return (hf_download_url, model_pretrained[1])
+        except Exception:
+            return (
+                _OPENCLIP_S3_BUCKET + '/' + model_pretrained[0],
+                model_pretrained[1],
+            )
 
 
 def download_model(
@@ -175,6 +171,7 @@ def download_model(
 ) -> str:
     os.makedirs(target_folder, exist_ok=True)
     filename = os.path.basename(url)
+    filename = filename.split('?')[0]
 
     download_target = os.path.join(target_folder, filename)
 
