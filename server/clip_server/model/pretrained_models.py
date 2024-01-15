@@ -157,9 +157,9 @@ def get_model_url_md5(name: str):
                 return (hf_download_url, model_pretrained[1])
             else:
                 return (
-                _OPENCLIP_S3_BUCKET + '/' + model_pretrained[0],
-                model_pretrained[1],
-            )
+                    _OPENCLIP_S3_BUCKET + '/' + model_pretrained[0],
+                    model_pretrained[1],
+                )
         except Exception:
             return (
                 _OPENCLIP_S3_BUCKET + '/' + model_pretrained[0],
