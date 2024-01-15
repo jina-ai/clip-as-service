@@ -155,6 +155,11 @@ def get_model_url_md5(name: str):
             response = requests.head(hf_download_url, timeout=5)
             if response.status_code in [200, 302]:
                 return (hf_download_url, model_pretrained[1])
+            else:
+                return (
+                _OPENCLIP_S3_BUCKET + '/' + model_pretrained[0],
+                model_pretrained[1],
+            )
         except Exception:
             return (
                 _OPENCLIP_S3_BUCKET + '/' + model_pretrained[0],

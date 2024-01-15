@@ -277,6 +277,8 @@ class CLIPOnnxModel(BaseCLIPModel):
             response = requests.head(hf_download_url, timeout=5)
             if response.status_code in [200, 302]:
                 return hf_download_url
+            else:
+                return _S3_BUCKET_V2 + name
         except Exception:
             return _S3_BUCKET_V2 + name
 
