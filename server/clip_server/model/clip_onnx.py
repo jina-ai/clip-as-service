@@ -9,10 +9,6 @@ from clip_server.model.pretrained_models import (
 )
 from clip_server.model.clip_model import BaseCLIPModel
 
-_S3_BUCKET = (
-    'https://clip-as-service.s3.us-east-2.amazonaws.com/models/onnx/'  # Deprecated
-)
-_S3_BUCKET_V2 = 'https://clip-as-service.s3.us-east-2.amazonaws.com/models-436c69702d61732d53657276696365/onnx/'
 _HUGGINGFACE_ONNX_BUCKET = 'https://huggingface.co/jinaai/clip-models/'
 _MODELS = {
     'RN50::openai': (
