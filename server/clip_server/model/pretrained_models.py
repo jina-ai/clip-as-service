@@ -5,7 +5,6 @@ import urllib
 import requests
 
 
-_OPENCLIP_S3_BUCKET = 'https://clip-as-service.s3.us-east-2.amazonaws.com/models/torch'
 _OPENCLIP_HUGGINGFACE_BUCKET = 'https://huggingface.co/jinaai/clip-models/'
 _OPENCLIP_MODELS = {
     'RN50::openai': ('RN50.pt', '9140964eaaf9f68c95aa8df6ca13777c'),
@@ -152,19 +151,11 @@ def get_model_url_md5(name: str):
             + '?download=true'
         )
         try:
-            response = requests.head(hf_download_url, timeout=5)
+            response = requests.head(hf_download_url, timeout=10)
             if response.status_code in [200, 302]:
                 return (hf_download_url, model_pretrained[1])
-            else:
-                return (
-                    _OPENCLIP_S3_BUCKET + '/' + model_pretrained[0],
-                    model_pretrained[1],
-                )
         except Exception:
-            return (
-                _OPENCLIP_S3_BUCKET + '/' + model_pretrained[0],
-                model_pretrained[1],
-            )
+            raise ValueError('Invalid model url.')
 
 
 def download_model(
