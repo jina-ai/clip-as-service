@@ -168,6 +168,8 @@ def download_model(
     os.makedirs(target_folder, exist_ok=True)
     filename = os.path.basename(url)
     filename = filename.split('?')[0]
+    if filename.split('.')[-1] == 'onnx':
+        filename = filename.split('-')[-1]
 
     download_target = os.path.join(target_folder, filename)
 
