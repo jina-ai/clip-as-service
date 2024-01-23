@@ -8,6 +8,6 @@ executors:
       jtype: CLIPEncoder
       metas:
         py_modules:
-          - clip_server.executors.clip_onnx
+          - clip_server.executors.clip_torch
     timeout_ready: 3000000
     replicas: 1
